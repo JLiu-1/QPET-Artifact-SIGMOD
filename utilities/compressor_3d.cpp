@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
   }
 
   // Use a compressor and take the input data
-  Timer timer;
+  Timer timer(true);
   auto compressor = std::make_unique<SPERR3D_OMP_C>();
   compressor->set_num_threads(omp_num_threads);
   auto rtn = sperr::RTNType::Good;
