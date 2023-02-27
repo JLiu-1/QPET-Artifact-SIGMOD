@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-
+#include "timer.h"
 int main(int argc, char* argv[])
 {
   // Parse command line options
@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
     std::cerr << "Read input stream error: " << input_file << std::endl;
     return 1;
   }
+  Timer timer();
   SPERR3D_OMP_D decompressor;
   decompressor.set_num_threads(omp_num_threads);
   if (decompressor.use_bitstream(in_stream.data(), in_stream.size()) != sperr::RTNType::Good) {
@@ -55,11 +56,11 @@ int main(int argc, char* argv[])
     std::cerr << "Decompression failed!" << std::endl;
     return 1;
   }
-
+  
   // Let's free up some memory here
   in_stream.clear();
   in_stream.shrink_to_fit();
-
+  timer.stop("Decompression");
   if (output_double) {
     const auto vol = decompressor.view_data();
     if (vol.empty())

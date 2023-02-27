@@ -8,7 +8,7 @@
 #include <cstring>
 #include <iostream>
 #include <memory>
-
+#include "timer.h"
 int main(int argc, char* argv[])
 {
   // Parse command line options
@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
   }
 
   // Use a compressor and take the input data
+  Timer timer();
   auto compressor = std::make_unique<SPERR3D_OMP_C>();
   compressor->set_num_threads(omp_num_threads);
   auto rtn = sperr::RTNType::Good;
@@ -179,7 +180,7 @@ int main(int argc, char* argv[])
     std::cerr << "Compression bitstream empty!" << std::endl;
     return __LINE__;
   }
-
+  timer.stop("Compression");
   // Write out the encoded bitstream.
   if (!out_bitstream.empty()) {
     rtn = sperr::write_n_bytes(out_bitstream, stream.size(), stream.data());
