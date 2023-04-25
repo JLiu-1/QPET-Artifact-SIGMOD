@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
       ->group("Output Specifications");
 
   // Execution specifications
-  auto chunks = std::vector<size_t>{256, 256, 256};
+  auto chunks = std::vector<size_t>{1024, 1024, 1024};
   app.add_option("--chunks", chunks,
                  "Dimensions of the preferred chunk size. Default: 256 256 256\n"
                  "(Volume dims don't need to be divisible of these chunk dims.)")

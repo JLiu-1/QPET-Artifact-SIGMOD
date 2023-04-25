@@ -32,6 +32,7 @@ template auto sperr::CDF97::copy_data(const double*, size_t, dims_type) -> RTNTy
 
 auto sperr::CDF97::take_data(vecd_type&& buf, dims_type dims) -> RTNType
 {
+  std::cout<<dims[0]<<std::endl; 
   if (buf.size() != dims[0] * dims[1] * dims[2])
     return RTNType::WrongDims;
 
