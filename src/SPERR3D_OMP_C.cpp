@@ -108,6 +108,7 @@ template auto SPERR3D_OMP_C::copy_data(const double*, size_t, sperr::dims_type, 
 auto SPERR3D_OMP_C::compress() -> RTNType
 {
   // Need to make sure that the chunks are ready!
+  std::cout<<m_dims[0]<<std::endl;
   auto chunks = sperr::chunk_volume(m_dims, m_chunk_dims);
   const auto num_chunks = chunks.size();
   assert(num_chunks != 0);
