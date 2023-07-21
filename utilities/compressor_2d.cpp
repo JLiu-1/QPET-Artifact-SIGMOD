@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-
+#include "timer.h"
 int main(int argc, char* argv[])
 {
   // Parse command line options
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
     std::cerr << "Copy data failed!" << std::endl;
     return __LINE__;
   }
-
+  Timer timer(true);
   // Free up memory if we don't need to compute stats
   if (!show_stats) {
     orig.clear();
@@ -146,6 +146,7 @@ int main(int argc, char* argv[])
   }
 
   // Perform the actual compression
+
   rtn = compressor.compress();
   if (rtn != sperr::RTNType::Good) {
     std::cout << "Compression failed!" << std::endl;
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
     std::cerr << "Compression bitstream empty!" << std::endl;
     return __LINE__;
   }
-
+  timer.stop("Compression");
   // Write out the encoded bitstream
   if (!out_bitstream.empty()) {
     rtn = sperr::write_n_bytes(out_bitstream, stream.size(), stream.data());

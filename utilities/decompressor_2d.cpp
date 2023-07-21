@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-
+#include "timer.h"
 int main(int argc, char* argv[])
 {
   // Parse command line options
@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
   }
 
   // Use a decompressor
+  Timer timer(true);
   SPERR2D_Decompressor decompressor;
   auto rtn = decompressor.use_bitstream(in_stream.data(), in_stream.size());
   if (rtn != RTNType::Good) {
@@ -49,7 +50,7 @@ int main(int argc, char* argv[])
     std::cerr << "Decompression failed!" << std::endl;
     return 1;
   }
-
+  timer.stop("Decompression");
   if (output_double) {
     const auto vol = decompressor.view_data();
     if (vol.empty())
