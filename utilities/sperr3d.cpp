@@ -4,7 +4,7 @@
 #include "CLI/App.hpp"
 #include "CLI/Config.hpp"
 #include "CLI/Formatter.hpp"
-
+#include "timer.h"
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -134,6 +134,7 @@ int main(int argc, char* argv[])
   //
   auto input = sperr::read_whole_file<uint8_t>(input_file);
   if (cflag) {
+    Timer timer();
     const auto total_vals = dims[0] * dims[1] * dims[2];
     if ((ftype == 32 && (total_vals * 4 != input.size())) ||
         (ftype == 64 && (total_vals * 8 != input.size()))) {
@@ -177,7 +178,7 @@ int main(int argc, char* argv[])
       }
     }
     encoder.reset();  // Free up some more memory.
-
+    timer.stop("Compression");
     // Need to do a decompression in the following cases.
     if (print_stats || !o_decomp_f64.empty() || !o_decomp_f32.empty()) {
       auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
@@ -252,6 +253,7 @@ int main(int argc, char* argv[])
   // Decompression
   //
   else {
+    Timer timer();
     assert(dflag);
     auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
     decoder->set_num_threads(omp_num_threads);
@@ -265,6 +267,7 @@ int main(int argc, char* argv[])
     // Output the decompressed volume in double precision.
     auto outputd = decoder->release_decoded_data();
     decoder.reset();  // Free up memory!
+    timer.stop("Decompression");
     if (!o_decomp_f64.empty()) {
       rtn = sperr::write_n_bytes(o_decomp_f64, outputd.size() * sizeof(double), outputd.data());
       if (rtn != sperr::RTNType::Good) {

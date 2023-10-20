@@ -3,7 +3,7 @@
 #include "CLI/App.hpp"
 #include "CLI/Config.hpp"
 #include "CLI/Formatter.hpp"
-
+#include "timer.h"
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -122,6 +122,7 @@ int main(int argc, char* argv[])
   const auto header_len = 10ul;
   auto input = sperr::read_whole_file<uint8_t>(input_file);
   if (cflag) {
+    Timer timer();
     const auto dims = sperr::dims_type{dim2d[0], dim2d[1], 1ul};
     const auto total_vals = dims[0] * dims[1] * dims[2];
     if ((ftype == 32 && (total_vals * 4 != input.size())) ||
@@ -179,6 +180,7 @@ int main(int argc, char* argv[])
       }
     }
     encoder.reset();  // Free up some more memory.
+    timer.stop("Compression");
 
     //
     // Need to do a decompression in the following cases.
@@ -209,6 +211,7 @@ int main(int argc, char* argv[])
       // If specified, output the decompressed slice in single precision.
       auto outputf = sperr::vecf_type(total_vals);
       std::copy(outputd.cbegin(), outputd.cend(), outputf.begin());
+      
       if (!o_decomp_f32.empty()) {
         rtn = sperr::write_n_bytes(o_decomp_f32, outputf.size() * sizeof(float), outputf.data());
         if (rtn != sperr::RTNType::Good) {
@@ -257,6 +260,7 @@ int main(int argc, char* argv[])
   // Decompression
   //
   else {
+    Timer timer();
     assert(dflag);
     // First, retrieve the slice dimension from the header.
     std::memcpy(dim2d.data(), input.data(), sizeof(dim2d));
@@ -273,6 +277,7 @@ int main(int argc, char* argv[])
     // If specified, output the decompressed slice in double precision.
     auto outputd = decoder->release_decoded_data();
     decoder.reset();  // Free up some memory!
+    timer.stop("Decompression");
     if (!o_decomp_f64.empty()) {
       rtn = sperr::write_n_bytes(o_decomp_f64, outputd.size() * sizeof(double), outputd.data());
       if (rtn != sperr::RTNType::Good) {
