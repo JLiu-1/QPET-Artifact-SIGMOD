@@ -1,146 +1,94 @@
+#include <cassert>
+
 #include "SPERR_C_API.h"
 
-#include "SPERR2D_Compressor.h"
-#include "SPERR2D_Decompressor.h"
-
+#include "SPECK2D_FLT.h"
 #include "SPERR3D_OMP_C.h"
 #include "SPERR3D_OMP_D.h"
 
+#include "SPERR3D_Stream_Tools.h"
+
 int C_API::sperr_comp_2d(const void* src,
-                         int32_t is_float,
+                         int is_float,
                          size_t dimx,
                          size_t dimy,
-                         int32_t mode,
+                         int mode,
                          double quality,
+                         int out_inc_header,
                          void** dst,
                          size_t* dst_len)
 {
   // Examine if `dst` is pointing to a NULL pointer
   if (*dst != NULL)
     return 1;
-
-  // Examine if `mode` and `quality` are valid
-  if (mode < 1 || mode > 3 || quality <= 0.0)
+  if (quality <= 0.0)
     return 2;
 
-  // Setup the compressor
-  const auto total_vals = dimx * dimy;
-  auto compressor = SPERR2D_Compressor();
-  auto rtn = sperr::RTNType::Good;
-  switch (is_float) {
-    case 0:  // double
-      rtn = compressor.copy_data(static_cast<const double*>(src), total_vals, {dimx, dimy, 1});
-      break;
-    case 1:  // float
-      rtn = compressor.copy_data(static_cast<const float*>(src), total_vals, {dimx, dimy, 1});
-      break;
-    default:
-      rtn = RTNType::Error;
-  }
-  if (rtn != RTNType::Good)
-    return -1;
+  // The actual encoding steps are just the same as in `utilities/sperr2d.cpp`.
+  auto encoder = std::make_unique<sperr::SPECK2D_FLT>();
+  encoder->set_dims({dimx, dimy, 1});
+  if (is_float)
+    encoder->copy_data(static_cast<const float*>(src), dimx * dimy);
+  else
+    encoder->copy_data(static_cast<const double*>(src), dimx * dimy);
 
-  // Specify a particular compression mode.
   switch (mode) {
-    case 1:
-      compressor.set_target_bpp(quality);
+    case 1:  // fixed bitrate
+      encoder->set_bitrate(quality);
       break;
-    case 2:
-      compressor.set_target_psnr(quality);
+    case 2:  // fixed PSNR
+      encoder->set_psnr(quality);
       break;
-    case 3:
-      compressor.set_target_pwe(quality);
+    case 3:  // fixed PWE
+      encoder->set_tolerance(quality);
       break;
     default:
       return 2;
   }
-
-  // Do the actual compression work!
-  rtn = compressor.compress();
-  if (rtn != RTNType::Good)
+  auto rtn = encoder->compress();
+  if (rtn != sperr::RTNType::Good)
     return -1;
 
-  // Output the compressed bitstream
-  const auto& stream = compressor.view_encoded_bitstream();
-  if (stream.empty())
-    return -1;
-  *dst_len = stream.size();
-  uint8_t* buf = (uint8_t*)std::malloc(stream.size());
-  std::copy(stream.cbegin(), stream.cend(), buf);
-  *dst = buf;
+  auto stream = sperr::vec8_type();
+  if (out_inc_header) {  // Assemble a header that's the same as the header in SPERR3D_OMP_C().
+    // The header would contain the following information
+    //  -- a version number                     (1 byte)
+    //  -- 8 booleans                           (1 byte)
+    //  -- slice dimensions                     (4 x 2 = 8 bytes)
+    //
 
-  return 0;
-}
+    // Version number
+    stream.resize(10);
+    stream[0] = static_cast<uint8_t>(SPERR_VERSION_MAJOR);
 
-int C_API::sperr_comp_3d(const void* src,
-                         int32_t is_float,
-                         size_t dimx,
-                         size_t dimy,
-                         size_t dimz,
-                         size_t chunk_x,
-                         size_t chunk_y,
-                         size_t chunk_z,
-                         int32_t mode,
-                         double quality,
-                         size_t nthreads,
-                         void** dst,
-                         size_t* dst_len)
-{
-  // Examine if `dst` is pointing to a NULL pointer
-  if (*dst != NULL)
-    return 1;
+    // 8 booleans:
+    // bool[0]  : if this bitstream is a portion of another complete bitstream (progressive access).
+    // bool[1]  : if this bitstream is for 3D (true) or 2D (false) data.
+    // bool[2]  : if the original data is float (true) or double (false).
+    // bool[3-7]: unused
+    //
+    const auto b8 = std::array{false,  // not a portion
+                               false,  // 2D
+                               bool(is_float),
+                               false,   // unused
+                               false,   // unused
+                               false,   // unused
+                               false,   // unused
+                               false};  // unused
+    stream[1] = sperr::pack_8_booleans(b8);
 
-  // Examine if `mode` and `quality` are valid
-  if (mode < 1 || mode > 3 || quality <= 0.0)
-    return 2;
-
-  const auto vol_dims = sperr::dims_type{dimx, dimy, dimz};
-  const auto chunk_dims = sperr::dims_type{chunk_x, chunk_y, chunk_z};
-
-  // Setup the compressor
-  const auto total_vals = dimx * dimy * dimz;
-  auto compressor = SPERR3D_OMP_C();
-  compressor.set_num_threads(nthreads);
-  auto rtn = sperr::RTNType::Good;
-  switch (is_float) {
-    case 0:  // double
-      rtn = compressor.copy_data(static_cast<const double*>(src), total_vals, vol_dims, chunk_dims);
-      break;
-    case 1:  // float
-      rtn = compressor.copy_data(static_cast<const float*>(src), total_vals, vol_dims, chunk_dims);
-      break;
-    default:
-      rtn = RTNType::Error;
-  }
-  if (rtn != RTNType::Good)
-    return -1;
-
-  // Specify a particular compression mode.
-  switch (mode) {
-    case 1:
-      compressor.set_target_bpp(quality);
-      break;
-    case 2:
-      compressor.set_target_psnr(quality);
-      break;
-    case 3:
-      compressor.set_target_pwe(quality);
-      break;
-    default:
-      return 2;
+    // Slice dimension
+    auto dims = std::array{static_cast<uint32_t>(dimx), static_cast<uint32_t>(dimy)};
+    std::memcpy(stream.data() + 2, dims.data(), sizeof(dims));
   }
 
-  // Do the actual compression work
-  rtn = compressor.compress();
-  if (rtn != RTNType::Good)
-    return -1;
+  // Append the actual SPERR bitstream.
+  encoder->append_encoded_bitstream(stream);
+  encoder.reset();  // Free up some memory.
 
-  // Output the compressed bitstream
-  const auto stream = compressor.get_encoded_bitstream();
-  if (stream.empty())
-    return -1;
+  // Allocate buffer and copy over the content of stream.
   *dst_len = stream.size();
-  uint8_t* buf = (uint8_t*)std::malloc(stream.size());
+  auto* buf = (uint8_t*)std::malloc(*dst_len);
   std::copy(stream.cbegin(), stream.cend(), buf);
   *dst = buf;
 
@@ -149,175 +97,184 @@ int C_API::sperr_comp_3d(const void* src,
 
 int C_API::sperr_decomp_2d(const void* src,
                            size_t src_len,
-                           int32_t output_float,
-                           size_t* dimx,
-                           size_t* dimy,
+                           int output_float,
+                           size_t dimx,
+                           size_t dimy,
                            void** dst)
 {
   // Examine if `dst` is pointing to a NULL pointer
   if (*dst != NULL)
     return 1;
 
-  // Use a decompressor to decompress this bitstream
-  auto decompressor = SPERR2D_Decompressor();
-  auto rtn = decompressor.use_bitstream(src, src_len);
-  if (rtn != RTNType::Good)
+  // Use a decoder, similar steps as in `utilities/sperr2d.cpp`.
+  auto decoder = std::make_unique<sperr::SPECK2D_FLT>();
+  decoder->set_dims({dimx, dimy, 1});
+  decoder->use_bitstream(src, src_len);
+  auto rtn = decoder->decompress();
+  if (rtn != sperr::RTNType::Good)
     return -1;
-  rtn = decompressor.decompress();
-  if (rtn != RTNType::Good)
-    return -1;
+  auto outputd = decoder->release_decoded_data();
+  assert(outputd.size() == size_t{dimx} * dimy);
+  decoder.reset();
 
-  // Double check that the slice dimension is correct
-  const auto& slice = decompressor.view_data();
-  const auto dims = decompressor.get_dims();
-  if (slice.size() != dims[0] * dims[1])
-    return -1;
+  // Provide decompressed data to `dst`.
+  if (output_float) {
+    auto* buf = (float*)std::malloc(outputd.size() * sizeof(float));
+    std::copy(outputd.cbegin(), outputd.cend(), buf);
+    *dst = buf;
+  }
+  else {  // double
+    auto* buf = (double*)std::malloc(outputd.size() * sizeof(double));
+    std::copy(outputd.cbegin(), outputd.cend(), buf);
+    *dst = buf;
+  }
+
+  return 0;
+}
+
+void C_API::sperr_parse_header(const void* src,
+                               size_t* dimx,
+                               size_t* dimy,
+                               size_t* dimz,
+                               int* is_float)
+{
+  const auto* srcp = static_cast<const uint8_t*>(src);
+  const auto b8 = sperr::unpack_8_booleans(srcp[1]);
+  auto is_3d = b8[1];
+  *is_float = int(b8[2]);
+
+  auto dims = std::array<uint32_t, 3>{1, 1, 1};
+  if (is_3d)
+    std::memcpy(dims.data(), srcp + 2, sizeof(dims));
+  else
+    std::memcpy(dims.data(), srcp + 2, sizeof(uint32_t) * 2);
   *dimx = dims[0];
   *dimy = dims[1];
+  *dimz = dims[2];
+}
 
-  // write out the 2D slice in double or float format
-  switch (output_float) {
-    case 0: {  // double
-      double* buf = (double*)std::malloc(slice.size() * sizeof(double));
-      std::copy(slice.cbegin(), slice.cend(), buf);
-      *dst = buf;
+int C_API::sperr_comp_3d(const void* src,
+                         int is_float,
+                         size_t dimx,
+                         size_t dimy,
+                         size_t dimz,
+                         size_t chunk_x,
+                         size_t chunk_y,
+                         size_t chunk_z,
+                         int mode,
+                         double quality,
+                         size_t nthreads,
+                         void** dst,
+                         size_t* dst_len)
+{
+  // Examine if `dst` is pointing to a NULL pointer
+  if (*dst != NULL)
+    return 1;
+  if (quality <= 0.0)
+    return 2;
+
+  const auto dims = sperr::dims_type{dimx, dimy, dimz};
+  const auto chunks = sperr::dims_type{chunk_x, chunk_y, chunk_z};
+
+  // Setup the compressor. Very similar steps as in `utilities/sperr3d.cpp`.
+  const auto total_vals = dimx * dimy * dimz;
+  auto encoder = std::make_unique<sperr::SPERR3D_OMP_C>();
+  encoder->set_dims_and_chunks(dims, chunks);
+  encoder->set_num_threads(nthreads);
+  switch (mode) {
+    case 1:  // fixed bitrate
+      encoder->set_bitrate(quality);
       break;
-    }
-    case 1: {  // float
-      float* buf = (float*)std::malloc(slice.size() * sizeof(float));
-      std::copy(slice.cbegin(), slice.cend(), buf);
-      *dst = buf;
+    case 2:  // fixed PSNR
+      encoder->set_psnr(quality);
       break;
-    }
+    case 3:  // fixed PWE
+      encoder->set_tolerance(quality);
+      break;
     default:
       return 2;
   }
+  auto rtn = sperr::RTNType::Good;
+  if (is_float)
+    rtn = encoder->compress(static_cast<const float*>(src), total_vals);
+  else  // double
+    rtn = encoder->compress(static_cast<const double*>(src), total_vals);
+  if (rtn != sperr::RTNType::Good)
+    return -1;
+
+  // Prepare the compressed bitstream.
+  auto stream = encoder->get_encoded_bitstream();
+  if (stream.empty())
+    return -1;
+  encoder.reset();
+  *dst_len = stream.size();
+  auto* buf = (uint8_t*)std::malloc(stream.size());
+  std::copy(stream.cbegin(), stream.cend(), buf);
+  *dst = buf;
 
   return 0;
 }
 
 int C_API::sperr_decomp_3d(const void* src,
                            size_t src_len,
-                           int32_t output_float,
+                           int output_float,
                            size_t nthreads,
                            size_t* dimx,
                            size_t* dimy,
                            size_t* dimz,
                            void** dst)
 {
-  // Examine if `dst` is pointing to a NULL pointer
+  // Examine if `dst` is pointing to a NULL pointer.
   if (*dst != NULL)
     return 1;
 
   // Use a decompressor to decompress this bitstream
-  auto decompressor = SPERR3D_OMP_D();
-  decompressor.set_num_threads(nthreads);
-  auto rtn = decompressor.use_bitstream(src, src_len);
-  if (rtn != RTNType::Good)
+  auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
+  decoder->set_num_threads(nthreads);
+  decoder->setup_decomp(src, src_len);
+  auto rtn = decoder->decompress(src);
+  if (rtn != sperr::RTNType::Good)
     return -1;
-  rtn = decompressor.decompress(src);
-  if (rtn != RTNType::Good)
-    return -1;
+  auto dims = decoder->get_dims();
+  auto outputd = decoder->release_decoded_data();
+  decoder.reset();
 
-  // Double check that the volume dimension is correct
-  const auto& vol = decompressor.view_data();
-  const auto dims = decompressor.get_dims();
-  if (vol.size() != dims[0] * dims[1] * dims[2])
-    return -1;
+  // Provide the decompressed volume.
   *dimx = dims[0];
   *dimy = dims[1];
   *dimz = dims[2];
-
-  // write out the volume in double or float format
-  switch (output_float) {
-    case 0: {  // double
-      double* buf = (double*)std::malloc(vol.size() * sizeof(double));
-      std::copy(vol.cbegin(), vol.cend(), buf);
-      *dst = buf;
-      break;
-    }
-    case 1: {  // float
-      float* buf = (float*)std::malloc(vol.size() * sizeof(float));
-      std::copy(vol.cbegin(), vol.cend(), buf);
-      *dst = buf;
-      break;
-    }
-    default:
-      return 2;
+  if (output_float) {
+    auto* buf = (float*)std::malloc(outputd.size() * sizeof(float));
+    std::copy(outputd.cbegin(), outputd.cend(), buf);
+    *dst = buf;
+  }
+  else {  // double
+    auto* buf = (double*)std::malloc(outputd.size() * sizeof(double));
+    std::copy(outputd.cbegin(), outputd.cend(), buf);
+    *dst = buf;
   }
 
   return 0;
 }
 
-int C_API::sperr_decomp_user_mem(const void* src,
-                                 size_t src_len,
-                                 int32_t output_float,
-                                 size_t nthreads,
-                                 void* dst)
+int C_API::sperr_trunc_3d(const void* src,
+                          size_t src_len,
+                          unsigned pct,
+                          void** dst,
+                          size_t* dst_len)
 {
-  auto header = sperr::parse_header(src);
-  if (output_float < 0 || output_float > 1)
+  if (*dst != NULL)
     return 1;
 
-  if (header.is_3d) {  // Decompress a 3D volume
-    auto decompressor = SPERR3D_OMP_D();
-    decompressor.set_num_threads(nthreads);
-    auto rtn = decompressor.use_bitstream(src, src_len);
-    if (rtn != RTNType::Good)
-      return -1;
-    rtn = decompressor.decompress(src);
-    if (rtn != RTNType::Good)
-      return -1;
-
-    const auto& vol = decompressor.view_data();
-    if (output_float == 0) {  // Output in double precision
-      double* const ptr = static_cast<double*>(dst);
-      std::copy(vol.cbegin(), vol.cend(), ptr);
-    }
-    else {  // Output in single precisioin
-      float* const ptr = static_cast<float*>(dst);
-      std::copy(vol.cbegin(), vol.cend(), ptr);
-    }
+  auto tools = sperr::SPERR3D_Stream_Tools();
+  auto trunc = tools.progressive_truncate(src, src_len, pct);
+  if (trunc.empty())
+    return -1;
+  else {
+    auto* buf = (uint8_t*)std::malloc(trunc.size());
+    std::copy(trunc.cbegin(), trunc.cend(), buf);
+    *dst = buf;
+    *dst_len = trunc.size();
+    return 0;
   }
-  else {  // Decompress a 2D slice
-    auto decompressor = SPERR2D_Decompressor();
-    auto rtn = decompressor.use_bitstream(src, src_len);
-    if (rtn != RTNType::Good)
-      return -1;
-    rtn = decompressor.decompress();
-    if (rtn != RTNType::Good)
-      return -1;
-
-    const auto& slice = decompressor.view_data();
-    if (output_float == 0) {  // Output in double precision
-      double* const ptr = static_cast<double*>(dst);
-      std::copy(slice.cbegin(), slice.cend(), ptr);
-    }
-    else {  // Output in single precisioin
-      float* const ptr = static_cast<float*>(dst);
-      std::copy(slice.cbegin(), slice.cend(), ptr);
-    }
-  }
-
-  return 0;
-}
-
-void C_API::sperr_parse_header(const void* ptr,
-                               int32_t* version_major,
-                               int32_t* zstd_applied,
-                               int32_t* is_3d,
-                               int32_t* orig_is_float,
-                               uint32_t* dim_x,
-                               uint32_t* dim_y,
-                               uint32_t* dim_z)
-{
-  auto header = sperr::parse_header(ptr);
-
-  *version_major = header.version_major;
-  *zstd_applied = header.zstd_applied;
-  *is_3d = header.is_3d;
-  *orig_is_float = header.orig_is_float;
-  *dim_x = header.vol_dims[0];
-  *dim_y = header.vol_dims[1];
-  *dim_z = header.vol_dims[2];
 }

@@ -13,7 +13,6 @@
 #include <limits>
 #include <memory>
 #include <string>
-#include <utility>  // std::pair
 #include <vector>
 
 #ifndef USE_VANILLA_CONFIG
@@ -24,16 +23,14 @@ namespace sperr {
 
 using std::size_t;  // Seems most appropriate
 
-// Shortcut for the maximum values
-constexpr auto max_size = std::numeric_limits<size_t>::max();
-constexpr auto max_d = std::numeric_limits<double>::max();
-
 //
 // A few shortcuts
 //
-using vecf_type = std::vector<float>;
-using vecd_type = std::vector<double>;
-using vec8_type = std::vector<uint8_t>;
+template <typename T>
+using vec_type = std::vector<T>;
+using vecd_type = vec_type<double>;
+using vecf_type = vec_type<float>;
+using vec8_type = vec_type<uint8_t>;
 using dims_type = std::array<size_t, 3>;
 
 //
@@ -41,33 +38,21 @@ using dims_type = std::array<size_t, 3>;
 //
 enum class SigType : unsigned char { Insig, Sig, NewlySig, Dunno, Garbage };
 
-enum class SetType : unsigned char { TypeS, TypeI, Garbage };
+enum class UINTType : unsigned char { UINT8, UINT16, UINT32, UINT64 };
 
-// Return Type
+enum class CompMode : unsigned char { PSNR, PWE, Rate, Unknown };
+
 enum class RTNType {
   Good = 0,
-  WrongDims,
-  BitstreamWrongLen,
+  WrongLength,
   IOError,
-  InvalidParam,
-  QzLevelTooBig,  // a very specific type of invalid param
-  EmptyStream,    // a condition but not sure if it's an error
   BitBudgetMet,
   VersionMismatch,
-  ZSTDMismatch,
-  ZSTDError,
   SliceVolumeMismatch,
-  QzModeMismatch,
-  SetBPPBeforeDims,
-  DataRangeNotSet,
   CompModeUnknown,
-  CustomFilterMissing,
-  CustomFilterError,
+  FE_Invalid,  // floating point exception: FE_INVALID
   Error
 };
-
-// Compression Mode
-enum class CompMode { FixedSize, FixedQz, FixedPSNR, FixedPWE, Unknown };
 
 //
 // Helper functions
@@ -95,8 +80,7 @@ auto calc_approx_detail_len(size_t orig_len, size_t lev) -> std::array<size_t, 2
 // provided by others, and others most likely provide it by raw pointers.
 // Note 2: these two methods only work on little endian machines.
 // Note 3: the caller should have already allocated enough space for `dest`.
-auto pack_booleans(std::vector<uint8_t>& dest, const std::vector<bool>& src, size_t dest_offset = 0)
-    -> RTNType;
+auto pack_booleans(vec8_type& dst, const std::vector<bool>& src, size_t dest_offset = 0) -> RTNType;
 auto unpack_booleans(std::vector<bool>& dest,
                      const void* src,
                      size_t src_len,
@@ -111,12 +95,19 @@ auto unpack_8_booleans(uint8_t) -> std::array<bool, 8>;
 // Read from and write to a file
 // Note: not using references for `filename` to allow a c-style string literal to be passed in.
 auto write_n_bytes(std::string filename, size_t n_bytes, const void* buffer) -> RTNType;
+auto read_n_bytes(std::string filename, size_t n_bytes) -> vec8_type;
 template <typename T>
-auto read_whole_file(std::string filename) -> std::vector<T>;
+auto read_whole_file(std::string filename) -> vec_type<T>;
 
-// Upon success, it returns a vector of size `n_bytes`.
-// Otherwise, it returns an empty vector.
-auto read_n_bytes(std::string filename, size_t n_bytes) -> std::vector<uint8_t>;
+// Read sections of a file (extract sections from a memory buffer), and append those sections
+//    to the end of `dst`. The read from file version avoids reading not-requested sections.
+//    The sections are defined by pairs of offsets and lengths, both in number of bytes.
+auto read_sections(std::string filename, const std::vector<size_t>& sections, vec8_type& dst)
+    -> RTNType;
+auto extract_sections(const void* buf,
+                      size_t buf_len,
+                      const std::vector<size_t>& sections,
+                      vec8_type& dst) -> RTNType;
 
 // Calculate a suite of statistics.
 // Note that arr1 is considered as the ground truth array, so it's the range of
@@ -143,50 +134,15 @@ auto kahan_summation(const T*, size_t) -> T;
 //         dimension is not exact multiplies of requested chunk dimension,
 //         approximate values are used.
 // Note 2: this function works on degraded 2D or 1D volumes too.
-auto chunk_volume(const dims_type& vol_dim, const dims_type& chunk_dim)
-    -> std::vector<std::array<size_t, 6>>;
+auto chunk_volume(dims_type vol_dim, dims_type chunk_dim) -> std::vector<std::array<size_t, 6>>;
 
-// Gather a chunk from a bigger volume
-// If the requested chunk lives outside of the volume, whole or part,
-// this function returns an empty vector.
-template <typename T1, typename T2>
-auto gather_chunk(const T1* vol, dims_type vol_dim, const std::array<size_t, 6>& chunk)
-    -> std::vector<T2>;
-
-// Put this chunk to a bigger volume
-// The `big_vol` should have enough space allocated, and the `small_vol` should contain
-// enough elements to scatter. Memory errors will occur if the conditions are not met.
-template <typename TBIG, typename TSML>
-void scatter_chunk(std::vector<TBIG>& big_vol,
-                   dims_type vol_dim,
-                   const std::vector<TSML>& small_vol,
-                   const std::array<size_t, 6>& chunk);
-
-// Structure that holds information extracted from SPERR headers.
-// This structure is returned by helper function `parse_header()`.
-struct HeaderInfo {
-  uint8_t version_major = 0;
-  bool zstd_applied = false;
-  bool is_3d = false;
-  bool orig_is_float = false;
-
-  // This is the dimension of a 3D volume (NX, NY, NZ) or a 2D slice (NX, NY, 1).
-  dims_type vol_dims = {0, 0, 0};
-
-  // If the bitstream represents a 3D volume, this field holds the dimension of chunks.
-  // For 2D slices, this field holds undefined values.
-  dims_type chunk_dims = {0, 0, 0};
-};
-auto parse_header(const void*) -> HeaderInfo;
-
-// Calculate the variance of a given array.
-// In case of arrays of size zero, it will return std::numeric_limits<T>::infinity().
+// Calculate the mean and variance of a given array.
+// In case of arrays of size zero, it will return {NaN, NaN}.
 // In case of `omp_nthreads == 0`, it will use all available OpenMP threads.
+// ret[0] : mean
+// ret[1] : variance
 template <typename T>
-auto calc_variance(const T*, size_t len, size_t omp_nthreads = 0) -> T;
-
-// Decide compression mode based on a collection of parameters.
-auto compression_mode(size_t bit_budget, double psnr, double pwe) -> CompMode;
+auto calc_mean_var(const T*, size_t len, size_t omp_nthreads = 0) -> std::array<T, 2>;
 
 };  // namespace sperr
 

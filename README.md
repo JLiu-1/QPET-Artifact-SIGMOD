@@ -2,7 +2,6 @@
 [![clang-tidy](https://github.com/NCAR/SPERR/actions/workflows/clang-tidy.yml/badge.svg)](https://github.com/NCAR/SPERR/actions/workflows/clang-tidy.yml)
 [![unit-test](https://github.com/NCAR/SPERR/actions/workflows/unit-test.yml/badge.svg)](https://github.com/NCAR/SPERR/actions/workflows/unit-test.yml)
 [![CodeQL](https://github.com/NCAR/SPERR/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/NCAR/SPERR/actions/workflows/codeql-analysis.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/5fb9befd9687440195ca739ec60abc39)](https://www.codacy.com/gh/shaomeng/SPERR/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=shaomeng/SPERR&amp;utm_campaign=Badge_Grade)
 
 
 [![DOI](https://zenodo.org/badge/225491235.svg)](https://zenodo.org/badge/latestdoi/225491235)
@@ -25,10 +24,21 @@ The name of SPERR stands for **SP**eck with **ERR**or bounding.
 
 SPERR documentation is hosted on Github [Wiki](https://github.com/NCAR/SPERR/wiki) pages. To get started, one might want to
 [build SPERR from source](https://github.com/NCAR/SPERR/wiki/Build-SPERR-From-Source) and explore compression and decompression
-utilities for [3D](https://github.com/NCAR/SPERR/wiki/CLI:-3D-Compression-and-Decompression-Utilities) and [2D](https://github.com/NCAR/SPERR/wiki/CLI:-2D-Compression-and-Decompression-Utilities) inputs.
-One may also want to pull a [docker image](https://hub.docker.com/r/shaomeng/sperr-docker)
-which contains SPERR in a complete development environment. 
+utilities for [3D and 2D](https://github.com/NCAR/SPERR/wiki/CLI%3A-3D-and-2D-Compression-and-Decompression-Utilities) inputs.
+One can also use [spack](https://spack.io/) to install SPERR by a single command `spack install sperr`.
 Finally, a collection of canonical scientific data sets is available at [SDRBench](https://sdrbench.github.io/) for testing and evaluation purposes.
 
 SPERR also provides programming [API in C++ and C](https://github.com/NCAR/SPERR/wiki#sperr-c-api).
 
+## Publication
+
+If SPERR benefits your work, please kindly cite [this publication](https://ieeexplore.ieee.org/document/10177487):
+```Tex
+@INPROCEEDINGS{10177487,
+  author={Li, Shaomeng and Lindstrom, Peter and Clyne, John},
+  booktitle={2023 IEEE International Parallel and Distributed Processing Symposium (IPDPS)}, 
+  title={Lossy Scientific Data Compression With SPERR}, 
+  year={2023},
+  pages={1007-1017},
+  doi={10.1109/IPDPS54959.2023.00104}}
+```

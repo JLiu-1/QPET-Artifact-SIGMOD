@@ -32,26 +32,64 @@ extern "C" {
 
 /*
  * Compress a a 2D slice targetting different quality controls (modes):
- *   mode == 1 --> fixed bit-per-pixel (BPP)
- *   mode == 2 --> fixed peak signal-to-noise ratio (PSNR)
- *   mode == 3 --> fixed point-wise error (PWE)
+ *    mode == 1 --> fixed bit-per-pixel (BPP)
+ *    mode == 2 --> fixed peak signal-to-noise ratio (PSNR)
+ *    mode == 3 --> fixed point-wise error (PWE)
+ *
+ *    The output bitstream can *optionally* include a header field which contains information:
+ *    1) the input slice dimension,
+ *    2) if the input data is in single or double precision, and
+ *    3) a flag indicating that it is a 2D slice (not 3D or 1D).
+ *    This header field is 10 bytes in size, and is perfectly fine to be not included if the
+ *    information above is known, for example, in the case where a large number of same-sized 2D
+ *    slices are to be processed.
  *
  * Return value meanings:
- * 0: success
- * 1: `dst` is not pointing to a NULL pointer!
- * 2: `mode` or `quality` isn't valid
- * 3: `is_float` value not supported
- *-1: other error
+ *  0: success
+ *  1: `dst` is not pointing to a NULL pointer!
+ *  2: one or more of the parameters are not supported.
+ * -1: other error
  */
 int sperr_comp_2d(
-    const void* src,  /* Input: buffer that contains a 2D slice */
-    int32_t is_float, /* Input: input buffer type: 1 == float, 0 == double */
-    size_t dimx,      /* Input: X (fastest-varying) dimension */
+    const void* src,    /* Input: buffer that contains a 2D slice */
+    int is_float,       /* Input: input buffer type: 1 == float, 0 == double */
+    size_t dimx,        /* Input: X (fastest-varying) dimension */
+    size_t dimy,        /* Input: Y (slowest-varying) dimension */
+    int mode,           /* Input: compression mode to use */
+    double quality,     /* Input: target quality */
+    int out_inc_header, /* Input: include a header in the output bitstream? 1 == yes, 0 == no */
+    void** dst,         /* Output: buffer for the output bitstream, allocated by this function */
+    size_t* dst_len);   /* Output: length of `dst` in byte */
+
+/*
+ * Decompress a 2D SPERR-compressed buffer that is produced by sperr_comp_2d().
+ *  Note that this bitstream shoult NOT contain a header. I.e., a bitstream produced by
+ *  sperr_comp_2d() with `out_inc_header = 0`, or with `out_inc_header = 1` and has its
+ *  first 10 bytes stipped.
+ *
+ * Return value meanings:
+ *  0: success
+ *  1: `dst` not pointing to a NULL pointer!
+ * -1: other error
+ */
+int sperr_decomp_2d(
+    const void* src,  /* Input: buffer that contains a compressed bitstream AND no header! */
+    size_t src_len,   /* Input: length of the input bitstream in byte */
+    int output_float, /* Input: output data type: 1 == float, 0 == double */
+    size_t dimx,      /* Input: X (fast-varying) dimension */
     size_t dimy,      /* Input: Y (slowest-varying) dimension */
-    int32_t mode,     /* Input: compression mode to use */
-    double quality,   /* Input: target quality */
-    void** dst,       /* Output: buffer for the output bitstream, allocated by this function */
-    size_t* dst_len); /* Output: length of `dst` in byte */
+    void** dst);      /* Output: buffer for the output 2D slice, allocated by this function */
+
+/*
+ * Parse the header of a bitstream and extract various information. The bitstream can be produced
+ * by sperr_comp_3d(), or by sperr_comp_2d() with the `out_inc_header` option on.
+ */
+void sperr_parse_header(
+    const void* src, /* Input: a SPERR bitstream */
+    size_t* dimx,    /* Output: X dimension length */
+    size_t* dimy,    /* Output: Y dimension length */
+    size_t* dimz,    /* Output: Z dimension length (2D slices will have dimz == 1) */
+    int* is_float);  /* Output: if the original input is in float (1) or double (0) precision */
 
 /*
  * Compress a a 3D volume targetting different quality controls (modes):
@@ -60,97 +98,62 @@ int sperr_comp_2d(
  *   mode == 3 --> fixed point-wise error (PWE)
  *
  * Return value meanings:
- * 0: success
- * 1: `dst` is not pointing to a NULL pointer!
- * 2: `mode` or `quality` isn't valid
- * 3: `is_float` value not supported
- *-1: other error
+ *  0: success
+ *  1: `dst` is not pointing to a NULL pointer!
+ *  2: one or more parameters isn't valid.
+ * -1: other error
  */
 int sperr_comp_3d(
     const void* src,  /* Input: buffer that contains a 3D volume */
-    int32_t is_float, /* Input: input buffer type: 1 == float, 0 = double */
+    int is_float,     /* Input: input buffer type: 1 == float, 0 = double */
     size_t dimx,      /* Input: X (fastest-varying) dimension */
     size_t dimy,      /* Input: Y dimension */
     size_t dimz,      /* Input: Z (slowest-varying) dimension */
     size_t chunk_x,   /* Input: preferred chunk dimension in X */
     size_t chunk_y,   /* Input: preferred chunk dimension in Y */
     size_t chunk_z,   /* Input: preferred chunk dimension in Z */
-    int32_t mode,     /* Input: compression mode to use */
+    int mode,         /* Input: compression mode to use */
     double quality,   /* Input: target quality */
-    size_t nthreads,  /* Input: number of OMP threads to use. 0 means using all threads. */
+    size_t nthreads,  /* Input: number of OpenMP threads to use. 0 means using all threads. */
     void** dst,       /* Output: buffer for the output bitstream, allocated by this function */
     size_t* dst_len); /* Output: length of `dst` in byte */
 
 /*
- * Decompress a 2D SPERR-compressed buffer.
+ * Decompress a 3D SPERR-compressed buffer that is produced by sperr_comp_3d().
  *
  * Return value meanings:
- * 0: success
- * 1: `dst` not pointing to a NULL pointer!
- * 2: `output_float` value not supported
- * -1: other error
- */
-int sperr_decomp_2d(
-    const void* src,      /* Input: buffer that contains a compressed bitstream */
-    size_t src_len,       /* Input: length of the input bitstream in byte */
-    int32_t output_float, /* Input: output data type: 1 == float, 0 == double */
-    size_t* dimx,         /* Output: X (fast-varying) dimension */
-    size_t* dimy,         /* Output: Y (slowest-varying) dimension */
-    void** dst);          /* Output: buffer for the output 2D slice, allocated by this function */
-
-/*
- * Decompress a 3D SPERR-compressed buffer.
- *
- * Return value meanings:
- * 0: success
- * 1: `dst` not pointing to a NULL pointer!
- * 2: `output_float` value not supported
+ *  0: success
+ *  1: `dst` is not pointing to a NULL pointer!
  * -1: other error
  */
 int sperr_decomp_3d(
-    const void* src,      /* Input: buffer that contains a compressed bitstream */
-    size_t src_len,       /* Input: length of the input bitstream in byte */
-    int32_t output_float, /* Input: output data type: 1 == float, 0 == double */
-    size_t nthreads,      /* Input: number of OMP threads to use. 0 means using all threads. */
-    size_t* dimx,         /* Output: X (fast-varying) dimension */
-    size_t* dimy,         /* Output: Y dimension */
-    size_t* dimz,         /* Output: Z (slowest-varying) dimension */
-    void** dst);          /* Output: buffer for the output 3D slice, allocated by this function */
+    const void* src,  /* Input: buffer that contains a compressed bitstream */
+    size_t src_len,   /* Input: length of the input bitstream in byte */
+    int output_float, /* Input: output data type: 1 == float, 0 == double */
+    size_t nthreads,  /* Input: number of OMP threads to use. 0 means using all threads. */
+    size_t* dimx,     /* Output: X (fast-varying) dimension */
+    size_t* dimy,     /* Output: Y dimension */
+    size_t* dimz,     /* Output: Z (slowest-varying) dimension */
+    void** dst);      /* Output: buffer for the output 3D slice, allocated by this function */
 
 /*
- * Decompress a 2D or 3D SPERR bitstream to a USER-ALLOCATED memory buffer. If you don't know
- * how much memory to allocate, use functions `sperr_decomp_2d()` or `sperr_decomp_3d()` instead.
- * Note 1: If not enough memory was allocated at `dst`, segment faults may occur.
- * Note 2: `nthreads` won't have any effect in 2D decompression.
+ * Truncate a 3D SPERR-compressed bitstream to a percentage of its original length.
+ *    Note on `src_len`: it does not to be the full length of the original bitstream, rather,
+ *    it can be just long enough for the requested truncation:
+ *  - one chunk: (full_bitstream_length * percent + 64) bytes.
+ *  - multiple chunks: probably easier to just use the full bitstream length.
  *
  * Return value meanings:
- * 0: success
- * 1: `output_float` value not supported
- *-1: other error
+ *  0: success
+ *  1: `dst` is not pointing to a NULL pointer!
+ * -1: other error
  */
-int sperr_decomp_user_mem(
-    const void* src,      /* Input: buffer that contains a compressed bitstream */
-    size_t src_len,       /* Input: length of the input bitstream in byte */
-    int32_t output_float, /* Input: output data type: 1 == float, 0 == double */
-    size_t nthreads,      /* Input: number of OMP threads to use. 0 means using all threads. */
-    void* dst);           /* Output: decompressed slice or volume in memory allocated by caller */
-
-/*
- * Given a SPERR bitstream, parse the header and retrieve various types of information.
- *
- * Return value meanings:
- * 0: success
- * 1: parsing error occured
- */
-void sperr_parse_header(
-    const void* ptr,        /* Input: the bitstream to parse */
-    int32_t* version_major, /* Output: major version number */
-    int32_t* zstd_applied,  /* Output: if ZSTD applied (0 == no ZSTD; 1 == ZSTD applied) */
-    int32_t* is_3d,         /* Output: 3D volume or 2D slice (0 == 2D, 1 == 3D) */
-    int32_t* orig_is_float, /* Output: Precision of the original input (0 == double, 1 == float) */
-    uint32_t* dim_x,        /* Output: X dimension */
-    uint32_t* dim_y,        /* Output: Y dimension */
-    uint32_t* dim_z);       /* Output: Z dimension (undefined value for 2D slices) */
+int sperr_trunc_3d(
+    const void* src,  /* Input: buffer that contains a compressed bitstream */
+    size_t src_len,   /* Input: length of the input bitstream in byte */
+    unsigned pct,     /* Input: percentage of the bitstream to keep (1 <= pct <= 100) */
+    void** dst,       /* Output: buffer for the truncated bitstream, allocated by this function */
+    size_t* dst_len); /* Output: length of `dst` in byte */
 
 #ifdef __cplusplus
 } /* end of extern "C" */
