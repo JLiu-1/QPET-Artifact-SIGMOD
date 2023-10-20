@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
   //
   auto input = sperr::read_whole_file<uint8_t>(input_file);
   if (cflag) {
-    Timer timer();
+    Timer timer(true);
     const auto total_vals = dims[0] * dims[1] * dims[2];
     if ((ftype == 32 && (total_vals * 4 != input.size())) ||
         (ftype == 64 && (total_vals * 8 != input.size()))) {
@@ -253,7 +253,7 @@ int main(int argc, char* argv[])
   // Decompression
   //
   else {
-    Timer timer();
+    Timer timer(true);
     assert(dflag);
     auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
     decoder->set_num_threads(omp_num_threads);

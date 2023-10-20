@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
   const auto header_len = 10ul;
   auto input = sperr::read_whole_file<uint8_t>(input_file);
   if (cflag) {
-    Timer timer();
+    Timer timer(true);
     const auto dims = sperr::dims_type{dim2d[0], dim2d[1], 1ul};
     const auto total_vals = dims[0] * dims[1] * dims[2];
     if ((ftype == 32 && (total_vals * 4 != input.size())) ||
@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
   // Decompression
   //
   else {
-    Timer timer();
+    Timer timer(true);
     assert(dflag);
     // First, retrieve the slice dimension from the header.
     std::memcpy(dim2d.data(), input.data(), sizeof(dim2d));
