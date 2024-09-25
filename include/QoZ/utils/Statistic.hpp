@@ -184,6 +184,157 @@ namespace QoZ {
     }
 
 
+    // auxilliary functions for evaluating regional average
+    template <class T>
+    std::vector<T> compute_average(T const * data, uint32_t n1, uint32_t n2, uint32_t n3, int block_size){
+        uint32_t dim0_offset = n2 * n3;
+        uint32_t dim1_offset = n3;
+        uint32_t num_block_1 = (n1 - 1) / block_size + 1;
+        uint32_t num_block_2 = (n2 - 1) / block_size + 1;
+        uint32_t num_block_3 = (n3 - 1) / block_size + 1;
+        std::vector<T> aggregated = std::vector<T>();
+        uint32_t index = 0;
+        T const * data_x_pos = data;
+        for(int i=0; i<num_block_1; i++){
+            int size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
+            T const * data_y_pos = data_x_pos;
+            for(int j=0; j<num_block_2; j++){
+                int size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
+                T const * data_z_pos = data_y_pos;
+                for(int k=0; k<num_block_3; k++){
+                    int size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
+                    T const * cur_data_pos = data_z_pos;
+                    int n_block_elements = size_1 * size_2 * size_3;
+                    double sum = 0;
+                    for(int ii=0; ii<size_1; ii++){
+                        for(int jj=0; jj<size_2; jj++){
+                            for(int kk=0; kk<size_3; kk++){
+                                sum += *cur_data_pos;
+                                cur_data_pos ++;
+                            }
+                            cur_data_pos += dim1_offset - size_3;
+                        }
+                        cur_data_pos += dim0_offset - size_2 * dim1_offset;
+                    }
+                    aggregated.push_back(sum / n_block_elements);
+                    data_z_pos += size_3;
+                }
+                data_y_pos += dim1_offset * size_2;
+            }
+            data_x_pos += dim0_offset * size_1;
+        }    
+        return aggregated;
+    }
+
+    template<class T>
+    T evaluate_L_inf(T const * data, T const * dec_data, uint32_t num_elements, bool normalized=true, bool verbose=false){
+        T L_inf_error = 0;
+        T L_inf_data = 0;
+        for(int i=0; i<num_elements; i++){
+            if(L_inf_data < fabs(data[i])) L_inf_data = fabs(data[i]);
+            T error = data[i] - dec_data[i];
+            if(L_inf_error < fabs(error)) L_inf_error = fabs(error);
+        }
+        if(verbose){
+            std::cout << "Max absolute value = " << L_inf_data << std::endl;
+            std::cout << "L_inf error = " << L_inf_error << std::endl;
+            std::cout << "L_inf error (normalized) = " << L_inf_error / L_inf_data << std::endl;
+        }
+        return normalized ? L_inf_error / L_inf_data : L_inf_error;
+    }
+
+    template<class T>
+    void evaluate_average(T const * data, T const * dec_data, double value_range, uint32_t n1, uint32_t n2, uint32_t n3, int block_size = 1){
+        if(block_size == 0){
+            double average = 0;
+            double average_dec = 0;
+            for(int i=0; i<n1 * n2 * n3; i++){
+                average += data[i];
+                average_dec += dec_data[i]; 
+            }
+            std::cout << "Error in global average = " << fabs(average - average_dec)/(n1*n2*n3) << std::endl;
+        }
+        else{
+            auto average = compute_average(data, n1, n2, n3, block_size);
+            auto average_dec = compute_average(dec_data, n1, n2, n3, block_size);
+            auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
+            std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
+            // std::cout << "L^2 error of average with block size " << block_size << " = " << evaluate_L2(average.data(), average_dec.data(), average.size(), true, false) << std::endl;
+        }
+    }
+
+    template<class T>
+    void evaluate_isoline(T const * data, T const * dec_data, const std::vector<size_t>& dims, const std::vector<T>& isovalues){
+        std::vector<int> count(isovalues.size(), 0);
+        for(int i=0; i<dims[0] - 1; i++){
+            for(int j=0; j<dims[1] - 1; j++){
+                // original
+                T x0 = data[i*dims[1] + j];
+                T x1 = data[i*dims[1] + j + 1];
+                T x2 = data[(i+1)*dims[1] + j];
+                T x3 = data[(i+1)*dims[1] + j + 1];
+                // decompressed
+                T x0_ = dec_data[i*dims[1] + j];
+                T x1_ = dec_data[i*dims[1] + j + 1];
+                T x2_ = dec_data[(i+1)*dims[1] + j];
+                T x3_ = dec_data[(i+1)*dims[1] + j + 1];
+                // compute marching square
+                for(int m=0; m<isovalues.size(); m++){
+                    T z = isovalues[m];
+                    int c1 = ((x0 > z) << 4) + ((x1 > z) << 3) + ((x2 > z) << 2) + (x3 > z);
+                    int c2 = ((x0_ > z) << 4) + ((x1_ > z) << 3) + ((x2_ > z) << 2) + (x3_ > z);
+                    count[m] += (c1 != c2);
+                }
+            }
+        }
+        for(int i=0; i<isovalues.size(); i++){
+            std::cout << "different cells for isovalue " << isovalues[i] << ": " << count[i] << std::endl;
+        }
+    }
+
+    template<class T>
+    void evaluate_isosurface(T const * data, T const * dec_data, const std::vector<size_t>& dims, const std::vector<T>& isovalues){
+        std::vector<int> count(isovalues.size(), 0);
+        for(int i=0; i<dims[0] - 1; i++){
+            for(int j=0; j<dims[1] - 1; j++){
+                for(int k=0; k<dims[2] - 1; k++){
+                    // original
+                    T x0 = data[i*dims[1]*dims[2] + j*dims[2] + k];
+                    T x1 = data[i*dims[1]*dims[2] + j*dims[2] + k + 1];
+                    T x2 = data[i*dims[1]*dims[2] + (j + 1)*dims[2] + k];
+                    T x3 = data[i*dims[1]*dims[2] + (j + 1)*dims[2] + k + 1];
+                    T x4 = data[(i + 1)*dims[1]*dims[2] + j*dims[2] + k];
+                    T x5 = data[(i + 1)*dims[1]*dims[2] + j*dims[2] + k + 1];
+                    T x6 = data[(i + 1)*dims[1]*dims[2] + (j + 1)*dims[2] + k];
+                    T x7 = data[(i + 1)*dims[1]*dims[2] + (j + 1)*dims[2] + k + 1];
+                    // decompressed
+                    T x0_ = dec_data[i*dims[1]*dims[2] + j*dims[2] + k];
+                    T x1_ = dec_data[i*dims[1]*dims[2] + j*dims[2] + k + 1];
+                    T x2_ = dec_data[i*dims[1]*dims[2] + (j + 1)*dims[2] + k];
+                    T x3_ = dec_data[i*dims[1]*dims[2] + (j + 1)*dims[2] + k + 1];
+                    T x4_ = dec_data[(i + 1)*dims[1]*dims[2] + j*dims[2] + k];
+                    T x5_ = dec_data[(i + 1)*dims[1]*dims[2] + j*dims[2] + k + 1];
+                    T x6_ = dec_data[(i + 1)*dims[1]*dims[2] + (j + 1)*dims[2] + k];
+                    T x7_ = dec_data[(i + 1)*dims[1]*dims[2] + (j + 1)*dims[2] + k + 1];
+                    // compute marching cube
+                    for(int m=0; m<isovalues.size(); m++){
+                        T z = isovalues[m];
+                        uint c1 = ((x0 > z) << 7) + ((x1 > z) << 6) + ((x2 > z) << 5) + ((x3 > z) << 4) + ((x4 > z) << 3) + ((x5 > z) << 2) + ((x6 > z) << 1) + (x7 > z);
+                        uint c2 = ((x0_ > z) << 7) + ((x1_ > z) << 6) + ((x2_ > z) << 5) + ((x3_ > z) << 4) + ((x4_ > z) << 3) + ((x5_ > z) << 2) + ((x6_ > z) << 1) + (x7_ > z);
+                        count[m] += (c1 != c2);
+                    }
+
+                }
+            }
+        }
+        for(int i=0; i<isovalues.size(); i++){
+            std::cout << "different cells for isovalue " << isovalues[i] << ": " << count[i] << std::endl;
+        }
+    }
+
+
+    
+
     template<typename Type>
     void verifyQoI(Type *ori_data, Type *data, std::vector<size_t> dims, int blockSize=1) {
         size_t num_elements = 1;

@@ -27,6 +27,8 @@
 #include <limits>
 #include <cstring>
 #include <cstdlib>
+#include <queue>
+
 
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){

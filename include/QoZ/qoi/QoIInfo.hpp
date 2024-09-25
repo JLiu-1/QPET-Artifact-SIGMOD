@@ -27,8 +27,8 @@ namespace QoZ {
             case 2:
                 return std::make_shared<QoZ::QoI_Log_X<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 3:{
-                if(!conf.lorenzo && !conf.lorenzo2) return std::make_shared<SZ::QoI_RegionalAverageOfSquareInterp<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims);
-                else return std::make_shared<SZ::QoI_RegionalAverageOfSquare<T, N>>(conf.qoiEB, conf.absErrorBound);
+                if(!conf.lorenzo && !conf.lorenzo2) return std::make_shared<QoZ::QoI_RegionalAverageOfSquareInterp<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims);
+                else return std::make_shared<QoZ::QoI_RegionalAverageOfSquare<T, N>>(conf.qoiEB, conf.absErrorBound);
                 // return std::make_shared<SZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
             }
             case 4:{
