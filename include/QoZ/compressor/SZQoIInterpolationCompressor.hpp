@@ -865,11 +865,11 @@ namespace QoZ {
                     if(quant_inds[num_elements + quant_index] != 0){
                         // avoiding push multiple data
                         quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
-                                *data, 0, 0);                    
+                                *d, 0, 0);                    
                     }
                 }
                 // update cumulative tolerance if needed 
-                qoi->update_tolerance(ori_data, *data);
+                qoi->update_tolerance(ori_data, *d);
                 quant_index ++;
 
 
@@ -7326,6 +7326,7 @@ namespace QoZ {
         size_t maxStep=0;
         //double max_error;
         Quantizer quantizer;
+        Quantizer_EB quantizer_eb;
         Encoder encoder;
         Lossless lossless;
         size_t num_elements;
