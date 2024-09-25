@@ -546,6 +546,8 @@ namespace QoZ {
         std::string qoi_string_2 = "0";
         double threshold = 0.0;
 
+        std::vector<double> ebs;
+
 
 
 

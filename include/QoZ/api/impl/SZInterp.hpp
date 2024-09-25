@@ -2,12 +2,13 @@
 #define SZ3_SZINTERP_HPP
 
 #include "QoZ/compressor/SZInterpolationCompressor.hpp"
-
+#include "QoZ/compressor/SZQoIInterpolationCompressor.hpp"
 #include "QoZ/compressor/deprecated/SZBlockInterpolationCompressor.hpp"
 
 
-
+#include "QoZ/encoder/QoIEncoder.hpp"
 #include "QoZ/quantizer/IntegerQuantizer.hpp"
+#include "QoZ/quantizer/QoIIntegerQuantizer.hpp"
 #include "QoZ/lossless/Lossless_zstd.hpp"
 #include "QoZ/utils/Iterator.hpp"
 #include "QoZ/utils/Sample.hpp"
@@ -34,76 +35,7 @@ template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){
         
     auto qoi = QoZ::GetQOI<T, N>(conf);
-
-    /*
-    // use sampling to determine abs bound
-    {
-        auto dims = conf.dims;
-        auto tmp_abs_eb = conf.absErrorBound;
-
-        size_t sampling_num, sampling_block;
-        std::vector<size_t> sample_dims(N);
-        std::vector<T> samples = SZ::sampling<T, N>(data, conf.dims, sampling_num, sample_dims, sampling_block);
-        conf.setDims(sample_dims.begin(), sample_dims.end());
-
-        T * sampling_data = (T *) malloc(sampling_num * sizeof(T));
-        // reset dimensions for average of square
-        if(conf.qoi == 3) qoi->set_dims(sample_dims);
-        // get current ratio
-        double ratio = 0;
-        {
-            size_t sampleOutSize;
-            memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
-            // reset variables for average of square
-            if(conf.qoi == 3) qoi->init();
-            auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
-            sz.clear();
-            delete[]cmprData;
-            ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-            std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << ratio << std::endl;
-        }
-        double prev_ratio = 1;
-        double current_ratio = ratio;
-        double best_abs_eb = conf.absErrorBound;
-        double best_ratio = current_ratio;
-        // check smaller bounds
-        while(1){
-            auto prev_eb = conf.absErrorBound;
-            prev_ratio = current_ratio;
-            conf.absErrorBound /= 2;
-            qoi->set_global_eb(conf.absErrorBound);
-            size_t sampleOutSize;
-            memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
-            // reset variables for average of square
-            if(conf.qoi == 3) qoi->init();
-            auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
-            sz.clear();
-            delete[]cmprData;
-            current_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-            std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << current_ratio << std::endl;
-            if(current_ratio < prev_ratio * 0.99){
-                if(prev_ratio > best_ratio){
-                    best_abs_eb = prev_eb;
-                    best_ratio = prev_ratio;
-                }
-                break;
-            }
-        }
-        // set error bound
-        free(sampling_data);
-        std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
-        std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
-        conf.absErrorBound = best_abs_eb;
-        qoi->set_global_eb(best_abs_eb);
-        conf.setDims(dims.begin(), dims.end());
-        // reset dimensions and variables for average of square
-        if(conf.qoi == 3){
-            qoi->set_dims(dims);
-            qoi->init();
-        }
-    }
-    */
-
+    conf.ebs = std::vector<double>(conf.num);
     // use quantile to determine abs bound
     {
         auto dims = conf.dims;
@@ -111,7 +43,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         T *ebs = new T[conf.num];
         for (size_t i = 0; i < conf.num; i++){
-            ebs[i] = qoi->interpret_eb(data[i]);
+            conf.ebs[i] = qoi->interpret_eb(data[i]);
         }
 
         double quantile = conf.quantile;//quantile
@@ -124,7 +56,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         std::priority_queue<T> maxHeap;
 
         for (size_t i = 0; i < conf.num; i++) {
-            T eb = ebs[i];
+            T eb = conf.ebs[i];
             if (maxHeap.size() < k) {
                 maxHeap.push(eb);
             } else if (eb < maxHeap.top()) {
@@ -136,11 +68,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         double best_abs_eb = maxHeap.top();
         size_t count = 0;
         for (size_t i = 0; i < conf.num; i++){
-            if(ebs[i] < best_abs_eb)
+            if(conf.ebs[i] < best_abs_eb)
                 count++;
         }
         std::cout<<"Smaller ebs: "<<(double)(count)/(double)(conf.num)<<std::endl;
-        delete []ebs;
 
         
         std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
@@ -153,6 +84,11 @@ void QoI_tuning(QoZ::Config &conf, T *data){
          //   qoi->set_dims(dims);
         //    qoi->init();
         //}
+        for (size_t i = 0; i < conf.num; i++){
+            if(conf.ebs[i]>best_abs_eb)
+                conf.ebs[i] = best_abs_eb;
+        }
+
         conf.qoiEBBase = conf.absErrorBound / 1030;
         std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         conf.qoi_tuned = true;
@@ -177,23 +113,38 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
     QoZ::calAbsErrorBound(conf, data);
 
     //conf.print();
-    if (conf.qoi>0 and !conf.qoi_tuned){
-        QoI_tuning<T,N>(conf, data);
+    if (conf.qoi>0){
+        if(!conf.qoi_tuned){
+            QoI_tuning<T,N>(conf, data);
+            conf.qoi_tuned = true;
+        }
+        auto qoi = QoZ::GetQOI<T, N>(conf);//todo: bring qoi to conf to avoid duplicated initialization.
+        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
+        auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
+                quantizer, quantizer_eb, qoi, SZ::QoIEncoder<int>(), SZ::Lossless_zstd());
+
+        char *cmpData = (char *) sz.compress(conf, data, outSize);
+         //double incall_time = timer.stop();
+        //std::cout << "incall time = " << incall_time << "s" << std::endl;
+        return cmpData;
+
     }
-    
-    auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
-            QoZ::LinearQuantizer<T>(conf.absErrorBound, conf.quantbinCnt / 2),
-            QoZ::HuffmanEncoder<int>(),
-            QoZ::Lossless_zstd());
+    else{
+        auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
+                QoZ::LinearQuantizer<T>(conf.absErrorBound, conf.quantbinCnt / 2),
+                QoZ::HuffmanEncoder<int>(),
+                QoZ::Lossless_zstd());
 
-   
-    //QoZ::Timer timer;
+       
+        //QoZ::Timer timer;
 
-    //timer.start();
-    char *cmpData = (char *) sz.compress(conf, data, outSize);
-     //double incall_time = timer.stop();
-    //std::cout << "incall time = " << incall_time << "s" << std::endl;
-    return cmpData;
+        //timer.start();
+        char *cmpData = (char *) sz.compress(conf, data, outSize);
+         //double incall_time = timer.stop();
+        //std::cout << "incall time = " << incall_time << "s" << std::endl;
+        return cmpData;
+    }
 }
 
 template<class T, QoZ::uint N>
@@ -202,12 +153,21 @@ void SZ_decompress_Interp(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *d
     QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
    
         
-     auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
-                QoZ::LinearQuantizer<T>(),
-                QoZ::HuffmanEncoder<int>(),
-                QoZ::Lossless_zstd());
-       
+   if(conf.qoi > 0){
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
+        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
+        auto qoi = QoZ::GetQOI<T, N>(conf);
+        auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
+                quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
         sz.decompress(cmpDataPos, cmpSize, decData);
+        return;
+    }   
+    auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
+            QoZ::LinearQuantizer<T>(),
+            QoZ::HuffmanEncoder<int>(),
+            QoZ::Lossless_zstd());
+    sz.decompress(cmpDataPos, cmpSize, decData);
         
 }
 
