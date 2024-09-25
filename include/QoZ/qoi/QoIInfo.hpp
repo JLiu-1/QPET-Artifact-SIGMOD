@@ -76,7 +76,7 @@ namespace QoZ {
             	for(int i=0; i<conf.isovalues.size(); i++){
             		values.push_back(conf.isovalues[i]);
             	}
-                qois.push_back(std::make_shared<SZ::QoI_Isoline<T, N>>(conf.dims, values, conf.absErrorBound));
+                qois.push_back(std::make_shared<QoZ::QoI_Isoline<T, N>>(conf.dims, values, conf.absErrorBound));
                 return std::make_shared<QoZ::QoI_MultiQoIs<T, N>>(qois);            	
             }
             case 9:
