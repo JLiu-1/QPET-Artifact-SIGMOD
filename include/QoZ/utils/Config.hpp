@@ -253,6 +253,24 @@ namespace QoZ {
 
 
 
+            qoi = cfg.GetInteger("QoISettings", "qoi", 0); // whether to enable qoi
+            qoiEB = cfg.GetReal("QoISettings", "qoiEB", 1.0);
+            qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
+            qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", 0);
+            qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", 64);
+            qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", blockSize);
+            qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", 1);
+            quantile = cfg.GetReal("QoISettings", "quantile", 0.01);
+            auto qoistring_c = cfg.Get("QoISettings", "qoi_string", "x^2");
+            auto qoistring_c2 = cfg.Get("QoISettings", "qoi_string", "0");
+            qoi_string = std::string(qoistring_c);
+            qoi_string_2 = std::string(qoistring_c2);
+            threshold = cfg.GetReal("QoISettings", "threshold", 0.0);
+
+
+
+
+
 
         }
 
@@ -302,6 +320,22 @@ namespace QoZ {
             //write(blockwiseSampleBlockSize, c);
             //write(QoZ, c);//recently changed.
             //write(crossBlock, c);
+
+            // add qoi info
+            //write(qoi, c);
+            //write(qoiEB, c);
+            write(qoiEBBase, c);
+            write(qoiEBLogBase, c);
+            write(qoiQuantbinCnt, c);
+            //write(qoiRegionSize, c);
+            //qoiIsoNum = isovalues.size();
+            //write(qoiIsoNum, c);
+            //write(isovalues.data(), isovalues.size(), c);
+            //qoiNum = qoiEBs.size();
+            //write(qoiNum, c);
+            //write(qoiEBs.data(), qoiEBs.size(), c);
+
+
             
 
             
@@ -358,6 +392,20 @@ namespace QoZ {
           
             //read(trimToZero, c);
             //read(prewave_absErrorBound, c);
+
+            // add qoi info
+            //read(qoi, c);
+            //read(qoiEB, c);
+            read(qoiEBBase, c);
+            read(qoiEBLogBase, c);
+            read(qoiQuantbinCnt, c);
+            //read(qoiRegionSize, c);
+            //read(qoiIsoNum, c);
+            //isovalues.resize(qoiIsoNum);
+            //read(isovalues.data(), qoiIsoNum, c);
+            //read(qoiNum, c);
+            //qoiEBs.resize(qoiNum);
+            //read(qoiEBs.data(), qoiNum, c);
             
 
             
@@ -480,6 +528,25 @@ namespace QoZ {
 
        // double anchorThreshold=0.0;
        // size_t minAnchorLevel=3;
+
+
+        int qoi = 0; // whether to enable qoi
+        double qoiEB;
+        double qoiEBBase = std::numeric_limits<double>::epsilon();
+        double qoiEBLogBase = 2;
+        int qoiQuantbinCnt = 64;        
+        int qoiRegionSize = 1;        
+        int qoiIsoNum = 1;
+        std::vector<double> isovalues;
+        int qoiNum = 0;
+        std::vector<double> qoiEBs;
+        double quantile = 0.01;
+        bool qoi_tuned=false;
+        std::string qoi_string = "x^2";
+        std::string qoi_string_2 = "0";
+        double threshold = 0.0;
+
+
 
 
         

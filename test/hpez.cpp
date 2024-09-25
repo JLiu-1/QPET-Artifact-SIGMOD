@@ -65,6 +65,7 @@ void usage() {
     printf("        AC (autocorrelation)\n");
     printf("    -C <anchor stride> : stride of anchor points.\n");
     printf("    -B <sampling block size> : block size of sampled data block for auto-tuning.\n");
+    printf("    -u <quantile> : eb quantile\n");
     printf("* dimensions: \n");
     printf("	-1 <nx> : dimension for 1D data such as data[nx]\n");
     printf("	-2 <nx> <ny> : dimensions for 2D data such as data[ny][nx]\n");
@@ -199,7 +200,8 @@ void decompress(char *inPath, char *cmpPath, char *decPath,
         size_t totalNbEle;
         auto ori_data = QoZ::readfile<T>(inPath, totalNbEle);
         assert(totalNbEle == conf.num);
-        QoZ::verify<T>(ori_data.get(), decData, conf.num);
+        //QoZ::verify<T>(ori_data.get(), decData, conf.num);
+        QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
     }
     delete[]decData;
 
@@ -245,6 +247,8 @@ int main(int argc, char *argv[]) {
     if (argc == 1)
         usage();
     int width = -1;
+
+    double quantile = -1;
 
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][2]) {
@@ -407,6 +411,14 @@ int main(int argc, char *argv[]) {
                 if (++i == argc || sscanf(argv[i], "%d", &sampleBlockSize) != 1)
                         usage();
                 break;
+
+            case 'u':
+                if (++i == argc)
+                    usage();
+                quantile = atof (argv[i]);
+                break;
+
+
             default:
                 usage();
                 break;
@@ -535,16 +547,21 @@ int main(int argc, char *argv[]) {
         
     }
 
+    if (quantile>=0)
+        conf.quantile = quantile;
+
+
+
     if (compression) {
 
         if (dataType == SZ_FLOAT) {
             compress<float>(inPath, cmpPath, conf);
         } 
-        else if (dataType == SZ_DOUBLE) {
+        /*else if (dataType == SZ_DOUBLE) {
             compress<double>(inPath, cmpPath, conf);
         
         } 
-        /*
+        
         else if (dataType == SZ_INT32) {
             compress<int32_t>(inPath, cmpPath, conf);
         } else if (dataType == SZ_INT64) {
@@ -570,11 +587,11 @@ int main(int argc, char *argv[]) {
             decompress<float>(inPath, cmpPath, decPath, conf, binaryOutput, printCmpResults);
 
         } 
-        else if (dataType == SZ_DOUBLE) {
+        /*else if (dataType == SZ_DOUBLE) {
             decompress<double>(inPath, cmpPath, decPath, conf, binaryOutput, printCmpResults);
 
         } 
-        /*
+        
         else if (dataType == SZ_INT32) {
             decompress<int32_t>(inPath, cmpPath, decPath, conf, binaryOutput, printCmpResults);
         } else if (dataType == SZ_INT64) {
