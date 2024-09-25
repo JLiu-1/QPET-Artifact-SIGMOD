@@ -178,7 +178,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
 
     //conf.print();
     if (!conf.qoi_tuned){
-        QoI_tuning(conf, data)
+        QoI_tuning(conf, data);
     }
     
     auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
