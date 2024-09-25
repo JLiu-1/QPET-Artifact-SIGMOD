@@ -188,6 +188,16 @@ namespace QoZ {
             index = 0;
         }
 
+        void insert_unpred(T ori){
+            unpred.push_back(ori);
+        }
+        
+        void print_unpred(){
+            for(auto x:unpred)
+                std::cout<<x<<std::endl;
+        }
+
+
         virtual void postcompress_data() {}
 
         virtual void postdecompress_data() {}
@@ -304,6 +314,16 @@ namespace QoZ {
             c += sizeof(int);
         }
 
+        void insert_unpred(T ori){
+            unpred.push_back(ori);
+        }
+        
+        void print_unpred(){
+            for(auto x:unpred)
+                std::cout<<x<<std::endl;
+        }
+
+        
         void clear() {}
 
         virtual void postcompress_data() {}
