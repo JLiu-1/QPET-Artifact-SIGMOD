@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This is the source code of the HPEZ compressor introduced in the paper: High-performance Effective Scientific Error-bounded Lossy Compression with Auto-tuned Multi-component Interpolation.
+HPEZ, aka the second major version of QoZ: QoZ 2.0, is based on both QoZ 1.1 and the paper: "High-performance Effective Scientific Error-bounded Lossy Compression with Auto-tuned Multi-component Interpolation". [ACM Paper Link](https://dl.acm.org/doi/abs/10.1145/3639259) [arXiv Paper Link](https://arxiv.org/abs/2311.12133) 
 
 ## Dependencies
 
-Please Install the following dependencies before running the artifact evaluation experiments:
+Please Install the following dependencies before compiling HPEZ:
 
 * cmake>=3.13
 * gcc>=6.0
@@ -28,15 +28,15 @@ Before you proceed to the following evaluations, please add the installation pat
 ## Single compression/decompression testing Examples
 
 You can use the executable 'hpez' command to do the compression/decompression (the input data should be float or double binary files). Just run "hpez" command without any argument to check the instructions for its arguments.
-For the convenience of tests, the hpez executable includes the SZ3.1 compression, QoZ 1.1 compression, and 3 optimization levels of HPEZ compression. In the command:
+For the convenience of tests, the qoz executable includes the SZ3.1 compression, QoZ 1.1 compression, and 3 optimization levels of HPEZ (QoZ 2.0) compression. In the command:
 * -q 0: SZ3.1 compression.
 * Containing -q 1: QoZ 1.1 compression.
-* Not containing -q argument or containing -q 4: Full HPEZ compression (for the results reported in the paper).
 * Containing -q 2 or -q 3: 2 intermediate optimization levels of HPEZ compression (having faster speeds but slightly worse rate-distortion).
+* Not containing -q argument or containing -q 4: Full HPEZ (QoZ 2.0) compression (for the results reported in the paper).
 
-Notice: the intergrated SZ3.1 and QoZ 1.1 in HPEZ has already leveraged the Fast-varying-first interpolation (proposed in our paper), therefore their compression ratios are sometimes higher than the original public released versions of SZ3.1 and QoZ 1.1.
+Notice: the integrated SZ3.1 and QoZ 1.1 in HPEZ (QoZ 2.0) have already leveraged the Fast-varying-first interpolation (proposed in our paper), therefore their compression ratios are sometimes higher than the original public released versions of SZ3.1 and QoZ 1.1.
 
-## Dataset Source 
+## Test Dataset
 
 Please download test datasets from: https://sdrbench.github.io/. 
 
