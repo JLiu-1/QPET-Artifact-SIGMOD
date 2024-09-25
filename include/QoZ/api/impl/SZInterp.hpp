@@ -177,7 +177,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
     QoZ::calAbsErrorBound(conf, data);
 
     //conf.print();
-    if (!conf.qoi_tuned){
+    if (conf.qoi>0 and !conf.qoi_tuned){
         QoI_tuning<T,N>(conf, data);
     }
     
