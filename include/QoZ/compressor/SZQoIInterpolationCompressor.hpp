@@ -108,6 +108,7 @@ namespace QoZ {
             //timer.stop("decode");
             //timer.start();
             double eb = quantizer_eb.get_global_eb();
+            std::cout<<"EB: "<<eb<<std::endl;
             if(!anchor){
                 quantize_integrated(0, *decData, 0, -1);
             }
@@ -592,7 +593,7 @@ namespace QoZ {
             //timer.stop("Lossless") ;
             compressed_size += interp_compressed_size;
 
-            std::cout<<quant_inds.size()<<" "<<num_elements*2<<std::endl;
+            //std::cout<<quant_inds.size()<<" "<<num_elements*2<<std::endl;
             return lossless_data;
         }
 
