@@ -850,16 +850,16 @@ namespace QoZ {
 
             double pred_error=0;
 
-            size_t target_idx = 48*dimension_offsets[0]+239*dimension_offsets[1]+227*dimension_offsets[2];
+           // size_t target_idx = 48*dimension_offsets[0]+239*dimension_offsets[1]+227*dimension_offsets[2];
 
 
             if(mode==-1){//recover
                 T eb = quantizer_eb.recover(quant_inds[quant_index]);
                 d = quantizer.recover(pred, quant_inds[num_elements + quant_index], eb);
 
-                if(idx == target_idx){
-                    std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<std::endl;
-                }
+               // if(idx == target_idx){
+                //    std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<std::endl;
+                //}
                 quant_index ++;
                 return 0;
             }
@@ -889,9 +889,9 @@ namespace QoZ {
                                 d, 0, T(0.0));                    
                     }
                 }
-                if(idx == target_idx){
-                    std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<" "<<ori_data<<std::endl;
-                }
+                //if(idx == target_idx){
+               ///     std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<" "<<ori_data<<std::endl;
+                //}
                 // update cumulative tolerance if needed 
                 qoi->update_tolerance(ori_data, d);
                 quant_index ++;

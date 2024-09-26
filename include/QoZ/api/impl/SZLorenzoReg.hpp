@@ -4,13 +4,18 @@
 #include "QoZ/compressor/SZGeneralCompressor.hpp"
 #include "QoZ/frontend/SZFastFrontend.hpp"
 #include "QoZ/frontend/SZGeneralFrontend.hpp"
+#include "QoZ/frontend/SZQoIFrontend.hpp"
 #include "QoZ/quantizer/IntegerQuantizer.hpp"
+#include "QoZ/quantizer/QoIIntegerQuantizer.hpp"
 #include "QoZ/predictor/ComposedPredictor.hpp"
 #include "QoZ/predictor/LorenzoPredictor.hpp"
 #include "QoZ/predictor/RegressionPredictor.hpp"
 #include "QoZ/predictor/PolyRegressionPredictor.hpp"
 #include "QoZ/predictor/ZeroPredictor.hpp"
+#include "QoZ/encoder/QoIEncoder.hpp"
 #include "QoZ/lossless/Lossless_zstd.hpp"
+//#include "QoZ/qoi/XSquare.hpp"
+#include "QoZ/qoi/QoIInfo.hpp"
 #include "QoZ/utils/Iterator.hpp"
 #include "QoZ/utils/Statistic.hpp"
 #include "QoZ/utils/Extraction.hpp"
@@ -80,6 +85,37 @@ make_lorenzo_regression_compressor(const QoZ::Config &conf, Quantizer quantizer,
 }
 
 
+template<class T, QoZ::uint N, class Quantizer, class Quantizer_EB>
+std::shared_ptr<QoZ::concepts::CompressorInterface<T>>
+make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoi, Quantizer quantizer, Quantizer_EB quantizer_eb) {
+
+    quantizer.clear();
+    quantizer_eb.clear();
+    std::shared_ptr<QoZ::concepts::CompressorInterface<T>> sz;
+
+    int methodCnt = (conf.lorenzo + conf.lorenzo2);
+    int use_single_predictor = (methodCnt == 1);
+
+    if(use_single_predictor){
+        if(conf.lorenzo){
+            sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 1>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
+                                                    QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+        }
+        else if(conf.lorenzo2){
+            sz = QoZ::make_sz_general_compressor<T, N>(SZ::make_sz_qoi_frontend<T, N>(conf, SZ::LorenzoPredictor<T, N, 2>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
+                                                    QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+        }
+    }
+    else{
+        std::vector<std::shared_ptr<QoZ::concepts::PredictorInterface<T, N>>> predictors;
+        predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 1>>(conf.absErrorBound));
+        predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 2>>(conf.absErrorBound));
+        sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::ComposedPredictor<T, N>(predictors), quantizer, quantizer_eb, qoi),
+                                                QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+    }
+    return sz;
+}
+
 template<class T, QoZ::uint N>
 char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
 
@@ -88,7 +124,24 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
     //QoZ::calAbsErrorBound(conf, data);
 
     char *cmpData;
+
+    if(conf.qoi > 0){
+        //std::cout << "absErrorBound = " << conf.absErrorBound << std::endl;
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
+        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
+        auto qoi = QoZ::GetQOI<T, N>(conf);
+        if(conf.qoi == 3){
+            conf.blockSize = conf.qoiRegionSize;
+        }
+        auto sz = make_qoi_lorenzo_compressor(conf, qoi, quantizer, quantizer_eb);
+        cmpData = (char *) sz->compress(conf, data, outSize);
+        return cmpData;
+    }
+
+
     auto quantizer = QoZ::LinearQuantizer<T>(conf.absErrorBound, conf.quantbinCnt / 2);
+
     if (N == 3 and !conf.regression2 ) {
         // use fast version for 3D
         auto sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_fast_frontend<T, N>(conf, quantizer), QoZ::HuffmanEncoder<int>(),
