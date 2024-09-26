@@ -66,7 +66,7 @@ namespace QoZ {
     
             f = Expression(ff);
 
-            std::set<Expression>singularities = find_singularities(f,x);
+            std::set<double>singularities = find_singularities(f,x);
             for (const auto& singularity : singularities) {
                 std::cout << singularity << std::endl;
             }
@@ -278,8 +278,8 @@ namespace QoZ {
             throw std::runtime_error("Unsupported expression type");
         }
 
-        std::set<Expression> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
-            std::set<Expression> singularities;
+        std::set<double> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
+            std::set<double> singularities;
 
             if (is_a<Mul>(expr)) {
                 auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
@@ -293,7 +293,8 @@ namespace QoZ {
                                 auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                                 auto elements = finite_set_casted->get_container();
                                 for (auto sol : elements) {
-                                    singularities.insert(sol);
+
+                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
                                 }
                             }
                         }
@@ -312,7 +313,7 @@ namespace QoZ {
                     auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                     auto elements = finite_set_casted->get_container();
                     for (auto sol : elements) {
-                        singularities.insert(sol);
+                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
                     }
                 }
             }
@@ -331,7 +332,7 @@ namespace QoZ {
                             auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                             auto elements = finite_set_casted->get_container();
                             for (auto sol : elements) {
-                                singularities.insert(sol);
+                                singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
                             }
                         }
                     }
