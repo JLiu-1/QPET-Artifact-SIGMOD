@@ -527,7 +527,7 @@ namespace QoZ {
             }                    
             //timer.start();
 
-            quantizer.set_eb(eb);
+            quantizer_eb.set_global_eb(eb);
 
             if (tuning){
                 conf.quant_bins=quant_inds;
