@@ -67,6 +67,7 @@ namespace QoZ {
             f = Expression(ff);
 
             std::set<double>singularities = find_singularities(f,x);
+            std::cout << "singularities" << std::endl;
             for (const auto& singularity : singularities) {
                 std::cout << singularity << std::endl;
             }
