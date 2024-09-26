@@ -322,7 +322,7 @@ namespace QoZ {
                 auto exponent = pow_expr->get_exp();
 
                 if (is_a<SymEngine::Number>(*exponent)) {
-                    double exp_val = evalf(*exponent).as_double();
+                    double exp_val = evalf(*exponent,53, SymEngine::EvalfDomain::Real).as_double();
                     if (exp_val < 0 || (exp_val < 2 && std::floor(exp_val) != exp_val)) {
                         auto base = pow_expr->get_base();
                         auto solutions = solve(base, x);
