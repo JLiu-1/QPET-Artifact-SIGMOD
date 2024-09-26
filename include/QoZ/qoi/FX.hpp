@@ -18,6 +18,7 @@
 #include <symengine/eval.h> 
 #include <symengine/solve.h>
 #include <symengine/functions.h>
+#include<set>
 
 using SymEngine::Expression;
 using SymEngine::Symbol;
@@ -65,7 +66,7 @@ namespace QoZ {
     
             f = Expression(ff);
 
-            std::vector<Expression>singularities = find_singularities(f,x);
+            std::set<Expression>singularities = find_singularities(f,x);
             for (const auto& singularity : singularities) {
                 std::cout << singularity << std::endl;
             }
@@ -277,8 +278,8 @@ namespace QoZ {
             throw std::runtime_error("Unsupported expression type");
         }
 
-        std::vector<Expression> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
-            std::vector<Expression> singularities;
+        std::set<Expression> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
+            std::set<Expression> singularities;
 
             if (is_a<Mul>(expr)) {
                 auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
@@ -292,13 +293,13 @@ namespace QoZ {
                                 auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                                 auto elements = finite_set_casted->get_container();
                                 for (auto sol : elements) {
-                                    singularities.push_back(sol);
+                                    singularities.insert(sol);
                                 }
                             }
                         }
                     } else {
                         auto sub_singularities = find_singularities(Expression(arg), x);
-                        singularities.insert(singularities.end(), sub_singularities.begin(), sub_singularities.end());
+                        singularities.insert(sub_singularities.begin(), sub_singularities.end());
                     }
                 }
             }
@@ -311,7 +312,7 @@ namespace QoZ {
                     auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                     auto elements = finite_set_casted->get_container();
                     for (auto sol : elements) {
-                        singularities.push_back(sol);
+                        singularities.insert(sol);
                     }
                 }
             }
@@ -321,7 +322,7 @@ namespace QoZ {
                 auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
                 auto exponent = pow_expr->get_exp();
 
-                if (is_a<const RealDouble>(*exponent) or SymEngine::is_a<const Integer>(*exponent)) {
+                if (is_a<const RealDouble>(*exponent) or is_a<const Integer>(*exponent)) {
                     double exp_val = SymEngine::rcp_static_cast<const SymEngine::RealDouble>(exponent)->as_double();
                     if (exp_val < 0 || (exp_val < 2 && std::floor(exp_val) != exp_val)) {
                         auto base = pow_expr->get_base();
@@ -330,7 +331,7 @@ namespace QoZ {
                             auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                             auto elements = finite_set_casted->get_container();
                             for (auto sol : elements) {
-                                singularities.push_back(sol);
+                                singularities.insert(sol);
                             }
                         }
                     }
@@ -341,7 +342,7 @@ namespace QoZ {
                 auto add_expr = rcp_static_cast<const SymEngine::Add>(expr.get_basic());
                 for (auto arg : add_expr->get_args()) {
                     auto sub_singularities = find_singularities(Expression(arg), x);
-                    singularities.insert(singularities.end(), sub_singularities.begin(), sub_singularities.end());
+                    singularities.insert(sub_singularities.begin(), sub_singularities.end());
                 }
             }
 
@@ -349,7 +350,7 @@ namespace QoZ {
                 auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
                 for (auto arg : mul_expr->get_args()) {
                     auto sub_singularities = find_singularities(Expression(arg), x);
-                    singularities.insert(singularities.end(), sub_singularities.begin(), sub_singularities.end());
+                    singularities.insert(sub_singularities.begin(), sub_singularities.end());
                 }
             }
 
