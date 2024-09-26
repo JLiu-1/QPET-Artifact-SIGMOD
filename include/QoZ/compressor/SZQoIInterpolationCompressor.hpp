@@ -855,21 +855,21 @@ namespace QoZ {
                 //debug end
                 quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
                 quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
-                        *d, pred, eb);
-                if(!qoi->check_compliance(ori_data, *d)){
+                        d, pred, eb);
+                if(!qoi->check_compliance(ori_data, d)){
                     // std::cout << "not compliant" << std::endl;
                     // save as unpredictable
                     eb = 0.0;
-                    *d = ori_data;
+                    d = ori_data;
                     quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
                     if(quant_inds[num_elements + quant_index] != 0){
                         // avoiding push multiple data
                         quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
-                                *d, 0, 0);                    
+                                d, 0, 0);                    
                     }
                 }
                 // update cumulative tolerance if needed 
-                qoi->update_tolerance(ori_data, *d);
+                qoi->update_tolerance(ori_data, d);
                 quant_index ++;
 
 
