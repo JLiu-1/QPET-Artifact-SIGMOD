@@ -866,6 +866,8 @@ namespace QoZ {
             else if(mode==0){
 
                 T ori_data = d;
+                if(idx == target_idx)
+                    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb = ebs[idx];
                 //debug
@@ -888,7 +890,7 @@ namespace QoZ {
                     }
                 }
                 if(idx == target_idx){
-                    std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<std::endl;
+                    std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<" "<<ori_data<<std::endl;
                 }
                 // update cumulative tolerance if needed 
                 qoi->update_tolerance(ori_data, d);
