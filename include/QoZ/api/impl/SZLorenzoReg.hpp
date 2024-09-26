@@ -91,18 +91,18 @@ make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concep
 
     quantizer.clear();
     quantizer_eb.clear();
-    std::shared_ptr<QoZ::concepts::CompressorInterface<T>> sz;
+    //std::shared_ptr<QoZ::concepts::CompressorInterface<T>> sz;
 
     int methodCnt = (conf.lorenzo + conf.lorenzo2);
     int use_single_predictor = (methodCnt == 1);
 
     if(use_single_predictor){
         if(conf.lorenzo){
-            sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 1>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
+            return QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 1>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
                                                     QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
         }
         else if(conf.lorenzo2){
-            sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 2>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
+            return QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 2>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
                                                     QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
         }
     }
@@ -110,10 +110,10 @@ make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concep
         std::vector<std::shared_ptr<QoZ::concepts::PredictorInterface<T, N>>> predictors;
         predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 1>>(conf.absErrorBound));
         predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 2>>(conf.absErrorBound));
-        sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::ComposedPredictor<T, N>(predictors), quantizer, quantizer_eb, qoi),
+        return QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::ComposedPredictor<T, N>(predictors), quantizer, quantizer_eb, qoi),
                                                 QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
     }
-    return sz;
+    //return sz;
 }
 
 template<class T, QoZ::uint N>
