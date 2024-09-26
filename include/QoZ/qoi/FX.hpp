@@ -295,7 +295,10 @@ namespace QoZ {
                                 auto elements = finite_set_casted->get_container();
                                 for (auto sol : elements) {
 
-                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
+                                    if (is_a<const Integer>(*sol))
+                                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                                    else
+                                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
                                 }
                             }
                         }
@@ -314,7 +317,10 @@ namespace QoZ {
                     auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                     auto elements = finite_set_casted->get_container();
                     for (auto sol : elements) {
-                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
+                        if (is_a<const Integer>(*sol))
+                            singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                        else
+                            singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
                     }
                 }
             }
@@ -334,7 +340,10 @@ namespace QoZ {
                             auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                             auto elements = finite_set_casted->get_container();
                             for (auto sol : elements) {
-                                singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
+                                if (is_a<const Integer>(*sol))
+                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                                else
+                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
                             }
                         }
                     }
