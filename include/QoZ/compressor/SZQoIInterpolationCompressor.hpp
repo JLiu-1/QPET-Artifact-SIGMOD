@@ -591,6 +591,8 @@ namespace QoZ {
             lossless.postcompress_data(buffer);
             //timer.stop("Lossless") ;
             compressed_size += interp_compressed_size;
+
+            std::cout<<quant_inds.size()<<" "<<num_elements*2<<std::endl;
             return lossless_data;
         }
 
@@ -609,7 +611,7 @@ namespace QoZ {
             quantizer_eb.postcompress_data();
             quantizer.save(buffer_pos);
             quantizer.postcompress_data();
-            quantizer.clear();
+           // quantizer.clear();
             encoder.preprocess_encode(quant_inds, 0);
             encoder.save(buffer_pos);
             encoder.encode(quant_inds, buffer_pos);
@@ -843,6 +845,7 @@ namespace QoZ {
                 T eb = quantizer_eb.recover(quant_inds[quant_index]);
                 d = quantizer.recover(pred, quant_inds[num_elements + quant_index], eb);
                 quant_index ++;
+                return 0;
             }
             else if(mode==0){
 
