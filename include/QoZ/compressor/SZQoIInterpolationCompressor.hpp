@@ -865,7 +865,7 @@ namespace QoZ {
             }
             else if(mode==0){
 
-                auto ori_data = d;
+                T ori_data = d;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb = ebs[idx];
                 //debug
