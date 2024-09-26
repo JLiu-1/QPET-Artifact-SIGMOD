@@ -307,21 +307,13 @@ namespace QoZ {
                 }
             }
 
-            if (is_a<sqrt>(expr)) {
-                auto sqrt_expr = rcp_static_cast<const Sqrt>(expr.get_basic());
-                auto sqrt_argument = sqrt_expr->get_args()[0];
-                auto sqrt_solutions = solve(sqrt_argument, x);
-                for (auto sol : *sqrt_solutions) {
-                    singularities.push_back(sol);
-                }
-            }
-
+           
             if (is_a<Pow>(expr)) {
                 auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
                 auto exponent = pow_expr->get_exp();
 
-                if (is_a<SymEngine::Number>(exponent)) {
-                    double exp_val = evalf(exponent).as_double();
+                if (is_a<SymEngine::Number>(*exponent)) {
+                    double exp_val = exponent->get_eval();
                     if (exp_val > 0 && exp_val < 2 && std::floor(exp_val) != exp_val) {
                         auto base = pow_expr->get_base();
                         auto base_solutions = solve(base, x);
