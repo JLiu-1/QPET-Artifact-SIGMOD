@@ -287,8 +287,12 @@ namespace QoZ {
                         if (pow_expr->get_exp()->__eq__(*SymEngine::minus_one)) {
                             auto denominator = pow_expr->get_base();
                             auto solutions = solve(denominator, x);
-                            for (auto sol : *solutions) {
-                                singularities.push_back(sol);
+                            if (is_a<FiniteSet>(*solutions)) {
+                                auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
+                                auto elements = finite_set_casted->get_container();
+                                for (auto sol : elements) {
+                                    singularities.push_back(sol);
+                                }
                             }
                         }
                     } else {
