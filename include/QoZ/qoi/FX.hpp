@@ -42,6 +42,7 @@ using SymEngine::Pow;
 using SymEngine::Log;
 using SymEngine::sqrt;
 using SymEngine::is_a;
+using SymEngine::FiniteSet;
 
 
 namespace QoZ {
