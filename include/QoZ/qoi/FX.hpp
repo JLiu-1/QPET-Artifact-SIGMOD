@@ -329,7 +329,7 @@ namespace QoZ {
             if (is_a<Pow>(expr)) {
                 auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
                 auto exponent = pow_expr->get_exp();
-                std::cout<<*exponent<<std::endl;
+                //std::cout<<*exponent<<std::endl;
 
                 if (is_a<const RealDouble>(*exponent) or is_a<const Integer>(*exponent)) {
                     double exp_val;
