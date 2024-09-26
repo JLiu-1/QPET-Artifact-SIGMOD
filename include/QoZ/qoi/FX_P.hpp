@@ -50,13 +50,13 @@ namespace QoZ {
             Expression ddf;
              x = symbol("x");
     
-            f = Expression(f1_c);
+            f = Expression(f1_c).simplify();//may also expand or remove simplify
             // std::cout<<"init 2"<< std::endl;
             //df = diff(f,x);
-            df = f.diff(x);
+            df = f.diff(x).simplify();
             // std::cout<<"init 3 "<< std::endl;
             //ddf = diff(df,x);
-            ddf = df.diff(x);
+            ddf = df.diff(x).simplify();
            // std::cout<<"f: "<< f<<std::endl;
             //std::cout<<"df: "<< df<<std::endl;
             //std::cout<<"ddf: "<< ddf<<std::endl;
@@ -64,11 +64,11 @@ namespace QoZ {
             df1 = convert_expression_to_function(df, x);
             ddf1 = convert_expression_to_function(ddf, x);
 
-            f = Expression(f2_c);
+            f = Expression(f2_c).simplify();
         
-            df = f.diff(x);
+            df = f.diff(x).simplify();
             
-            ddf = df.diff(x);
+            ddf = df.diff(x).simplify();
 
             f2 = convert_expression_to_function(f, x);
             df2 = convert_expression_to_function(df, x);

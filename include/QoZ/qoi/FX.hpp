@@ -16,6 +16,8 @@
 #include <symengine/symbol.h>
 #include <symengine/derivative.h>
 #include <symengine/eval.h> 
+#include <symengine/solve.h>
+#include <symengine/functions.h>
 
 using SymEngine::Expression;
 using SymEngine::Symbol;
@@ -31,6 +33,15 @@ using SymEngine::RCP;
 using SymEngine::Basic;
 using SymEngine::real_double;
 using SymEngine::eval_double;
+
+
+using SymEngine::solve;
+using SymEngine::rcp_static_cast;
+using SymEngine::Mul;
+using SymEngine::Pow;
+using SymEngine::Log;
+using SymEngine::Sqrt;
+using SymEngine::is_a;
 
 namespace QoZ {
     template<class T, uint N>
@@ -50,13 +61,18 @@ namespace QoZ {
             Expression ddf;
              x = symbol("x");
     
-            f = Expression(ff);
+            f = Expression(ff).simplify();;//may also expand or remove simplify
+
+            std::vector<Expression>singularities = find_singularities(f);
+            for (const auto& singularity : singularities) {
+                std::cout << singularity << std::endl;
+            }
             // std::cout<<"init 2"<< std::endl;
             //df = diff(f,x);
-            df = f.diff(x);
+            df = f.diff(x).simplify();
             // std::cout<<"init 3 "<< std::endl;
             //ddf = diff(df,x);
-            ddf = df.diff(x);
+            ddf = df.diff(x).simplify();
             std::cout<<"f: "<< f<<std::endl;
             std::cout<<"df: "<< df<<std::endl;
             std::cout<<"ddf: "<< ddf<<std::endl;
@@ -135,16 +151,16 @@ namespace QoZ {
         std::function<double(T)> convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
             //std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
             // x
-            if (SymEngine::is_a<const SymEngine::Symbol>(expr)) {
+            if (is_a<const SymEngine::Symbol>(expr)) {
                 return [](T x_value) { return x_value; };
             }
             // c
-            else if (SymEngine::is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
+            else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
                 double constant_value = eval_double(expr);
                 return [constant_value](T) { return constant_value; };
             }
             // +
-            else if (SymEngine::is_a<SymEngine::Add>(expr)) {
+            else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
                 auto left = convert_expression_to_function(Expression(args[0]), x);
                 auto right = convert_expression_to_function(Expression(args[1]), x);
@@ -163,7 +179,7 @@ namespace QoZ {
                 };
             }*/
             // *
-            else if (SymEngine::is_a<SymEngine::Mul>(expr)) {
+            else if (is_a<SymEngine::Mul>(expr)) {
                 auto args = expr.get_args();
                 auto left = convert_expression_to_function(Expression(args[0]), x);
                 auto right = convert_expression_to_function(Expression(args[1]), x);
@@ -182,7 +198,7 @@ namespace QoZ {
                 };
             }*/
             // pow
-            else if (SymEngine::is_a<SymEngine::Pow>(expr)) {
+            else if (is_a<SymEngine::Pow>(expr)) {
                 auto args = expr.get_args();
                 auto base = convert_expression_to_function(Expression(args[0]), x);
                 auto exponent = convert_expression_to_function(Expression(args[1]), x);
@@ -191,56 +207,56 @@ namespace QoZ {
                 };
             }
             // sin
-            else if (SymEngine::is_a<SymEngine::Sin>(expr)) {
+            else if (is_a<SymEngine::Sin>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
                 return [arg](T x_value) {
                     return std::sin(arg(x_value));
                 };
             }
             // cos
-            else if (SymEngine::is_a<SymEngine::Cos>(expr)) {
+            else if (is_a<SymEngine::Cos>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
                 return [arg](T x_value) {
                     return std::cos(arg(x_value));
                 };
             }
 
-            else if (SymEngine::is_a<SymEngine::Tan>(expr)) {
+            else if (is_a<SymEngine::Tan>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
                 return [arg](T x_value) {
                     return std::tan(arg(x_value));
                 };
             }
 
-            else if (SymEngine::is_a<SymEngine::Sinh>(expr)) {
+            else if (is_a<SymEngine::Sinh>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
                 return [arg](T x_value) {
                     return std::sinh(arg(x_value));
                 };
             }
             // cos
-            else if (SymEngine::is_a<SymEngine::Cosh>(expr)) {
+            else if (is_a<SymEngine::Cosh>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
                 return [arg](T x_value) {
                     return std::cosh(arg(x_value));
                 };
             }
 
-            else if (SymEngine::is_a<SymEngine::Tanh>(expr)) {
+            else if (is_a<SymEngine::Tanh>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
                 return [arg](T x_value) {
                     return std::tanh(arg(x_value));
                 };
             }
 
-            else if (SymEngine::is_a<SymEngine::Sign>(expr)) {
+            else if (is_a<SymEngine::Sign>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
                 return [arg](T x_value) {
                     return (x_value > 0) - (0 > x_value);
                 };
             }
             //  log
-            else if (SymEngine::is_a<SymEngine::Log>(expr)) {
+            else if (is_a<SymEngine::Log>(expr)) {
                 auto args = expr.get_args();
                 auto arg = convert_expression_to_function(Expression(args[0]), x);
 
@@ -258,6 +274,84 @@ namespace QoZ {
 
             throw std::runtime_error("Unsupported expression type");
         }
+
+        std::vector<Expression> find_singularities(const Expression& expr, const Expression& x) {
+            std::vector<Expression> singularities;
+
+            if (is_a<Mul>(*expr)) {
+                auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
+                for (auto arg : mul_expr->get_args()) {
+                    if (is_a<Pow>(*arg)) {
+                        auto pow_expr = rcp_static_cast<const Pow>(arg);
+                        if (pow_expr->get_exp()->__eq__(*SymEngine::minus_one)) {
+                            auto denominator = pow_expr->get_base();
+                            auto solutions = solve(denominator, x);
+                            for (auto sol : solutions) {
+                                singularities.push_back(sol);
+                            }
+                        }
+                    } else {
+                        auto sub_singularities = find_singularities(Expression(arg), x);
+                        singularities.insert(singularities.end(), sub_singularities.begin(), sub_singularities.end());
+                    }
+                }
+            }
+            
+            if (is_a<Log>(*expr)) {
+                auto log_expr = rcp_static_cast<const Log>(expr.get_basic());
+                auto log_argument = log_expr->get_args()[0];
+                auto log_solutions = solve(log_argument, x);
+                for (auto sol : log_solutions) {
+                    singularities.push_back(sol);
+                }
+            }
+
+            if (is_a<Sqrt>(*expr)) {
+                auto sqrt_expr = rcp_static_cast<const Sqrt>(expr.get_basic());
+                auto sqrt_argument = sqrt_expr->get_args()[0];
+                auto sqrt_solutions = solve(sqrt_argument, x);
+                for (auto sol : sqrt_solutions) {
+                    singularities.push_back(sol);
+                }
+            }
+
+            if (is_a<Pow>(*expr)) {
+                auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
+                auto exponent = pow_expr->get_exp();
+
+                if (is_a<SymEngine::Number>(*exponent)) {
+                    double exp_val = evalf(exponent).as_double();
+                    if (exp_val > 0 && exp_val < 2 && std::floor(exp_val) != exp_val) {
+                        auto base = pow_expr->get_base();
+                        auto base_solutions = solve(base, x);
+                        for (auto sol : base_solutions) {
+                            singularities.push_back(sol);
+                        }
+                    }
+                }
+            }
+
+            if (is_a<SymEngine::Add>(*expr)) {
+                auto add_expr = rcp_static_cast<const SymEngine::Add>(expr.get_basic());
+                for (auto arg : add_expr->get_args()) {
+                    auto sub_singularities = find_singularities(Expression(arg), x);
+                    singularities.insert(singularities.end(), sub_singularities.begin(), sub_singularities.end());
+                }
+            }
+
+            if (is_a<SymEngine::Mul>(*expr) && !is_a<Pow>(*expr)) {
+                auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
+                for (auto arg : mul_expr->get_args()) {
+                    auto sub_singularities = find_singularities(Expression(arg), x);
+                    singularities.insert(singularities.end(), sub_singularities.begin(), sub_singularities.end());
+                }
+            }
+
+            return singularities;
+        }
+
+
+
         RCP<const Symbol>  x;
         T tolerance;
         T global_eb;
