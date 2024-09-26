@@ -332,7 +332,12 @@ namespace QoZ {
                 std::cout<<*exponent<<std::endl;
 
                 if (is_a<const RealDouble>(*exponent) or is_a<const Integer>(*exponent)) {
-                    double exp_val = SymEngine::rcp_static_cast<const SymEngine::RealDouble>(exponent)->as_double();
+                    double exp_val;
+                    if (is_a<const Integer>(*exponent))
+                        exp_val=SymEngine::rcp_static_cast<const SymEngine::Integer>(exponent)->as_int();
+                    else
+                        exp_val=SymEngine::rcp_static_cast<const SymEngine::RealDouble>(exponent)->as_double();
+            
                     if (exp_val < 0 || (exp_val < 2 && std::floor(exp_val) != exp_val)) {
                         auto base = pow_expr->get_base();
                         auto solutions = solve(base, x);
