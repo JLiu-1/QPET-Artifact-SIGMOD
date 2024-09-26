@@ -840,7 +840,7 @@ namespace QoZ {
 
 
             if(mode==-1){//recover
-                auto eb = quantizer_eb.recover(quant_inds[quant_index]);
+                T eb = quantizer_eb.recover(quant_inds[quant_index]);
                 d = quantizer.recover(pred, quant_inds[num_elements + quant_index], eb);
                 quant_index ++;
             }
@@ -7344,7 +7344,7 @@ namespace QoZ {
        // double anchor_threshold=0.0;//temp for "adaptive anchor stride";
 
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
-        std::vector<T> ebs;
+        std::vector<double> ebs;
 
 
 
