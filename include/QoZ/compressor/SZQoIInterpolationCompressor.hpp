@@ -880,7 +880,7 @@ namespace QoZ {
             }
             else if(mode==1){
                 T orig=d;
-                quant_inds.push_back(quantizer.quantize_and_overwrite(d, pred));
+                quant_inds.push_back(quantizer.quantize_and_overwrite(d, pred,false));
                 return (d-orig)*(d-orig);
             }
             else{// if (mode==2){
