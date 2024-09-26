@@ -32,7 +32,6 @@ using SymEngine::Basic;
 using SymEngine::real_double;
 using SymEngine::eval_double;
 
-using SymEngine::simplify;
 
 namespace QoZ {
     template<class T, uint N>
@@ -52,13 +51,13 @@ namespace QoZ {
             Expression ddf;
              x = symbol("x");
     
-            f = simplify(Expression(f1_c));//may also expand or remove simplify
+            f = Expression(f1_c);
             // std::cout<<"init 2"<< std::endl;
             //df = diff(f,x);
-            df = simplify(f.diff(x));
+            df = f.diff(x);
             // std::cout<<"init 3 "<< std::endl;
             //ddf = diff(df,x);
-            ddf = simplify(df.diff(x));
+            ddf = df.diff(x);
            // std::cout<<"f: "<< f<<std::endl;
             //std::cout<<"df: "<< df<<std::endl;
             //std::cout<<"ddf: "<< ddf<<std::endl;
@@ -66,11 +65,11 @@ namespace QoZ {
             df1 = convert_expression_to_function(df, x);
             ddf1 = convert_expression_to_function(ddf, x);
 
-            f = simplify(Expression(f2_c));
+            f = Expression(f2_c);
         
-            df = simplify(f.diff(x));
+            df = f.diff(x);
             
-            ddf = simplify(df.diff(x));
+            ddf = df.diff(x);
 
             f2 = convert_expression_to_function(f, x);
             df2 = convert_expression_to_function(df, x);
