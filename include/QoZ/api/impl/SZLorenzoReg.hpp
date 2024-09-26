@@ -102,7 +102,7 @@ make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concep
                                                     QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
         }
         else if(conf.lorenzo2){
-            sz = QoZ::make_sz_general_compressor<T, N>(SZ::make_sz_qoi_frontend<T, N>(conf, SZ::LorenzoPredictor<T, N, 2>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
+            sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 2>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
                                                     QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
         }
     }

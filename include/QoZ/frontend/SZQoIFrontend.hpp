@@ -27,7 +27,8 @@ namespace QoZ {
                 block_size(conf.blockSize),
                 num_elements(conf.num),
                 quantizer_eb(quantizer_eb),
-                qoi(qoi) {
+                qoi(qoi),
+                ebs(conf.ebs){
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
         }
 
@@ -60,7 +61,7 @@ namespace QoZ {
                     auto ori_data = *element;
                     // interpret the error bound for current data based on qoi
                     //auto eb = qoi->interpret_eb(element);
-                    T eb = conf.ebs[element.get_offset()];
+                    T eb = ebs[element.get_offset()];
 
                     quant_inds[quant_count] = quantizer_eb.quantize_and_overwrite(eb);
                     quant_inds[num_elements + quant_count] = quantizer.quantize_and_overwrite(
@@ -177,6 +178,7 @@ namespace QoZ {
         LorenzoPredictor<T, N, 1> fallback_predictor;
         Quantizer_EB quantizer_eb;
         Quantizer quantizer;
+        std::vector<double> ebs;
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
         uint block_size;
         size_t num_elements;

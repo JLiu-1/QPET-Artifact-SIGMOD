@@ -866,8 +866,8 @@ namespace QoZ {
             else if(mode==0){
 
                 T ori_data = d;
-                if(idx == target_idx)
-                    std::cout<<ori_data<<std::endl;
+                //if(idx == target_idx)
+                //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb = ebs[idx];
                 //debug
