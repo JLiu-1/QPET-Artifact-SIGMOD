@@ -86,7 +86,7 @@ make_lorenzo_regression_compressor(const QoZ::Config &conf, Quantizer quantizer,
 
 
 template<class T, QoZ::uint N, class Quantizer, class Quantizer_EB>
-std::shared_ptr<QoZ::concepts::CompressorInterface<T>>
+QoZ::concepts::CompressorInterface<T>*
 make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoi, Quantizer quantizer, Quantizer_EB quantizer_eb) {
 
     quantizer.clear();
