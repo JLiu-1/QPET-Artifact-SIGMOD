@@ -107,7 +107,7 @@ namespace QoZ {
             lossless.postdecompress_data(buffer);
             //timer.stop("decode");
             //timer.start();
-            double eb = quantizer.get_eb();
+            double eb = quantizer_eb.get_global_eb();
             if(!anchor){
                 quantize_integrated(0, *decData, 0, -1);
             }
@@ -121,9 +121,9 @@ namespace QoZ {
 
                 if (alpha<0) {
                     if (level >= 3) {
-                        quantizer.set_eb(eb * eb_ratio);
+                        quantizer_eb.set_global_eb(eb * eb_ratio);
                     } else {
-                        quantizer.set_eb(eb);
+                        quantizer_eb.set_global_eb(eb);
                     }
                 }
                 
@@ -135,7 +135,7 @@ namespace QoZ {
                         cur_ratio=beta;
                     }
                     
-                    quantizer.set_eb(eb/cur_ratio);
+                    quantizer_eb.set_global_eb(eb/cur_ratio);
                 }
                 else{
                     
@@ -145,7 +145,7 @@ namespace QoZ {
                         cur_ratio=beta;
                     }
                    
-                    quantizer.set_eb(eb*cur_ratio);
+                    quantizer_eb.set_global_eb(eb*cur_ratio);
                 }
 
                 QoZ::Interp_Meta cur_meta;
