@@ -142,7 +142,7 @@ namespace QoZ {
         }
 
         // required function in Quantizer interface
-        int quantize_and_overwrite(T &data, T pred, bool save_unpred) {
+        int quantize_and_overwrite(T &data, T pred, bool save_unpred = true) {
             return 0;
         }
 
