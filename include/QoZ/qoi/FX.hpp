@@ -43,6 +43,8 @@ using SymEngine::Log;
 using SymEngine::Sqrt;
 using SymEngine::is_a;
 
+using SymEngine::simplify;
+
 namespace QoZ {
     template<class T, uint N>
     class QoI_FX : public concepts::QoIInterface<T, N> {
@@ -61,7 +63,7 @@ namespace QoZ {
             Expression ddf;
              x = symbol("x");
     
-            f = Expression(ff).simplify();;//may also expand or remove simplify
+            f = simplify(Expression(ff));;//may also expand or remove simplify
 
             std::vector<Expression>singularities = find_singularities(f);
             for (const auto& singularity : singularities) {
@@ -69,10 +71,10 @@ namespace QoZ {
             }
             // std::cout<<"init 2"<< std::endl;
             //df = diff(f,x);
-            df = f.diff(x).simplify();
+            df = simplify(f.diff(x));
             // std::cout<<"init 3 "<< std::endl;
             //ddf = diff(df,x);
-            ddf = df.diff(x).simplify();
+            ddf = simplify(df.diff(x));
             std::cout<<"f: "<< f<<std::endl;
             std::cout<<"df: "<< df<<std::endl;
             std::cout<<"ddf: "<< ddf<<std::endl;
