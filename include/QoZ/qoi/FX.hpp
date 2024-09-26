@@ -65,7 +65,7 @@ namespace QoZ {
     
             f = Expression(ff);
 
-            std::vector<Expression>singularities = find_singularities(f);
+            std::vector<Expression>singularities = find_singularities(f,x);
             for (const auto& singularity : singularities) {
                 std::cout << singularity << std::endl;
             }
@@ -277,7 +277,7 @@ namespace QoZ {
             throw std::runtime_error("Unsupported expression type");
         }
 
-        std::vector<Expression> find_singularities(const Expression& expr, const Expression& x) {
+        std::vector<Expression> find_singularities(const Basic & expr, const RCP<const Symbol> &x) {
             std::vector<Expression> singularities;
 
             if (is_a<Mul>(*expr)) {
