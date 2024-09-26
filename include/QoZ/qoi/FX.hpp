@@ -287,7 +287,7 @@ namespace QoZ {
                         if (pow_expr->get_exp()->__eq__(*SymEngine::minus_one)) {
                             auto denominator = pow_expr->get_base();
                             auto solutions = solve(denominator, x);
-                            for (auto sol : solutions) {
+                            for (auto sol : *solutions) {
                                 singularities.push_back(sol);
                             }
                         }
@@ -302,7 +302,7 @@ namespace QoZ {
                 auto log_expr = rcp_static_cast<const Log>(expr.get_basic());
                 auto log_argument = log_expr->get_args()[0];
                 auto log_solutions = solve(log_argument, x);
-                for (auto sol : log_solutions) {
+                for (auto sol : *log_solutions) {
                     singularities.push_back(sol);
                 }
             }
@@ -311,7 +311,7 @@ namespace QoZ {
                 auto sqrt_expr = rcp_static_cast<const Sqrt>(expr.get_basic());
                 auto sqrt_argument = sqrt_expr->get_args()[0];
                 auto sqrt_solutions = solve(sqrt_argument, x);
-                for (auto sol : sqrt_solutions) {
+                for (auto sol : *sqrt_solutions) {
                     singularities.push_back(sol);
                 }
             }
@@ -325,7 +325,7 @@ namespace QoZ {
                     if (exp_val > 0 && exp_val < 2 && std::floor(exp_val) != exp_val) {
                         auto base = pow_expr->get_base();
                         auto base_solutions = solve(base, x);
-                        for (auto sol : base_solutions) {
+                        for (auto sol : *base_solutions) {
                             singularities.push_back(sol);
                         }
                     }
