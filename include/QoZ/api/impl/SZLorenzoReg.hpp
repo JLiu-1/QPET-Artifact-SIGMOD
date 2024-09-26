@@ -106,14 +106,15 @@ make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concep
                                                     QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
         }
     }
-    else{
+    //else{
         std::vector<std::shared_ptr<QoZ::concepts::PredictorInterface<T, N>>> predictors;
         predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 1>>(conf.absErrorBound));
         predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 2>>(conf.absErrorBound));
         return QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::ComposedPredictor<T, N>(predictors), quantizer, quantizer_eb, qoi),
                                                 QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
-    }
+    //}
     //return sz;
+    //return NULL;
 }
 
 template<class T, QoZ::uint N>
