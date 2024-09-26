@@ -213,7 +213,7 @@ namespace QoZ {
             }
             quantizer.postdecompress_data();
 
-            std::cout<<"quant index: "<<quant_index<<std::endl;
+            //std::cout<<"quant index: "<<quant_index<<std::endl;
             return decData;
         }
         
@@ -594,7 +594,7 @@ namespace QoZ {
             lossless.postcompress_data(buffer);
             //timer.stop("Lossless") ;
             compressed_size += interp_compressed_size;
-            std::cout<<"quant index: "<<quant_index<<std::endl;
+            //std::cout<<"quant index: "<<quant_index<<std::endl;
 
             //std::cout<<quant_inds.size()<<" "<<num_elements*2<<std::endl;
             return lossless_data;
@@ -863,6 +863,7 @@ namespace QoZ {
                 quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
                 quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
                         d, pred, eb);
+                /*
                 if(!qoi->check_compliance(ori_data, d)){
                     // std::cout << "not compliant" << std::endl;
                     // save as unpredictable
@@ -874,7 +875,7 @@ namespace QoZ {
                         quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
                                 d, 0, T(0.0));                    
                     }
-                }
+                }*/
                 // update cumulative tolerance if needed 
                 qoi->update_tolerance(ori_data, d);
                 quant_index ++;
