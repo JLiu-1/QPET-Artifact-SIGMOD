@@ -276,7 +276,7 @@ namespace QoZ {
             throw std::runtime_error("Unsupported expression type");
         }
 
-        std::vector<Expression> find_singularities(const Expression& expr, const Expression& x) {
+        std::vector<Expression> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
             std::vector<Expression> singularities;
 
             if (is_a<Mul>(expr)) {
