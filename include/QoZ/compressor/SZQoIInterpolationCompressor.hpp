@@ -865,7 +865,7 @@ namespace QoZ {
                     if(quant_inds[num_elements + quant_index] != 0){
                         // avoiding push multiple data
                         quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
-                                d, 0, 0.0);                    
+                                d, 0, (T)0.0);                    
                     }
                 }
                 // update cumulative tolerance if needed 
