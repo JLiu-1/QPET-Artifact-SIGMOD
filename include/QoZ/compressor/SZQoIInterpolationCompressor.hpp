@@ -104,7 +104,7 @@ namespace QoZ {
             quant_inds = encoder.decode(buffer_pos, num_elements);
             encoder.postprocess_decode();
 
-            QoZ::writefile<int>("quant_inds_dcmp.test", quant_inds.data(),quant_inds.size());//added.
+            //QoZ::writefile<int>("quant_inds_dcmp.test", quant_inds.data(),quant_inds.size());//added.
 
             lossless.postdecompress_data(buffer);
             //timer.stop("decode");
@@ -598,7 +598,7 @@ namespace QoZ {
             compressed_size += interp_compressed_size;
 
 
-            QoZ::writefile<int>("quant_inds_cmp.test", quant_inds.data(),quant_inds.size());//added.
+            //QoZ::writefile<int>("quant_inds_cmp.test", quant_inds.data(),quant_inds.size());//added.
 
             //std::cout<<"quant index: "<<quant_index<<std::endl;
 
@@ -850,10 +850,16 @@ namespace QoZ {
 
             double pred_error=0;
 
+            size_t target_idx = 48*dimension_offsets[0]+239*dimension_offsets[1]+227*dimension_offsets[2];
+
 
             if(mode==-1){//recover
                 T eb = quantizer_eb.recover(quant_inds[quant_index]);
                 d = quantizer.recover(pred, quant_inds[num_elements + quant_index], eb);
+
+                if(idx == target_idx){
+                    std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<std::endl;
+                }
                 quant_index ++;
                 return 0;
             }
@@ -880,6 +886,9 @@ namespace QoZ {
                         quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
                                 d, 0, T(0.0));                    
                     }
+                }
+                if(idx == target_idx){
+                    std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<std::endl;
                 }
                 // update cumulative tolerance if needed 
                 qoi->update_tolerance(ori_data, d);
