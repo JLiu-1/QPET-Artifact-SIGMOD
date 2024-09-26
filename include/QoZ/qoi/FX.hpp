@@ -40,10 +40,9 @@ using SymEngine::rcp_static_cast;
 using SymEngine::Mul;
 using SymEngine::Pow;
 using SymEngine::Log;
-using SymEngine::Sqrt;
+using SymEngine::sqrt;
 using SymEngine::is_a;
 
-using SymEngine::simplify;
 
 namespace QoZ {
     template<class T, uint N>
@@ -277,10 +276,10 @@ namespace QoZ {
             throw std::runtime_error("Unsupported expression type");
         }
 
-        std::vector<Expression> find_singularities(const Basic & expr, const RCP<const Symbol> &x) {
+        std::vector<Expression> find_singularities(const Expression& expr, const Expression& x) {
             std::vector<Expression> singularities;
 
-            if (is_a<Mul>(*expr)) {
+            if (is_a<Mul>(expr.get_basic())) {
                 auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
                 for (auto arg : mul_expr->get_args()) {
                     if (is_a<Pow>(*arg)) {
@@ -299,7 +298,7 @@ namespace QoZ {
                 }
             }
             
-            if (is_a<Log>(*expr)) {
+            if (is_a<Log>(expr.get_basic())) {
                 auto log_expr = rcp_static_cast<const Log>(expr.get_basic());
                 auto log_argument = log_expr->get_args()[0];
                 auto log_solutions = solve(log_argument, x);
@@ -308,8 +307,8 @@ namespace QoZ {
                 }
             }
 
-            if (is_a<Sqrt>(*expr)) {
-                auto sqrt_expr = rcp_static_cast<const Sqrt>(expr.get_basic());
+            if (is_a<sqrt>(expr.get_basic())) {
+                auto sqrt_expr = rcp_static_cast<const sqrt>(expr.get_basic());
                 auto sqrt_argument = sqrt_expr->get_args()[0];
                 auto sqrt_solutions = solve(sqrt_argument, x);
                 for (auto sol : sqrt_solutions) {
@@ -317,7 +316,7 @@ namespace QoZ {
                 }
             }
 
-            if (is_a<Pow>(*expr)) {
+            if (is_a<Pow>(expr.get_basic())) {
                 auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
                 auto exponent = pow_expr->get_exp();
 
@@ -333,7 +332,7 @@ namespace QoZ {
                 }
             }
 
-            if (is_a<SymEngine::Add>(*expr)) {
+            if (is_a<SymEngine::Add>(expr.get_basic())) {
                 auto add_expr = rcp_static_cast<const SymEngine::Add>(expr.get_basic());
                 for (auto arg : add_expr->get_args()) {
                     auto sub_singularities = find_singularities(Expression(arg), x);
@@ -341,7 +340,7 @@ namespace QoZ {
                 }
             }
 
-            if (is_a<SymEngine::Mul>(*expr) && !is_a<Pow>(*expr)) {
+            if (is_a<SymEngine::Mul>(expr.get_basic()) && !is_a<Pow>(expr.get_basic())) {
                 auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
                 for (auto arg : mul_expr->get_args()) {
                     auto sub_singularities = find_singularities(Expression(arg), x);
