@@ -321,7 +321,7 @@ namespace QoZ {
                 auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
                 auto exponent = pow_expr->get_exp();
 
-                if (is_a<SymEngine::Number>(*exponent)) {
+                if (is_a<const RealDouble>(*exponent) or SymEngine::is_a<const Integer>(*exponent)) {
                     double exp_val = SymEngine::rcp_static_cast<const SymEngine::RealDouble>(exponent)->as_double();
                     if (exp_val < 0 || (exp_val < 2 && std::floor(exp_val) != exp_val)) {
                         auto base = pow_expr->get_base();
