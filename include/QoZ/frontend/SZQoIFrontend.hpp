@@ -66,7 +66,7 @@ namespace QoZ {
                     if (qoi_id != 16)
                         eb = ebs[element.get_offset()];
                     else
-                        eb = qoi->interpret_eb(element,element.get_offset());
+                        eb = qoi->interpret_eb(&(*element),element.get_offset());
 
 
                     quant_inds[quant_count] = quantizer_eb.quantize_and_overwrite(eb);
