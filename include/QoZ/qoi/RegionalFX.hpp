@@ -1,9 +1,9 @@
 //
-// Created by Xin Liang on 12/06/2021.
+// Created by Xin Liang on 03/09/2021.
 //
 
-#ifndef SZ_QOI_FX_HPP
-#define SZ_QOI_FX_HPP
+#ifndef SZ_QOI_R_FX_HPP
+#define SZ_QOI_R_FX_SQUARE_HPP
 
 #include <algorithm>
 #include <cmath>
@@ -45,20 +45,97 @@ using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
 
-
 namespace QoZ {
     template<class T, uint N>
-    class QoI_FX : public concepts::QoIInterface<T, N> {
+    class QoI_RegionalFX_lorenzo : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FX(T tolerance, T global_eb, std::string ff = "x^2") : 
+        QoI_RegionalFX_lorenzo(T tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
-            // TODO: adjust type for int data
-            //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 14;
-           // std::cout<<"init 1 "<< std::endl;
-            
+            printf("QoI_RegionalAverageOfSquare\n");
+            printf("tolerance = %.4e\n", (double) tolerance);
+            printf("global_eb = %.4e\n", (double) global_eb);
+            concepts::QoIInterface<T, N>::id = 16;
+        }
+
+        using Range = multi_dimensional_range<T, N>;
+        using iterator = typename multi_dimensional_range<T, N>::iterator;
+
+        T interpret_eb(T data) const {
+            // eb for data^2
+            double eb_x2 = (aggregated_tolerance - fabs(error)) / rest_elements;
+            // compute eb based on formula of x^2
+            T eb = - fabs(data) + sqrt(data * data + eb_x2);
+            return std::min(eb, global_eb);
+        }
+
+        T interpret_eb(const iterator &iter) const {
+            return interpret_eb(*iter);
+        }
+
+        T interpret_eb(const T * data, ptrdiff_t offset) {
+            return interpret_eb(*data);
+        }
+
+        void update_tolerance(T data, T dec_data){
+            error += data*data - dec_data*dec_data;
+            rest_elements --;
+        }
+
+        bool check_compliance(T data, T dec_data, bool verbose=false) const {
+            return true;
+        }
+
+        void precompress_block(const std::shared_ptr<Range> &range){
+            // compute number of elements
+            auto dims = range->get_dimensions();
+            size_t num_elements = 1;
+            for (const auto &dim: dims) {
+                num_elements *= dim;
+            }
+            // assignment
+            rest_elements = num_elements;
+            block_elements = num_elements;
+            aggregated_tolerance = tolerance * num_elements;
+        }
+
+        void postcompress_block(){
+            error = 0;
+        }
+
+        void print(){}
+
+        T get_global_eb() const { return global_eb; }
+
+        void set_global_eb(T eb) {global_eb = eb;}
+
+        void init(){}
+
+        void set_dims(const std::vector<size_t>& new_dims){}
+
+    private:
+        T tolerance;
+        T global_eb;
+        double error = 0;
+        int rest_elements;
+        int block_elements;
+        double aggregated_tolerance;
+    };
+
+    template<class T, uint N>
+    class QoI_RegionalFX : public concepts::QoIInterface<T, N> {
+
+    public:
+        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims) : 
+                tolerance(tolerance),
+                global_eb(global_eb),
+                dims(dims),
+                block_size(block_size) {
+            printf("tolerance = %.4e\n", (double) tolerance);
+            printf("global_eb = %.4e\n", (double) global_eb);
+            concepts::QoIInterface<T, N>::id = 16;
+
             Expression f;
             Expression df;
             Expression ddf;
@@ -84,52 +161,49 @@ namespace QoZ {
             func = convert_expression_to_function(f, x);
             deri_1 = convert_expression_to_function(df, x);
             deri_2 = convert_expression_to_function(ddf, x);
-            // std::cout<<"init 4 "<< std::endl;
-              
-           // RCP<const Basic> result = evalf(df.subs(map_basic_basic({{x,RealDouble(2).rcp_from_this()}})),53, SymEngine::EvalfDomain::Real);
-           // RCP<const Symbol> value = symbol("2");
-           // map_basic_basic mbb=  {{x,value}};
-            //std::cout<<"init 5 "<< std::endl;
-             //double result = (double)df.subs({{x,real_double(2)}}); 
-           
-           // std::cout<<"Eval res: "<<result<<std::endl;
-            //SymEngine::RCP<const Basic> result = evalf(df,53, SymEngine::EvalfDomain::Real);
-            //std::cout<< (down_cast<const RealDouble &>(*result)).as_double()<<std::endl;
+
+
+            init();
         }
 
         using Range = multi_dimensional_range<T, N>;
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            
-
-            double a = fabs(deri_1(data));//datatype may be T
-            double b = fabs(deri_2(data));
-           // 
-            T eb;
-            if(!std::isnan(a) and !std::isnan(b) and b !=0 )
-                eb = (sqrt(a*a+2*b*tolerance)-a)/b;
-            else if (!std::isnan(a) and a!=0 )
-                eb = tolerance/a;
-            else 
-                eb = global_eb;
-           // std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
-            return std::min(eb, global_eb);
+            std::cerr << "Not implemented\n";
+            exit(-1);
+            return 0;
         }
 
         T interpret_eb(const iterator &iter) const {
-            return interpret_eb(*iter);
+            std::cerr << "Not implemented\n";
+            exit(-1);
+            return 0;
         }
 
         T interpret_eb(const T * data, ptrdiff_t offset) {
-            return interpret_eb(*data);
+            block_id = compute_block_id(offset);
+            double L = deri_1(*data);//todo: save L for each offset, and use same qoi object for tuning and cmp 
+            T eb = L !=0 ? (aggregated_tolerance[block_id] - fabs(accumulated_error[block_id])) / (rest_elements[block_id] * L) : global_eb;
+            return std::min(eb, global_eb);
+        }
+
+        void update_tolerance(T data, T dec_data){
+            //if (tuning)
+            //    return;
+            accumulated_error[block_id] += func(data) - func(dec_data);
+            rest_elements[block_id] --;
+            if(rest_elements[block_id] == 0 and fabs(accumulated_error[block_id]) > aggregated_tolerance[block_id]){
+                printf("%d: %.4e / %.4e\n", block_id, accumulated_error[block_id], aggregated_tolerance[block_id]);
+                printf("%d / %d\n", rest_elements[block_id], block_elements[block_id]);
+                exit(-1);
+            }
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            return (fabs(func(data) - func(dec_data)) < tolerance);
+            return true;//todo: a real check, and rework on a block if it is false 
+           
         }
-
-        void update_tolerance(T data, T dec_data){}
 
         void precompress_block(const std::shared_ptr<Range> &range){}
 
@@ -141,11 +215,96 @@ namespace QoZ {
 
         void set_global_eb(T eb) {global_eb = eb;}
 
-        void init(){}
+        void init(){
+            block_dims = std::vector<size_t>(dims.size());
+            size_t num_blocks = 1;
+            num_elements = 1;
+            for(int i=0; i<dims.size(); i++){
+                num_elements *= dims[i];
+                block_dims[i] = (dims[i] - 1) / block_size + 1;
+                num_blocks *= block_dims[i];
+                std::cout << block_dims[i] << " ";
+            }
+            std::cout << std::endl;
+            aggregated_tolerance = std::vector<double>(num_blocks);
+            block_elements = std::vector<int>(num_blocks, 0);
+            rest_elements = std::vector<int>(num_blocks, 0);
+            if(dims.size() == 2){
+                for(int i=0; i<block_dims[0]; i++){
+                    int size_x = (i < block_dims[0] - 1) ? block_size : dims[0] - i * block_size;
+                    for(int j=0; j<block_dims[1]; j++){
+                        int size_y = (j < block_dims[1] - 1) ? block_size : dims[1] - j * block_size;
+                        int num_block_elements = size_x * size_y;
+                        aggregated_tolerance[i * block_dims[1] + j] = num_block_elements * tolerance;
+                        block_elements[i * block_dims[1] + j] = num_block_elements;
+                        rest_elements[i * block_dims[1] + j] = num_block_elements;
+                    }
+                }
+            }
+            else if(dims.size() == 3){
+                for(int i=0; i<block_dims[0]; i++){
+                    int size_x = (i < block_dims[0] - 1) ? block_size : dims[0] - i * block_size;
+                    for(int j=0; j<block_dims[1]; j++){
+                        int size_y = (j < block_dims[1] - 1) ? block_size : dims[1] - j * block_size;
+                        for(int k=0; k<block_dims[2]; k++){
+                            int size_z = (k < block_dims[2] - 1) ? block_size : dims[2] - k * block_size;
+                            int num_block_elements = size_x * size_y * size_z;
+                            // printf("%d, %d, %d: %d * %d * %d = %d\n", i, j, k, size_x, size_y, size_z, num_block_elements);
+                            aggregated_tolerance[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements * tolerance;
+                            block_elements[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements;
+                            rest_elements[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements;
+                        }
+                    }
+                }
+            }
+            else{
+                std::cerr << "dims other than 2 or 3 are not implemented" << std::endl;
+                exit(-1);
+            }
 
-        void set_dims(const std::vector<size_t>& new_dims){}
+            accumulated_error = std::vector<double>(num_blocks, 0);
+            for(s i=0; i<dims.size(); i++){
+                block_dims[i] = (dims[i] - 1) / bl
+
+            std::cout << "end of init\n";            
+        }
+
+        void set_dims(const std::vector<size_t>& new_dims){
+            dims = new_dims;
+        }
 
     private:
+        template<uint NN = N>
+        inline typename std::enable_if<NN == 1, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+            // 1D data
+            return offset / block_size;
+        }
+
+        template<uint NN = N>
+        inline typename std::enable_if<NN == 2, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+            // 3D data
+            int i = offset / dims[1];
+            int j = offset % dims[1];
+            return (i / block_size) * block_dims[1] + (j / block_size);
+        }
+
+        template<uint NN = N>
+        inline typename std::enable_if<NN == 3, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+            // 3D data
+            int i = offset / (dims[1] * dims[2]);
+            offset = offset % (dims[1] * dims[2]);
+            int j = offset / dims[2];
+            int k = offset % dims[2];
+            return (i / block_size) * block_dims[1] * block_dims[2] + (j / block_size) * block_dims[2] + (k / block_size);
+        }
+
+        template<uint NN = N>
+        inline typename std::enable_if<NN == 4, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+            // 4D data
+            std::cerr << "Not implemented!\n";
+            exit(-1);
+            return 0;
+        }
 
         inline double evaluate(const Expression & func, T val) const{
             
@@ -376,13 +535,27 @@ namespace QoZ {
 
 
 
-        RCP<const Symbol>  x;
         T tolerance;
         T global_eb;
+        int block_id;
+        int block_size;
+        std::vector<double> aggregated_tolerance;
+        std::vector<double> accumulated_error;
+        //std::vector<double> derivatives;
+        //std::vector<double> acc_derivatives;
+        std::vector<int> block_elements;
+        std::vector<int> rest_elements;
+        std::vector<size_t> dims;
+        std::vector<size_t> block_dims;
+        size_t num_elements = 1;
+
+        RCP<const Symbol>  x;
         std::function<double(T)> func;
         std::function<double(T)> deri_1;
         std::function<double(T)> deri_2;
-     
+        //bool tuning = false;
     };
+
+
 }
 #endif 

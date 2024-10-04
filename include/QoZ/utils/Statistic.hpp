@@ -226,6 +226,47 @@ namespace QoZ {
         return aggregated;
     }
 
+    template <class T>
+    std::vector<T> compute_square_average(T const * data, uint32_t n1, uint32_t n2, uint32_t n3, int block_size){
+        uint32_t dim0_offset = n2 * n3;
+        uint32_t dim1_offset = n3;
+        uint32_t num_block_1 = (n1 - 1) / block_size + 1;
+        uint32_t num_block_2 = (n2 - 1) / block_size + 1;
+        uint32_t num_block_3 = (n3 - 1) / block_size + 1;
+        std::vector<T> aggregated = std::vector<T>();
+        uint32_t index = 0;
+        T const * data_x_pos = data;
+        for(int i=0; i<num_block_1; i++){
+            int size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
+            T const * data_y_pos = data_x_pos;
+            for(int j=0; j<num_block_2; j++){
+                int size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
+                T const * data_z_pos = data_y_pos;
+                for(int k=0; k<num_block_3; k++){
+                    int size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
+                    T const * cur_data_pos = data_z_pos;
+                    int n_block_elements = size_1 * size_2 * size_3;
+                    double sum = 0;
+                    for(int ii=0; ii<size_1; ii++){
+                        for(int jj=0; jj<size_2; jj++){
+                            for(int kk=0; kk<size_3; kk++){
+                                sum += (*cur_data_pos) * (*cur_data_pos);
+                                cur_data_pos ++;
+                            }
+                            cur_data_pos += dim1_offset - size_3;
+                        }
+                        cur_data_pos += dim0_offset - size_2 * dim1_offset;
+                    }
+                    aggregated.push_back(sum / n_block_elements);
+                    data_z_pos += size_3;
+                }
+                data_y_pos += dim1_offset * size_2;
+            }
+            data_x_pos += dim0_offset * size_1;
+        }    
+        return aggregated;
+    }
+
     template<class T>
     T evaluate_L_inf(T const * data, T const * dec_data, uint32_t num_elements, bool normalized=true, bool verbose=false){
         T L_inf_error = 0;
@@ -259,6 +300,11 @@ namespace QoZ {
             auto average_dec = compute_average(dec_data, n1, n2, n3, block_size);
             auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
+
+            auto square_average = compute_square_average(data, n1, n2, n3, block_size);
+            auto square_average_dec = compute_square_average(dec_data, n1, n2, n3, block_size);
+            auto square_error = evaluate_L_inf(square_average.data(), square_average_dec.data(), square_average.size(), false, false);
+            std::cout << "L^infinity error of square average with block size " << block_size << " = " << error <<std::endl;
             // std::cout << "L^2 error of average with block size " << block_size << " = " << evaluate_L2(average.data(), average_dec.data(), average.size(), true, false) << std::endl;
         }
     }
