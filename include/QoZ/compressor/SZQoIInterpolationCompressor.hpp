@@ -227,6 +227,7 @@ namespace QoZ {
         // compress given the error bound
         uchar *compress( Config &conf, T *data, size_t &compressed_size,int tuning,int start_level,int end_level=0) {
             //tuning 0: normal compress 1:tuning to return qbins and psnr 2: tuning to return prediction loss
+            qoi_id = conf.qoi;
             Timer timer;
             timer.start();
             
@@ -870,8 +871,8 @@ namespace QoZ {
                 //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb;
-                if (conf.qoi == 16)//todo: qoi.getid()
-                    eb = qoi->interpret_eb(data, offset);
+                if (qoi_id == 16)//todo: qoi.getid()
+                    eb = qoi->interpret_eb(&d, idx);
                 else 
                     eb = ebs[idx];
                 //debug
@@ -7373,6 +7374,8 @@ namespace QoZ {
 
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
         std::vector<double> ebs;
+
+        int qoi_id;
 
 
 
