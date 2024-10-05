@@ -548,9 +548,10 @@ namespace QoZ {
         std::string qoi_string_2 = "0";
         double threshold = 0.0;
         bool isolated = false;
-        bool regionalQoI 
+        bool regionalQoI = false;
         isolated = cfg.GetBoolean("QoISettings", "isolated", false);= false;
         std::vector<double> ebs;
+        double regionalQoIeb;
 
 
 
