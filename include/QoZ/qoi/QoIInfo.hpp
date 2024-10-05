@@ -20,7 +20,7 @@
 
 namespace QoZ {
 
-    template<class T, QoZ::uint N>
+    template<class T, QoZ::uint N >
     std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(const Config &conf){
         switch(conf.qoi){
             case 1:
