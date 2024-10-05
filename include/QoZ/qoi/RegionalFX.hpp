@@ -269,7 +269,7 @@ namespace QoZ {
             }
 
             accumulated_error = std::vector<double>(num_blocks, 0);
-            for(s i=0; i<dims.size(); i++)
+            for(size_t i=0; i<dims.size(); i++)
                 block_dims[i] = (dims[i] - 1) / bl
 
             std::cout << "end of init\n";            
