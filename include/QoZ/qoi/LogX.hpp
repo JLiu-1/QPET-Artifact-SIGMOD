@@ -89,6 +89,10 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "ln(x)/"+std::to_string(log_base);
+        }
+
     private:
         inline T log_b_a(T a) const {
             return log(a) / log_b;

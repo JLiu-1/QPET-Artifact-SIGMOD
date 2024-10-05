@@ -87,6 +87,10 @@ namespace QoZ {
             return val*val;//todo
 
         } 
+        std::string get_expression() const{
+            return "x^2";
+        }
+
 
     private:
         T tolerance;

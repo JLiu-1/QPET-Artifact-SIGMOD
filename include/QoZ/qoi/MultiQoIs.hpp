@@ -103,6 +103,10 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "Multi QoIs";
+        }
+
     private:
         std::vector<std::shared_ptr<concepts::QoIInterface< T, N>>> qois;
     };

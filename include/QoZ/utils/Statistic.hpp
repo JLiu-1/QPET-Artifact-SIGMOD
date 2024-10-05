@@ -522,6 +522,7 @@ namespace QoZ {
         }
 
         printf("QoI error info:\n");
+        std::cout<<"QoI function: "<<qoi->get_expression()<<std::endl;;
         printf("Max qoi error = %.6G, relative qoi error = %.6G\n", max_qoi_diff, max_qoi_diff / (max_qoi - min_qoi));
        
         if (blockSize>1){

@@ -75,6 +75,10 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "x^3";
+        }
+
     private:
         T tolerance;
         T global_eb;

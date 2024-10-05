@@ -69,6 +69,11 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "x";
+        }
+
+
     private:
         T tolerance;
         T global_eb;

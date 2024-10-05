@@ -60,6 +60,10 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "";
+        }
+
     private:
         T compute_eb(){
             return sqrt(3 * tolerance / num_rest);

@@ -85,6 +85,10 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "Regional average of x^2";
+        }
+
     private:
         T tolerance;
         T global_eb;
@@ -214,6 +218,10 @@ namespace QoZ {
             return 0;//todo
 
         } 
+
+        std::string get_expression() const{
+            return "Regional average of x^2";
+        }
 
     private:
         template<uint NN = N>

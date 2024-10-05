@@ -97,6 +97,10 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "isoline";
+        }
+
     private:
         inline float min(float a, float b) const noexcept{
             return std::min(a, b);

@@ -76,6 +76,10 @@ namespace QoZ {
             return sin(val);//todo
 
         } 
+        std::string get_expression() const{
+            return "sin(x)";
+        }
+
 
     private:
         T tolerance;

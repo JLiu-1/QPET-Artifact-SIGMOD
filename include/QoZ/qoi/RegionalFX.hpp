@@ -120,6 +120,10 @@ namespace QoZ {
 
         } 
 
+        std::string get_expression() const{
+            return "Regional average";
+        }
+
     private:
         T tolerance;
         T global_eb;
@@ -137,7 +141,8 @@ namespace QoZ {
                 tolerance(tolerance),
                 global_eb(global_eb),
                 dims(dims),
-                block_size(block_size) {
+                block_size(block_size),
+                func_string (ff) {
             printf("tolerance = %.4e\n", (double) tolerance);
             printf("global_eb = %.4e\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 16;
@@ -283,6 +288,10 @@ namespace QoZ {
             return 0;//todo
 
         } 
+
+        std::string get_expression() const{
+            return "Regional average of " + func_string;
+        }
 
     private:
         template<uint NN = N>
@@ -565,6 +574,8 @@ namespace QoZ {
         std::function<double(T)> deri_1;
         std::function<double(T)> deri_2;
         //bool tuning = false;
+
+        std::string func_string;
     };
 
 
