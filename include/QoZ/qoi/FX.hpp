@@ -53,7 +53,7 @@ namespace QoZ {
     public:
         QoI_FX(T tolerance, T global_eb, std::string ff = "x^2", bool isolated = false, double threshold = 0.0) : 
                 tolerance(tolerance),
-                global_eb(global_eb), isolated (isolated), threshold (threshold) {
+                global_eb(global_eb), isolated (isolated), threshold (threshold), func_string(ff) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 14;
@@ -160,6 +160,10 @@ namespace QoZ {
             return func(val); 
 
         } 
+
+        std::string get_expression() const{
+            return func_string;
+        }
 
     private:
 
@@ -395,6 +399,7 @@ namespace QoZ {
         std::function<double(T)> deri_1;
         std::function<double(T)> deri_2;
         std::set<double>singularities;
+        std::string func_string;
 
         double threshold;
         bool isolated;
