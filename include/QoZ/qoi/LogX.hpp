@@ -90,7 +90,7 @@ namespace QoZ {
         } 
 
         std::string get_expression() const{
-            return "ln(x)/"+std::to_string(log_base);
+            return "ln(x)/"+std::to_string(log_b);
         }
 
     private:
