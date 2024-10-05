@@ -493,7 +493,7 @@ namespace QoZ {
 
         if(conf.qoi == 0)
             return;
-        QoZ::uint N = conf.N;
+        const QoZ::uint N = conf.N;
         auto qoi = QoZ::GetQOI<Type, N>(conf);
 
        

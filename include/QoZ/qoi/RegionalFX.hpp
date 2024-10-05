@@ -278,6 +278,12 @@ namespace QoZ {
             dims = new_dims;
         }
 
+        double eval(T val) const{
+            
+            return 0;//todo
+
+        } 
+
     private:
         template<uint NN = N>
         inline typename std::enable_if<NN == 1, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
