@@ -36,12 +36,12 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
     if(conf.regionalQoI){//regional average
         //adjust qoieb
-        conf.regionalQoIeb=conf.QoIeb;//store original regional eb
+        conf.regionalQoIeb=conf.qoiEB;//store original regional eb
         double num_blocks = 1;
         double num_elements = 1;
-        for(int i=0; i<dims.size(); i++){
-            num_elements *= qoiRegionSize;
-            num_blocks *= (dims[i] - 1) / block_size + 1;
+        for(int i=0; i<conf.dims.size(); i++){
+            num_elements *= conf.qoiRegionSize;
+            num_blocks *= (conf.dims[i] - 1) / conf.qoiRegionSize + 1;
         }
 
         double q = 0.999999;
