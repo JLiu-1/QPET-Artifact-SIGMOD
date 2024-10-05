@@ -3,6 +3,7 @@
 #define SZ_STATISTIC_HPP
 
 #include "Config.hpp"
+#include "QoZ/qoi/QoIInfo.hpp"
 
 namespace QoZ {
     template<class T>
@@ -301,10 +302,10 @@ namespace QoZ {
             auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
 
-            auto square_average = compute_square_average(data, n1, n2, n3, block_size);
-            auto square_average_dec = compute_square_average(dec_data, n1, n2, n3, block_size);
-            auto square_error = evaluate_L_inf(square_average.data(), square_average_dec.data(), square_average.size(), false, false);
-            std::cout << "L^infinity error of square average with block size " << block_size << " = " << square_error <<std::endl;
+            //auto square_average = compute_square_average(data, n1, n2, n3, block_size);
+            //auto square_average_dec = compute_square_average(dec_data, n1, n2, n3, block_size);
+            //auto square_error = evaluate_L_inf(square_average.data(), square_average_dec.data(), square_average.size(), false, false);
+            //std::cout << "L^infinity error of square average with block size " << block_size << " = " << square_error <<std::endl;
             // std::cout << "L^2 error of average with block size " << block_size << " = " << evaluate_L2(average.data(), average_dec.data(), average.size(), true, false) << std::endl;
         }
     }
@@ -471,8 +472,57 @@ namespace QoZ {
             if (max < ori_data[i]) max = ori_data[i];
             if (min > ori_data[i]) min = ori_data[i];
         }
+        printf("Regional squared average:\n");
         if(dims.size() == 2) evaluate_average(ori_data, data, max - min, 1, dims[0], dims[1], blockSize);
         else if(dims.size() == 3) evaluate_average(ori_data, data, max - min, dims[0], dims[1], dims[2], blockSize);
+
+    }
+
+    template<typename Type>
+    void verifyQoI_new(Type *ori_data, Type *data, const QoZ::Config &conf) {
+
+        std::vector<size_t> dims = conf.dims;
+        int blockSize = conf.qoiRegionSize;
+        size_t num_elements = 1;
+        for(const auto d:dims){
+            num_elements *= d;
+        }
+        double psnr = 0;
+        double nrmse = 0;
+        verify(ori_data, data, num_elements, psnr, nrmse);
+
+        if(conf.qoi == 0)
+            return;
+        auto qoi = QoZ::GetQOI<T, N>(conf);
+
+       
+        double max_qoi_diff = 0;
+       
+        for(int i=0; i<num_elements; i++){
+            ori_data[i] = qoi->eval(ori_data[i]);
+            data[i] = qoi->eval(data[i])
+            double qoi_diff = fabs( ori_data[i] - data[i] );
+            if (qoi_diff > max_qoi_diff)
+                max_qoi_diff = qoi_diff;
+            
+
+
+        }
+
+        printf("QoI error info:\n");
+        printf("Max qoi error = %.6G\n", max_qoi_diff);
+       
+        if (blockSize>1){
+            max = ori_data[0];
+            min = ori_data[0];
+            for (size_t i = 1; i < num_elements; i++) {
+                if (max < ori_data[i]) max = ori_data[i];
+                if (min > ori_data[i]) min = ori_data[i];
+            }
+            printf("Regional qoi average:\n");
+            if(dims.size() == 2) evaluate_average(ori_data, data, max - min, 1, dims[0], dims[1], blockSize);
+            else if(dims.size() == 3) evaluate_average(ori_data, data, max - min, dims[0], dims[1], dims[2], blockSize);
+        }
 
     }
 

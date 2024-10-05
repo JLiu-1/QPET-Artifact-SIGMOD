@@ -134,6 +134,8 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
+            //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
+            //    return false;
             return (fabs(func(data) - func(dec_data)) < tolerance);
         }
 
@@ -153,13 +155,15 @@ namespace QoZ {
 
         void set_dims(const std::vector<size_t>& new_dims){}
 
-    private:
-
-        inline double evaluate(const Expression & func, T val) const{
+        double eval(T val) const{
             
-            return (double)func.subs({{x,real_double(val)}}); 
+            return func(val); 
 
         } 
+
+    private:
+
+        
         std::function<double(T)> convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
             //std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
             // x

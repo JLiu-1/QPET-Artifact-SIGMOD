@@ -15,24 +15,24 @@ namespace QoZ {
     class QoI_X_Exp : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Exp(T tolerance, T global_eb) : 
+        QoI_X_Exp(T tolerance, T global_eb, double base = 2.0) : 
                 tolerance(tolerance),
-                global_eb(global_eb) {
+                global_eb(global_eb), base(base) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 12;
         }
-
+        log_base = log(base);
         using Range = multi_dimensional_range<T, N>;
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            //2^X
+            //base^X
             //double low_bound = data - log( pow(2, data) - tolerance)/ log(2);
             //double high_bound = log( pow(2, data) + tolerance) / log(2)-data;
             //T eb = std::min(low_bound,high_bound);
-            double a = fabs(pow(2,data)*log(2) );//datatype may be T
-            double b = fabs(a*log(2));
+            double a = fabs(pow(base,data)*log_base );//datatype may be T
+            double b = fabs(a*log_base);
             T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
             return std::min(eb, global_eb);
             //return global_eb;
@@ -47,7 +47,7 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            return (fabs(pow(2,data) - pow(2,dec_data)) < tolerance);
+            return (fabs(pow(base,data) - pow(base,dec_data)) < tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -66,9 +66,17 @@ namespace QoZ {
 
         void set_dims(const std::vector<size_t>& new_dims){}
 
+        double eval(T val) const{
+            
+            return pow(base,x);//todo
+
+        } 
+
     private:
         T tolerance;
         T global_eb;
+        double base;
+        double log_base;
     };
 }
 #endif 

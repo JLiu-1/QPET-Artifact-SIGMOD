@@ -71,6 +71,12 @@ namespace QoZ {
 
         void set_dims(const std::vector<size_t>& new_dims){}
 
+        double eval(T val) const{
+            
+            return sin(val);//todo
+
+        } 
+
     private:
         T tolerance;
         T global_eb;

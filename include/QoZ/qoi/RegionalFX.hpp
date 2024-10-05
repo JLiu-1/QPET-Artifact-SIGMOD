@@ -114,6 +114,12 @@ namespace QoZ {
 
         void set_dims(const std::vector<size_t>& new_dims){}
 
+        double eval(T val) const{
+            
+            return 0;//todo
+
+        } 
+
     private:
         T tolerance;
         T global_eb;
@@ -127,7 +133,7 @@ namespace QoZ {
     class QoI_RegionalFX : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims) : 
+        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims, std::string ff = "x^2") : 
                 tolerance(tolerance),
                 global_eb(global_eb),
                 dims(dims),

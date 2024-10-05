@@ -97,6 +97,12 @@ namespace QoZ {
             }                                                            
         }
 
+        double eval(T val) const{
+            
+            return 0;//todo 
+
+        } 
+
     private:
         std::vector<std::shared_ptr<concepts::QoIInterface< T, N>>> qois;
     };

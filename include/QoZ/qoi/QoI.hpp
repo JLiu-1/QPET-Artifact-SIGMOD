@@ -46,6 +46,8 @@ namespace QoZ {
 
             virtual void init() = 0;
 
+            virtual double eval(T val) const = 0;
+
             virtual void set_dims(const std::vector<size_t>& new_dims) = 0;
 
             int id = 0;

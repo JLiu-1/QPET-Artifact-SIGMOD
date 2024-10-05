@@ -81,6 +81,14 @@ namespace QoZ {
 
         void set_dims(const std::vector<size_t>& new_dims){}
 
+        double eval(T val) const{
+            if(val==0)
+                return 0;
+            
+            return log_b_a(fabs(val)); 
+
+        } 
+
     private:
         inline T log_b_a(T a) const {
             return log(a) / log_b;

@@ -54,6 +54,12 @@ namespace QoZ {
 
         void print(){}
 
+        double eval(T val) const{
+            
+            return 0;//todo
+
+        } 
+
     private:
         T compute_eb(){
             return sqrt(3 * tolerance / num_rest);
