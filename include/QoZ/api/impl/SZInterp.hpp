@@ -33,6 +33,28 @@
 
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){
+
+    if(conf.regionalQoI){//regional average
+        //adjust qoieb
+        conf.regionalQoIeb=conf.QoIeb;//store original regional eb
+        double num_blocks = 1;
+        double num_elements = 1;
+        for(int i=0; i<dims.size(); i++){
+            num_elements *= qoiRegionSize;
+            num_blocks *= (dims[i] - 1) / block_size + 1;
+        }
+
+        double q = 0.999999;
+        double rate = 0.0;
+        if (q>=0.95 and num_blocks >= 1000){
+            rate = sqrt( -num_elements / ( 2 * ( log(1-q) - log(2*num_blocks) ) ) );
+        }
+        else{
+            rate = sqrt( -num_elements / ( 2 * ( log(1- pow(q,1.0/num_blocks) ) - log(2) ) ) );
+        }
+        std::cout<<"Point wise QoI eb rate: " << rate << std::endl;
+        conf.qoiEB *= rate;
+    }
         
     auto qoi = QoZ::GetQOI<T, N>(conf);
     conf.ebs = std::vector<double>(conf.num);
