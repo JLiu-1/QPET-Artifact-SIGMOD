@@ -304,7 +304,7 @@ namespace QoZ {
             auto square_average = compute_square_average(data, n1, n2, n3, block_size);
             auto square_average_dec = compute_square_average(dec_data, n1, n2, n3, block_size);
             auto square_error = evaluate_L_inf(square_average.data(), square_average_dec.data(), square_average.size(), false, false);
-            std::cout << "L^infinity error of square average with block size " << block_size << " = " << error <<std::endl;
+            std::cout << "L^infinity error of square average with block size " << block_size << " = " << square_error <<std::endl;
             // std::cout << "L^2 error of average with block size " << block_size << " = " << evaluate_L2(average.data(), average_dec.data(), average.size(), true, false) << std::endl;
         }
     }
