@@ -3,7 +3,7 @@
 //
 
 #ifndef SZ_QOI_R_FX_HPP
-#define SZ_QOI_R_FX_SQUARE_HPP
+#define SZ_QOI_R_FX_HPP
 
 #include <algorithm>
 #include <cmath>
