@@ -68,7 +68,7 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return pow(base,x);//todo
+            return pow(base,val);//todo
 
         } 
 
