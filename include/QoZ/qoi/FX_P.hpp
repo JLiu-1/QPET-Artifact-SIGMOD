@@ -16,6 +16,7 @@
 #include <symengine/symbol.h>
 #include <symengine/derivative.h>
 #include <symengine/eval.h> 
+#include <set>
 
 using SymEngine::Expression;
 using SymEngine::Symbol;
@@ -38,9 +39,9 @@ namespace QoZ {
     class QoI_FX_P : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FX_P(T tolerance, T global_eb, std::string f1_c = "x", std::string f2_c = "0", double th = 0.0) : 
+        QoI_FX_P(T tolerance, T global_eb, std::string f1_c = "x", std::string f2_c = "0", double threshold = 0.0, bool isolated = false) : 
                 tolerance(tolerance),
-                global_eb(global_eb), threshold(th) {
+                global_eb(global_eb), threshold(threshold), isolated (isolated) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 15;
@@ -65,6 +66,8 @@ namespace QoZ {
             df1 = convert_expression_to_function(df, x);
             ddf1 = convert_expression_to_function(ddf, x);
 
+            singularities = find_singularities(f,x);
+
             f = Expression(f2_c);
         
             df = f.diff(x);
@@ -75,6 +78,13 @@ namespace QoZ {
             df2 = convert_expression_to_function(df, x);
             ddf2 = convert_expression_to_function(ddf, x);
             // std::cout<<"init 4 "<< std::endl;
+
+            std::set<double> sing_2 = find_singularities(f,x);
+
+            singularities.insert(sing_2.begin(),sing_2.end());
+
+            if (isolated)
+                singularities.insert(threshold);
               
            // RCP<const Basic> result = evalf(df.subs(map_basic_basic({{x,RealDouble(2).rcp_from_this()}})),53, SymEngine::EvalfDomain::Real);
            // RCP<const Symbol> value = symbol("2");
@@ -113,6 +123,11 @@ namespace QoZ {
                 eb = tolerance/a;
             else 
                 eb = global_eb;
+
+            for (auto sg : singularities){
+                double diff = fabs(data-sg);
+                eb = std::min(diff,eb);
+             }
            // std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
             return std::min(eb, global_eb);
         }
@@ -280,10 +295,109 @@ namespace QoZ {
 
             throw std::runtime_error("Unsupported expression type");
         }
+
+        std::set<double> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
+            std::set<double> singularities;
+
+            if (is_a<Mul>(expr)) {
+                auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
+                for (auto arg : mul_expr->get_args()) {
+                    if (is_a<Pow>(*arg)) {
+                        auto pow_expr = rcp_static_cast<const Pow>(arg);
+                        if (pow_expr->get_exp()->__eq__(*SymEngine::minus_one)) {
+                            auto denominator = pow_expr->get_base();
+                            auto solutions = solve(denominator, x);
+                            if (is_a<FiniteSet>(*solutions)) {
+                                auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
+                                auto elements = finite_set_casted->get_container();
+                                for (auto sol : elements) {
+
+                                    if (is_a<const Integer>(*sol))
+                                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                                    else
+                                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
+                                }
+                            }
+                        }
+                    } else {
+                        auto sub_singularities = find_singularities(Expression(arg), x);
+                        singularities.insert(sub_singularities.begin(), sub_singularities.end());
+                    }
+                }
+            }
+            
+            if (is_a<Log>(expr)) {
+                auto log_expr = rcp_static_cast<const Log>(expr.get_basic());
+                auto log_argument = log_expr->get_args()[0];
+                auto solutions = solve(log_argument, x);
+                if (is_a<FiniteSet>(*solutions)) {
+                    auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
+                    auto elements = finite_set_casted->get_container();
+                    for (auto sol : elements) {
+                        if (is_a<const Integer>(*sol))
+                            singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                        else
+                            singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
+                    }
+                }
+            }
+
+           
+            if (is_a<Pow>(expr)) {
+                auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
+                auto exponent = pow_expr->get_exp();
+                //std::cout<<*exponent<<std::endl;
+
+                if (is_a<const RealDouble>(*exponent) or is_a<const Integer>(*exponent)) {
+                    double exp_val;
+                    if (is_a<const Integer>(*exponent))
+                        exp_val=SymEngine::rcp_static_cast<const SymEngine::Integer>(exponent)->as_int();
+                    else
+                        exp_val=SymEngine::rcp_static_cast<const SymEngine::RealDouble>(exponent)->as_double();
+            
+                    if (exp_val < 0 || (exp_val < 2 && std::floor(exp_val) != exp_val)) {
+                        auto base = pow_expr->get_base();
+                        auto solutions = solve(base, x);
+                        if (is_a<FiniteSet>(*solutions)) {
+                            auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
+                            auto elements = finite_set_casted->get_container();
+                            for (auto sol : elements) {
+                                if (is_a<const Integer>(*sol))
+                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                                else
+                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (is_a<SymEngine::Add>(expr)) {
+                auto add_expr = rcp_static_cast<const SymEngine::Add>(expr.get_basic());
+                for (auto arg : add_expr->get_args()) {
+                    auto sub_singularities = find_singularities(Expression(arg), x);
+                    singularities.insert(sub_singularities.begin(), sub_singularities.end());
+                }
+            }
+
+            if (is_a<SymEngine::Mul>(expr) && !is_a<Pow>(expr)) {
+                auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
+                for (auto arg : mul_expr->get_args()) {
+                    auto sub_singularities = find_singularities(Expression(arg), x);
+                    singularities.insert(sub_singularities.begin(), sub_singularities.end());
+                }
+            }
+
+            return singularities;
+        }
+
+
         RCP<const Symbol>  x;
         T tolerance;
         T global_eb;
         double threshold;
+        bool isolated;
+        std::set<double>singularities;
         std::function<double(T)> f1;
         std::function<double(T)> f2;
         std::function<double(T)> df1;

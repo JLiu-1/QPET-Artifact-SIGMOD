@@ -266,6 +266,7 @@ namespace QoZ {
             qoi_string = std::string(qoistring_c);
             qoi_string_2 = std::string(qoistring_c2);
             threshold = cfg.GetReal("QoISettings", "threshold", 0.0);
+            isolated = cfg.GetBoolean("QoISettings", "isolated", false);
 
 
 
@@ -545,6 +546,7 @@ namespace QoZ {
         std::string qoi_string = "x^2";
         std::string qoi_string_2 = "0";
         double threshold = 0.0;
+        bool isolated = false;
 
         std::vector<double> ebs;
 

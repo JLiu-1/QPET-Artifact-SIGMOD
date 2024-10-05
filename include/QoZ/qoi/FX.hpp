@@ -18,7 +18,7 @@
 #include <symengine/eval.h> 
 #include <symengine/solve.h>
 #include <symengine/functions.h>
-#include<set>
+#include <set>
 
 using SymEngine::Expression;
 using SymEngine::Symbol;
@@ -51,9 +51,9 @@ namespace QoZ {
     class QoI_FX : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FX(T tolerance, T global_eb, std::string ff = "x^2") : 
+        QoI_FX(T tolerance, T global_eb, std::string ff = "x^2", bool isolated = false, double threshold = 0.0) : 
                 tolerance(tolerance),
-                global_eb(global_eb) {
+                global_eb(global_eb), isolated (isolated), threshold (threshold) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 14;
@@ -66,7 +66,7 @@ namespace QoZ {
     
             f = Expression(ff);
 
-            std::set<double>singularities = find_singularities(f,x);
+            singularities = find_singularities(f,x);
             std::cout << "Singularities:" << std::endl;
             for (const auto& singularity : singularities) {
                 std::cout << singularity << std::endl;
@@ -84,6 +84,9 @@ namespace QoZ {
             func = convert_expression_to_function(f, x);
             deri_1 = convert_expression_to_function(df, x);
             deri_2 = convert_expression_to_function(ddf, x);
+
+            if (isolated)
+                singularities.insert(threshold);
             // std::cout<<"init 4 "<< std::endl;
               
            // RCP<const Basic> result = evalf(df.subs(map_basic_basic({{x,RealDouble(2).rcp_from_this()}})),53, SymEngine::EvalfDomain::Real);
@@ -113,6 +116,11 @@ namespace QoZ {
                 eb = tolerance/a;
             else 
                 eb = global_eb;
+
+             for (auto sg : singularities){
+                double diff = fabs(data-sg);
+                eb = std::min(diff,eb);
+             }
            // std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
             return std::min(eb, global_eb);
         }
@@ -382,6 +390,10 @@ namespace QoZ {
         std::function<double(T)> func;
         std::function<double(T)> deri_1;
         std::function<double(T)> deri_2;
+        std::set<double>singularities;
+
+        double threshold;
+        bool isolated;
      
     };
 }
