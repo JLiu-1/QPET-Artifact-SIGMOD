@@ -15,6 +15,7 @@
 #include "MultiQoIs.hpp"
 #include "FX.hpp"
 #include "FX_P.hpp"
+#include "RegionalFX.hpp"
 #include <vector>
 
 namespace QoZ {
@@ -90,9 +91,15 @@ namespace QoZ {
             case 13:
                 return std::make_shared<QoZ::QoI_XLog_X<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 14:
-                return std::make_shared<QoZ::QoI_FX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string);
+                return std::make_shared<SZ::QoI_FX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
             case 15:
-                return std::make_shared<QoZ::QoI_FX_P<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.qoi_string_2, conf.threshold);
+                return std::make_shared<SZ::QoI_FX_P<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.qoi_string_2, conf.threshold, conf.isolated);
+
+            case 16:{
+                return std::make_shared<SZ::QoI_RegionalFX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims, conf.qoi_string);
+                
+                // return std::make_shared<SZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }
         }
         return NULL;
     }
