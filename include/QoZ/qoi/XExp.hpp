@@ -21,8 +21,9 @@ namespace QoZ {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 12;
+            log_base = log(base);
         }
-        log_base = log(base);
+        
         using Range = multi_dimensional_range<T, N>;
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
