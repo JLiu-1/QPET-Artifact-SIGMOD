@@ -39,8 +39,7 @@ void usage() {
 
 template<class T>
 void qoiValidation(char *inPath, char *decPath,
-                QoZ::Config &conf,
-                ) {//conf changed to reference
+                QoZ::Config &conf) {
 
    
     //compute the distortion / compression errors...
@@ -53,7 +52,7 @@ void qoiValidation(char *inPath, char *decPath,
 
 
 
-    QoZ::verifyQoI_new<T>(ori_data.get(), decData.get(), conf);
+    QoZ::verifyQoI_new<T>(ori_data.get(), dec_data.get(), conf);
     
 
 }
@@ -83,11 +82,9 @@ int main(int argc, char *argv[]) {
 
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][2]) {
-            if (argv[i][1] == 'h' && argv[i][2] == '2') {
-                usage_sz2();
-            } else {
-                usage();
-            }
+            
+            usage();
+            
         }
         switch (argv[i][1]) {
             case 'h':
@@ -174,7 +171,23 @@ int main(int argc, char *argv[]) {
         conf = QoZ::Config(r4, r3, r2, r1);
     }
 
-    qoiValidation<float>(inPath, decPath);
+    qoiValidation<float>(inPath, decPath, conf);
+
+    if (dataType == SZ_FLOAT) {
+        qoiValidation<float>(inPath, decPath, conf);
+    } 
+    else if (dataType == SZ_DOUBLE) {
+        qoiValidation<double>(inPath, decPath, conf);
+        
+    } 
+        
+    else if (dataType == SZ_INT32) {
+        qoiValidation<int32_t>(inPath, decPath, conf);
+    } else if (dataType == SZ_INT64) {
+        qoiValidation<int64_t>(inPath, decPath, conf);
+    }
+
+
     
 
     return 0;
