@@ -170,8 +170,9 @@ int main(int argc, char *argv[]) {
     } else {
         conf = QoZ::Config(r4, r3, r2, r1);
     }
-
-    qoiValidation<float>(inPath, decPath, conf);
+    if (conPath != nullptr) {
+        conf.loadcfg(conPath);
+    }
 
     if (dataType == SZ_FLOAT) {
         qoiValidation<float>(inPath, decPath, conf);
