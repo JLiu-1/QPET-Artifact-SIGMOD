@@ -203,6 +203,8 @@ void decompress(char *inPath, char *cmpPath, char *decPath,
         //QoZ::verify<T>(ori_data.get(), decData, conf.num);
         //QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
 
+
+
         QoZ::verifyQoI_new<T>(ori_data.get(), decData, conf);
     }
     delete[]decData;
