@@ -569,8 +569,8 @@ double Tuning(QoZ::Config &conf, T *data){
    
     T rng=conf.rng;
     double rel_bound = conf.relErrorBound>0?conf.relErrorBound:conf.absErrorBound/rng;
-    if(rel_bound>1e-3 or conf.tuningTarget==QoZ::TUNING_TARGET_SSIM)//rencently changed, need to fix later
-        conf.testLorenzo=0;
+    //if(rel_bound>1e-3 or conf.tuningTarget==QoZ::TUNING_TARGET_SSIM)//rencently changed, need to fix later
+    //    conf.testLorenzo=0;
    // QoZ::Timer timer(true);
     //timer.stop("")
     if(conf.QoZ>0){
@@ -579,7 +579,7 @@ double Tuning(QoZ::Config &conf, T *data){
         
 
         //activate
-        conf.testLorenzo=0;//temporarily deactivated Lorenzo. Need further revision
+        //conf.testLorenzo=0;//temporarily deactivated Lorenzo. Need further revision
         conf.profiling=1;
         if(conf.autoTuningRate<=0)
             conf.autoTuningRate = (N<=2?0.01:0.005);
