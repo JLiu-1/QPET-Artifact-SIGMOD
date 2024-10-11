@@ -200,10 +200,16 @@ namespace QoZ {
             block_id = compute_block_id(offset);
             double Li = L_i[offset];
             double ai = 1.0 / block_elements[block_id];
-            if(ai*Li==0)
+            if(ai==0)
                 return global_eb;
-            double T_estimation_1 = (1/(ai*ai*Li))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
-            double T_estimation_2 = tolerance*Li/block_sum_aiLi[block_id];//todo: nan issue
+            double T_estimation_1,T_estimation_2;
+            if(Li==0){
+                T_estimation_1 = sum_aiti_square_tolerance*sqrt(block_elements[block_id]); //all even T
+                T_estimation_2 = 1.0; // 1/(sum{a_i})
+            }
+                
+            T_estimation_1 = (1/(ai*ai*Li))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
+            T_estimation_2 = tolerance*Li/block_sum_aiLi[block_id];//todo: nan issue
 
             double T_estimation = std::max(T_estimation_1,T_estimation_2);
 
@@ -353,7 +359,7 @@ namespace QoZ {
                 double aiLi = ai*L_i[i]; 
                 block_sum_aiLi[block_id]+=aiLi;
                 if(aiLi!=0)
-                    block_sum_aiLi_square_reciprocal[block_id]+=1/(aiLi*aiLi);
+                    block_sum_aiLi_square_reciprocal[block_id] += 1.0/(aiLi*aiLi);
             }
         }
 
