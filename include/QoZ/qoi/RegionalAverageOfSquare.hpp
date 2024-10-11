@@ -223,6 +223,8 @@ namespace QoZ {
             return "Regional average of x^2";
         }
 
+        void pre_compute(T * data){}
+
     private:
         template<uint NN = N>
         inline typename std::enable_if<NN == 1, int>::type compute_block_id(ptrdiff_t offset) const noexcept {

@@ -100,6 +100,8 @@ namespace QoZ {
             return "xln(x)/"+std::to_string(log_b);
         }
 
+        void pre_compute(T * data){}
+
 
     private:
         inline T log_b_a(T a) const {

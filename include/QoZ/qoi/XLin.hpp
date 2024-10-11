@@ -73,6 +73,8 @@ namespace QoZ {
             return "x";
         }
 
+        void pre_compute(T * data){}
+
 
     private:
         T tolerance;

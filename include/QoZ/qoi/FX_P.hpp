@@ -177,6 +177,8 @@ namespace QoZ {
 
         }
 
+        void pre_compute(T * data){}
+
     private:
 
 

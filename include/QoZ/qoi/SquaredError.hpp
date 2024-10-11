@@ -62,7 +62,9 @@ namespace QoZ {
 
         std::string get_expression() const{
             return "";
-        }
+        } 
+
+        void pre_compute(T * data){}
 
     private:
         T compute_eb(){

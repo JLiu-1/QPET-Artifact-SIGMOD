@@ -165,6 +165,8 @@ namespace QoZ {
             return func_string;
         }
 
+        void pre_compute(T * data){}
+        
     private:
 
         

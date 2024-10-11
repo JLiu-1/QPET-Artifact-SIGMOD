@@ -37,6 +37,8 @@ namespace QoZ {
 
             virtual void postcompress_block() = 0;
 
+            virtual void pre_compute(T * data) = 0;
+
             virtual void print() = 0;
 
             // for interpolation compressors
@@ -51,6 +53,8 @@ namespace QoZ {
             virtual std::string get_expression() const = 0;
 
             virtual void set_dims(const std::vector<size_t>& new_dims) = 0;
+
+            virtual void pre_compute(T * data){}
 
             int id = 0;
         };

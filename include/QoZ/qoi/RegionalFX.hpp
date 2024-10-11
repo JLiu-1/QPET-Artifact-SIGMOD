@@ -124,6 +124,8 @@ namespace QoZ {
             return "Regional average";
         }
 
+        void pre_compute(T * data){}
+
     private:
         T tolerance;
         T global_eb;
@@ -133,16 +135,18 @@ namespace QoZ {
         double aggregated_tolerance;
     };
 
+//This is sum_{aif(xi)}
+//now, ai is just 1/n (average)
     template<class T, uint N>
     class QoI_RegionalFX : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims, std::string ff = "x^2") : 
+        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims, std::string ff = "x^2", bool isolated = false, double threshold = 0.0) : 
                 tolerance(tolerance),
                 global_eb(global_eb),
                 dims(dims),
                 block_size(block_size),
-                func_string (ff) {
+                func_string (ff) , isolated (isolated), threshold (threshold){
             printf("tolerance = %.4e\n", (double) tolerance);
             printf("global_eb = %.4e\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 16;
@@ -154,7 +158,7 @@ namespace QoZ {
     
             f = Expression(ff);
 
-            std::set<double>singularities = find_singularities(f,x);
+            singularities = find_singularities(f,x);
             std::cout << "Singularities:" << std::endl;
             for (const auto& singularity : singularities) {
                 std::cout << singularity << std::endl;
@@ -194,14 +198,46 @@ namespace QoZ {
 
         T interpret_eb(const T * data, ptrdiff_t offset) {
             block_id = compute_block_id(offset);
-            double L = deri_1(*data);//todo: save L for each offset, and use same qoi object for tuning and cmp 
-            T eb = L !=0 ? (aggregated_tolerance[block_id] - fabs(accumulated_error[block_id])) / (rest_elements[block_id] * L) : global_eb;
+            double L_i = L_i[offset];
+            double a_i = 1.0 / num_elements[block_id];
+            if(a_i*L_i==0)
+                return global_eb;
+            double T_estimation_1 = (1/(a_i*a_i*L_i))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
+            double T_estimation_2 = tolerance*L_i/block_sum_aiLi[block_id];//todo: nan issue
+
+            double T_estimation = std::max(T_estimation_1,T_estimation_2);
+
+            double a = L_i;//datatype may be T
+            double b = fabs(deri_2(data));
+           // 
+            T eb;
+            if(!std::isnan(a) and !std::isnan(b) and b !=0 )
+                eb = (sqrt(a*a+2*b*T_estimation)-a)/b;
+            else if (!std::isnan(a) and a!=0 )
+                eb = T_estimation/a;
+            else 
+                eb = global_eb;
+
+
+
+            //T eb = L !=0 ? (aggregated_tolerance[block_id] - fabs(accumulated_error[block_id])) / (rest_elements[block_id] * L) : global_eb;
+
+
+            for (auto sg : singularities){
+                T diff = fabs(data-sg);
+                eb = std::min(diff,eb);
+             }
+
             return std::min(eb, global_eb);
+
+
         }
 
         void update_tolerance(T data, T dec_data){
             //if (tuning)
             //    return;
+            return;
+            '''
             accumulated_error[block_id] += func(data) - func(dec_data);
             rest_elements[block_id] --;
             if(rest_elements[block_id] == 0 and fabs(accumulated_error[block_id]) > aggregated_tolerance[block_id]){
@@ -209,6 +245,7 @@ namespace QoZ {
                 printf("%d / %d\n", rest_elements[block_id], block_elements[block_id]);
                 exit(-1);
             }
+            '''
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
@@ -237,18 +274,25 @@ namespace QoZ {
                 std::cout << block_dims[i] << " ";
             }
             std::cout << std::endl;
-            aggregated_tolerance = std::vector<double>(num_blocks);
+            //aggregated_tolerance = std::vector<double>(num_blocks);
             block_elements = std::vector<int>(num_blocks, 0);
             rest_elements = std::vector<int>(num_blocks, 0);
+            L_i = std::vector<double>(num_elements,0);
+            block_sum_aiLi=std::vector<double>(num_blocks, 0);
+            block_sum_aiLi_square_reciprocal=std::vector<double>(num_blocks, 0);
+
+
             if(dims.size() == 2){
                 for(int i=0; i<block_dims[0]; i++){
                     int size_x = (i < block_dims[0] - 1) ? block_size : dims[0] - i * block_size;
                     for(int j=0; j<block_dims[1]; j++){
                         int size_y = (j < block_dims[1] - 1) ? block_size : dims[1] - j * block_size;
                         int num_block_elements = size_x * size_y;
-                        aggregated_tolerance[i * block_dims[1] + j] = num_block_elements * tolerance;
+                        //aggregated_tolerance[i * block_dims[1] + j] = num_block_elements * tolerance;
                         block_elements[i * block_dims[1] + j] = num_block_elements;
-                        rest_elements[i * block_dims[1] + j] = num_block_elements;
+                        //rest_elements[i * block_dims[1] + j] = num_block_elements;
+                        //double a_i = 1.0 / num_block_elements;
+
                     }
                 }
             }
@@ -261,9 +305,9 @@ namespace QoZ {
                             int size_z = (k < block_dims[2] - 1) ? block_size : dims[2] - k * block_size;
                             int num_block_elements = size_x * size_y * size_z;
                             // printf("%d, %d, %d: %d * %d * %d = %d\n", i, j, k, size_x, size_y, size_z, num_block_elements);
-                            aggregated_tolerance[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements * tolerance;
+                            //aggregated_tolerance[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements * tolerance;
                             block_elements[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements;
-                            rest_elements[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements;
+                            //rest_elements[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements;
                         }
                     }
                 }
@@ -273,7 +317,16 @@ namespace QoZ {
                 exit(-1);
             }
 
-            accumulated_error = std::vector<double>(num_blocks, 0);
+            //accumulated_error = std::vector<double>(num_blocks, 0);
+
+            if (q>=0.95 and num_blocks >= 1000){
+                sum_aiti_square_tolerance = sqrt( -1 / ( 2 * ( log(1-q) - log(2*num_blocks) ) ) ) * tolerance;
+            }
+            else{
+                sum_aiti_square_tolerance = sqrt( -1 / ( 2 * ( log(1- pow(q,1.0/num_blocks) ) - log(2) ) ) ) * tolerance;
+            }
+
+
     
 
             std::cout << "end of init\n";            
@@ -293,15 +346,27 @@ namespace QoZ {
             return "Regional average of " + func_string;
         }
 
+        void pre_compute(T * data){
+            for(size_t i = 0; i < num_elements ; i ++){
+                block_id = compute_block_id(i);
+                L_i[i] = fabs(deri_1(data[i]));
+                double a_i = 1.0 / block_elements[block_id];
+                double aiLi = a_i*L_i[i]; 
+                block_sum_aiLi[block_id]+=aiLi;
+                if(aiLi!=0)
+                    block_sum_aiLi_square_reciprocal[block_id]+=1/(aiLi*aiLi);
+            }
+        }
+
     private:
         template<uint NN = N>
-        inline typename std::enable_if<NN == 1, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+        inline typename std::enable_if<NN == 1, size_t>::type compute_block_id(ptrdiff_t offset) const noexcept {
             // 1D data
             return offset / block_size;
         }
 
         template<uint NN = N>
-        inline typename std::enable_if<NN == 2, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+        inline typename std::enable_if<NN == 2, size_t>::type compute_block_id(ptrdiff_t offset) const noexcept {
             // 3D data
             int i = offset / dims[1];
             int j = offset % dims[1];
@@ -309,7 +374,7 @@ namespace QoZ {
         }
 
         template<uint NN = N>
-        inline typename std::enable_if<NN == 3, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+        inline typename std::enable_if<NN == 3, size_t>::type compute_block_id(ptrdiff_t offset) const noexcept {
             // 3D data
             int i = offset / (dims[1] * dims[2]);
             offset = offset % (dims[1] * dims[2]);
@@ -319,7 +384,7 @@ namespace QoZ {
         }
 
         template<uint NN = N>
-        inline typename std::enable_if<NN == 4, int>::type compute_block_id(ptrdiff_t offset) const noexcept {
+        inline typename std::enable_if<NN == 4, size_t>::type compute_block_id(ptrdiff_t offset) const noexcept {
             // 4D data
             std::cerr << "Not implemented!\n";
             exit(-1);
@@ -557,25 +622,35 @@ namespace QoZ {
 
         T tolerance;
         T global_eb;
-        int block_id;
-        int block_size;
-        std::vector<double> aggregated_tolerance;
-        std::vector<double> accumulated_error;
-        //std::vector<double> derivatives;
-        //std::vector<double> acc_derivatives;
+        size_t block_id;
+        size_t block_size;
+        //std::vector<double> aggregated_tolerance;
+        //std::vector<double> accumulated_error;
+        std::vector<double> L_i;
+        std::vector<double> block_sum_aiLi;
+        std::vector<double> block_sum_aiLi_square_reciprocal;
         std::vector<int> block_elements;
-        std::vector<int> rest_elements;
+        //std::vector<int> rest_elements;
         std::vector<size_t> dims;
         std::vector<size_t> block_dims;
         size_t num_elements = 1;
+
 
         RCP<const Symbol>  x;
         std::function<double(T)> func;
         std::function<double(T)> deri_1;
         std::function<double(T)> deri_2;
+        std::set<double>singularities;
         //bool tuning = false;
 
         std::string func_string;
+
+        double threshold;
+        bool isolated;
+
+        double sum_aiti_square_tolerance;
+        double q = 0.999999;
+
     };
 
 

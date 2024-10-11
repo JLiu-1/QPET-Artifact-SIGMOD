@@ -77,6 +77,8 @@ namespace QoZ {
             return std::to_string(base)+"^x";
         }
 
+        void pre_compute(T * data){}
+
 
     private:
         T tolerance;

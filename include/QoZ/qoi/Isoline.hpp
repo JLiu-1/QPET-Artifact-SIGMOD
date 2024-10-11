@@ -101,6 +101,8 @@ namespace QoZ {
             return "isoline";
         }
 
+        void pre_compute(T * data){}
+
     private:
         inline float min(float a, float b) const noexcept{
             return std::min(a, b);

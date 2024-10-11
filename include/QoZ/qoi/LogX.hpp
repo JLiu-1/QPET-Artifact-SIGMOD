@@ -93,6 +93,8 @@ namespace QoZ {
             return "ln(x)/"+std::to_string(log_b);
         }
 
+        void pre_compute(T * data){}
+
     private:
         inline T log_b_a(T a) const {
             return log(a) / log_b;

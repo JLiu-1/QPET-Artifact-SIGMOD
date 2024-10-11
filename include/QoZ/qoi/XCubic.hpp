@@ -79,6 +79,8 @@ namespace QoZ {
             return "x^3";
         }
 
+        void pre_compute(T * data){}
+
     private:
         T tolerance;
         T global_eb;
