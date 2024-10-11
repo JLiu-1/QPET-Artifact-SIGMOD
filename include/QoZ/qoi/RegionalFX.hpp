@@ -205,11 +205,12 @@ namespace QoZ {
             double T_estimation_1,T_estimation_2;
             if(Li==0){
                 T_estimation_1 = sum_aiti_square_tolerance*sqrt(block_elements[block_id]); //all even T
-                T_estimation_2 = tolerance; // 1/(sum{a_i})
+                T_estimation_2 = tolerance; // tolerance/(sum{a_i})
             }
-                
-            T_estimation_1 = (1/(ai*ai*Li))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
-            T_estimation_2 = tolerance*Li/block_sum_aiLi[block_id];//todo: nan issue
+            else{
+                T_estimation_1 = (1/(ai*ai*Li))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
+                T_estimation_2 = tolerance*Li/block_sum_aiLi[block_id];//todo: nan issue
+            }
 
             double T_estimation = std::max(T_estimation_1,T_estimation_2);
 
