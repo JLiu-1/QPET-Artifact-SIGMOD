@@ -69,10 +69,14 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             qoi->pre_compute(data);
             conf.qoi = 14; //back to pointwise
             conf.qoiEB = 1e10;//pass check_compliance, to revise
+            for (size_t i = 0; i < conf.num; i++){
+                conf.ebs[i] = qoi->interpret_eb(data+i,i);
+            }
         }
-
-        for (size_t i = 0; i < conf.num; i++){
-            conf.ebs[i] = qoi->interpret_eb(data[i]);
+        else{
+            for (size_t i = 0; i < conf.num; i++){
+                conf.ebs[i] = qoi->interpret_eb(data[i]);
+            }
         }
 
         double quantile = conf.quantile;//quantile
