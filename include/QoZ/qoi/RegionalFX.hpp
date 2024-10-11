@@ -204,16 +204,16 @@ namespace QoZ {
                 return global_eb;
             double T_estimation_1,T_estimation_2;
             if(Li==0){
-                T_estimation_1 = sum_aiti_square_tolerance*sqrt(block_elements[block_id]); //all even T
+                T_estimation_1 = sum_aiti_square_tolerance_sqrt*sqrt(block_elements[block_id]); //all even T
                 T_estimation_2 = tolerance; // tolerance/(sum{a_i})
             }
             else{
-                T_estimation_1 = (1/(ai*ai*Li))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
+                T_estimation_1 = (1/(ai*ai*Li))*sum_aiti_square_tolerance_sqrt/block_sum_aiLi_square_reciprocal_sqrt[block_id];//todo: nan issue
                 T_estimation_2 = tolerance*Li/block_sum_aiLi[block_id];//todo: nan issue
             }
 
             if(offset%64==0 and block_id%10000==0){
-                std::cout<<block_id<<" "<<*data<<" "<<Li<<" "<<block_sum_aiLi[block_id]<<" "<<block_sum_aiLi_square_reciprocal[block_id]<<" "<<T_estimation_1<<" "<<T_estimation_2<<std::endl;
+                std::cout<<block_id<<" "<<*data<<" "<<Li<<" "<<block_sum_aiLi[block_id]<<" "<<block_sum_aiLi_square_reciprocal_sqrt[block_id]<<" "<<T_estimation_1<<" "<<T_estimation_2<<std::endl;
             }
 
             double T_estimation = std::max(T_estimation_1,T_estimation_2);
@@ -290,7 +290,7 @@ namespace QoZ {
             //rest_elements = std::vector<size_t>(num_blocks, 0);
             L_i = std::vector<double>(num_elements,0);
             block_sum_aiLi=std::vector<double>(num_blocks, 0);
-            block_sum_aiLi_square_reciprocal=std::vector<double>(num_blocks, 0);
+            block_sum_aiLi_square_reciprocal_sqrt=std::vector<double>(num_blocks, 0);
 
 
             if(dims.size() == 2){
@@ -331,13 +331,15 @@ namespace QoZ {
             //accumulated_error = std::vector<double>(num_blocks, 0);
 
             if (q>=0.95 and num_blocks >= 1000){
-                sum_aiti_square_tolerance = sqrt( -1 / ( 2 * ( log(1-q) - log(2*num_blocks) ) ) ) * tolerance;
+                sum_aiti_square_tolerance_sqrt = sqrt( -1 / ( 2 * ( log(1-q) - log(2*num_blocks) ) ) ) *tolerance;
             }
             else{
-                sum_aiti_square_tolerance = sqrt( -1 / ( 2 * ( log(1- pow(q,1.0/num_blocks) ) - log(2) ) ) ) * tolerance;
+                sum_aiti_square_tolerance_sqrt = sqrt( -1 / ( 2 * ( log(1- pow(q,1.0/num_blocks) ) - log(2) ) ) ) *tolerance;
+
             }
 
-            std::cout<<sum_aiti_square_tolerance<<std::endl;
+
+           std::cout<<sum_aiti_square_tolerance_sqrt<<std::endl;
 
 
     
@@ -366,7 +368,10 @@ namespace QoZ {
                 double aiLi = ai*L_i[i]; 
                 block_sum_aiLi[block_id]+=aiLi;
                 if(aiLi!=0)
-                    block_sum_aiLi_square_reciprocal[block_id] += 1.0/(aiLi*aiLi);
+                    block_sum_aiLi_square_reciprocal_sqrt[block_id] += 1.0/(aiLi*aiLi);
+            }
+            for(auto &x:block_sum_aiLi_square_reciprocal_sqrt){
+                x = sqrt(x);
             }
         }
 
@@ -640,7 +645,7 @@ namespace QoZ {
         //std::vector<double> accumulated_error;
         std::vector<double> L_i;
         std::vector<double> block_sum_aiLi;
-        std::vector<double> block_sum_aiLi_square_reciprocal;
+        std::vector<double> block_sum_aiLi_square_reciprocal_sqrt;
         std::vector<size_t> block_elements;
         //std::vector<int> rest_elements;
         std::vector<size_t> dims;
@@ -660,7 +665,8 @@ namespace QoZ {
         double threshold;
         bool isolated;
 
-        double sum_aiti_square_tolerance;
+        double sum_aiti_square_tolerance_sqrt;
+        double sum_aiti_tolerance;
         double q = 0.999999;
 
     };
