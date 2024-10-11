@@ -225,7 +225,7 @@ namespace QoZ {
             return "Regional average of x^2";
         }
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
     private:
         template<uint NN = N>
