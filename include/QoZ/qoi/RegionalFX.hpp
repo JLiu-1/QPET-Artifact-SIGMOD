@@ -351,7 +351,7 @@ namespace QoZ {
                 block_id = compute_block_id(i);
                 L_i[i] = fabs(deri_1(data[i]));
                 double ai = 1.0 / block_elements[block_id];
-                double aiLi = a_i*L_i[i]; 
+                double aiLi = ai*L_i[i]; 
                 block_sum_aiLi[block_id]+=aiLi;
                 if(aiLi!=0)
                     block_sum_aiLi_square_reciprocal[block_id]+=1/(aiLi*aiLi);
