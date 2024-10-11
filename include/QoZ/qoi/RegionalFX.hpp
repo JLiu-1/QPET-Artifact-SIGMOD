@@ -198,12 +198,12 @@ namespace QoZ {
 
         T interpret_eb(const T * data, ptrdiff_t offset) {
             block_id = compute_block_id(offset);
-            double L_i = L_i[offset];
-            double a_i = 1.0 / num_elements[block_id];
-            if(a_i*L_i==0)
+            double Li = L_i[offset];
+            double ai = 1.0 / block_elements[block_id];
+            if(ai*Li==0)
                 return global_eb;
-            double T_estimation_1 = (1/(a_i*a_i*L_i))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
-            double T_estimation_2 = tolerance*L_i/block_sum_aiLi[block_id];//todo: nan issue
+            double T_estimation_1 = (1/(ai*ai*Li))*sqrt(sum_aiti_square_tolerance/block_sum_aiLi_square_reciprocal[block_id]);//todo: nan issue
+            double T_estimation_2 = tolerance*Li/block_sum_aiLi[block_id];//todo: nan issue
 
             double T_estimation = std::max(T_estimation_1,T_estimation_2);
 
@@ -237,7 +237,7 @@ namespace QoZ {
             //if (tuning)
             //    return;
             return;
-            '''
+           /*
             accumulated_error[block_id] += func(data) - func(dec_data);
             rest_elements[block_id] --;
             if(rest_elements[block_id] == 0 and fabs(accumulated_error[block_id]) > aggregated_tolerance[block_id]){
@@ -245,7 +245,7 @@ namespace QoZ {
                 printf("%d / %d\n", rest_elements[block_id], block_elements[block_id]);
                 exit(-1);
             }
-            '''
+            */
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
@@ -275,8 +275,8 @@ namespace QoZ {
             }
             std::cout << std::endl;
             //aggregated_tolerance = std::vector<double>(num_blocks);
-            block_elements = std::vector<int>(num_blocks, 0);
-            rest_elements = std::vector<int>(num_blocks, 0);
+            block_elements = std::vector<size_t >(num_blocks, 0);
+            //rest_elements = std::vector<size_t>(num_blocks, 0);
             L_i = std::vector<double>(num_elements,0);
             block_sum_aiLi=std::vector<double>(num_blocks, 0);
             block_sum_aiLi_square_reciprocal=std::vector<double>(num_blocks, 0);
@@ -287,7 +287,7 @@ namespace QoZ {
                     int size_x = (i < block_dims[0] - 1) ? block_size : dims[0] - i * block_size;
                     for(int j=0; j<block_dims[1]; j++){
                         int size_y = (j < block_dims[1] - 1) ? block_size : dims[1] - j * block_size;
-                        int num_block_elements = size_x * size_y;
+                        size_t num_block_elements = size_x * size_y;
                         //aggregated_tolerance[i * block_dims[1] + j] = num_block_elements * tolerance;
                         block_elements[i * block_dims[1] + j] = num_block_elements;
                         //rest_elements[i * block_dims[1] + j] = num_block_elements;
@@ -303,7 +303,7 @@ namespace QoZ {
                         int size_y = (j < block_dims[1] - 1) ? block_size : dims[1] - j * block_size;
                         for(int k=0; k<block_dims[2]; k++){
                             int size_z = (k < block_dims[2] - 1) ? block_size : dims[2] - k * block_size;
-                            int num_block_elements = size_x * size_y * size_z;
+                            size_t num_block_elements = size_x * size_y * size_z;
                             // printf("%d, %d, %d: %d * %d * %d = %d\n", i, j, k, size_x, size_y, size_z, num_block_elements);
                             //aggregated_tolerance[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements * tolerance;
                             block_elements[i * block_dims[1] * block_dims[2] + j * block_dims[2] + k] = num_block_elements;
@@ -350,7 +350,7 @@ namespace QoZ {
             for(size_t i = 0; i < num_elements ; i ++){
                 block_id = compute_block_id(i);
                 L_i[i] = fabs(deri_1(data[i]));
-                double a_i = 1.0 / block_elements[block_id];
+                double ai = 1.0 / block_elements[block_id];
                 double aiLi = a_i*L_i[i]; 
                 block_sum_aiLi[block_id]+=aiLi;
                 if(aiLi!=0)
@@ -629,7 +629,7 @@ namespace QoZ {
         std::vector<double> L_i;
         std::vector<double> block_sum_aiLi;
         std::vector<double> block_sum_aiLi_square_reciprocal;
-        std::vector<int> block_elements;
+        std::vector<size_t> block_elements;
         //std::vector<int> rest_elements;
         std::vector<size_t> dims;
         std::vector<size_t> block_dims;

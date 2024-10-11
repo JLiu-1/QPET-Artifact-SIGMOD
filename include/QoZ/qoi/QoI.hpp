@@ -54,7 +54,6 @@ namespace QoZ {
 
             virtual void set_dims(const std::vector<size_t>& new_dims) = 0;
 
-            virtual void pre_compute(T * data){}
 
             int id = 0;
         };
