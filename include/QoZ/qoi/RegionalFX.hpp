@@ -338,8 +338,7 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return 0;//todo
-
+            return func(val); //point_wise
         } 
 
         std::string get_expression() const{
