@@ -79,7 +79,7 @@ namespace QoZ {
             return "x^3";
         }
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
     private:
         T tolerance;

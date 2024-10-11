@@ -100,7 +100,7 @@ namespace QoZ {
             return "xln(x)/"+std::to_string(log_b);
         }
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
 
     private:

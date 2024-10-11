@@ -37,7 +37,7 @@ namespace QoZ {
 
             virtual void postcompress_block() = 0;
 
-            virtual void pre_compute(T * data) = 0;
+            virtual void pre_compute(const T * data) = 0;
 
             virtual void print() = 0;
 

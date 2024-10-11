@@ -93,7 +93,7 @@ namespace QoZ {
         std::string get_expression() const{
             return "Regional average of x";
         }
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
     private:
         T tolerance;

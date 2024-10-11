@@ -77,7 +77,7 @@ namespace QoZ {
             return std::to_string(base)+"^x";
         }
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
 
     private:

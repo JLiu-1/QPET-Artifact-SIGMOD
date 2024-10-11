@@ -89,6 +89,8 @@ namespace QoZ {
             return "Regional average of x^2";
         }
 
+        void pre_compute(const T * data){}
+
     private:
         T tolerance;
         T global_eb;

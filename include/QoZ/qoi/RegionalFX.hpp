@@ -124,7 +124,7 @@ namespace QoZ {
             return "Regional average";
         }
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
     private:
         T tolerance;
@@ -196,7 +196,7 @@ namespace QoZ {
             return 0;
         }
 
-        T interpret_eb(const T * data, ptrdiff_t offset) {
+        T interpret_eb(const T *data, ptrdiff_t offset) {
             block_id = compute_block_id(offset);
             double Li = L_i[offset];
             double ai = 1.0 / block_elements[block_id];
@@ -208,7 +208,7 @@ namespace QoZ {
             double T_estimation = std::max(T_estimation_1,T_estimation_2);
 
             double a = L_i;//datatype may be T
-            double b = fabs(deri_2(data));
+            double b = fabs(deri_2(*data));
            // 
             T eb;
             if(!std::isnan(a) and !std::isnan(b) and b !=0 )

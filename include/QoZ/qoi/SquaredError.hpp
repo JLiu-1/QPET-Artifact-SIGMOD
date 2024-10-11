@@ -64,7 +64,7 @@ namespace QoZ {
             return "";
         } 
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
     private:
         T compute_eb(){

@@ -107,7 +107,7 @@ namespace QoZ {
             return "Multi QoIs";
         }
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
     private:
         std::vector<std::shared_ptr<concepts::QoIInterface< T, N>>> qois;

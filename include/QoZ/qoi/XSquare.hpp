@@ -91,7 +91,7 @@ namespace QoZ {
             return "x^2";
         }
 
-        void pre_compute(T * data){}
+        void pre_compute(const T * data){}
 
 
     private:
