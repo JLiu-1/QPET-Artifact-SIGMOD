@@ -207,7 +207,7 @@ namespace QoZ {
 
             double T_estimation = std::max(T_estimation_1,T_estimation_2);
 
-            double a = L_i;//datatype may be T
+            double a = Li;//datatype may be T
             double b = fabs(deri_2(*data));
            // 
             T eb;
@@ -224,7 +224,7 @@ namespace QoZ {
 
 
             for (auto sg : singularities){
-                T diff = fabs(data-sg);
+                T diff = fabs(*data-sg);
                 eb = std::min(diff,eb);
              }
 
@@ -346,7 +346,7 @@ namespace QoZ {
             return "Regional average of " + func_string;
         }
 
-        void pre_compute(T * data){
+        void pre_compute(const T * data){
             for(size_t i = 0; i < num_elements ; i ++){
                 block_id = compute_block_id(i);
                 L_i[i] = fabs(deri_1(data[i]));
