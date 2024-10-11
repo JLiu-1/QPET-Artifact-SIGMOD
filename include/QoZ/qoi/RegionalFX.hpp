@@ -212,9 +212,9 @@ namespace QoZ {
                 T_estimation_2 = tolerance*Li/block_sum_aiLi[block_id];//todo: nan issue
             }
 
-            if(offset%64==0 and block_id%10000==0){
-                std::cout<<block_id<<" "<<*data<<" "<<Li<<" "<<block_sum_aiLi[block_id]<<" "<<block_sum_aiLi_square_reciprocal_sqrt[block_id]<<" "<<T_estimation_1<<" "<<T_estimation_2<<std::endl;
-            }
+            //if(offset%64==0 and block_id%10000==0){
+            //    std::cout<<block_id<<" "<<*data<<" "<<Li<<" "<<block_sum_aiLi[block_id]<<" "<<block_sum_aiLi_square_reciprocal_sqrt[block_id]<<" "<<T_estimation_1<<" "<<T_estimation_2<<std::endl;
+           // }
 
             double T_estimation = std::max(T_estimation_1,T_estimation_2);
 
@@ -339,7 +339,7 @@ namespace QoZ {
             }
 
 
-           std::cout<<sum_aiti_square_tolerance_sqrt<<std::endl;
+           //std::cout<<sum_aiti_square_tolerance_sqrt<<std::endl;
 
 
     
