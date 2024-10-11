@@ -34,7 +34,7 @@
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){
 
-    if(conf.regionalQoI){//regional average
+    if(conf.regionalQoI and conf.qoi!=16){//regional average
         //adjust qoieb
         conf.regionalQoIeb=conf.qoiEB;//store original regional eb
         double num_blocks = 1;
