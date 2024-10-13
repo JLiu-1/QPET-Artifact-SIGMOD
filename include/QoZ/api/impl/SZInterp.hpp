@@ -47,7 +47,7 @@ double estimate_rate_Hoeffdin(size_t n, size_t N, double q){//n: element_per_blo
     }
 }
 
-double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 4.0){//n: element_per_block N: num_blocks q: confidence
+double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
     double p;
     if (q>=0.95 and N >= 1000){
         p = (1-q)/N;
