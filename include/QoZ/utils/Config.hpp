@@ -258,7 +258,7 @@ namespace QoZ {
             qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
             qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", 0);
             qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", 64);
-            qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", blockSize);
+            qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", 1);
             qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", 1);
             quantile = cfg.GetReal("QoISettings", "quantile", 0.01);
             auto qoistring_c = cfg.Get("QoISettings", "qoi_string", "x^2");
