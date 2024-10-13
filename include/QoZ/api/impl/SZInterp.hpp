@@ -61,6 +61,21 @@ double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 3.0){//n
     
 }
 
+
+double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
+    double p;
+    if (q>=0.95 and N >= 1000){
+        p = (1-q)/N;
+    }
+    else{
+        p = 1- pow(q,1.0/N);
+    }
+
+
+    return k*sqrt(0.5*n/log(2.0/p));
+    
+}
+
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){
 
@@ -75,7 +90,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         double q = 0.999999;
-        double rate = estimate_rate_Bernstein(num_elements,num_blocks,q);
+        double rate = estimate_rate_Gaussian(num_elements,num_blocks,q);
         
         rate = std::max(1.0,rate);
         std::cout<<"Point wise QoI eb rate: " << rate << std::endl;
