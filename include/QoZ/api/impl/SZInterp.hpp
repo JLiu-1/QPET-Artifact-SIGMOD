@@ -30,6 +30,36 @@
 #include <cstdlib>
 #include <queue>
 
+double estimate_rate_Hoeffdin(size_t n, size_t N, double q){//n: element_per_block N: num_blocks q: confidence
+    double p;
+    if (q>=0.95 and N >= 1000){
+        p = (1-q)/N;
+    }
+    else{
+        p = 1- pow(q,1.0/N);
+    }
+
+    if (q>=0.95 and N >= 1000){
+        return sqrt( -n / ( 2 * ( log(1-q) - log(2*N) ) ) );
+    }
+    else{
+        return sqrt( -n / ( 2 * ( log(1- pow(q,1.0/N) ) - log(2) ) ) );
+    }
+}
+
+double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 4.0){//n: element_per_block N: num_blocks q: confidence
+    double p;
+    if (q>=0.95 and N >= 1000){
+        p = (1-q)/N;
+    }
+    else{
+        p = 1- pow(q,1.0/N);
+    }
+
+
+    return (k*k/6)*(sqrt(1+18*n/(k*k*log(2/p)))-1);
+    
+}
 
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){
@@ -45,13 +75,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         double q = 0.999999;
-        double rate = 0.0;
-        if (q>=0.95 and num_blocks >= 1000){
-            rate = sqrt( -num_elements / ( 2 * ( log(1-q) - log(2*num_blocks) ) ) );
-        }
-        else{
-            rate = sqrt( -num_elements / ( 2 * ( log(1- pow(q,1.0/num_blocks) ) - log(2) ) ) );
-        }
+        double rate = estimate_rate_Bernstein(num_elements,num_blocks,q);
+        
         rate = std::max(1.0,rate);
         std::cout<<"Point wise QoI eb rate: " << rate << std::endl;
         conf.qoiEB *= rate;
