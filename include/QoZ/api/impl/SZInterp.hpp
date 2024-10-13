@@ -31,6 +31,7 @@
 #include <queue>
 
 double estimate_rate_Hoeffdin(size_t n, size_t N, double q){//n: element_per_block N: num_blocks q: confidence
+    //no var information
     double p;
     if (q>=0.95 and N >= 1000){
         p = (1-q)/N;
@@ -48,6 +49,7 @@ double estimate_rate_Hoeffdin(size_t n, size_t N, double q){//n: element_per_blo
 }
 
 double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
+    //estimate var as gaussian
     double p;
     if (q>=0.95 and N >= 1000){
         p = (1-q)/N;
@@ -63,6 +65,8 @@ double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 3.0){//n
 
 
 double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
+    //assume gaussian error
+    //inaccurate
     double p;
     if (q>=0.95 and N >= 1000){
         p = (1-q)/N;
@@ -90,7 +94,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         double q = 0.999999;
-        double rate = estimate_rate_Gaussian(num_elements,num_blocks,q);
+        double rate = estimate_rate_Bernstein(num_elements,num_blocks,q);
         
         rate = std::max(1.0,rate);
         std::cout<<"Point wise QoI eb rate: " << rate << std::endl;
