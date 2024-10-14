@@ -30,8 +30,19 @@
 #include <cstdlib>
 #include <queue>
 
-double estimate_rate_Hoeffdin(size_t n, size_t N, double q){//n: element_per_block N: num_blocks q: confidence
+double estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 2.0){//n: element_per_block N: num_blocks q: confidence
     //no var information
+    //if gaussian, just multiply k 
+   
+    /*
+    if (q>=0.95 and N >= 1000){
+        return sqrt( -n / ( 2 * ( log(1-q) - log(2*N) ) ) );
+    }
+    else{
+        return sqrt( -n / ( 2 * ( log(1- pow(q,1.0/N) ) - log(2) ) ) );
+    }
+    */
+
     double p;
     if (q>=0.95 and N >= 1000){
         p = (1-q)/N;
@@ -40,12 +51,9 @@ double estimate_rate_Hoeffdin(size_t n, size_t N, double q){//n: element_per_blo
         p = 1- pow(q,1.0/N);
     }
 
-    if (q>=0.95 and N >= 1000){
-        return sqrt( -n / ( 2 * ( log(1-q) - log(2*N) ) ) );
-    }
-    else{
-        return sqrt( -n / ( 2 * ( log(1- pow(q,1.0/N) ) - log(2) ) ) );
-    }
+
+    return k*sqrt(0.5*n/log(2.0/p));
+    
 }
 
 double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
@@ -63,7 +71,7 @@ double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 3.0){//n
     
 }
 
-
+/*
 double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
     //assume gaussian error
     //inaccurate
@@ -79,7 +87,7 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
     return k*sqrt(0.5*n/log(2.0/p));
     
 }
-
+*/
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){
 
@@ -94,9 +102,13 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         double q = 0.999999;
-        double rate = estimate_rate_Bernstein(num_elements,num_blocks,q);
+        double rate;
+        if(conf.tol_estimation==0)
+            rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q, conf.error_std_rate);
+        else
+            rate = estimate_rate_Bernstein(num_elements,num_blocks,q, conf.error_std_rate);
         
-        rate = std::max(1.0,rate);
+        rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
         std::cout<<"Point wise QoI eb rate: " << rate << std::endl;
         conf.qoiEB *= rate;
     }
