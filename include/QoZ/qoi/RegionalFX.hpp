@@ -331,10 +331,10 @@ namespace QoZ {
             //accumulated_error = std::vector<double>(num_blocks, 0);
 
             if (q>=0.95 and num_blocks >= 1000){
-                sum_aiti_square_tolerance_sqrt = sqrt( -1 / ( 2 * ( log(1-q) - log(2*num_blocks) ) ) ) *tolerance;
+                sum_aiti_square_tolerance_sqrt = sqrt( -1 / ( 2 * ( log(1-q) - log(2*num_blocks) ) ) ) *tolerance;//if gaussian, just multiply k 
             }
             else{
-                sum_aiti_square_tolerance_sqrt = sqrt( -1 / ( 2 * ( log(1- pow(q,1.0/num_blocks) ) - log(2) ) ) ) *tolerance;
+                sum_aiti_square_tolerance_sqrt = sqrt( -1 / ( 2 * ( log(1- pow(q,1.0/num_blocks) ) - log(2) ) ) ) *tolerance;//if gaussian, just multiply k 
 
             }
 

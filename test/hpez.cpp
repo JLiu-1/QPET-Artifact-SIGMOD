@@ -25,9 +25,9 @@ void usage() {
     printf("	-v: print the version number\n");
     printf("	-a : print compression results such as distortions\n");
     printf("* input and output:\n");
-    printf("	-i <path> : original binary input file\n");
-    printf("	-o <path> : compressed output file, default in binary format\n");
-    printf("	-z <path> : compressed output (w -i) or input (w/o -i) file\n");
+    printf("	-i <path> : original 3 binary input files.\n");
+    printf("	-o <path> : 3 compressed output files, default in binary format\n");
+    printf("	-z <path> : 3 compressed output (w -i) or input (w/o -i) files\n");
     printf("	-t : store compressed output file in text format\n");
 //    printf("	-p: print meta data (configuration info)\n");
     printf("* data type:\n");
@@ -137,81 +137,116 @@ void usage_sz2() {
 }
 
 template<class T>
-void compress(char *inPath, char *cmpPath, QoZ::Config &conf) {//conf changed to reference
-    T *data = new T[conf.num];
-    QoZ::readfile<T>(inPath, conf.num, data);
+void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Config &conf) {//conf changed to reference
+    std::vector<T*,3> data;
+    for (auto i:{0,1,2}){
+        data[i] = new T[conf.num];
+        QoZ::readfile<T>(inPath[i], conf.num, data[i]);
+    }
 
-    size_t outSize;
+    std::vector<size_t,3> outSizes;
     QoZ::Timer timer(true);
-    char *bytes = SZ_compress<T>(conf, data, outSize);
+    auto bytes = SZ_compress<T>(conf, data, outSizes);
     double compress_time = timer.stop();
    
 
     char outputFilePath[1024];
-    if (cmpPath == nullptr) {
-        sprintf(outputFilePath, "%s.qoz", inPath);
-    } else {
-        strcpy(outputFilePath, cmpPath);
-    }
-   
-    QoZ::writefile(outputFilePath, bytes, outSize);
-
-
+    for (auto i:{0,1,2}){
+        if (cmpPath[i] == nullptr) {
+            sprintf(outputFilePath, "%s.hpez", inPath[i]);
+        } else {
+            strcpy(outputFilePath, cmpPath[i]);
+        }
     
+    
+   
+        QoZ::writefile(outputFilePath, bytes[i], outSizes[i]);
 
 
-    printf("compression ratio = %.2f \n", conf.num * 1.0 * sizeof(T) / outSize);
+        
+        
+        printf("File %s:\n",inPath[i]);
+        printf("compression ratio = %.2f \n", conf.num * 1.0 * sizeof(T) / outSizes[i]);
+        printf("compressed data file = %s\n", outputFilePath);
+       
+
+        
+        delete[] data[i];
+        delete[] bytes[i];
+    }
     printf("compression time = %f\n", compress_time);
-    printf("compressed data file = %s\n", outputFilePath);
 
-    delete[]data;
-    delete[]bytes;
   
 
    
 }
 
 template<class T>
-void decompress(char *inPath, char *cmpPath, char *decPath,
+void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std::array<char*,3> decPaths,
                 QoZ::Config &conf,
                 int binaryOutput, int printCmpResults) {//conf changed to reference
 
-    size_t cmpSize;
-   
-    auto cmpData = QoZ::readfile<char>(cmpPath, cmpSize);    
+    std::array<size_t,3> cmpSizes;
+
+    std::array<char*,3> cmpData;
+
+    for(auto i:{0,1,2})
+        cmpData[i]=QoZ::readfile<char>(cmpPaths[i], cmpSizes[i]).get();
+
+    /*
+    auto cmpData1 = QoZ::readfile<char>(cmpPath1, cmpSize1);
+    auto cmpData2 = QoZ::readfile<char>(cmpPath2, cmpSize2); 
+    auto cmpData3 = QoZ::readfile<char>(cmpPath3, cmpSize3); 
+    */    
 
     QoZ::Timer timer(true);
-    T *decData = SZ_decompress<T>(conf, cmpData.get(), cmpSize);
-    double compress_time = timer.stop();
+    std::array<T *,3>decData = SZ_decompress<T>(conf, cmpData, cmpSizes);
+    double decompress_time = timer.stop();
 
-    char outputFilePath[1024];
-    if (decPath == nullptr) {
-        sprintf(outputFilePath, "%s.out", cmpPath);
-    } else {
-        strcpy(outputFilePath, decPath);
+    char outputFilePaths[3][1024];
+    for(auto i:{0,1,2}){
+        if (decPath[i] == nullptr) {
+            sprintf(outputFilePaths[i], "%s.out", cmpPaths[i]);
+        } else {
+            strcpy(outputFilePaths[i], decPaths[i]);
+        }
     }
+
     if (binaryOutput == 1) {
-        QoZ::writefile<T>(outputFilePath, decData, conf.num);
+        for(auto i:{0,1,2})
+            QoZ::writefile<T>(outputFilePaths[i], decData[i], conf.num);
+        
     } else {
-        QoZ::writeTextFile<T>(outputFilePath, decData, conf.num);
+        for(auto i:{0,1,2})
+            QoZ::writeTextFile<T>(outputFilePaths[i], decData[i], conf.num);
+       
     }
     if (printCmpResults) {
         //compute the distortion / compression errors...
         size_t totalNbEle;
-        auto ori_data = QoZ::readfile<T>(inPath, totalNbEle);
-        assert(totalNbEle == conf.num);
+        std::array<T*,3> ori_data;
+        for(auto i:{0,1,2}){
+            ori_data[i] = QoZ::readfile<T>(inPaths[i], totalNbEle).get();
+            
+            assert(totalNbEle == conf.num);
+        }
         //QoZ::verify<T>(ori_data.get(), decData, conf.num);
         //QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
 
 
 
-        QoZ::verifyQoI_new<T>(ori_data.get(), decData, conf);
+        QoZ::verifyQoI_new<T>(ori_data, decData, conf);
     }
-    delete[]decData;
+    for(auto i:{0,1,2}){
+        delete[]   decData[i];
+        printf("Compressed file %s:\n",cmpPaths[i]);
+        printf("compression ratio = %f\n", conf.num * sizeof(T) * 1.0 / cmpSizes[i]);
+        printf("decompressed file = %s\n", outputFilePaths[i]);
+    
 
-    printf("compression ratio = %f\n", conf.num * sizeof(T) * 1.0 / cmpSize);
-    printf("decompression time = %f seconds.\n", compress_time);
-    printf("decompressed file = %s\n", outputFilePath);
+   
+    }
+    printf("decompression time = %f seconds.\n", decompress_time);
 }
 
 int main(int argc, char *argv[]) {
@@ -220,10 +255,10 @@ int main(int argc, char *argv[]) {
     bool compression = false;
     bool decompression = false;
     int dataType = SZ_FLOAT;
-    char *inPath = nullptr;
-    char *cmpPath = nullptr;
+    char * inPath1 = inPath2 = inPath3 = nullptr;
+    char * cmpPath1 = cmpPath2 = cmpPath2 =nullptr;
     char *conPath = nullptr;
-    char *decPath = nullptr;
+    char *decPath1 = decPath2 = decPath3 = nullptr;
     bool delCmpPath = false;
 
     char *errBoundMode = nullptr;
@@ -280,23 +315,53 @@ int main(int argc, char *argv[]) {
                 break;
             case 'z':
                 compression = true;
+
+
                 if (i + 1 < argc) {
-                    cmpPath = argv[i + 1];
-                    if (cmpPath[0] != '-')
+                    cmpPath1 = argv[i + 1];
+                    if (cmpPath1[0] != '-')
                         i++;
                     else
-                        cmpPath = nullptr;
+                        cmpPath1 = nullptr;
+                }
+                if (i + 1 < argc) {
+                    cmpPath2 = argv[i + 1];
+                    if (cmpPath2[0] != '-')
+                        i++;
+                    else
+                        cmpPath2 = nullptr;
+                }
+                if (i + 1 < argc) {
+                    cmpPath3 = argv[i + 1];
+                    if (cmpPath3[0] != '-')
+                        i++;
+                    else
+                        cmpPath3 = nullptr;
                 }
                 break;
             case 'x':
                 sz2mode = true;
                 decompression = true;
                 if (i + 1 < argc) {
-                    decPath = argv[i + 1];
-                    if (decPath[0] != '-')
+                    decPath1 = argv[i + 1];
+                    if (decPath1[0] != '-')
                         i++;
                     else
-                        decPath = nullptr;
+                        decPath1 = nullptr;
+                }
+                if (i + 1 < argc) {
+                    decPath2 = argv[i + 1];
+                    if (decPath2[0] != '-')
+                        i++;
+                    else
+                        decPath2 = nullptr;
+                }
+                if (i + 1 < argc) {
+                    decPath3 = argv[i + 1];
+                    if (decPath3[0] != '-')
+                        i++;
+                    else
+                        decPath3 = nullptr;
                 }
                 break;
             case 'f':
@@ -319,9 +384,12 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'i':
-                if (++i == argc)
+                if (i+3 >= argc || argv[i+1][0]=="-"|| argv[i+2][0]=="-"|| argv[i+3][0]=="-")
                     usage();
-                inPath = argv[i];
+                inPath1 = argv[i+1];
+                inPath2 = argv[i+2];
+                inPath3 = argv[i+3];
+                i+=3;
                 break;
             case 'q':
                 if (++i == argc || sscanf(argv[i], "%d", &qoz) != 1)
@@ -331,9 +399,12 @@ int main(int argc, char *argv[]) {
                 testLorenzo = true;
                 break;
             case 'o':
-                if (++i == argc)
+                if (i+3 >= argc || argv[i+1][0]=="-"|| argv[i+2][0]=="-"|| argv[i+3][0]=="-")
                     usage();
-                decPath = argv[i];
+                decPath1 = argv[i+1];
+                decPath2 = argv[i+2];
+                decPath3 = argv[i+3];
+                i+=3;
                 break;
             case 's':
                 sz2mode = true;
@@ -429,27 +500,31 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if ((inPath == nullptr) && (cmpPath == nullptr)) {
+    if ((inPath3 == nullptr) && (cmpPath3 == nullptr)) {
         printf("Error: you need to specify either a raw binary data file or a compressed data file as input\n");
         usage();
         exit(0);
     }
 
-    if (!sz2mode && inPath != nullptr && cmpPath != nullptr) {
+    if (!sz2mode && inPath3 != nullptr && cmpPath3 != nullptr) {
         compression = true;
     }
-    if (cmpPath != nullptr && decPath != nullptr) {
+    if (cmpPath3 != nullptr && decPath3 != nullptr) {
         decompression = true;
     }
-    char cmpPathTmp[1024];
-    if (inPath != nullptr && cmpPath == nullptr && decPath != nullptr) {
+    char cmpPathTmp1[1024],cmpPathTmp2[1024],cmpPathTmp3 [1024];
+    if (inPath3 != nullptr && cmpPath3 == nullptr && decPath3 != nullptr) {
         compression = true;
         decompression = true;
-        sprintf(cmpPathTmp, "%s.qoz.tmp", inPath);
-        cmpPath = cmpPathTmp;
+        sprintf(cmpPathTmp1, "%s.hpez.tmp", inPath1);
+        sprintf(cmpPathTmp2, "%s.hpez.tmp", inPath2);
+        sprintf(cmpPathTmp3, "%s.hpez.tmp", inPath3);
+        cmpPath1 = cmpPathTmp1;
+        cmpPath2 = cmpPathTmp2;
+        cmpPath3 = cmpPathTmp3;
         delCmpPath = true;
     }
-    if (inPath == nullptr||errBoundMode == nullptr) {
+    if (inPath3 == nullptr||errBoundMode3 == nullptr) {
         compression = false;
     }
     if (!compression && !decompression) {
@@ -559,7 +634,7 @@ int main(int argc, char *argv[]) {
     if (compression) {
 
         if (dataType == SZ_FLOAT) {
-            compress<float>(inPath, cmpPath, conf);
+            compress<float>(std::array<char*,3>{inPath1, inPath2, inPath3}, std::array<char*,3>{cmpPath1, cmpPath2, cmpPath3}, conf);
         } 
         /*else if (dataType == SZ_DOUBLE) {
             compress<double>(inPath, cmpPath, conf);
@@ -582,13 +657,13 @@ int main(int argc, char *argv[]) {
     }
   
     if (decompression) {
-        if (printCmpResults && inPath == nullptr) {
+        if (printCmpResults && inPath3 == nullptr) {
             printf("Error: Since you add -a option (analysis), please specify the original data path by -i <path>.\n");
             exit(0);
         }
        
         if (dataType == SZ_FLOAT) {
-            decompress<float>(inPath, cmpPath, decPath, conf, binaryOutput, printCmpResults);
+            decompress<float>(std::array<char*,3>{inPath1,inPath2,inPath3}, std::array<char*,3>{cmpPath1,cmpPath2,cmpPath3}, std::array<char*,3>{decPath1,decPath2,decPath3}, conf, binaryOutput, printCmpResults);
 
         } 
         /*else if (dataType == SZ_DOUBLE) {
@@ -610,7 +685,9 @@ int main(int argc, char *argv[]) {
     }
 
     if (delCmpPath) {
-        remove(cmpPath);
+        remove(cmpPath1);
+        remove(cmpPath2);
+        remove(cmpPath3);
     }
     return 0;
 }

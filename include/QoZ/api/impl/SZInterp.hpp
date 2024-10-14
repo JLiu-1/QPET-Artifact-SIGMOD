@@ -52,7 +52,7 @@ double estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 2.0){//n:
     }
 
 
-    return k*sqrt(0.5*n/log(2.0/p));
+    return k*sqrt(0.5*n/log(2.0/p));// / k*sqrt(0.5/sumai^2*log(2.0/p)) 
     
 }
 

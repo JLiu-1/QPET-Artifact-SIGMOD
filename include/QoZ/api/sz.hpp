@@ -52,18 +52,20 @@ char *compressedData = SZ_compress(conf, data, outSize);
  */
 
 template<class T>
-char *SZ_compress( QoZ::Config &config, const T *data, size_t &outSize) {
-    QoZ::Config conf(config);
-    std::vector<T> inData(data, data + conf.num);
-    char *cmpData;
+std::array<char *,3>SZ_compress( QoZ::Config &config, const std::array<T *,3> &data, std::array<size_t,3> &outSizes) {
+    std::array<QoZ::Config> confs {config,config,config};
+    std::array<std::vector<T>,3> inData;
+    for (auto i:{0,1,2})
+        inData[i]=std::vector<T>(data[i], data[i] + conf.num);
+    std::array<char *,3>cmpData;
     if (conf.N == 1) {
-        cmpData = SZ_compress_impl<T, 1>(conf, inData.data(), outSize);
+        cmpData = SZ_compress_impl<T, 1>(confs, inData, inData3.data(), outSizes);
     } else if (conf.N == 2) {
-        cmpData = SZ_compress_impl<T, 2>(conf, inData.data(), outSize);
+        cmpData = SZ_compress_impl<T, 2>(confs, inData, inData3.data(), outSizes);
     } else if (conf.N == 3) {
-        cmpData = SZ_compress_impl<T, 3>(conf, inData.data(), outSize);
+        cmpData = SZ_compress_impl<T, 3>(confs, inData, inData3.data(), outSizes);
     } else if (conf.N == 4) {
-        cmpData = SZ_compress_impl<T, 4>(conf, inData.data(), outSize);
+        cmpData = SZ_compress_impl<T, 4>(confs, inData, inData3.data(), outSizes);
     } else {
         printf("Data dimension higher than 4 is not supported.\n");
         exit(0);
@@ -74,16 +76,16 @@ char *SZ_compress( QoZ::Config &config, const T *data, size_t &outSize) {
     {
         
         //save config
-        QoZ::uchar *cmpDataPos = (QoZ::uchar *) cmpData + outSize;
-        conf.save(cmpDataPos);
-        
-        size_t newSize = (char *) cmpDataPos - cmpData;
-        QoZ::write(int(newSize - outSize), cmpDataPos);
-        
+        for (auto i:{0,1,2}){
+            QoZ::uchar *cmpDataPos = (QoZ::uchar *) cmpData[i] + outSizes[i];
+            conf.save(cmpDataPos);
+            size_t newSize = (char *) cmpDataPos - cmpData[i];
+            QoZ::write(int(newSize - outSizes[i]), cmpDataPos);
+            outSize1 = (char *) cmpDataPos - cmpData[i];
+        }
 
         
-        
-        outSize = (char *) cmpDataPos - cmpData;
+
         
     }
     return cmpData;
@@ -139,38 +141,40 @@ char *SZ_compress(const QoZ::Config &config, T *data, size_t &outSize) {
 
  */
 template<class T>
-void SZ_decompress( QoZ::Config &config, char *cmpData, size_t cmpSize, T *&decData) {
+void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::array<size_t,3> cmpSizes, std::array<T *,3>&decData) {
     //QoZ::Timer timer(true);
    
-    QoZ::Config conf(config);
+    std::array<QoZ::Config> confs {config,config,config};
 
     //{
         //load config
+    for (auto i:{0,1,2}){
         int confSize;
-        
-        memcpy(&confSize, cmpData + (cmpSize - sizeof(int)), sizeof(int));
-        QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData + (cmpSize - sizeof(int) - confSize);
+        memcpy(&confSize, cmpData[i] + (cmpSizes[i] - sizeof(int)), sizeof(int));
+        QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData[i] + (cmpSizes[i] - sizeof(int) - confSize);
         conf.load(cmpDataPos);
         //std::cout<<"afterload"<<conf.absErrorBound<<std::endl;
-    //}
-    //timer.stop("load config");
-    //timer.start();
-    //std::cout<<"woshiniba"<<std::endl;
-    if (decData == nullptr) {
-        
-        decData = new T[conf.num];
+        //}
+        //timer.stop("load config");
+        //timer.start();
+        //std::cout<<"woshiniba"<<std::endl;
+        if (decData[i] == nullptr) {
+            
+            decData[i] = new T[conf.num];
+        }
+        cmpSizes[i]-= sizeof(int) + confSize;
     }
     
     //timer.stop("alloc memory");
     //timer.start();
     if (conf.N == 1) {
-        SZ_decompress_impl<T, 1>(conf, cmpData, (cmpSize - sizeof(int) - confSize), decData);
+        SZ_decompress_impl<T, 1>(confs, cmpData, cmpSizes, decData);
     } else if (conf.N == 2) {
-        SZ_decompress_impl<T, 2>(conf, cmpData, (cmpSize - sizeof(int) - confSize), decData);
+        SZ_decompress_impl<T, 2>(confs, cmpData, cmpSizes, decData);
     } else if (conf.N == 3) {
-        SZ_decompress_impl<T, 3>(conf, cmpData, (cmpSize - sizeof(int) - confSize), decData);
+        SZ_decompress_impl<T, 3>(confs, cmpData, cmpSizes, decData);
     } else if (conf.N == 4) {
-        SZ_decompress_impl<T, 4>(conf, cmpData, (cmpSize - sizeof(int) - confSize), decData);
+        SZ_decompress_impl<T, 4>(confs, cmpData, cmpSizes, decData);
     } else {
        printf("Data dimension higher than 4 is not supported.\n");
         exit(0);
@@ -193,8 +197,8 @@ void SZ_decompress( QoZ::Config &config, char *cmpData, size_t cmpSize, T *&decD
  float decompressedData = SZ_decompress(conf, char *cmpData, size_t cmpSize)
  */
 template<class T>
-T *SZ_decompress(QoZ::Config &conf, char *cmpData, size_t cmpSize) {
-    T *decData = nullptr;
+std::array<T *,3> SZ_decompress(QoZ::Config &conf, std::array<char *,3> &cmpData, std::array<size_t,3> cmpSizes) {
+    std::array<T *,3> decData = {nullptr,nullptr,nullptr};
     SZ_decompress<T>(conf, cmpData, cmpSize, decData);
     return decData;
 }
