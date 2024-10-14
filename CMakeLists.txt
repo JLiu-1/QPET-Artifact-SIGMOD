@@ -35,7 +35,9 @@ target_compile_features(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} INTERFACE symengine)
 target_link_libraries(${PROJECT_NAME} INTERFACE gmp)
-target_link_libraries(${PROJECT_NAME} INTERFACE OpenMP::OpenMP_CXX)
+if (OpenMP_FOUND)
+    target_link_libraries(${PROJECT_NAME} INTERFACE OpenMP::OpenMP_CXX)
+endif ()
 
 option(QoZ_USE_BUNDLED_ZSTD "prefer the bundled version of Zstd" OFF)
 option(QoZ_DEBUG_TIMINGS "print debug timing information" ON)
