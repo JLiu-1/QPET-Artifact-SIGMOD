@@ -245,6 +245,8 @@ namespace QoZ {
                 T const * data_z_pos = data_y_pos;
                 for(int k=0; k<num_block_3; k++){
                     int size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
+                    if(size_1<num_block_1 or size_2<num_block_2 or size_3<num_block_3)
+                        continue;
                     T const * cur_data_pos = data_z_pos;
                     int n_block_elements = size_1 * size_2 * size_3;
                     double sum = 0;
