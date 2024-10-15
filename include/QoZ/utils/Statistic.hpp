@@ -498,10 +498,9 @@ namespace QoZ {
             verify(ori_data[i], data[i], num_elements, psnr, nrmse);
         }
 
-        if(confs[0].qoi == 0)
+        if(conf.qoi == 0)
             return;
        // const QoZ::uint N = conf.N;
-        std::
         auto qoi = QoZ::GetQOI<Type, 1>(std::array<QoZ::Config,3>{conf,conf,conf});
 
        
