@@ -209,7 +209,7 @@ std::array<char *,3>SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSi
 //              << "SZ block size      = " << blockSize << std::endl
 //              << "Interp block size  = " << interpBlockSize << std::endl;
 
-    assert(N == confs[0].N);
+    assert(N == confs[0].N&&N == confs[1].N&&N == confs[2].N);
     //assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP);
     for (auto i:{0,1,2})
         QoZ::calAbsErrorBound(confs[i], data);
@@ -260,26 +260,38 @@ std::array<char *,3>SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSi
 }
 
 template<class T, QoZ::uint N>
-void SZ_decompress_Interp(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *decData) {
-    assert(conf.cmprAlgo == QoZ::ALGO_INTERP);
-    QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
+void SZ_decompress_Interp(std::array<QoZ::Config &,3>conf, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
+    assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP&&confs[1].cmprAlgo == QoZ::ALGO_INTERP&&confs[2].cmprAlgo == QoZ::ALGO_INTERP);
+    
    
         
    if(conf.qoi > 0){
+        //QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
-        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
-        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
+        std::array<QoZ::uchar *,3>cmpDataPos = {(QoZ::uchar *) cmpData[0],(QoZ::uchar *) cmpData[1],(QoZ::uchar *) cmpData[2]};
+        std::array<QoZ::VariableEBLinearQuantizer<T, T>,3 > quantizers={QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2),
+                                                                        QoZ::VariableEBLinearQuantizer<T, T>(confs[1].quantbinCnt / 2),
+                                                                        QoZ::VariableEBLinearQuantizer<T, T>(confs[2].quantbinCnt / 2)};
+
+        //auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2);
+
+        std::array<QoZ::EBLogQuantizer<T>,3 > quantizers_eb ={QoZ::EBLogQuantizer<T>(confs[0].qoiEBBase, confs[0].qoiEBLogBase, confs[0].qoiQuantbinCnt / 2, confs[0].absErrorBound),
+                                                              QoZ::EBLogQuantizer<T>(confs[1].qoiEBBase, confs[1].qoiEBLogBase, confs[1].qoiQuantbinCnt / 2, confs[1].absErrorBound),
+                                                              QoZ::EBLogQuantizer<T>(confs[2].qoiEBBase, confs[2].qoiEBLogBase, confs[2].qoiQuantbinCnt / 2, confs[2].absErrorBound)}
         auto qoi = QoZ::GetQOI<T, N>(conf);
         auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
-                quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+                quantizers, quantizers_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());//may need 3 encoders
         sz.decompress(cmpDataPos, cmpSize, decData);
         return;
     }   
-    auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
-            QoZ::LinearQuantizer<T>(),
-            QoZ::HuffmanEncoder<int>(),
-            QoZ::Lossless_zstd());
-    sz.decompress(cmpDataPos, cmpSize, decData);
+    for (auto i:{0,1,2}){
+        QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData[i];
+        auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
+                QoZ::LinearQuantizer<T>(),
+                QoZ::HuffmanEncoder<int>(),
+                QoZ::Lossless_zstd());
+        sz.decompress(cmpDataPos, cmpSizes[i], decData[i]);
+    }
         
 }
 

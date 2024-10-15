@@ -3,12 +3,13 @@
 
 #include "QoZ/def.hpp"
 #include "QoZ/api/impl/SZDispatcher.hpp"
-#include "QoZ/api/impl/SZImplOMP.hpp"
+//#include "QoZ/api/impl/SZImplOMP.hpp"
 #include <cmath>
 
 
 template<class T, QoZ::uint N>
 std::array<char *,3>SZ_compress_impl(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data, std::array<size_t,3> &outSizes) {
+    /*
 #ifndef _OPENMP
     conf.openmp=false;
 #endif
@@ -16,26 +17,27 @@ std::array<char *,3>SZ_compress_impl(std::array<QoZ::Config,3> &confs, std::arra
         return SZ_compress_OMP<T, N>(confs, data, outSizes);
     } else {
 
-       
+       */
         auto output=SZ_compress_dispatcher<T, N>(conf, data, outSize);
      
        
         return output;
-    }
+    //}
 }
 
 
 template<class T, QoZ::uint N>
 void SZ_decompress_impl(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *decData) {
+    /*
 #ifndef _OPENMP
     conf.openmp=false;
 #endif
    
     if (conf.openmp) {
         SZ_decompress_OMP<T, N>(conf, cmpData, cmpSize, decData);
-    } else {
+    } else {*/
         SZ_decompress_dispatcher<T, N>(conf, cmpData, cmpSize, decData);
-    }
+    //}
 }
 
 #endif
