@@ -233,11 +233,16 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
         //compute the distortion / compression errors...
         size_t totalNbEle;
         std::array<T*,3> ori_data;
-        for(auto i:{0,1,2}){
-            ori_data[i] = QoZ::readfile<T>(inPaths[i], totalNbEle).get();
+        auto o1 = QoZ::readfile<T>(inPaths[0], totalNbEle);
+        auto o2 = QoZ::readfile<T>(inPaths[1], totalNbEle);
+        auto o3 = QoZ::readfile<T>(inPaths[3], totalNbEle);
+       
+        ori_data[0] = o1.get();
+        ori_data[1] = o2.get();
+        ori_data[2] = o3.get();
             
-            assert(totalNbEle == conf.num);
-        }
+        assert(totalNbEle == conf.num);
+        
         //QoZ::verify<T>(ori_data.get(), decData, conf.num);
         //QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
 

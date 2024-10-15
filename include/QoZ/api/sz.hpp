@@ -84,15 +84,13 @@ std::array<char *,3>SZ_compress( QoZ::Config &config, const std::array<T *,3> &d
             QoZ::uchar *cmpDataPos = (QoZ::uchar *) cmpData[i] + outSizes[i];
             confs[i].save(cmpDataPos);
             size_t newSize = (char *) cmpDataPos - cmpData[i];
-            std::cout<<outSizes[i]<<" "<<newSize<<" "<<int(newSize - outSizes[i])<<std::endl;
+            //std::cout<<outSizes[i]<<" "<<newSize<<" "<<int(newSize - outSizes[i])<<std::endl;
             QoZ::write(int(newSize - outSizes[i]), cmpDataPos);
             outSizes[i] = (char *) cmpDataPos - cmpData[i];
-            std::cout<<outSizes[i]<<std::endl;
+            //std::cout<<outSizes[i]<<std::endl;
 
 
-            int confSize;
-            memcpy(&confSize, cmpData[i] + (outSizes[i] - sizeof(int)), sizeof(int));
-            std::cout<<confSize<<std::endl;
+            
 
         }
 
@@ -162,12 +160,12 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         //load config
     for (auto i:{0,1,2}){
         int confSize;
-        std::cout<<cmpSizes[i]<<std::endl;
+        //std::cout<<cmpSizes[i]<<std::endl;
         memcpy(&confSize, cmpData[i] + (cmpSizes[i] - sizeof(int)), sizeof(int));
-        std::cout<<confSize<<std::endl;
+        //std::cout<<confSize<<std::endl;
         QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData[i] + (cmpSizes[i] - sizeof(int) - confSize);
         confs[i].load(cmpDataPos);
-        std::cout<<"afterload"<<std::endl;
+       // std::cout<<"afterload"<<std::endl;
         //}
         //timer.stop("load config");
         //timer.start();
@@ -178,7 +176,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         cmpSizes[i]-= sizeof(int) + confSize;
     }
     
-    std::cout<<"alloc"<<std::endl;
+   // std::cout<<"alloc"<<std::endl;
     //timer.start();
     if (confs[0].N == 1) {
         SZ_decompress_impl<T, 1>(confs, cmpData, cmpSizes, decData);
@@ -193,7 +191,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         exit(0);
     }
     
-    std::cout<<"decomp"<<std::endl;
+    //std::cout<<"decomp"<<std::endl;
 }
 
 /**
