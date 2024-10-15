@@ -327,7 +327,7 @@ namespace QoZ {
             //write(crossBlock, c);
 
             // add qoi info
-            //write(qoi, c);
+            write(qoi, c);
             //write(qoiEB, c);
             write(qoiEBBase, c);
             write(qoiEBLogBase, c);
@@ -399,7 +399,7 @@ namespace QoZ {
             //read(prewave_absErrorBound, c);
 
             // add qoi info
-            //read(qoi, c);
+            read(qoi, c);
             //read(qoiEB, c);
             read(qoiEBBase, c);
             read(qoiEBLogBase, c);
