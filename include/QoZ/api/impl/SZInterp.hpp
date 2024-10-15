@@ -341,6 +341,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             confs[j].qoiEBBase = confs[j].absErrorBound / 1030;
             std::cout << confs[j].qoi << " " << confs[j].qoiEB << " " << confs[j].qoiEBBase << " " << confs[j].qoiEBLogBase << " " << confs[j].qoiQuantbinCnt << std::endl;
             confs[j].qoi_tuned = true;
+            confs[j].qoi = 0;//temp test.
 
         }
 
