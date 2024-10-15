@@ -199,20 +199,20 @@ namespace QoZ {
                                                               const RCP<const Symbol> &z) {
             
             if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*x)) {
-                return [](T x_value, T, T) { std::cout<<"x="<<x_value<<std::endl;return x_value; };
+                return [](T x_value, T, T) { /*std::cout<<"x="<<x_value<<std::endl;*/return x_value; };
             }
           
             else if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*y)) {
-                return [](T, T y_value, T) { std::cout<<"y="<<y_value<<std::endl;return y_value; };
+                return [](T, T y_value, T) { /*std::cout<<"y="<<y_value<<std::endl;*/return y_value; };
             }
            
             else if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*z)) {
-                return [](T, T, T z_value) { std::cout<<"z="<<z_value<<std::endl;return z_value; };
+                return [](T, T, T z_value) { /*std::cout<<"z="<<z_value<<std::endl;*/return z_value; };
             }
           
             else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
                 double constant_value = eval_double(expr);
-                return [constant_value](T, T, T) { std::cout<<"c="<<constant_value<<std::endl;return constant_value; };
+                return [constant_value](T, T, T) { /*std::cout<<"c="<<constant_value<<std::endl;*/return constant_value; };
             }
            
             else if (is_a<SymEngine::Add>(expr)) {
@@ -220,7 +220,7 @@ namespace QoZ {
                 auto left = convert_expression_to_function(Expression(args[0]), x, y, z);
                 auto right = convert_expression_to_function(Expression(args[1]), x, y, z);
                 return [left, right](T x_value, T y_value, T z_value) {
-                    std::cout<<"add"<<std::endl;
+                    //std::cout<<"add"<<std::endl;
                     return left(x_value, y_value, z_value) + right(x_value, y_value, z_value);
                 };
             }
@@ -230,7 +230,7 @@ namespace QoZ {
                 auto left = convert_expression_to_function(Expression(args[0]), x, y, z);
                 auto right = convert_expression_to_function(Expression(args[1]), x, y, z);
                 return [left, right](T x_value, T y_value, T z_value) {
-                    std::cout<<"mul"<<std::endl;
+                    //std::cout<<"mul"<<std::endl;
                     return left(x_value, y_value, z_value) * right(x_value, y_value, z_value);
                 };
             }
@@ -240,7 +240,7 @@ namespace QoZ {
                 auto base = convert_expression_to_function(Expression(args[0]), x, y, z);
                 auto exponent = convert_expression_to_function(Expression(args[1]), x, y, z);
                 return [base, exponent](T x_value, T y_value, T z_value) {
-                    std::cout<<"pow"<<std::endl;
+                    //std::cout<<"pow"<<std::endl;
                     return std::pow(base(x_value, y_value, z_value), exponent(x_value, y_value, z_value));
                 };
             }
