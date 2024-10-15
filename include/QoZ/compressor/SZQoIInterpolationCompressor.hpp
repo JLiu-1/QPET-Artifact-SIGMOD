@@ -253,8 +253,8 @@ namespace QoZ {
             quant_inds = std::vector<int>(num_elements * 2);//eb + data
             ebs = conf.ebs;
             size_t interp_compressed_size = 0;
-            double eb = qoi->get_global_eb();
-            quantizer_eb.set_global_eb(eb);
+            double eb = quantizer_eb->get_global_eb();
+            //quantizer_eb.set_global_eb(eb);
 
             if (start_level<=0 or start_level>interpolation_level ){
 
