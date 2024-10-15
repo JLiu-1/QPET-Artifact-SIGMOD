@@ -356,10 +356,10 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     assert(N == confs[0].N&&N == confs[1].N&&N == confs[2].N);
     //assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP);
     for (auto i:{0,1,2})
-        QoZ::calAbsErrorBound(confs[i], data);
+        QoZ::calAbsErrorBound(confs[i], data[i]);
     std::array<char*,3> cmpData;
     //conf.print();
-    if (conf.qoi>0){
+    if (confs[0].qoi>0){
         if(!confs[0].qoi_tuned){
             QoI_tuning<T,N>(confs, data);
         

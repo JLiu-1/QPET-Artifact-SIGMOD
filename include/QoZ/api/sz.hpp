@@ -160,7 +160,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         //std::cout<<"woshiniba"<<std::endl;
         if (decData[i] == nullptr) {
             
-            decData[i] = new T[conf.num];
+            decData[i] = new T[confs[i].num];
         }
         cmpSizes[i]-= sizeof(int) + confSize;
     }
@@ -197,7 +197,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
  float decompressedData = SZ_decompress(conf, char *cmpData, size_t cmpSize)
  */
 template<class T>
-std::array<T *,3> SZ_decompress(std::array<QoZ::Config,3> &conf, std::array<char *,3> &cmpData, std::array<size_t,3> cmpSizes) {
+std::array<T *,3> SZ_decompress(QoZ::Config &conf, std::array<char *,3> &cmpData, std::array<size_t,3> cmpSizes) {
     std::array<T *,3> decData = {nullptr,nullptr,nullptr};
     SZ_decompress<T>(conf, cmpData, cmpSizes, decData);
     return decData;

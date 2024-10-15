@@ -22,9 +22,9 @@ std::array<char *,3>SZ_compress_dispatcher(std::array<QoZ::Config,3> &confs, std
         cmpData = (char *) SZ_compress_LorenzoReg<T, N>(confs, data, outSizes);
     } else
     */ if (confs[0].cmprAlgo == QoZ::ALGO_INTERP) {
-        cmpData = (char *) SZ_compress_Interp<T, N>(confs, data, outSizes);
+        cmpData = SZ_compress_Interp<T, N>(confs, data, outSizes);
     } else if (confs[0].cmprAlgo == QoZ::ALGO_INTERP_LORENZO) {
-        cmpData = (char *) SZ_compress_Interp_lorenzo<T, N>(confs, data, outSizes);
+        cmpData = SZ_compress_Interp_lorenzo<T, N>(confs, data, outSizes);
     }
     
     /*

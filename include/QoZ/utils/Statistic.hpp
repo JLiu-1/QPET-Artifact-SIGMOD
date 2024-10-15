@@ -481,7 +481,7 @@ namespace QoZ {
     }
 
     template<typename Type>
-    void verifyQoI_new(std::array<Type *,3>ori_data, std::array<Type *,3> data, const QoZ::Config &confs) {
+    void verifyQoI_new(std::array<Type *,3>ori_data, std::array<Type *,3> data, const QoZ::Config &conf) {
 
         
 
