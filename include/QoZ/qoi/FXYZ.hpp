@@ -232,7 +232,7 @@ namespace QoZ {
                 };
             }
             else if (is_a<SymEngine::Mul>(expr)) {
-                aauto args = expr.get_args();
+                auto args = expr.get_args();
                 std::vector<std::function<double(T, T, T)> > fs(args.size());
                 for (size_t i = 0; i < args.size(); ++i) 
                     fs[i]=convert_expression_to_function(Expression(args[i]), x, y, z);
