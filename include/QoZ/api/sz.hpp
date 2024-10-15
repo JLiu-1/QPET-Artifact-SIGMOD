@@ -153,12 +153,12 @@ char *SZ_compress(const QoZ::Config &config, T *data, size_t &outSize) {
 template<class T>
 void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     //QoZ::Timer timer(true);
-   std::cout<<"2 "<<config.qoi<<std::endl;
+  // std::cout<<"2 "<<config.qoi<<std::endl;
     std::array<QoZ::Config,3> confs {config,config,config};
 
     //{
         //load config
-    std::cout<<"3 "<<confs[0].qoi<<std::endl;
+    //std::cout<<"3 "<<confs[0].qoi<<std::endl;
     for (auto i:{0,1,2}){
         int confSize;
         //std::cout<<cmpSizes[i]<<std::endl;
@@ -179,7 +179,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
     
    // std::cout<<"alloc"<<std::endl;
     //timer.start();
-    std::cout<<"4 "<<confs[0].qoi<<std::endl;
+   // std::cout<<"4 "<<confs[0].qoi<<std::endl;
     if (confs[0].N == 1) {
         SZ_decompress_impl<T, 1>(confs, cmpData, cmpSizes, decData);
     } else if (confs[0].N == 2) {

@@ -416,7 +416,7 @@ template<class T, QoZ::uint N>
 void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP&&confs[1].cmprAlgo == QoZ::ALGO_INTERP&&confs[2].cmprAlgo == QoZ::ALGO_INTERP);
     
-   std::cout<<"5 "<<confs[0].qoi<<std::endl;
+   //std::cout<<"5 "<<confs[0].qoi<<std::endl;
         
    if(confs[0].qoi > 0){
         //QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
