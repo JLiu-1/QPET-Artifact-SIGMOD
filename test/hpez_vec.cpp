@@ -208,6 +208,7 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
     */    
 
     QoZ::Timer timer(true);
+    std::cout<<"1 "<<conf.qoi<<std::endl;
     std::array<T *,3>decData = SZ_decompress<T>(conf, cmpData, cmpSizes);
     double decompress_time = timer.stop();
 
