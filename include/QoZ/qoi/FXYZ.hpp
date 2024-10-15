@@ -235,7 +235,7 @@ namespace QoZ {
                 return [this, args, &x, &y, &z](T x_value, T y_value, T z_value) {
                     double result = 1.0;
                     for (size_t i = 0; i < args.size(); ++i) {
-                        auto func = this->convert_expression_to_function(Expression(args[i]), x, y, z);
+                        auto fnc = this->convert_expression_to_function(Expression(args[i]), x, y, z);
                         result *= fnc(x_value, y_value, z_value);
                     }
                     return result;
