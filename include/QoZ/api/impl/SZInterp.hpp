@@ -92,6 +92,7 @@ template<class T, QoZ::uint N>
 void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
     auto qoi_id = confs[0].qoi;
+    std::cout<<"p1"<<std::endl;
     if(qoi_id){
         // compute abs qoi eb
         /*
@@ -232,9 +233,10 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         }        
         */
     }
+    std::cout<<"p2"<<std::endl;
 
 
-
+    /*
 
     if(confs[0].regionalQoI and confs[0].qoi!=16){//regional average
         //adjust qoieb
@@ -262,19 +264,20 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
 
         }
-    }
+    }*/
         
     auto qoi = QoZ::GetQOI<T, N>(confs);
-    
+    std::cout<<"p3"<<std::endl;
     for(auto i:{0,1,2})
-        
+        confs[i].ebs = std::vector<double>(confs[i].num);
     // use quantile to determine abs bound
     {
-        confs[i].ebs = std::vector<double>(confs[i].num);
+        
         auto dims = confs[0].dims;
         auto tmp_abs_eb = confs[0].absErrorBound;
 
-        T *ebs = new T[confs[0].num];
+        //T *ebs = new T[confs[0].num];
+        std::cout<<"p4"<<std::endl;
         //todo: in_block tuning
         /*
         if(qoi_id==16){
@@ -340,6 +343,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             confs[j].qoiEBBase = confs[j].absErrorBound / 1030;
             std::cout << confs[j].qoi << " " << confs[j].qoiEB << " " << confs[j].qoiEBBase << " " << confs[j].qoiEBLogBase << " " << confs[j].qoiQuantbinCnt << std::endl;
             confs[j].qoi_tuned = true;
+
         }
 
         
