@@ -430,7 +430,7 @@ namespace QoZ {
         //std::set<double>singularities;
         std::string func_string;
         double estimate_base;
-        double k = 1.732;
+        double k = 3.0;
 
         //double threshold;
        // bool isolated;
