@@ -158,7 +158,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         std::cout<<confSize<<std::endl;
         QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData[i] + (cmpSizes[i] - sizeof(int) - confSize);
         confs[i].load(cmpDataPos);
-        std::cout<<"afterload"<<conf.absErrorBound<<std::endl;
+        std::cout<<"afterload"<<std::endl;
         //}
         //timer.stop("load config");
         //timer.start();
@@ -169,7 +169,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         cmpSizes[i]-= sizeof(int) + confSize;
     }
     
-    timer.stop("alloc memory");
+    std::cout<<"alloc"<<std::endl;
     //timer.start();
     if (confs[0].N == 1) {
         SZ_decompress_impl<T, 1>(confs, cmpData, cmpSizes, decData);
