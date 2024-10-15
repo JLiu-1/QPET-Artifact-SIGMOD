@@ -97,7 +97,7 @@ namespace QoZ {
             dy = convert_expression_to_function(dfdy, x,y,z);
             dz = convert_expression_to_function(dfdz, x,y,z);
 
-            std::cout<<dx(1,1,1)<<" "<<dy(1,1,1)<<" "<<dz(1,1,1)<<std::endl;
+            //std::cout<<dx(1,1,1)<<" "<<dy(1,1,1)<<" "<<dz(1,1,1)<<std::endl;
             // std::cout<<"init 4 "<< std::endl;
               
            // RCP<const Basic> result = evalf(df.subs(map_basic_basic({{x,RealDouble(2).rcp_from_this()}})),53, SymEngine::EvalfDomain::Real);
