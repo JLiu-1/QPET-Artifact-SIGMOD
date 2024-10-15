@@ -199,10 +199,12 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         }
         */
         // set eb base and log base if not set by config
-        if(conf.qoiEBBase == 0) 
-            conf.qoiEBBase = std::numeric_limits<T>::epsilon();
-        if(conf.qoiEBLogBase == 0)
-            conf.qoiEBLogBase = 2;        
+        for (auto i:{0,1,2}){
+            if(confs[i].qoiEBBase == 0) 
+                confs[i].qoiEBBase = std::numeric_limits<T>::epsilon();
+            if(confs[i].qoiEBLogBase == 0)
+                confs[i].qoiEBLogBase = 2;   
+        }     
         // update eb base
         
         //if(qoi!= 2 && qoi != 4 && qoi != 7 && qoi != 10) conf.qoiEBBase = (max - min) * qoi_rel_eb / 1030;
@@ -343,7 +345,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
 
 template<class T, QoZ::uint N>
-std::array<char *,3>SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
+std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::array<T *,3> data, std::array<size_t,3> &outSizes) {
 
 //    std::cout << "****************** Interp Compression ****************" << std::endl;
 //    std::cout << "Interp Op          = " << interpAlgo << std::endl
@@ -362,21 +364,23 @@ std::array<char *,3>SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSi
             QoI_tuning<T,N>(confs, data);
         
         }
+        for (auto i:{0,1,2})
+            confs[i].qoi = 10;//empty qoi;
         auto qoi = QoZ::GetQOI<T, N>(confs);//todo: bring qoi to conf to avoid duplicated initialization.
-        std::array<QoZ::VariableEBLinearQuantizer<T, T>,3 > quantizers={QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2),
-                                                                        QoZ::VariableEBLinearQuantizer<T, T>(confs[1].quantbinCnt / 2),
-                                                                        QoZ::VariableEBLinearQuantizer<T, T>(confs[2].quantbinCnt / 2)};
+        std::array<char *,3>cmpData;
+        for (auto i:{0,1,2}){
+            auto quantizer= QoZ::VariableEBLinearQuantizer<T, T>(confs[i].quantbinCnt / 2);
 
-        //auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2);
+            //auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2);
 
-        std::array<QoZ::EBLogQuantizer<T>,3 > quantizers_eb ={QoZ::EBLogQuantizer<T>(confs[0].qoiEBBase, confs[0].qoiEBLogBase, confs[0].qoiQuantbinCnt / 2, confs[0].absErrorBound),
-                                                              QoZ::EBLogQuantizer<T>(confs[1].qoiEBBase, confs[1].qoiEBLogBase, confs[1].qoiQuantbinCnt / 2, confs[1].absErrorBound),
-                                                              QoZ::EBLogQuantizer<T>(confs[2].qoiEBBase, confs[2].qoiEBLogBase, confs[2].qoiQuantbinCnt / 2, confs[2].absErrorBound)}
-        //auto quantizer_eb = QoZ::EBLogQuantizer<T>(confs[0].qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
-        auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
-                quantizers, quantizers_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());//maybe we need multiple encoder and zstd
+            auto quantizer_eb = QoZ::EBLogQuantizer<T>(confs[i].qoiEBBase, confs[i].qoiEBLogBase, confs[i].qoiQuantbinCnt / 2, confs[i].absErrorBound);
+                                                                  
+            //auto quantizer_eb = QoZ::EBLogQuantizer<T>(confs[0].qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
+            auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
+                    quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());//maybe we need multiple encoder and zstd
 
-        std::array<char *,3>cmpData = (char *) sz.compress(confs, data, outSizes);
+            cmpData[i] = (char *) sz.compress(confs[i], data[i], outSizes[i]);
+        }
          //double incall_time = timer.stop();
         //std::cout << "incall time = " << incall_time << "s" << std::endl;
         return cmpData;
@@ -402,7 +406,7 @@ std::array<char *,3>SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSi
 }
 
 template<class T, QoZ::uint N>
-void SZ_decompress_Interp(std::array<QoZ::Config &,3>conf, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
+void SZ_decompress_Interp(std::array<QoZ::Config &,3>confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP&&confs[1].cmprAlgo == QoZ::ALGO_INTERP&&confs[2].cmprAlgo == QoZ::ALGO_INTERP);
     
    
@@ -410,20 +414,22 @@ void SZ_decompress_Interp(std::array<QoZ::Config &,3>conf, std::array<char *,3> 
    if(conf.qoi > 0){
         //QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
-        std::array<QoZ::uchar *,3>cmpDataPos = {(QoZ::uchar *) cmpData[0],(QoZ::uchar *) cmpData[1],(QoZ::uchar *) cmpData[2]};
-        std::array<QoZ::VariableEBLinearQuantizer<T, T>,3 > quantizers={QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2),
-                                                                        QoZ::VariableEBLinearQuantizer<T, T>(confs[1].quantbinCnt / 2),
-                                                                        QoZ::VariableEBLinearQuantizer<T, T>(confs[2].quantbinCnt / 2)};
+        //std::array<QoZ::uchar *,3>cmpDataPos = {(QoZ::uchar *) cmpData[0],(QoZ::uchar *) cmpData[1],(QoZ::uchar *) cmpData[2]};
+        confs[0].qoi = 10; //empty qoi
+        auto qoi = QoZ::GetQOI<T, N>(confs);
+        for (auto i:{0,1,2}){
 
-        //auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2);
+            QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData[i];
+            auto quantizer=QoZ::VariableEBLinearQuantizer<T, T>(confs[i].quantbinCnt / 2);
 
-        std::array<QoZ::EBLogQuantizer<T>,3 > quantizers_eb ={QoZ::EBLogQuantizer<T>(confs[0].qoiEBBase, confs[0].qoiEBLogBase, confs[0].qoiQuantbinCnt / 2, confs[0].absErrorBound),
-                                                              QoZ::EBLogQuantizer<T>(confs[1].qoiEBBase, confs[1].qoiEBLogBase, confs[1].qoiQuantbinCnt / 2, confs[1].absErrorBound),
-                                                              QoZ::EBLogQuantizer<T>(confs[2].qoiEBBase, confs[2].qoiEBLogBase, confs[2].qoiQuantbinCnt / 2, confs[2].absErrorBound)}
-        auto qoi = QoZ::GetQOI<T, N>(conf);
-        auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
-                quantizers, quantizers_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());//may need 3 encoders
-        sz.decompress(cmpDataPos, cmpSize, decData);
+            //auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(confs[0].quantbinCnt / 2);
+
+            auto quantizer_eb =QoZ::EBLogQuantizer<T>(confs[i].qoiEBBase, confs[i].qoiEBLogBase, confs[i].qoiQuantbinCnt / 2, confs[i].absErrorBound);
+            
+            auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
+                    quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());//may need 3 encoders
+            sz.decompress(cmpDataPos, cmpSizes[i], decData[i]);
+        }
         return;
     }   
     for (auto i:{0,1,2}){
@@ -517,9 +523,9 @@ inline void init_betalist(std::vector<double> &beta_list,const double &rel_bound
 template<class T, QoZ::uint N>
 void sampleBlocks(T *data,std::vector<size_t> &dims, size_t sampleBlockSize,std::vector< std::vector<T> > & sampled_blocks,double sample_rate,int profiling ,std::vector<std::vector<size_t> > &starts,int var_first=0){
     for(int i=0;i<sampled_blocks.size();i++){
-                std::vector< T >().swap(sampled_blocks[i]);                
-            }
-            std::vector< std::vector<T> >().swap(sampled_blocks);
+        std::vector< T >().swap(sampled_blocks[i]);                
+    }
+    std::vector< std::vector<T> >().swap(sampled_blocks);
     for(int i=0;i<sampled_blocks.size();i++){
         std::vector< T >().swap(sampled_blocks[i]);                  
     }
@@ -1619,7 +1625,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
 
             for (auto &interp_op: {QoZ::INTERP_ALGO_LINEAR, QoZ::INTERP_ALGO_CUBIC}) {
-                ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
+                double ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
                                                                              interp_op, conf.interpMeta.interpDirection, sampling_block);
                 if (ratio > best_interp_ratio) {
                     best_interp_ratio = ratio;
@@ -1917,7 +1923,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
 
 template<class T, QoZ::uint N>
-std::array<char *,3>SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
+std::array<char *,3>SZ_compress_Interp_lorenzo(QoZ::Config &confs, std::array<T *,3>&data, std::array<size_t,3> &outSizes) {
     assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP_LORENZO);
     for(auto i:{0,1,2})
        QoZ::calAbsErrorBound(confs[i], data[i]);
@@ -1930,7 +1936,7 @@ std::array<char *,3>SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_
                 confs[i].levelwisePredictionSelection=0;
                 confs[i].multiDimInterp=0;
                 confs[i].QoZ=0;
-            }//merge this part to other branches
+        }//merge this part to other branches
         
 
     
@@ -2042,7 +2048,7 @@ std::array<char *,3>SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_
         }
         return SZ_compress_LorenzoReg<T, N>(conf, data, outSize);
         */
-        return NULL;
+        return std::array<char *,3>{};
     }
   
 }

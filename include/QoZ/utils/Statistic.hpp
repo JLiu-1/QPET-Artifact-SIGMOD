@@ -481,11 +481,11 @@ namespace QoZ {
     }
 
     template<typename Type>
-    void verifyQoI_new(Type *ori_data, Type *data, const QoZ::Config &conf) {
+    void verifyQoI_new(std::array<Type *,3>ori_data, std::array<Type *,3> data, const std::array<QoZ::Config,3> &confs) {
 
         
 
-        std::vector<size_t> dims = confs[0].dims;
+        //std::vector<size_t> dims = confs[0].dims;
         //int blockSize = confs[0].qoiRegionSize;
         size_t num_elements = 1;
         for(const auto d:dims){

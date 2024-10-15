@@ -48,7 +48,7 @@ using SymEngine::FiniteSet;
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_FX : public concepts::QoIInterface<T, N> {
+    class QoI_empty : public concepts::QoIInterface<T, N> {
 
     public:
         QoI_empty(const std::array<Config,3> confs) : 

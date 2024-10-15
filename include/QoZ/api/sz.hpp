@@ -53,7 +53,7 @@ char *compressedData = SZ_compress(conf, data, outSize);
 
 template<class T>
 std::array<char *,3>SZ_compress( QoZ::Config &config, const std::array<T *,3> &data, std::array<size_t,3> &outSizes) {
-    std::array<QoZ::Config> confs {config,config,config};
+    std::array<QoZ::Config,3> confs {config,config,config};
     std::array<std::vector<T>,3> inData;
     for (auto i:{0,1,2})
         inData[i]=std::vector<T>(data[i], data[i] + conf.num);

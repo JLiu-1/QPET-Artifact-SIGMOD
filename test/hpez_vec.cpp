@@ -138,13 +138,13 @@ void usage_sz2() {
 
 template<class T>
 void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Config &conf) {//conf changed to reference
-    std::vector<T*,3> data;
+    std::array<T*,3> data;
     for (auto i:{0,1,2}){
         data[i] = new T[conf.num];
-        QoZ::readfile<T>(inPath[i], conf.num, data[i]);
+        QoZ::readfile<T>(inPaths[i], conf.num, data[i]);
     }
 
-    std::vector<size_t,3> outSizes;
+    std::array<size_t,3> outSizes;
     QoZ::Timer timer(true);
     auto bytes = SZ_compress<T>(conf, data, outSizes);
     double compress_time = timer.stop();
@@ -152,10 +152,10 @@ void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Co
 
     char outputFilePath[1024];
     for (auto i:{0,1,2}){
-        if (cmpPath[i] == nullptr) {
+        if (cmpPaths[i] == nullptr) {
             sprintf(outputFilePath, "%s.hpez", inPath[i]);
         } else {
-            strcpy(outputFilePath, cmpPath[i]);
+            strcpy(outputFilePath, cmpPaths[i]);
         }
     
     
@@ -165,7 +165,7 @@ void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Co
 
         
         
-        printf("File %s:\n",inPath[i]);
+        printf("File %s:\n",inPaths[i]);
         printf("compression ratio = %.2f \n", conf.num * 1.0 * sizeof(T) / outSizes[i]);
         printf("compressed data file = %s\n", outputFilePath);
        
@@ -205,7 +205,7 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
 
     char outputFilePaths[3][1024];
     for(auto i:{0,1,2}){
-        if (decPath[i] == nullptr) {
+        if (decPaths[i] == nullptr) {
             sprintf(outputFilePaths[i], "%s.out", cmpPaths[i]);
         } else {
             strcpy(outputFilePaths[i], decPaths[i]);
@@ -255,10 +255,16 @@ int main(int argc, char *argv[]) {
     bool compression = false;
     bool decompression = false;
     int dataType = SZ_FLOAT;
-    char * inPath1 = inPath2 = inPath3 = nullptr;
-    char * cmpPath1 = cmpPath2 = cmpPath2 =nullptr;
+    char * inPath1 = nullptr;
+    char * inPath2 = nullptr;
+    char * inPath3 = nullptr;
+    char * cmpPath1 = nullptr;
+    char * cmpPath2 = nullptr;
+    char * cmpPath3 = nullptr;
     char *conPath = nullptr;
-    char *decPath1 = decPath2 = decPath3 = nullptr;
+    char *decPath1 = nullptr;
+    char *decPath2 = nullptr;
+    char *decPath3 = nullptr;
     bool delCmpPath = false;
 
     char *errBoundMode = nullptr;
@@ -384,7 +390,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'i':
-                if (i+3 >= argc || argv[i+1][0]=="-"|| argv[i+2][0]=="-"|| argv[i+3][0]=="-")
+                if (i+3 >= argc || argv[i+1][0]== '-' || argv[i+2][0]=='-'|| argv[i+3][0]=='-')
                     usage();
                 inPath1 = argv[i+1];
                 inPath2 = argv[i+2];
@@ -399,7 +405,7 @@ int main(int argc, char *argv[]) {
                 testLorenzo = true;
                 break;
             case 'o':
-                if (i+3 >= argc || argv[i+1][0]=="-"|| argv[i+2][0]=="-"|| argv[i+3][0]=="-")
+                if (i+3 >= argc || argv[i+1][0] == '-'|| argv[i+2][0] == '-'|| argv[i+3][0] == '-')
                     usage();
                 decPath1 = argv[i+1];
                 decPath2 = argv[i+2];
@@ -408,9 +414,13 @@ int main(int argc, char *argv[]) {
                 break;
             case 's':
                 sz2mode = true;
-                if (++i == argc)
+                if (i+3 >= argc|| argv[i+1][0]== '-' || argv[i+2][0]=='-'|| argv[i+3][0]=='-')
                     usage();
-                cmpPath = argv[i];
+
+                cmpPath1 = argv[i + 1];
+                cmpPath2 = argv[i + 2];
+                cmpPath3 = argv[i + 3];
+                i+=3
                 break;
             case 'c':
                 if (++i == argc)
@@ -524,7 +534,7 @@ int main(int argc, char *argv[]) {
         cmpPath3 = cmpPathTmp3;
         delCmpPath = true;
     }
-    if (inPath3 == nullptr||errBoundMode3 == nullptr) {
+    if (inPath3 == nullptr||errBoundMode == nullptr) {
         compression = false;
     }
     if (!compression && !decompression) {

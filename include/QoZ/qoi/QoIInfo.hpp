@@ -24,8 +24,8 @@
 namespace QoZ {
 
     template<class T, QoZ::uint N >
-    std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(std::array<const Config,3> &confs){
-        switch(conf.qoi){
+    std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(const std::array<Config,3> &confs){
+        switch(confs[0].qoi){
             /*
             case 1:
                 return std::make_shared<QoZ::QoI_X_Square<T, N>>(conf.qoiEB, conf.absErrorBound);
@@ -108,7 +108,7 @@ namespace QoZ {
                 return std::make_shared<QoZ::QoI_FXYZ<T, N>>(confs);
             case 10:
                 return std::make_shared<QoZ::QoI_empty<T, N>>(confs);
-            }
+            
         }
         return NULL;
     }

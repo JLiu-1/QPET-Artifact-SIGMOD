@@ -48,15 +48,12 @@ using SymEngine::FiniteSet;
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_FX : public concepts::QoIInterface<T, N> {
+    class QoI_FXYZ : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FX(const std::array<Config,3> confs) : 
-                 {
+        QoI_FXYZ(const std::array<Config,3> confs)  {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-                    tolerance(tolerance),
-                global_eb(global_eb), func_string(ff)
             concepts::QoIInterface<T, N>::id = 1;
 
 
@@ -93,12 +90,10 @@ namespace QoZ {
            // std::cout<<"df: "<< df<<std::endl;
             //std::cout<<"ddf: "<< ddf<<std::endl;
   
-            func = convert_expression_to_function(f, x);
-            dx = convert_expression_to_function(dfdx, x);
-            deri_2 = convert_expression_to_function(ddf, x);
-
-            if (isolated)
-                singularities.insert(threshold);
+            func = convert_expression_to_function(f, x,y,z);
+            dx = convert_expression_to_function(dfdx, x,y,z);
+            dy = convert_expression_to_function(dfdy, x,y,z);
+            dz = convert_expression_to_function(dfdz, x,y,z);
             // std::cout<<"init 4 "<< std::endl;
               
            // RCP<const Basic> result = evalf(df.subs(map_basic_basic({{x,RealDouble(2).rcp_from_this()}})),53, SymEngine::EvalfDomain::Real);

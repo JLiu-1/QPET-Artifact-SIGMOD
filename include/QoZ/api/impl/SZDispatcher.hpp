@@ -16,14 +16,14 @@ std::array<char *,3>SZ_compress_dispatcher(std::array<QoZ::Config,3> &confs, std
     for(auto i:{0,1,2})
         QoZ::calAbsErrorBound(confs[i], data[i]);
 
-    std::array<QoZ::Config,3> &confscmpData;
+    std::array<char *,3> cmpData;
     /*
     if (conf.cmprAlgo == QoZ::ALGO_LORENZO_REG) {
         cmpData = (char *) SZ_compress_LorenzoReg<T, N>(confs, data, outSizes);
     } else
-    */ if (conf.cmprAlgo == QoZ::ALGO_INTERP) {
+    */ if (confs[0].cmprAlgo == QoZ::ALGO_INTERP) {
         cmpData = (char *) SZ_compress_Interp<T, N>(confs, data, outSizes);
-    } else if (conf.cmprAlgo == QoZ::ALGO_INTERP_LORENZO) {
+    } else if (confs[0].cmprAlgo == QoZ::ALGO_INTERP_LORENZO) {
         cmpData = (char *) SZ_compress_Interp_lorenzo<T, N>(confs, data, outSizes);
     }
     
@@ -44,12 +44,12 @@ std::array<char *,3>SZ_compress_dispatcher(std::array<QoZ::Config,3> &confs, std
 
 
 template<class T, QoZ::uint N>
-void SZ_decompress_dispatcher(std::array<QoZ::Config,3> &confs, std::array<QoZ::Config,3> &confs cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3> &decData) {
+void SZ_decompress_dispatcher(std::array<QoZ::Config,3> &confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3> &decData) {
     /*
     if (conf.cmprAlgo == QoZ::ALGO_LORENZO_REG) {
         SZ_decompress_LorenzoReg<T, N>(confs, cmpData, cmpSizes, decData);
     } else 
-    */if (conf.cmprAlgo == QoZ::ALGO_INTERP) {
+    */if (confs[0].cmprAlgo == QoZ::ALGO_INTERP) {
         SZ_decompress_Interp<T, N>(confs, cmpData, cmpSizes, decData);
     } else {
         printf("SZ_decompress_dispatcher, Method not supported\n");
