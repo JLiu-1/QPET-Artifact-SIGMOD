@@ -217,7 +217,7 @@ namespace QoZ {
            
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
-                std::cout<<"add "<<args.size()<<std::endl;
+              
                 std::vector<std::function<double(T, T, T)> > fs;
                 for (size_t i = 0; i < args.size(); ++i) {
 
@@ -236,7 +236,7 @@ namespace QoZ {
             }
             else if (is_a<SymEngine::Mul>(expr)) {
                 auto args = expr.get_args();
-                std::cout<<"mul "<<args.size()<<std::endl;
+               
                 std::vector<std::function<double(T, T, T)> > fs;
                 for (size_t i = 0; i < args.size(); ++i) 
                     fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
