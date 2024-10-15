@@ -190,9 +190,9 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
 
     std::array<char*,3> cmpData;
 
-    auto ptr1 =QoZ::readfile<char>(cmpPaths[0], cmpSizes[0]).get()
-    auto ptr2 =QoZ::readfile<char>(cmpPaths[1], cmpSizes[1]).get()
-    auto ptr3 =QoZ::readfile<char>(cmpPaths[2], cmpSizes[2]).get()
+    auto ptr1 =QoZ::readfile<char>(cmpPaths[0], cmpSizes[0]);
+    auto ptr2 =QoZ::readfile<char>(cmpPaths[1], cmpSizes[1]);
+    auto ptr3 =QoZ::readfile<char>(cmpPaths[2], cmpSizes[2]);
 
    
     cmpData[0]=ptr1.get();
