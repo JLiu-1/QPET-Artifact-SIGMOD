@@ -217,12 +217,12 @@ namespace QoZ {
            
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
-                auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
+               // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-                return [first, args, &x, &y, &z](T x_value, T y_value, T z_value) {
-                    double result = first(x_value, y_value, z_value);
-                    for (size_t i = 1; i < args.size(); ++i) {
-                        auto fnc = convert_expression_to_function(Expression(args[i]), x, y, z);
+                return [this, args, &x, &y, &z](T x_value, T y_value, T z_value) {
+                    double result = 0;
+                    for (size_t i = 0; i < args.size(); ++i) {
+                        auto fnc = this->convert_expression_to_function(Expression(args[i]), x, y, z);
                         result += fnc(x_value, y_value, z_value);
                     }
                     return result;
@@ -232,10 +232,10 @@ namespace QoZ {
                 auto args = expr.get_args();
                 auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-                return [first, args, &x, &y, &z](T x_value, T y_value, T z_value) {
-                    double result = first(x_value, y_value, z_value);
-                    for (size_t i = 1; i < args.size(); ++i) {
-                        auto func = convert_expression_to_function(Expression(args[i]), x, y, z);
+                return [this, args, &x, &y, &z](T x_value, T y_value, T z_value) {
+                    double result = 1.0;
+                    for (size_t i = 0; i < args.size(); ++i) {
+                        auto func = this->convert_expression_to_function(Expression(args[i]), x, y, z);
                         result *= fnc(x_value, y_value, z_value);
                     }
                     return result;
