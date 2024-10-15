@@ -427,29 +427,36 @@ namespace QoZ {
             // +
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
-                auto left = convert_expression_to_function(Expression(args[0]), x);
-                auto right = convert_expression_to_function(Expression(args[1]), x);
-                return [left, right](T x_value) {
-                    return left(x_value) + right(x_value);
+                //std::cout<<"add "<<args.size()<<std::endl;
+                std::vector<std::function<double(T, T, T)> > fs;
+                for (size_t i = 0; i < args.size(); ++i) {
+
+                    fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
+                }
+
+               // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
+
+                return [fs](T x_value, T y_value, T z_value) {
+                    double result = 0;
+                    for (auto &fnc:fs) {
+                        result += fnc(x_value, y_value, z_value);
+                    }
+                    return result;
                 };
             }
-            // -
-            /*
-            else if (SymEngine::is_a<SymEngine::sub>(expr)) {
-                auto args = expr.get_args();
-                auto left = convert_expression_to_function(Expression(args[0]), x);
-                auto right = convert_expression_to_function(Expression(args[1]), x);
-                return [left, right](T x_value) {
-                    return left(x_value) - right(x_value);
-                };
-            }*/
-            // *
             else if (is_a<SymEngine::Mul>(expr)) {
                 auto args = expr.get_args();
-                auto left = convert_expression_to_function(Expression(args[0]), x);
-                auto right = convert_expression_to_function(Expression(args[1]), x);
-                return [left, right](T x_value) {
-                    return left(x_value) * right(x_value);
+                //std::cout<<"mul "<<args.size()<<std::endl;
+                std::vector<std::function<double(T, T, T)> > fs;
+                for (size_t i = 0; i < args.size(); ++i) 
+                    fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
+
+                return [ fs](T x_value, T y_value, T z_value) {
+                    double result = 1.0;
+                    for (auto &fnc:fs) {
+                        result *= fnc(x_value, y_value, z_value);
+                    }
+                    return result;
                 };
             }
             // /
