@@ -151,11 +151,9 @@ void SZ_decompress( QoZ::Config &config, char *cmpData, size_t cmpSize, T *&decD
         memcpy(&confSize, cmpData + (cmpSize - sizeof(int)), sizeof(int));
         QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData + (cmpSize - sizeof(int) - confSize);
         conf.load(cmpDataPos);
-        //std::cout<<"afterload"<<conf.absErrorBound<<std::endl;
     //}
     //timer.stop("load config");
     //timer.start();
-    //std::cout<<"woshiniba"<<std::endl;
     if (decData == nullptr) {
         
         decData = new T[conf.num];
