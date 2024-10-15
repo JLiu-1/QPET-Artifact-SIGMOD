@@ -258,14 +258,14 @@ namespace QoZ {
           
             else if (is_a<SymEngine::Sin>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y, z);
-                return [&arg](T x_value, T y_value, T z_value) {
+                return [arg](T x_value, T y_value, T z_value) {
                     return std::sin(arg(x_value, y_value, z_value));
                 };
             }
             
             else if (is_a<SymEngine::Cos>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y, z);
-                return [&arg](T x_value, T y_value, T z_value) {
+                return [arg](T x_value, T y_value, T z_value) {
                     return std::cos(arg(x_value, y_value, z_value));
                 };
             }
@@ -275,11 +275,11 @@ namespace QoZ {
                 auto arg = convert_expression_to_function(Expression(args[0]), x, y, z);
                 if (args.size() == 2) { // base log
                     auto base = convert_expression_to_function(Expression(args[1]), x, y, z);
-                    return [&arg, base](T x_value, T y_value, T z_value) {
+                    return [arg, base](T x_value, T y_value, T z_value) {
                         return std::log(arg(x_value, y_value, z_value)) / std::log(base(x_value, y_value, z_value));
                     };
                 } else { // ln
-                    return [&arg](T x_value, T y_value, T z_value) {
+                    return [arg](T x_value, T y_value, T z_value) {
                         return std::log(arg(x_value, y_value, z_value));
                     };
                 }
