@@ -547,7 +547,7 @@ namespace QoZ {
         std::vector<double> qoiEBs;
         double quantile = 0.01;
         bool qoi_tuned=false;
-        std::string qoi_string = "x^2";
+        std::string qoi_string = "x^2+y^2+z^2";
         std::string qoi_string_2 = "0";
         double threshold = 0.0;
         bool isolated = false;
