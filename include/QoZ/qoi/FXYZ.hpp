@@ -87,9 +87,10 @@ namespace QoZ {
             //ddf = diff(df,x);
             dfdy = f.diff(y);
             dfdz = f.diff(z);
-           // std::cout<<"f: "<< f<<std::endl;
-           // std::cout<<"df: "<< df<<std::endl;
-            //std::cout<<"ddf: "<< ddf<<std::endl;
+            std::cout<<"f: "<< f<<std::endl;
+            std::cout<<"dfdx: "<< dfdx<<std::endl;
+            std::cout<<"dfdy: "<< dfdx<<std::endl;
+            std::cout<<"dfdy: "<< dfdz<<std::endl;
   
             func = convert_expression_to_function(f, x,y,z);
             dx = convert_expression_to_function(dfdx, x,y,z);
@@ -116,7 +117,7 @@ namespace QoZ {
 
             double alpha = fabs(dx(x,y,z));//datatype may be T
             double beta = fabs(dy(x,y,z));
-            double gamma = fabs(dy(x,y,z));
+            double gamma = fabs(dz(x,y,z));
             double sum= alpha+beta+gamma;
             double square_sum= alpha*alpha+beta*beta+gamma*gamma;
 
