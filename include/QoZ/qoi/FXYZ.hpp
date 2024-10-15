@@ -89,8 +89,8 @@ namespace QoZ {
             dfdz = f.diff(z);
             std::cout<<"f: "<< f<<std::endl;
             std::cout<<"dfdx: "<< dfdx<<std::endl;
-            std::cout<<"dfdy: "<< dfdx<<std::endl;
-            std::cout<<"dfdy: "<< dfdz<<std::endl;
+            std::cout<<"dfdy: "<< dfdy<<std::endl;
+            std::cout<<"dfdz: "<< dfdz<<std::endl;
   
             func = convert_expression_to_function(f, x,y,z);
             dx = convert_expression_to_function(dfdx, x,y,z);
@@ -127,7 +127,7 @@ namespace QoZ {
             T estimation_1 =square_sum!=0?k*sqrt(0.5/(square_sum*log(2.0/(1-confidence))))*tolerance:global_ebs[0]+global_ebs[1]+global_ebs[2];
             T estimation_2 =(sum!=0)?tolerance/sum:global_ebs[0]+global_ebs[1]+global_ebs[2];
             
-            T eb = std::min(estimation_1,estimation_2);
+            T eb = std::max(estimation_1,estimation_2);
             std::array<T,3> res;
             for (auto i:{0,1,2})
                 res[i]=std::min(eb,global_ebs[i]);
