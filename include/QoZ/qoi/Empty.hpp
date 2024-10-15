@@ -51,7 +51,7 @@ namespace QoZ {
     class QoI_empty : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_empty(const std::array<Config,3> confs) : 
+        QoI_empty(const std::array<Config,3> confs) 
                  {
             
         }

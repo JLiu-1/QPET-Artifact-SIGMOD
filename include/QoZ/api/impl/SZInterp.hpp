@@ -360,7 +360,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     std::array<char*,3> cmpData;
     //conf.print();
     if (conf.qoi>0){
-        if(!conf.qoi_tuned){
+        if(!confs[0].qoi_tuned){
             QoI_tuning<T,N>(confs, data);
         
         }
@@ -406,12 +406,12 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
 }
 
 template<class T, QoZ::uint N>
-void SZ_decompress_Interp(std::array<QoZ::Config &,3>confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
+void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP&&confs[1].cmprAlgo == QoZ::ALGO_INTERP&&confs[2].cmprAlgo == QoZ::ALGO_INTERP);
     
    
         
-   if(conf.qoi > 0){
+   if(confs[0].qoi > 0){
         //QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         //std::array<QoZ::uchar *,3>cmpDataPos = {(QoZ::uchar *) cmpData[0],(QoZ::uchar *) cmpData[1],(QoZ::uchar *) cmpData[2]};
@@ -1636,7 +1636,7 @@ double Tuning(QoZ::Config &conf, T *data){
                 std::cout << "interp best interpAlgo = " << (conf.interpMeta.interpAlgo == 0 ? "LINEAR" : "CUBIC") << std::endl;
                 
             int direction_op = QoZ::factorial(N) - 1;
-            ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
+            double ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
                                                                          conf.interpMeta.interpAlgo, direction_op, sampling_block);
             if (ratio > best_interp_ratio * 1.02) {
                 best_interp_ratio = ratio;
@@ -1923,7 +1923,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
 
 template<class T, QoZ::uint N>
-std::array<char *,3>SZ_compress_Interp_lorenzo(QoZ::Config &confs, std::array<T *,3>&data, std::array<size_t,3> &outSizes) {
+std::array<char *,3>SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs, std::array<T *,3>&data, std::array<size_t,3> &outSizes) {
     assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP_LORENZO);
     for(auto i:{0,1,2})
        QoZ::calAbsErrorBound(confs[i], data[i]);

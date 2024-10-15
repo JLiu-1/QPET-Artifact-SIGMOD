@@ -481,11 +481,11 @@ namespace QoZ {
     }
 
     template<typename Type>
-    void verifyQoI_new(std::array<Type *,3>ori_data, std::array<Type *,3> data, const std::array<QoZ::Config,3> &confs) {
+    void verifyQoI_new(std::array<Type *,3>ori_data, std::array<Type *,3> data, const QoZ::Config &confs) {
 
         
 
-        //std::vector<size_t> dims = confs[0].dims;
+        std::vector<size_t> dims = conf.dims;
         //int blockSize = confs[0].qoiRegionSize;
         size_t num_elements = 1;
         for(const auto d:dims){
@@ -501,12 +501,13 @@ namespace QoZ {
         if(confs[0].qoi == 0)
             return;
        // const QoZ::uint N = conf.N;
-        auto qoi = QoZ::GetQOI<Type, 1>(confs);
+        std::
+        auto qoi = QoZ::GetQOI<Type, 1>(std::array<QoZ::Config,3>{conf,conf,conf});
 
        
         double max_qoi_diff = 0;
 
-        double max_qoi = qoi->eval(ori_data[0]);
+        double max_qoi = qoi->eval(ori_data[0][0],ori_data[1][0],ori_data[2][0]);
         double min_qoi = max_qoi;
        
         for(int i=0; i<num_elements; i++){

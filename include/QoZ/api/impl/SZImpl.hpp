@@ -18,7 +18,7 @@ std::array<char *,3>SZ_compress_impl(std::array<QoZ::Config,3> &confs, std::arra
     } else {
 
        */
-        auto output=SZ_compress_dispatcher<T, N>(conf, data, outSize);
+        auto output=SZ_compress_dispatcher<T, N>(confs, data, outSizes);
      
        
         return output;
@@ -27,7 +27,7 @@ std::array<char *,3>SZ_compress_impl(std::array<QoZ::Config,3> &confs, std::arra
 
 
 template<class T, QoZ::uint N>
-void SZ_decompress_impl(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *decData) {
+void SZ_decompress_impl(std::array<QoZ::Config,3> &conf, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     /*
 #ifndef _OPENMP
     conf.openmp=false;
@@ -36,7 +36,7 @@ void SZ_decompress_impl(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *dec
     if (conf.openmp) {
         SZ_decompress_OMP<T, N>(conf, cmpData, cmpSize, decData);
     } else {*/
-        SZ_decompress_dispatcher<T, N>(conf, cmpData, cmpSize, decData);
+        SZ_decompress_dispatcher<T, N>(confs, cmpData, cmpSizes, decData);
     //}
 }
 
