@@ -92,7 +92,6 @@ template<class T, QoZ::uint N>
 void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
     auto qoi_id = confs[0].qoi;
-    std::cout<<"p1"<<std::endl;
     if(qoi_id){
         // compute abs qoi eb
         /*
@@ -233,7 +232,6 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         }        
         */
     }
-    std::cout<<"p2"<<std::endl;
 
 
     /*
@@ -267,7 +265,6 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
     }*/
         
     auto qoi = QoZ::GetQOI<T, N>(confs);
-    std::cout<<"p3"<<std::endl;
     for(auto i:{0,1,2})
         confs[i].ebs = std::vector<double>(confs[i].num);
     // use quantile to determine abs bound
@@ -295,7 +292,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                    confs[j].ebs[i]=cur_ebs[j];
             }
         //}
-
+        std::cout<<"p5"<<std::endl;
         double quantile = confs[0].quantile;//quantile
         //std::cout<<quantile<<std::endl;
 
@@ -303,6 +300,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         k = std::max((size_t)1, std::min(confs[0].num, k)); 
 
         for(auto j:{0,1,2}){
+            std::cout<<"p6"<<std::endl;
             std::priority_queue<T> maxHeap;
 
             for (size_t i = 0; i < confs[j].num; i++) {
