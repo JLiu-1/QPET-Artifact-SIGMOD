@@ -217,9 +217,9 @@ namespace QoZ {
            
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
-                std::vector<std::function<double(T, T, T)> > fs(args.size());
+                std::vector<std::function<double(T, T, T)> > fs;
                 for (size_t i = 0; i < args.size(); ++i) 
-                    fs[i]=convert_expression_to_function(Expression(args[i]), x, y, z);
+                    fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
 
                // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
@@ -235,7 +235,7 @@ namespace QoZ {
                 auto args = expr.get_args();
                 std::vector<std::function<double(T, T, T)> > fs(args.size());
                 for (size_t i = 0; i < args.size(); ++i) 
-                    fs[i]=convert_expression_to_function(Expression(args[i]), x, y, z);
+                    fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
 
                 return [ &fs](T x_value, T y_value, T z_value) {
                     double result = 1.0;
