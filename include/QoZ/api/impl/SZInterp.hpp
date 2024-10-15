@@ -202,6 +202,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         for (auto i:{0,1,2}){
             if(confs[i].qoiEBBase == 0) 
                 confs[i].qoiEBBase = std::numeric_limits<T>::epsilon();
+                //confs.qoiEBBase = qoi_rel_eb / 1030
             if(confs[i].qoiEBLogBase == 0)
                 confs[i].qoiEBLogBase = 2;   
         }     
@@ -258,15 +259,18 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         for(auto i:{0,1,2}){
             confs[i].regionalQoIeb=confs[i].qoiEB;//store original regional eb
             confs[i].qoiEB *= rate;
+
+
         }
     }
         
-    auto qoi = QoZ::GetQOI<T, N>(confs[0]);
+    auto qoi = QoZ::GetQOI<T, N>(confs);
     
     for(auto i:{0,1,2})
-        confs[i].ebs = std::vector<double>(confs[i].num);
+        
     // use quantile to determine abs bound
     {
+        confs[i].ebs = std::vector<double>(confs[i].num);
         auto dims = confs[0].dims;
         auto tmp_abs_eb = confs[0].absErrorBound;
 
@@ -1944,7 +1948,7 @@ std::array<char *,3>SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs,
    
     
         if (confs[i].rng<0)
-            confs[i].rng=QoZ::data_range<T>(data,confs[i].num);
+            confs[i].rng=QoZ::data_range<T>(data[i],confs[i].num);
 
         
         if (confs[i].relErrorBound<=0)

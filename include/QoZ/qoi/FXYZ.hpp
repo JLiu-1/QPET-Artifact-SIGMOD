@@ -60,8 +60,9 @@ namespace QoZ {
             tolerance = confs[0].qoiEB;
             func_string = confs[0].qoi_string;
             confidence = confs[0].confidence;
+            global_eb = confs[0].absErrorBound;
             for(auto i:{0,1,2})
-                global_eb[i]=confs[i].conf.absErrorBound;
+                global_ebs[i]=confs[i].conf.absErrorBound;
 
            // std::cout<<"init 1 "<< std::endl;
             
@@ -122,13 +123,13 @@ namespace QoZ {
 
            // 
             double k = 1.732;
-            T estimation_1 =square_sum!=0?k*sqrt(0.5/(square_sum*log(2.0/(1-confidence))))*tolerance:global_eb[0]+global_eb[1]+global_eb[2];
-            T estimation_2 =(sum!=0)?tolerance/sum:global_eb[0]+global_eb[1]+global_eb[2];
+            T estimation_1 =square_sum!=0?k*sqrt(0.5/(square_sum*log(2.0/(1-confidence))))*tolerance:global_ebs[0]+global_ebs[1]+global_ebs[2];
+            T estimation_2 =(sum!=0)?tolerance/sum:global_ebs[0]+global_ebs[1]+global_ebs[2];
             
             T eb = std::min(estimation_1,estimation_2);
             std::array<T,3> res;
             for (auto i:{0,1,2})
-                res[i]=std::min(eb,global_eb[i]);
+                res[i]=std::min(eb,global_ebs[i]);
         /*
              for (auto sg : singularities){
                 T diff = fabs(data-sg);
@@ -162,9 +163,9 @@ namespace QoZ {
 
         void print(){}
 
-        //T get_global_eb() const { return global_eb; }
+        T get_global_eb() const { return global_eb; }
 
-        //void set_global_eb(T eb) {global_eb = eb;}
+        void set_global_eb(T eb) {global_eb = eb;}
 
         void init(){}
 
@@ -365,7 +366,8 @@ namespace QoZ {
 
         RCP<const Symbol>  x,y,z;
         T tolerance;
-        std::array<T,3> global_eb;
+        std::array<T,3> global_ebs;
+        T global_eb;
         double confidence = 0.999999;
         std::function<double(T,T,T)> func;
         std::function<double(T,T,T)> dx;

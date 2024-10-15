@@ -27,7 +27,7 @@ std::array<char *,3>SZ_compress_impl(std::array<QoZ::Config,3> &confs, std::arra
 
 
 template<class T, QoZ::uint N>
-void SZ_decompress_impl(std::array<QoZ::Config,3> &conf, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
+void SZ_decompress_impl(std::array<QoZ::Config,3> &confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     /*
 #ifndef _OPENMP
     conf.openmp=false;
