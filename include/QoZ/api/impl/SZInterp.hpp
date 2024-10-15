@@ -274,7 +274,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         auto tmp_abs_eb = confs[0].absErrorBound;
 
         //T *ebs = new T[confs[0].num];
-        std::cout<<"p4"<<std::endl;
+        //std::cout<<"p4"<<std::endl;
         //todo: in_block tuning
         /*
         if(qoi_id==16){
@@ -292,7 +292,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                    confs[j].ebs[i]=cur_ebs[j];
             }
         //}
-        std::cout<<"p5"<<std::endl;
+        //std::cout<<"p5"<<std::endl;
         double quantile = confs[0].quantile;//quantile
         //std::cout<<quantile<<std::endl;
 
@@ -300,7 +300,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         k = std::max((size_t)1, std::min(confs[0].num, k)); 
 
         for(auto j:{0,1,2}){
-            std::cout<<"p6"<<std::endl;
+           // std::cout<<"p6"<<std::endl;
             std::priority_queue<T> maxHeap;
 
             for (size_t i = 0; i < confs[j].num; i++) {
