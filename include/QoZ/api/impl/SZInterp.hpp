@@ -1967,7 +1967,7 @@ std::array<char *,3>SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs,
     
         //std::vector<int>().swap(conf.quant_bins);
         double tuning_time = timer.stop();
-        if(conf.verbose){
+        if(confs[0].verbose){
             std::cout << "Tuning time = " << tuning_time << "s" << std::endl;
             std::cout << "====================================== END TUNING ======================================" << std::endl;
         }
