@@ -125,11 +125,12 @@ namespace QoZ {
             std::array<double,3> derivatives = {fabs(dx(x,y,z)),fabs(dy(x,y,z)),fabs(dz(x,y,z))};
             //double sum= alpha+beta+gamma;
            // double square_sum= alpha*alpha+beta*beta+gamma*gamma;
-            double reci_square_sum= 0;
+            double reci_square_sum = 0;
             //double reci_square_sum= 1.0/(alpha*alpha)+ 1.0/(beta*beta)+ 1.0/(gamma*gamma);
             for (auto i:{0,1,2}){
                 if (derivatives[i]!=0)
                     reci_square_sum+= 1.0/(derivatives[i]*derivatives[i]);
+            }
             std::array<T,3> res;
             for (auto i:{0,1,2}){
                 double Li = derivatives[i];
