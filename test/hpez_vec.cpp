@@ -248,7 +248,7 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
         //QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
 
 
-
+        conf.qoi = 1//Forced verify qoi
         QoZ::verifyQoI_new<T>(ori_data, decData, conf);
     }
     for(auto i:{0,1,2}){
