@@ -184,7 +184,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         exit(0);
     }
     
-    timer.stop("decomp");
+    std::cout<<"decomp"<<std::endl;
 }
 
 /**
