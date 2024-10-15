@@ -134,11 +134,12 @@ namespace QoZ {
             }*/
             std::array<T,3> res;
             for (auto i:{0,1,2}){
+                /*
                 double Li = derivatives[i];
                 if (Li==0){
                     res[i]=global_ebs[i];
                     continue;
-                }
+                }*/
                 //T est_1 = estimate_base/(sqrt(reci_square_sum)*Li*Li);
                 //T est_2 = tolerance/(3*Li);
                 T est_1 = square_sum!=0 ? estimate_base/sqrt(square_sum): global_ebs[i];
