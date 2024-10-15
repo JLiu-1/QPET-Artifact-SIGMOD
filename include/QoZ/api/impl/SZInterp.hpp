@@ -120,7 +120,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         auto dims = conf.dims;
         auto tmp_abs_eb = conf.absErrorBound;
 
-        T *ebs = new T[conf.num];
+        //T *ebs = new T[conf.num];
         if(conf.qoi==16){
             qoi->pre_compute(data);
             conf.qoi = 14; //back to pointwise
