@@ -55,8 +55,11 @@ template<class T>
 std::array<char *,3>SZ_compress( QoZ::Config &config, const std::array<T *,3> &data, std::array<size_t,3> &outSizes) {
     std::array<QoZ::Config,3> confs {config,config,config};
     std::array<T*,3> inData;
-    for (auto i:{0,1,2})
-        inData[i]=std::vector<T>(data[i], data[i] + confs[i].num).data();
+    std::array<std::vector<T>,3>copyData;
+    for (auto i:{0,1,2}){
+        copyData[i] = std::vector<T>(data[i], data[i] + confs[i].num);
+        inData[i]=copyData[i].data();
+    }
     std::array<char *,3>cmpData;
     if (config.N == 1) {
         cmpData = SZ_compress_impl<T, 1>(confs, inData, outSizes);
