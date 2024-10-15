@@ -1,6 +1,6 @@
 #ifndef SZ3_QOI_INFO
 #define SZ3_QOI_INFO
-
+/*
 #include "QoI.hpp"
 #include "XSquare.hpp"
 #include "XCubic.hpp"
@@ -16,13 +16,17 @@
 #include "FX.hpp"
 #include "FX_P.hpp"
 #include "RegionalFX.hpp"
+*/
+#include "FXYZ.hpp"
+#include "Empty.hpp"
 #include <vector>
 
 namespace QoZ {
 
     template<class T, QoZ::uint N >
-    std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(const Config &conf){
+    std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(std::array<const Config,3> &confs){
         switch(conf.qoi){
+            /*
             case 1:
                 return std::make_shared<QoZ::QoI_X_Square<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 2:
@@ -92,13 +96,18 @@ namespace QoZ {
                 return std::make_shared<QoZ::QoI_XLog_X<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 14:
                 return std::make_shared<QoZ::QoI_FX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
+
             case 15:
                 return std::make_shared<QoZ::QoI_FX_P<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.qoi_string_2, conf.threshold, conf.isolated);
 
             case 16:{
                 return std::make_shared<QoZ::QoI_RegionalFX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims, conf.qoi_string, conf.isolated, conf.threshold);
-                
+               */ 
                 // return std::make_shared<QoZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
+            case 1:
+                return std::make_shared<QoZ::QoI_FXYZ<T, N>>(confs);
+            case 10:
+                return std::make_shared<QoZ::QoI_empty<T, N>>(confs);
             }
         }
         return NULL;

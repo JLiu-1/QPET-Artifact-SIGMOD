@@ -91,6 +91,148 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
 template<class T, QoZ::uint N>
 void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
+    auto qoi_id = confs[0].qoi;
+    if(qoi_id){
+        // compute abs qoi eb
+        /*
+        T qoi_rel_eb = conf.qoiEB;
+        T max = data[0];
+        T min = data[0];
+        T maxxlogx;
+        T minxlogx;
+        if(qoi == 13){
+            maxxlogx = data[0]!=0 ? data[0]*log(fabs(data[0]))/log(2) : 0;
+            minxlogx = maxxlogx;
+        }
+        for (size_t i = 1; i < conf.num; i++) {
+            if (max < data[i]) max = data[i];
+            if (min > data[i]) min = data[i];
+            if(qoi == 13){
+                T cur_xlogx = data[i]!=0 ? data[i]*log(fabs(data[i]))/log(2) : 0;
+                if (maxxlogx < cur_xlogx) maxxlogx = cur_xlogx;
+                if (minxlogx > cur_xlogx) minxlogx = cur_xlogx;
+            }
+        }
+        if(qoi == 1 || qoi == 3){
+            // x^2
+            auto max_2 = max * max;
+            auto min_2 = min * min;
+            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+            conf.qoiEB *= max_abs_val;
+        }
+        // else if(qoi == 3){
+        //     // regional average
+        //     conf.qoiEB *= max - min;
+        //     conf.absErrorBound = conf.qoiEB;
+        // }
+        else if(qoi == 4){
+            // compute isovalues
+            conf.isovalues.clear();
+            int isonum = conf.qoiIsoNum;
+            auto range = max - min;
+            for(int i=0; i<isonum; i++){
+                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+            }
+        }
+        else if(qoi == 9){
+            // x^3
+            auto max_2 = fabs(max * max * max);
+            auto min_2 = fabs(min * min * min);
+            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+            conf.qoiEB *= max_abs_val;
+        }
+        else if(qoi == 10){
+            // sin x
+            //rel is abs
+            conf.qoiEB *= 1;
+        }
+        else if(qoi == 11){
+            // x
+            conf.qoiEB *= (max-min);
+        }
+        else if(qoi == 12){
+            // 2^x
+            auto max_abs_val = pow(2,max);
+            conf.qoiEB *= max_abs_val;
+        }
+        else if(qoi == 13){
+            // 2^x
+            conf.qoiEB *= (maxxlogx-minxlogx);
+        }
+        // qoi_string would be absbound
+        else if(qoi >= 5 and qoi <= 13){//14 15 is FX
+            // (x^2) + (log x) + (isoline)
+            auto max_2 = max * max;
+            auto min_2 = min * min;
+            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+            auto eb_x2 = conf.qoiEB * max_abs_val;
+            auto eb_logx = conf.qoiEB * 10;
+            auto eb_isoline = 0;
+            conf.isovalues.clear();
+            int isonum = conf.qoiIsoNum;
+            auto range = max - min;
+            for(int i=0; i<isonum; i++){
+                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+            }
+            if(qoi == 5){
+                // x^2 + log x
+                conf.qoiEBs.push_back(eb_x2);
+                conf.qoiEBs.push_back(eb_logx);
+            }
+            else if(qoi == 6){
+                // x^2 + isoline
+                conf.qoiEBs.push_back(eb_x2);
+                conf.qoiEBs.push_back(eb_isoline);                
+            }
+            else if(qoi == 7){
+                // log x + isoline
+                conf.qoiEBs.push_back(eb_logx);
+                conf.qoiEBs.push_back(eb_isoline);                
+            }
+            else if(qoi == 8){
+                // x^2 + log x + isoline
+                conf.qoiEBs.push_back(eb_x2);
+                conf.qoiEBs.push_back(eb_logx);
+                conf.qoiEBs.push_back(eb_isoline);                                
+            }
+            
+        }
+        */
+        // set eb base and log base if not set by config
+        if(conf.qoiEBBase == 0) 
+            conf.qoiEBBase = std::numeric_limits<T>::epsilon();
+        if(conf.qoiEBLogBase == 0)
+            conf.qoiEBLogBase = 2;        
+        // update eb base
+        
+        //if(qoi!= 2 && qoi != 4 && qoi != 7 && qoi != 10) conf.qoiEBBase = (max - min) * qoi_rel_eb / 1030;
+        //else if(qoi == 2 || qoi == 10) conf.qoiEBBase = qoi_rel_eb / 1030;
+        
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
+
+        //QoI_tuning<T,N>(conf, data);
+    }
+    else{
+        // compute isovalues for comparison
+        /*
+        T max = data[0];
+        T min = data[0];
+        for (size_t i = 1; i < conf.num; i++) {
+            if (max < data[i]) max = data[i];
+            if (min > data[i]) min = data[i];
+        }
+        conf.isovalues.clear();
+        int num = conf.qoiIsoNum;
+        auto range = max - min;
+        for(int i=0; i<num; i++){
+            conf.isovalues.push_back(min + range / (num + 1));
+        }        
+        */
+    }
+
+
+
+
     if(confs[0].regionalQoI and confs[0].qoi!=16){//regional average
         //adjust qoieb
 
@@ -118,7 +260,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
     }
         
     auto qoi = QoZ::GetQOI<T, N>(confs[0]);
-    auto qoi_id = confs[0].qoi
+    
     for(auto i:{0,1,2})
         confs[i].ebs = std::vector<double>(confs[i].num);
     // use quantile to determine abs bound
@@ -973,146 +1115,6 @@ double Tuning(QoZ::Config &conf, T *data){
     bool blockwiseTuning=conf.blockwiseTuning;
     conf.blockwiseTuning=false;
 
-
-    int qoi = conf.qoi;
-    auto tmp_abs_eb = conf.absErrorBound;
-    if(qoi){
-        // compute abs qoi eb
-        T qoi_rel_eb = conf.qoiEB;
-        T max = data[0];
-        T min = data[0];
-        T maxxlogx;
-        T minxlogx;
-        if(qoi == 13){
-            maxxlogx = data[0]!=0 ? data[0]*log(fabs(data[0]))/log(2) : 0;
-            minxlogx = maxxlogx;
-        }
-        for (size_t i = 1; i < conf.num; i++) {
-            if (max < data[i]) max = data[i];
-            if (min > data[i]) min = data[i];
-            if(qoi == 13){
-                T cur_xlogx = data[i]!=0 ? data[i]*log(fabs(data[i]))/log(2) : 0;
-                if (maxxlogx < cur_xlogx) maxxlogx = cur_xlogx;
-                if (minxlogx > cur_xlogx) minxlogx = cur_xlogx;
-            }
-        }
-        if(qoi == 1 || qoi == 3){
-            // x^2
-            auto max_2 = max * max;
-            auto min_2 = min * min;
-            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-            conf.qoiEB *= max_abs_val;
-        }
-        // else if(qoi == 3){
-        //     // regional average
-        //     conf.qoiEB *= max - min;
-        //     conf.absErrorBound = conf.qoiEB;
-        // }
-        else if(qoi == 4){
-            // compute isovalues
-            conf.isovalues.clear();
-            int isonum = conf.qoiIsoNum;
-            auto range = max - min;
-            for(int i=0; i<isonum; i++){
-                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
-            }
-        }
-        else if(qoi == 9){
-            // x^3
-            auto max_2 = fabs(max * max * max);
-            auto min_2 = fabs(min * min * min);
-            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-            conf.qoiEB *= max_abs_val;
-        }
-        else if(qoi == 10){
-            // sin x
-            //rel is abs
-            conf.qoiEB *= 1;
-        }
-        else if(qoi == 11){
-            // x
-            conf.qoiEB *= (max-min);
-        }
-        else if(qoi == 12){
-            // 2^x
-            auto max_abs_val = pow(2,max);
-            conf.qoiEB *= max_abs_val;
-        }
-        else if(qoi == 13){
-            // 2^x
-            conf.qoiEB *= (maxxlogx-minxlogx);
-        }
-        // qoi_string would be absbound
-        else if(qoi >= 5 and qoi <= 13){//14 15 is FX
-            // (x^2) + (log x) + (isoline)
-            auto max_2 = max * max;
-            auto min_2 = min * min;
-            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-            auto eb_x2 = conf.qoiEB * max_abs_val;
-            auto eb_logx = conf.qoiEB * 10;
-            auto eb_isoline = 0;
-            conf.isovalues.clear();
-            int isonum = conf.qoiIsoNum;
-            auto range = max - min;
-            for(int i=0; i<isonum; i++){
-                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
-            }
-            if(qoi == 5){
-                // x^2 + log x
-                conf.qoiEBs.push_back(eb_x2);
-                conf.qoiEBs.push_back(eb_logx);
-            }
-            else if(qoi == 6){
-                // x^2 + isoline
-                conf.qoiEBs.push_back(eb_x2);
-                conf.qoiEBs.push_back(eb_isoline);                
-            }
-            else if(qoi == 7){
-                // log x + isoline
-                conf.qoiEBs.push_back(eb_logx);
-                conf.qoiEBs.push_back(eb_isoline);                
-            }
-            else if(qoi == 8){
-                // x^2 + log x + isoline
-                conf.qoiEBs.push_back(eb_x2);
-                conf.qoiEBs.push_back(eb_logx);
-                conf.qoiEBs.push_back(eb_isoline);                                
-            }
-            
-        }
-        // set eb base and log base if not set by config
-        if(conf.qoiEBBase == 0) 
-            conf.qoiEBBase = std::numeric_limits<T>::epsilon();
-        if(conf.qoiEBLogBase == 0)
-            conf.qoiEBLogBase = 2;        
-        // update eb base
-        
-        //if(qoi!= 2 && qoi != 4 && qoi != 7 && qoi != 10) conf.qoiEBBase = (max - min) * qoi_rel_eb / 1030;
-        //else if(qoi == 2 || qoi == 10) conf.qoiEBBase = qoi_rel_eb / 1030;
-        
-        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
-
-        QoI_tuning<T,N>(conf, data);
-    }
-    else{
-        // compute isovalues for comparison
-        T max = data[0];
-        T min = data[0];
-        for (size_t i = 1; i < conf.num; i++) {
-            if (max < data[i]) max = data[i];
-            if (min > data[i]) min = data[i];
-        }
-        conf.isovalues.clear();
-        int num = conf.qoiIsoNum;
-        auto range = max - min;
-        for(int i=0; i<num; i++){
-            conf.isovalues.push_back(min + range / (num + 1));
-        }        
-    }
-
-
-
-
     if (conf.predictorTuningRate>0 and conf.predictorTuningRate<1){
         if (conf.verbose)
             std::cout<<"Predictor tuning started."<<std::endl;
@@ -1907,52 +1909,57 @@ double Tuning(QoZ::Config &conf, T *data){
     for(int i=0;i<sampled_blocks.size();i++){
         std::vector< T >().swap(sampled_blocks[i]);              
     }
-    std::vector< std::vector<T> >().swap(sampled_blocks);     
+    std::vector< std::vector<T> >().swap(sampled_blocks);  
+    conf.quant_bins.clear();   
     return best_lorenzo_ratio;    
 }
 
 
 
 template<class T, QoZ::uint N>
-char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
-    assert(conf.cmprAlgo == QoZ::ALGO_INTERP_LORENZO);
-    QoZ::calAbsErrorBound(conf, data);
-
-    if(N!=2&&N!=3){
-        conf.autoTuningRate=0;
-        conf.predictorTuningRate=0;
-        conf.maxStep=0;
-        conf.levelwisePredictionSelection=0;
-        conf.multiDimInterp=0;
-        conf.QoZ=0;
+std::array<char *,3>SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
+    assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP_LORENZO);
+    for(auto i:{0,1,2})
+       QoZ::calAbsErrorBound(confs[i], data[i]);
+    for(auto i:{0,1,2}){
+        if(N!=2&&N!=3){
+            
+                confs[i].autoTuningRate=0;
+                confs[i].predictorTuningRate=0;
+                confs[i].maxStep=0;
+                confs[i].levelwisePredictionSelection=0;
+                confs[i].multiDimInterp=0;
+                confs[i].QoZ=0;
+            }//merge this part to other branches
         
 
-    }//merge this part to other branches
+    
    
    
     
-    if (conf.rng<0)
-        conf.rng=QoZ::data_range<T>(data,conf.num);
+        if (confs[i].rng<0)
+            confs[i].rng=QoZ::data_range<T>(data,confs[i].num);
 
-    
-    if (conf.relErrorBound<=0)
-        conf.relErrorBound=conf.absErrorBound/conf.rng;
+        
+        if (confs[i].relErrorBound<=0)
+            confs[i].relErrorBound=confs[i].absErrorBound/confs[i].rng;
   
     
+    }
 
-
-    if(conf.verbose)
+    if(confs[0].verbose)
         std::cout << "====================================== BEGIN TUNING ================================" << std::endl;
     QoZ::Timer timer(true);
     
-     
-    double best_lorenzo_ratio=Tuning<T,N>(conf,data);
+    QoI_tuning<T,N>(confs,data);
+    for(auto i:{0,1,2})
+        Tuning<T,N>(confs[i],data[i]);
     
 
 
-    if (1 and conf.cmprAlgo == QoZ::ALGO_INTERP) {
+    if (1) {
     
-        std::vector<int>().swap(conf.quant_bins);
+        //std::vector<int>().swap(conf.quant_bins);
         double tuning_time = timer.stop();
         if(conf.verbose){
             std::cout << "Tuning time = " << tuning_time << "s" << std::endl;
@@ -1960,7 +1967,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         }
 
             
-        return SZ_compress_Interp<T, N>(conf, data, outSize);        
+        return SZ_compress_Interp<T, N>(confs, data, outSizes);        
 
     } 
 

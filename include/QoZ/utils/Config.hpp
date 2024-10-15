@@ -270,6 +270,7 @@ namespace QoZ {
             regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
             tol_estimation = cfg.GetInteger("QoISettings", "tol_estimation", tol_estimation);
+            confidence = cfg.GetReal("QoISettings", "confidence", confidence);
 
 
 
@@ -555,6 +556,7 @@ namespace QoZ {
         double regionalQoIeb;
         double error_std_rate = 2.0;
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
+        double confidence = 0.999999;
 
 
 

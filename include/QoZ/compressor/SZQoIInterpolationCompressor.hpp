@@ -871,9 +871,9 @@ namespace QoZ {
                 //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb;
-                if (qoi_id == 16)//todo: qoi.getid()
-                    eb = qoi->interpret_eb(&d, idx);
-                else 
+                //if (qoi_id == 16)//todo: qoi.getid()
+                //    eb = qoi->interpret_eb(&d, idx);
+                //else 
                     eb = ebs[idx];
                 //debug
                 //if (eb <global_eb)

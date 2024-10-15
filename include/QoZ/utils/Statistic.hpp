@@ -483,20 +483,25 @@ namespace QoZ {
     template<typename Type>
     void verifyQoI_new(Type *ori_data, Type *data, const QoZ::Config &conf) {
 
-        std::vector<size_t> dims = conf.dims;
-        int blockSize = conf.qoiRegionSize;
+        
+
+        std::vector<size_t> dims = confs[0].dims;
+        //int blockSize = confs[0].qoiRegionSize;
         size_t num_elements = 1;
         for(const auto d:dims){
             num_elements *= d;
         }
-        double psnr = 0;
-        double nrmse = 0;
-        verify(ori_data, data, num_elements, psnr, nrmse);
+        for(auto i:{0,1,2}){
+            std::cout<<"File "<<i+1<<":"<<std::endl;
+            double psnr = 0;
+            double nrmse = 0;
+            verify(ori_data[i], data[i], num_elements, psnr, nrmse);
+        }
 
-        if(conf.qoi == 0)
+        if(confs[0].qoi == 0)
             return;
        // const QoZ::uint N = conf.N;
-        auto qoi = QoZ::GetQOI<Type, 1>(conf);
+        auto qoi = QoZ::GetQOI<Type, 1>(confs);
 
        
         double max_qoi_diff = 0;
@@ -505,12 +510,12 @@ namespace QoZ {
         double min_qoi = max_qoi;
        
         for(int i=0; i<num_elements; i++){
-            ori_data[i] = qoi->eval(ori_data[i]);
-            data[i] = qoi->eval(data[i]);
+            auto cur_ori_qoi = qoi->eval(ori_data[0][i],ori_data[1][i],ori_data[2][i]);
+            auto cur_qoi = qoi->eval(data[0][i],data[1][i],data[2][i]);
 
-            if (max_qoi < ori_data[i]) max_qoi = ori_data[i];
-            if (min_qoi > ori_data[i]) min_qoi = ori_data[i];
-            double qoi_diff = fabs( ori_data[i] - data[i] );
+            if (max_qoi < cur_ori_qoi) max_qoi = cur_ori_qoi;
+            if (min_qoi > cur_ori_qoi) min_qoi = cur_ori_qoi;
+            double qoi_diff = fabs( cur_ori_qoi - cur_qoi );
             if (qoi_diff > max_qoi_diff)
                 max_qoi_diff = qoi_diff;
             
@@ -526,7 +531,7 @@ namespace QoZ {
         printf("QoI error info:\n");
         std::cout<<"QoI function: "<<qoi->get_expression()<<std::endl;;
         printf("Max qoi error = %.6G, relative qoi error = %.6G\n", max_qoi_diff, max_qoi_diff / (max_qoi - min_qoi));
-       
+        /*
         if (blockSize>1){
             
             printf("Regional qoi average:\n");
@@ -534,6 +539,7 @@ namespace QoZ {
             else if(dims.size() == 3) evaluate_average(ori_data, data, max_qoi - min_qoi, dims[0], dims[1], dims[2], blockSize);
         }
 
+         */
     }
 
 
