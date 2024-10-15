@@ -882,6 +882,7 @@ namespace QoZ {
                 quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
                 quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
                         d, pred, eb);
+                /*
                 if(!qoi->check_compliance(ori_data, d)){
                     // std::cout << "not compliant" << std::endl;
                     // save as unpredictable
@@ -899,6 +900,7 @@ namespace QoZ {
                 //}
                 // update cumulative tolerance if needed 
                 qoi->update_tolerance(ori_data, d);
+                */
                 quant_index ++;
 
 

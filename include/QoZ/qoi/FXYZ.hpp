@@ -62,7 +62,7 @@ namespace QoZ {
             confidence = confs[0].confidence;
             global_eb = confs[0].absErrorBound;
             for(auto i:{0,1,2})
-                global_ebs[i]=confs[i].conf.absErrorBound;
+                global_ebs[i]=confs[i].absErrorBound;
 
            // std::cout<<"init 1 "<< std::endl;
             
