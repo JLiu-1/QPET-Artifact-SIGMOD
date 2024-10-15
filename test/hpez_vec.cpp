@@ -153,7 +153,7 @@ void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Co
     char outputFilePath[1024];
     for (auto i:{0,1,2}){
         if (cmpPaths[i] == nullptr) {
-            sprintf(outputFilePath, "%s.hpez", inPath[i]);
+            sprintf(outputFilePath, "%s.hpez", inPaths[i]);
         } else {
             strcpy(outputFilePath, cmpPaths[i]);
         }
@@ -420,7 +420,7 @@ int main(int argc, char *argv[]) {
                 cmpPath1 = argv[i + 1];
                 cmpPath2 = argv[i + 2];
                 cmpPath3 = argv[i + 3];
-                i+=3
+                i+=3;
                 break;
             case 'c':
                 if (++i == argc)
