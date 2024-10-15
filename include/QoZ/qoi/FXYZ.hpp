@@ -225,8 +225,8 @@ namespace QoZ {
 
                 return [&fs](T x_value, T y_value, T z_value) {
                     double result = 0;
-                    for (size_t i = 0; i < args.size(); ++i) {
-                        result += fs[i](x_value, y_value, z_value);
+                    for (auto &fnc:fs) {
+                        result += fnc(x_value, y_value, z_value);
                     }
                     return result;
                 };
@@ -239,8 +239,8 @@ namespace QoZ {
 
                 return [ &fs](T x_value, T y_value, T z_value) {
                     double result = 1.0;
-                    for (size_t i = 0; i < args.size(); ++i) {
-                        result *= fs[i](x_value, y_value, z_value);
+                    for (auto &fnc:fs) {
+                        result *= fnc(x_value, y_value, z_value);
                     }
                     return result;
                 };
