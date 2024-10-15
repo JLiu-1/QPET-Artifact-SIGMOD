@@ -217,26 +217,30 @@ namespace QoZ {
            
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
+                std::vector<std::function<double(T, T, T)> > fs(args.size());
+                for (size_t i = 0; i < args.size(); ++i) {
+                    fs[i]=convert_expression_to_function(Expression(args[i]), x, y, z);
+
                // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-                return [this, args, &x, &y, &z](T x_value, T y_value, T z_value) {
+                return [&fs](T x_value, T y_value, T z_value) {
                     double result = 0;
                     for (size_t i = 0; i < args.size(); ++i) {
-                        auto fnc = this->convert_expression_to_function(Expression(args[i]), x, y, z);
-                        result += fnc(x_value, y_value, z_value);
+                        result += fs[i](x_value, y_value, z_value);
                     }
                     return result;
                 };
             }
             else if (is_a<SymEngine::Mul>(expr)) {
-                auto args = expr.get_args();
-                auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
+                aauto args = expr.get_args();
+                std::vector<std::function<double(T, T, T)> > fs(args.size());
+                for (size_t i = 0; i < args.size(); ++i) {
+                    fs[i]=convert_expression_to_function(Expression(args[i]), x, y, z);
 
-                return [this, args, &x, &y, &z](T x_value, T y_value, T z_value) {
+                return [ &fs](T x_value, T y_value, T z_value) {
                     double result = 1.0;
                     for (size_t i = 0; i < args.size(); ++i) {
-                        auto fnc = this->convert_expression_to_function(Expression(args[i]), x, y, z);
-                        result *= fnc(x_value, y_value, z_value);
+                        result *= fs[i](x_value, y_value, z_value);
                     }
                     return result;
                 };
@@ -254,14 +258,14 @@ namespace QoZ {
           
             else if (is_a<SymEngine::Sin>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y, z);
-                return [arg](T x_value, T y_value, T z_value) {
+                return [&arg](T x_value, T y_value, T z_value) {
                     return std::sin(arg(x_value, y_value, z_value));
                 };
             }
             
             else if (is_a<SymEngine::Cos>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y, z);
-                return [arg](T x_value, T y_value, T z_value) {
+                return [&arg](T x_value, T y_value, T z_value) {
                     return std::cos(arg(x_value, y_value, z_value));
                 };
             }
@@ -271,11 +275,11 @@ namespace QoZ {
                 auto arg = convert_expression_to_function(Expression(args[0]), x, y, z);
                 if (args.size() == 2) { // base log
                     auto base = convert_expression_to_function(Expression(args[1]), x, y, z);
-                    return [arg, base](T x_value, T y_value, T z_value) {
+                    return [&arg, base](T x_value, T y_value, T z_value) {
                         return std::log(arg(x_value, y_value, z_value)) / std::log(base(x_value, y_value, z_value));
                     };
                 } else { // ln
-                    return [arg](T x_value, T y_value, T z_value) {
+                    return [&arg](T x_value, T y_value, T z_value) {
                         return std::log(arg(x_value, y_value, z_value));
                     };
                 }
