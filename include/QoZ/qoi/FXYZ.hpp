@@ -143,7 +143,7 @@ namespace QoZ {
                 //T est_1 = estimate_base/(sqrt(reci_square_sum)*Li*Li);
                 //T est_2 = tolerance/(3*Li);
                 T est_1 = square_sum!=0 ? estimate_base/sqrt(square_sum): global_ebs[i];
-                T est_2 = (sum!=0) ? tolerance/sum : global_ebs[i];
+                T est_2 = (sum!=0) ? tolerance/(3*Li) : global_ebs[i];
                 T eb = std::max(est_1,est_2);
                 res[i]=std::min(eb,global_ebs[i]);
             }
