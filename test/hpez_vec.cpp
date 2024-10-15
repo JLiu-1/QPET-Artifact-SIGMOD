@@ -235,7 +235,7 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
         std::array<T*,3> ori_data;
         auto o1 = QoZ::readfile<T>(inPaths[0], totalNbEle);
         auto o2 = QoZ::readfile<T>(inPaths[1], totalNbEle);
-        auto o3 = QoZ::readfile<T>(inPaths[3], totalNbEle);
+        auto o3 = QoZ::readfile<T>(inPaths[2], totalNbEle);
        
         ori_data[0] = o1.get();
         ori_data[1] = o2.get();
