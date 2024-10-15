@@ -97,6 +97,8 @@ namespace QoZ {
             dy = convert_expression_to_function(dfdy, x,y,z);
             dz = convert_expression_to_function(dfdz, x,y,z);
 
+            estimate_base = k*sqrt(0.5/log(2.0/(1-confidence)))*tolerance;
+
             //std::cout<<dx(1,1,1)<<" "<<dy(1,1,1)<<" "<<dz(1,1,1)<<std::endl;
             // std::cout<<"init 4 "<< std::endl;
               
@@ -117,27 +119,48 @@ namespace QoZ {
         std::array<T,3> interpret_eb(T x, T y, T z) const {
             
 
-            double alpha = fabs(dx(x,y,z));//datatype may be T
-            double beta = fabs(dy(x,y,z));
-            double gamma = fabs(dz(x,y,z));
-            double sum= alpha+beta+gamma;
-            double square_sum= alpha*alpha+beta*beta+gamma*gamma;
-
+            //double alpha = fabs(dx(x,y,z));//datatype may be T
+           // double beta = fabs(dy(x,y,z));
+            //double gamma = fabs(dz(x,y,z));
+            std::array<double,3> derivatives = {fabs(dx(x,y,z)),fabs(dy(x,y,z)),fabs(dz(x,y,z))};
+            //double sum= alpha+beta+gamma;
+           // double square_sum= alpha*alpha+beta*beta+gamma*gamma;
+            double reci_square_sum= 0;
+            //double reci_square_sum= 1.0/(alpha*alpha)+ 1.0/(beta*beta)+ 1.0/(gamma*gamma);
+            for (auto i:{0,1,2}){
+                if (derivatives[i]!=0)
+                    reci_square_sum+= 1.0/(derivatives[i]*derivatives[i]);
+            std::array<T,3> res;
+            for (auto i:{0,1,2}){
+                double Li = derivatives[i];
+                if (Li==0){
+                    res[i]=global_ebs[i];
+                    continue;
+                }
+                T est_1 = estimate_base/(sqrt(reci_square_sum)*Li*Li);
+                T est_2 = tolerance/(3*Li);
+                T eb = std::max(est_1,est_2);
+                res[i]=std::min(eb,global_ebs[i]);
+            }
 
            // 
-            double k = 1.732;
-            T estimation_1 = square_sum!=0?k*sqrt(0.5/(square_sum*log(2.0/(1-confidence))))*tolerance:0;
+            
+            /*
+            T estimation_1 = square_sum!=0?estimate_base/sqrt(square_sum):0;
             T estimation_2 = (sum!=0)?tolerance/sum:0;
 
-            //std::cout<<
-            
+         
+             
             T eb = std::max(estimation_1,estimation_2);
             if (eb == 0)
                 eb=global_ebs[0]+global_ebs[1]+global_ebs[2];
+             
+
             std::array<T,3> res;
             for (auto i:{0,1,2})
                 res[i]=std::min(eb,global_ebs[i]);
-        /*
+             */  
+             /*
              for (auto sg : singularities){
                 T diff = fabs(data-sg);
                 eb = std::min(diff,eb);
@@ -401,6 +424,8 @@ namespace QoZ {
         
         //std::set<double>singularities;
         std::string func_string;
+        double estimate_base;
+        double k = 1.732;
 
         //double threshold;
        // bool isolated;
