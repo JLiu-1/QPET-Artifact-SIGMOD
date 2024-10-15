@@ -217,21 +217,28 @@ namespace QoZ {
            
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
-                auto left = convert_expression_to_function(Expression(args[0]), x, y, z);
-                auto right = convert_expression_to_function(Expression(args[1]), x, y, z);
-                return [left, right](T x_value, T y_value, T z_value) {
-                    //std::cout<<"add"<<std::endl;
-                    return left(x_value, y_value, z_value) + right(x_value, y_value, z_value);
+                auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
+
+                return [first, args, &x, &y, &z](T x_value, T y_value, T z_value) {
+                    double result = first(x_value, y_value, z_value);
+                    for (size_t i = 1; i < args.size(); ++i) {
+                        auto func = convert_expression_to_function(Expression(args[i]), x, y, z);
+                        result += func(x_value, y_value, z_value);
+                    }
+                    return result;
                 };
             }
-        
             else if (is_a<SymEngine::Mul>(expr)) {
                 auto args = expr.get_args();
-                auto left = convert_expression_to_function(Expression(args[0]), x, y, z);
-                auto right = convert_expression_to_function(Expression(args[1]), x, y, z);
-                return [left, right](T x_value, T y_value, T z_value) {
-                    //std::cout<<"mul"<<std::endl;
-                    return left(x_value, y_value, z_value) * right(x_value, y_value, z_value);
+                auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
+
+                return [first, args, &x, &y, &z](T x_value, T y_value, T z_value) {
+                    double result = first(x_value, y_value, z_value);
+                    for (size_t i = 1; i < args.size(); ++i) {
+                        auto func = convert_expression_to_function(Expression(args[i]), x, y, z);
+                        result *= func(x_value, y_value, z_value);
+                    }
+                    return result;
                 };
             }
            
