@@ -190,8 +190,13 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
 
     std::array<char*,3> cmpData;
 
-    for(auto i:{0,1,2})
+    for(auto i:{0,1,2}){
         cmpData[i]=QoZ::readfile<char>(cmpPaths[i], cmpSizes[i]).get();
+        int confSize;
+        std::cout<<cmpSizes[i]<<std::endl;
+        memcpy(&confSize, cmpData[i] + (cmpSizes[i] - sizeof(int)), sizeof(int));
+        std::cout<<confSize<<std::endl;
+    }
 
     /*
     auto cmpData1 = QoZ::readfile<char>(cmpPath1, cmpSize1);
