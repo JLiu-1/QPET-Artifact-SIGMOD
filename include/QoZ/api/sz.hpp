@@ -87,6 +87,13 @@ std::array<char *,3>SZ_compress( QoZ::Config &config, const std::array<T *,3> &d
             std::cout<<outSizes[i]<<" "<<newSize<<" "<<int(newSize - outSizes[i])<<std::endl;
             QoZ::write(int(newSize - outSizes[i]), cmpDataPos);
             outSizes[i] = (char *) cmpDataPos - cmpData[i];
+            std::cout<<outSizes[i]<<std::endl;
+
+
+            int confSize;
+            memcpy(&confSize, cmpData[i] + (outSizes[i] - sizeof(int)), sizeof(int));
+            std::cout<<confSize<<std::endl;
+
         }
 
         
