@@ -122,7 +122,7 @@ namespace QoZ {
             double alpha = fabs(dx(x,y,z));//datatype may be T
             double beta = fabs(dy(x,y,z));
             double gamma = fabs(dz(x,y,z));
-            //std::array<double,3> derivatives = {fabs(dx(x,y,z)),fabs(dy(x,y,z)),fabs(dz(x,y,z))};
+            std::array<double,3> derivatives = {alpha,beta, gamma};
             double sum= alpha+beta+gamma;
             double square_sum= alpha*alpha+beta*beta+gamma*gamma;
             double reci_square_sum = 0;
@@ -134,12 +134,12 @@ namespace QoZ {
             }*/
             std::array<T,3> res;
             for (auto i:{0,1,2}){
-                /*
+                
                 double Li = derivatives[i];
                 if (Li==0){
                     res[i]=global_ebs[i];
                     continue;
-                }*/
+                }
                 //T est_1 = estimate_base/(sqrt(reci_square_sum)*Li*Li);
                 //T est_2 = tolerance/(3*Li);
                 T est_1 = square_sum!=0 ? estimate_base/sqrt(square_sum): global_ebs[i];
