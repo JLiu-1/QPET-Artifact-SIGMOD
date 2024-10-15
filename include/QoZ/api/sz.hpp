@@ -144,7 +144,7 @@ char *SZ_compress(const QoZ::Config &config, T *data, size_t &outSize) {
 
  */
 template<class T>
-void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::array<size_t,3> cmpSizes, std::array<T *,3>&decData) {
+void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     //QoZ::Timer timer(true);
    
     std::array<QoZ::Config,3> confs {config,config,config};
@@ -153,14 +153,15 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         //load config
     for (auto i:{0,1,2}){
         int confSize;
+        std::cout<<cmpSizes[i]<<std::endl;
         memcpy(&confSize, cmpData[i] + (cmpSizes[i] - sizeof(int)), sizeof(int));
+        std::cout<<confSize<<std::endl;
         QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData[i] + (cmpSizes[i] - sizeof(int) - confSize);
         confs[i].load(cmpDataPos);
-        //std::cout<<"afterload"<<conf.absErrorBound<<std::endl;
+        std::cout<<"afterload"<<conf.absErrorBound<<std::endl;
         //}
         //timer.stop("load config");
         //timer.start();
-        //std::cout<<"woshiniba"<<std::endl;
         if (decData[i] == nullptr) {
             
             decData[i] = new T[confs[i].num];
@@ -168,7 +169,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         cmpSizes[i]-= sizeof(int) + confSize;
     }
     
-    //timer.stop("alloc memory");
+    timer.stop("alloc memory");
     //timer.start();
     if (confs[0].N == 1) {
         SZ_decompress_impl<T, 1>(confs, cmpData, cmpSizes, decData);
@@ -183,7 +184,7 @@ void SZ_decompress( QoZ::Config &config, std::array<char *,3> &cmpData, std::arr
         exit(0);
     }
     
-    //timer.stop("decomp");
+    timer.stop("decomp");
 }
 
 /**
