@@ -205,7 +205,7 @@ namespace QoZ {
 
                // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-                return [fs](T x_value, T y_value, T z_value) {
+                return [fs](T x_value) {
                     double result = 0;
                     for (auto &fnc:fs) {
                         result += fnc(x_value);
