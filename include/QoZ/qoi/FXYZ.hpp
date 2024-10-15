@@ -222,8 +222,8 @@ namespace QoZ {
                 return [first, args, &x, &y, &z](T x_value, T y_value, T z_value) {
                     double result = first(x_value, y_value, z_value);
                     for (size_t i = 1; i < args.size(); ++i) {
-                        auto func = convert_expression_to_function(Expression(args[i]), x, y, z);
-                        result += func(x_value, y_value, z_value);
+                        auto fnc = convert_expression_to_function(Expression(args[i]), x, y, z);
+                        result += fnc(x_value, y_value, z_value);
                     }
                     return result;
                 };
@@ -236,7 +236,7 @@ namespace QoZ {
                     double result = first(x_value, y_value, z_value);
                     for (size_t i = 1; i < args.size(); ++i) {
                         auto func = convert_expression_to_function(Expression(args[i]), x, y, z);
-                        result *= func(x_value, y_value, z_value);
+                        result *= fnc(x_value, y_value, z_value);
                     }
                     return result;
                 };
