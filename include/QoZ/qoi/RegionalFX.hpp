@@ -428,18 +428,18 @@ namespace QoZ {
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
                 //std::cout<<"add "<<args.size()<<std::endl;
-                std::vector<std::function<double(T, T, T)> > fs;
+                std::vector<std::function<double(T)> > fs;
                 for (size_t i = 0; i < args.size(); ++i) {
 
-                    fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
+                    fs.push_back(convert_expression_to_function(Expression(args[i]), x));
                 }
 
                // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-                return [fs](T x_value, T y_value, T z_value) {
+                return [fs](T x_value) {
                     double result = 0;
                     for (auto &fnc:fs) {
-                        result += fnc(x_value, y_value, z_value);
+                        result += fnc(x_value);
                     }
                     return result;
                 };
@@ -447,14 +447,14 @@ namespace QoZ {
             else if (is_a<SymEngine::Mul>(expr)) {
                 auto args = expr.get_args();
                 //std::cout<<"mul "<<args.size()<<std::endl;
-                std::vector<std::function<double(T, T, T)> > fs;
+                std::vector<std::function<double(T)> > fs;
                 for (size_t i = 0; i < args.size(); ++i) 
-                    fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
+                    fs.push_back(convert_expression_to_function(Expression(args[i]), x));
 
-                return [ fs](T x_value, T y_value, T z_value) {
+                return [ fs](T x_value) {
                     double result = 1.0;
                     for (auto &fnc:fs) {
-                        result *= fnc(x_value, y_value, z_value);
+                        result *= fnc(x_value);
                     }
                     return result;
                 };
