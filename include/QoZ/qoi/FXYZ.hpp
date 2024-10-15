@@ -96,6 +96,8 @@ namespace QoZ {
             dx = convert_expression_to_function(dfdx, x,y,z);
             dy = convert_expression_to_function(dfdy, x,y,z);
             dz = convert_expression_to_function(dfdz, x,y,z);
+
+            std::cout<<dx(1,1,1)<<" "<<dy(1,1,1)<<" "<<dz(1,1,1)<<std::endl;
             // std::cout<<"init 4 "<< std::endl;
               
            // RCP<const Basic> result = evalf(df.subs(map_basic_basic({{x,RealDouble(2).rcp_from_this()}})),53, SymEngine::EvalfDomain::Real);
@@ -124,10 +126,14 @@ namespace QoZ {
 
            // 
             double k = 1.732;
-            T estimation_1 =square_sum!=0?k*sqrt(0.5/(square_sum*log(2.0/(1-confidence))))*tolerance:global_ebs[0]+global_ebs[1]+global_ebs[2];
-            T estimation_2 =(sum!=0)?tolerance/sum:global_ebs[0]+global_ebs[1]+global_ebs[2];
+            T estimation_1 = square_sum!=0?k*sqrt(0.5/(square_sum*log(2.0/(1-confidence))))*tolerance:0;
+            T estimation_2 = (sum!=0)?tolerance/sum:0;
+
+            //std::cout<<
             
             T eb = std::max(estimation_1,estimation_2);
+            if (eb == 0)
+                eb=global_ebs[0]+global_ebs[1]+global_ebs[2];
             std::array<T,3> res;
             for (auto i:{0,1,2})
                 res[i]=std::min(eb,global_ebs[i]);
