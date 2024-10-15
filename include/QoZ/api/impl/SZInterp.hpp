@@ -1962,8 +1962,8 @@ std::array<char *,3>SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs,
     if(confs[0].verbose)
         std::cout << "====================================== BEGIN TUNING ================================" << std::endl;
     QoZ::Timer timer(true);
-    
-    QoI_tuning<T,N>(confs,data);
+    if (confs[0].qoi>0)
+        QoI_tuning<T,N>(confs,data);
     for(auto i:{0,1,2})
         Tuning<T,N>(confs[i],data[i]);
     
