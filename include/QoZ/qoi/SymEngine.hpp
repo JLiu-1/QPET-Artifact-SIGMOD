@@ -57,7 +57,7 @@ std::function<double(T)> convert_expression_to_function(const Basic &expr, const
             std::vector<std::function<double(T)> > fs;
             for (size_t i = 0; i < args.size(); ++i) {
 
-                fs.push_back(convert_expression_to_function(Expression(args[i]), x));
+                fs.push_back(convert_expression_to_function<T>(Expression(args[i]), x));
             }
 
            // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
@@ -75,7 +75,7 @@ std::function<double(T)> convert_expression_to_function(const Basic &expr, const
             //std::cout<<"mul "<<args.size()<<std::endl;
             std::vector<std::function<double(T)> > fs;
             for (size_t i = 0; i < args.size(); ++i) 
-                fs.push_back(convert_expression_to_function(Expression(args[i]), x));
+                fs.push_back(convert_expression_to_function<T>(Expression(args[i]), x));
 
             return [ fs](T x_value) {
                 double result = 1.0;
@@ -98,57 +98,57 @@ std::function<double(T)> convert_expression_to_function(const Basic &expr, const
         // pow
         else if (is_a<SymEngine::Pow>(expr)) {
             auto args = expr.get_args();
-            auto base = convert_expression_to_function(Expression(args[0]), x);
-            auto exponent = convert_expression_to_function(Expression(args[1]), x);
+            auto base = convert_expression_to_function<T>(Expression(args[0]), x);
+            auto exponent = convert_expression_to_function<T>(Expression(args[1]), x);
             return [base, exponent](T x_value) {
                 return std::pow(base(x_value), exponent(x_value));
             };
         }
         // sin
         else if (is_a<SymEngine::Sin>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(expr.get_args()[0]), x);
             return [arg](T x_value) {
                 return std::sin(arg(x_value));
             };
         }
         // cos
         else if (is_a<SymEngine::Cos>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(expr.get_args()[0]), x);
             return [arg](T x_value) {
                 return std::cos(arg(x_value));
             };
         }
 
         else if (is_a<SymEngine::Tan>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(expr.get_args()[0]), x);
             return [arg](T x_value) {
                 return std::tan(arg(x_value));
             };
         }
 
         else if (is_a<SymEngine::Sinh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(expr.get_args()[0]), x);
             return [arg](T x_value) {
                 return std::sinh(arg(x_value));
             };
         }
         // cos
         else if (is_a<SymEngine::Cosh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(expr.get_args()[0]), x);
             return [arg](T x_value) {
                 return std::cosh(arg(x_value));
             };
         }
 
         else if (is_a<SymEngine::Tanh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(expr.get_args()[0]), x);
             return [arg](T x_value) {
                 return std::tanh(arg(x_value));
             };
         }
 
         else if (is_a<SymEngine::Sign>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(expr.get_args()[0]), x);
             return [arg](T x_value) {
                 return (x_value > 0) - (0 > x_value);
             };
@@ -156,10 +156,10 @@ std::function<double(T)> convert_expression_to_function(const Basic &expr, const
         //  log
         else if (is_a<SymEngine::Log>(expr)) {
             auto args = expr.get_args();
-            auto arg = convert_expression_to_function(Expression(args[0]), x);
+            auto arg = convert_expression_to_function<T>(Expression(args[0]), x);
 
             if (args.size() == 2) { // base log
-                auto base = convert_expression_to_function(Expression(args[1]), x);
+                auto base = convert_expression_to_function<T>(Expression(args[1]), x);
                 return [arg, base](T x_value) {
                     return std::log(arg(x_value)) / std::log(base(x_value));
                 };
