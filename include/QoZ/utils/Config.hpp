@@ -553,7 +553,7 @@ namespace QoZ {
         bool regionalQoI = false;
         std::vector<double> ebs;
         double regionalQoIeb;
-        double error_std_rate = 2.0;
+        double error_std_rate = 1.732;
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
 
 

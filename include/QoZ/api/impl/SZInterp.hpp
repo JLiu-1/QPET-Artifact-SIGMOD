@@ -123,11 +123,12 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         //T *ebs = new T[conf.num];
         if(conf.qoi==16){
             qoi->pre_compute(data);
-            conf.qoi = 14; //back to pointwise
-            conf.qoiEB = 1e10;//pass check_compliance, to revise
+            
+            //conf.qoiEB = 1e10;//pass check_compliance, to revise
             for (size_t i = 0; i < conf.num; i++){
                 conf.ebs[i] = qoi->interpret_eb(data+i,i);
             }
+            //conf.qoi = 14; //back to pointwise
         }
         else{
             for (size_t i = 0; i < conf.num; i++){

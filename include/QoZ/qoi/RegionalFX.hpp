@@ -142,12 +142,12 @@ namespace QoZ {
     class QoI_RegionalFX : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims, std::string ff = "x^2", bool isolated = false, double threshold = 0.0) : 
+        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims, std::string ff = "x^2", double k = 1.732, bool isolated = false, double threshold = 0.0) : 
                 tolerance(tolerance),
                 global_eb(global_eb),
                 dims(dims),
                 block_size(block_size),
-                func_string (ff) , isolated (isolated), threshold (threshold){
+                func_string (ff) , k(k),isolated (isolated), threshold (threshold){
             printf("tolerance = %.4e\n", (double) tolerance);
             printf("global_eb = %.4e\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 16;
@@ -445,6 +445,7 @@ namespace QoZ {
         double sum_aiti_square_tolerance_sqrt;
         double sum_aiti_tolerance;
         double q = 0.999999;
+        double k = 1.732;
 
     };
 
