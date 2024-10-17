@@ -38,6 +38,7 @@ using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
 
+template<class T>
 std::function<double(T)> convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
         //std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
         // x
@@ -172,72 +173,23 @@ std::function<double(T)> convert_expression_to_function(const Basic &expr, const
         throw std::runtime_error("Unsupported expression type");
     }
 
-    std::set<double> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
-        std::set<double> singularities;
+//template<class T>
+std::set<double> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
+    std::set<double> singularities;
 
-        if (is_a<Mul>(expr)) {
-            auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
-            for (auto arg : mul_expr->get_args()) {
-                if (is_a<Pow>(*arg)) {
-                    auto pow_expr = rcp_static_cast<const Pow>(arg);
-                    if (pow_expr->get_exp()->__eq__(*SymEngine::minus_one)) {
-                        auto denominator = pow_expr->get_base();
-                        auto solutions = solve(denominator, x);
-                        if (is_a<FiniteSet>(*solutions)) {
-                            auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
-                            auto elements = finite_set_casted->get_container();
-                            for (auto sol : elements) {
-
-                                if (is_a<const Integer>(*sol))
-                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
-                                else
-                                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
-                            }
-                        }
-                    }
-                } else {
-                    auto sub_singularities = find_singularities(Expression(arg), x);
-                    singularities.insert(sub_singularities.begin(), sub_singularities.end());
-                }
-            }
-        }
-        
-        if (is_a<Log>(expr)) {
-            auto log_expr = rcp_static_cast<const Log>(expr.get_basic());
-            auto log_argument = log_expr->get_args()[0];
-            auto solutions = solve(log_argument, x);
-            if (is_a<FiniteSet>(*solutions)) {
-                auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
-                auto elements = finite_set_casted->get_container();
-                for (auto sol : elements) {
-                    if (is_a<const Integer>(*sol))
-                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
-                    else
-                        singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
-                }
-            }
-        }
-
-       
-        if (is_a<Pow>(expr)) {
-            auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
-            auto exponent = pow_expr->get_exp();
-            //std::cout<<*exponent<<std::endl;
-
-            if (is_a<const RealDouble>(*exponent) or is_a<const Integer>(*exponent)) {
-                double exp_val;
-                if (is_a<const Integer>(*exponent))
-                    exp_val=SymEngine::rcp_static_cast<const SymEngine::Integer>(exponent)->as_int();
-                else
-                    exp_val=SymEngine::rcp_static_cast<const SymEngine::RealDouble>(exponent)->as_double();
-        
-                if (exp_val < 0 || (exp_val < 2 && std::floor(exp_val) != exp_val)) {
-                    auto base = pow_expr->get_base();
-                    auto solutions = solve(base, x);
+    if (is_a<Mul>(expr)) {
+        auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
+        for (auto arg : mul_expr->get_args()) {
+            if (is_a<Pow>(*arg)) {
+                auto pow_expr = rcp_static_cast<const Pow>(arg);
+                if (pow_expr->get_exp()->__eq__(*SymEngine::minus_one)) {
+                    auto denominator = pow_expr->get_base();
+                    auto solutions = solve(denominator, x);
                     if (is_a<FiniteSet>(*solutions)) {
                         auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
                         auto elements = finite_set_casted->get_container();
                         for (auto sol : elements) {
+
                             if (is_a<const Integer>(*sol))
                                 singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
                             else
@@ -245,28 +197,79 @@ std::function<double(T)> convert_expression_to_function(const Basic &expr, const
                         }
                     }
                 }
-            }
-        }
-
-        if (is_a<SymEngine::Add>(expr)) {
-            auto add_expr = rcp_static_cast<const SymEngine::Add>(expr.get_basic());
-            for (auto arg : add_expr->get_args()) {
+            } else {
                 auto sub_singularities = find_singularities(Expression(arg), x);
                 singularities.insert(sub_singularities.begin(), sub_singularities.end());
             }
         }
-
-        if (is_a<SymEngine::Mul>(expr) && !is_a<Pow>(expr)) {
-            auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
-            for (auto arg : mul_expr->get_args()) {
-                auto sub_singularities = find_singularities(Expression(arg), x);
-                singularities.insert(sub_singularities.begin(), sub_singularities.end());
+    }
+    
+    if (is_a<Log>(expr)) {
+        auto log_expr = rcp_static_cast<const Log>(expr.get_basic());
+        auto log_argument = log_expr->get_args()[0];
+        auto solutions = solve(log_argument, x);
+        if (is_a<FiniteSet>(*solutions)) {
+            auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
+            auto elements = finite_set_casted->get_container();
+            for (auto sol : elements) {
+                if (is_a<const Integer>(*sol))
+                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                else
+                    singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
             }
         }
-
-        return singularities;
     }
 
+   
+    if (is_a<Pow>(expr)) {
+        auto pow_expr = rcp_static_cast<const Pow>(expr.get_basic());
+        auto exponent = pow_expr->get_exp();
+        //std::cout<<*exponent<<std::endl;
+
+        if (is_a<const RealDouble>(*exponent) or is_a<const Integer>(*exponent)) {
+            double exp_val;
+            if (is_a<const Integer>(*exponent))
+                exp_val=SymEngine::rcp_static_cast<const SymEngine::Integer>(exponent)->as_int();
+            else
+                exp_val=SymEngine::rcp_static_cast<const SymEngine::RealDouble>(exponent)->as_double();
+    
+            if (exp_val < 0 || (exp_val < 2 && std::floor(exp_val) != exp_val)) {
+                auto base = pow_expr->get_base();
+                auto solutions = solve(base, x);
+                if (is_a<FiniteSet>(*solutions)) {
+                    auto finite_set_casted = rcp_static_cast<const FiniteSet>(solutions);
+                    auto elements = finite_set_casted->get_container();
+                    for (auto sol : elements) {
+                        if (is_a<const Integer>(*sol))
+                            singularities.insert(SymEngine::rcp_static_cast<const SymEngine::Integer>(sol)->as_int());
+                        else
+                            singularities.insert(SymEngine::rcp_static_cast<const SymEngine::RealDouble>(sol)->as_double());
+                    }
+                }
+            }
+        }
+    }
+
+    if (is_a<SymEngine::Add>(expr)) {
+        auto add_expr = rcp_static_cast<const SymEngine::Add>(expr.get_basic());
+        for (auto arg : add_expr->get_args()) {
+            auto sub_singularities = find_singularities(Expression(arg), x);
+            singularities.insert(sub_singularities.begin(), sub_singularities.end());
+        }
+    }
+
+    if (is_a<SymEngine::Mul>(expr) && !is_a<Pow>(expr)) {
+        auto mul_expr = rcp_static_cast<const Mul>(expr.get_basic());
+        for (auto arg : mul_expr->get_args()) {
+            auto sub_singularities = find_singularities(Expression(arg), x);
+            singularities.insert(sub_singularities.begin(), sub_singularities.end());
+        }
+    }
+
+    return singularities;
+}
+
+template<class T>
 inline double evaluate(const Expression & func, T val) const{
             
     return (double)func.subs({{x,real_double(val)}}); 
