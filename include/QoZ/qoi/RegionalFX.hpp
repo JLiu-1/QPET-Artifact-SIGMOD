@@ -432,7 +432,7 @@ namespace QoZ {
         //std::vector<double> aggregated_tolerance;
         //std::vector<double> accumulated_error;
         std::vector<double> L_i;
-        std::vector<double> block_sum_aiLi;
+        std::vector<double> block_sum_aiLi_reciprocal;
         //std::vector<double> block_sum_aiLi_square_reciprocal_sqrt;
         std::vector<double> block_sum_aiLi_square_sqrt_reciprocal;
         std::vector<size_t> block_elements;
