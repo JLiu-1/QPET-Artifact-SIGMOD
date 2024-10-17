@@ -270,7 +270,7 @@ std::set<double> find_singularities(const Expression& expr, const RCP<const Symb
 }
 
 template<class T>
-inline double evaluate(const Expression & func, T val) const{
+inline double evaluate(const Expression & func, T val) {
             
     return (double)func.subs({{x,real_double(val)}}); 
 
