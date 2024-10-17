@@ -209,8 +209,8 @@ namespace QoZ {
                 T_estimation_2 = tolerance; // tolerance/(sum{a_i})
             }
             else{
-                //T_estimation_1 = (1/(ai*ai*Li))*sum_aiti_square_tolerance_sqrt/block_sum_aiLi_square_reciprocal_sqrt[block_id];//todo: nan issue
-                T_estimation_1 = Li*sum_aiti_square_tolerance_sqrt*block_sum_aiLi_square_sqrt_reciprocal[block_id];//todo: nan issue
+                T_estimation_1 = (1/(ai*ai*Li))*sum_aiti_square_tolerance_sqrt*block_sum_aiLi_square_reciprocal_sqrt_reciprocal[block_id];//todo: nan issue
+                //T_estimation_1 = Li*sum_aiti_square_tolerance_sqrt*block_sum_aiLi_square_sqrt_reciprocal[block_id];//todo: nan issue
                 T_estimation_2 = tolerance*Li*block_sum_aiLi_reciprocal[block_id];//todo: nan issue
             }
 
@@ -292,8 +292,8 @@ namespace QoZ {
             //rest_elements = std::vector<size_t>(num_blocks, 0);
             L_i = std::vector<double>(num_elements,0);
             block_sum_aiLi_reciprocal=std::vector<double>(num_blocks, 0);
-            //block_sum_aiLi_square_reciprocal_sqrt=std::vector<double>(num_blocks, 0);
-            block_sum_aiLi_square_sqrt_reciprocal=std::vector<double>(num_blocks, 0);
+            block_sum_aiLi_square_reciprocal_sqrt_reciprocal=std::vector<double>(num_blocks, 0);
+            //block_sum_aiLi_square_sqrt_reciprocal=std::vector<double>(num_blocks, 0);
 
 
             if(dims.size() == 2){
@@ -371,20 +371,22 @@ namespace QoZ {
                 double aiLi = ai*L_i[i]; 
                 block_sum_aiLi_reciprocal[block_id]+=aiLi;
                 if(aiLi!=0){
-                    //block_sum_aiLi_square_reciprocal_sqrt[block_id] += 1.0/(aiLi*aiLi);
-                    block_sum_aiLi_square_sqrt_reciprocal[block_id] += aiLi*aiLi;
+                    block_sum_aiLi_square_reciprocal_sqrt_reciprocal[block_id] += 1.0/(aiLi*aiLi);
+                    //block_sum_aiLi_square_sqrt_reciprocal[block_id] += aiLi*aiLi;
                 }
             }
-            //for(auto &x:block_sum_aiLi_square_reciprocal_sqrt){
-            //    x = sqrt(x);
-            //}
+            for(auto &x:block_sum_aiLi_square_reciprocal_sqrt_reciprocal){
+                x = 1.0/sqrt(x);
+            }
 
             for(auto &x:block_sum_aiLi_reciprocal){
                 x = 1.0/x;
             }
+            /*
             for(auto &x:block_sum_aiLi_square_sqrt_reciprocal){
                 x = 1.0/sqrt(x);
             }
+            */
         }
 
     private:
@@ -433,8 +435,8 @@ namespace QoZ {
         //std::vector<double> accumulated_error;
         std::vector<double> L_i;
         std::vector<double> block_sum_aiLi_reciprocal;
-        //std::vector<double> block_sum_aiLi_square_reciprocal_sqrt;
-        std::vector<double> block_sum_aiLi_square_sqrt_reciprocal;
+        std::vector<double> block_sum_aiLi_square_reciprocal_sqrt_reciprocal;
+        //std::vector<double> block_sum_aiLi_square_sqrt_reciprocal;
         std::vector<size_t> block_elements;
         //std::vector<int> rest_elements;
         std::vector<size_t> dims;
