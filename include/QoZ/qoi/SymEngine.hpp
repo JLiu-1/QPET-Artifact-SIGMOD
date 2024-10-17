@@ -268,13 +268,13 @@ std::set<double> find_singularities(const Expression& expr, const RCP<const Symb
 
     return singularities;
 }
-
+/*
 template<class T>
 inline double evaluate(const Expression & func, T val) {
             
     return (double)func.subs({{x,real_double(val)}}); 
 
 } 
-
+*/
 #endif
 
