@@ -314,7 +314,7 @@ namespace QoZ {
                                      +(ori_data[index-dim1_offset]-ori_data[index+dim1_offset])*(ori_data[index-dim1_offset]-ori_data[index+dim1_offset])
                                      +(ori_data[index-dim0_offset]-ori_data[index+dim0_offset])*(ori_data[index-dim0_offset]-ori_data[index+dim0_offset]) );
                     T dec_gl = 0.5*sqrt( (data[index-1]-data[index+1])*(data[index-1]-data[index+1])
-                                     +(data[index-dim1_offset]-data[index+dim1_offset])*(data[index-dim1_offset]data[index+dim1_offset])
+                                     +(data[index-dim1_offset]-data[index+dim1_offset])*(data[index-dim1_offset]-data[index+dim1_offset])
                                      +(data[index-dim0_offset]-data[index+dim0_offset])*(data[index-dim0_offset]-data[index+dim0_offset]) );
                     T curerr = fabs(ori_gl-dec_gl);
                     if (curerr>maxerr)
