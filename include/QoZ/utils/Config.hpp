@@ -267,9 +267,10 @@ namespace QoZ {
             qoi_string_2 = std::string(qoistring_c2);
             threshold = cfg.GetReal("QoISettings", "threshold", 0.0);
             isolated = cfg.GetBoolean("QoISettings", "isolated", false);
-            regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
+            //regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
             tol_estimation = cfg.GetInteger("QoISettings", "tol_estimation", tol_estimation);
+            qoiRegionMode = cfg.GetInteger("QoISettings", "qoiRegionMode", qoiRegionMode);
 
 
 
@@ -550,11 +551,15 @@ namespace QoZ {
         std::string qoi_string_2 = "0";
         double threshold = 0.0;
         bool isolated = false;
-        bool regionalQoI = false;
+        //bool regionalQoI = false;
         std::vector<double> ebs;
         double regionalQoIeb;
         double error_std_rate = 1.732;
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
+
+        int qoiRegionMode = 0; //0:no region 1: average 1:laplacian 2: gradient 
+
+
 
 
 

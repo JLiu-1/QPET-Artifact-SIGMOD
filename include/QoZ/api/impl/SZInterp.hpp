@@ -91,27 +91,47 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data){
 
-    if(conf.regionalQoI and conf.qoi!=16){//regional average
+    if(conf.qoiRegionMode > 0 and (conf.qoi!=16 or conf.qoi_string == "x")){//regional average
         //adjust qoieb
-        conf.regionalQoIeb=conf.qoiEB;//store original regional eb
-        double num_blocks = 1;
-        double num_elements = 1;
-        for(int i=0; i<conf.dims.size(); i++){
-            num_elements *= conf.qoiRegionSize;
-            num_blocks *= (conf.dims[i] - 1) / conf.qoiRegionSize + 1;
+        double rate = 1.0;
+        if(conf.qoiRegionMode == 2){//lap
+            rate = 1.0/(4.0 * N);
+
+        }
+        else if(conf.qoiRegionMode == 3){//grad
+            rate = 1.0/sqrt((double)N);
+
         }
 
-        double q = 0.999999;
-        double rate;
-        if(conf.tol_estimation==0)
-            rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q, conf.error_std_rate);
-        else
-            rate = estimate_rate_Bernstein(num_elements,num_blocks,q, conf.error_std_rate);
-        
-        rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
+        else{//average
+            conf.regionalQoIeb=conf.qoiEB;//store original regional eb
+            double num_blocks = 1;
+            double num_elements = 1;
+            for(int i=0; i<conf.dims.size(); i++){
+                num_elements *= conf.qoiRegionSize;
+                num_blocks *= (conf.dims[i] - 1) / conf.qoiRegionSize + 1;
+            }
+
+            double q = 0.999999;
+            double rate;
+            if(conf.tol_estimation==0)
+                rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q, conf.error_std_rate);
+            else
+                rate = estimate_rate_Bernstein(num_elements,num_blocks,q, conf.error_std_rate);
+            
+            rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
+        }
         std::cout<<"Point wise QoI eb rate: " << rate << std::endl;
         conf.qoiEB *= rate;
     }
+
+    if (conf.qoi != 15 and conf.qoi_string == "x"){
+        conf.qoi = 0;
+        conf.absErrorBound = std::min(conf.absErrorBound,conf.qoiEB);
+        return;
+
+    }
+
         
     auto qoi = QoZ::GetQOI<T, N>(conf);
     conf.ebs = std::vector<double>(conf.num);

@@ -270,6 +270,65 @@ namespace QoZ {
         return aggregated;
     }
 
+
+    template <class T>
+    double compute_3d_laplacian_max_err(T const * ori_data, T const * data, uint32_t n1, uint32_t n2, uint32_t n3){
+        uint32_t dim0_offset = n2 * n3;
+        uint32_t dim1_offset = n3;
+        uint32_t index = 0;
+        T const * data_x_pos = data;
+        double maxerr=0;
+        for(size_t i=1; i<n1-1; i++){
+            for(size_t j=1; j<n2-1; j++){
+                for(size_t k=1; k<n3-1; k++){
+                    size_t index = i*dim0_offset+j*dim1_offset+k;
+                    T ori_laplacian = ori_data[index-1]+ori_data[index+1]
+                                     +ori_data[index-dim1_offset]+ori_data[index+dim1_offset]
+                                     +ori_data[index-dim0_offset]+ori_data[index+dim0_offset]-6*ori_data[index];
+                    T dec_laplacian = data[index-1]+data[index+1]
+                                     +data[index-dim1_offset]+data[index+dim1_offset]
+                                     +data[index-dim0_offset]+data[index+dim0_offset]-6*data[index];
+                    T curerr = fabs(ori_laplacian-dec_laplacian);
+                    if (curerr>maxerr)
+                        maxerr = curerr;
+
+                }
+            }
+        }
+                    
+        return maxerr;
+    }
+
+    template <class T>
+    double compute_3d_gradient_length_max_err(T const * ori_data, T const * data, uint32_t n1, uint32_t n2, uint32_t n3){
+        uint32_t dim0_offset = n2 * n3;
+        uint32_t dim1_offset = n3;
+        uint32_t index = 0;
+        T const * data_x_pos = data;
+        double maxerr=0;
+        for(size_t i=1; i<n1-1; i++){
+            for(size_t j=1; j<n2-1; j++){
+                for(size_t k=1; k<n3-1; k++){
+                    size_t index = i*dim0_offset+j*dim1_offset+k;
+                    T ori_gl= 0.5*sqrt( (ori_data[index-1]-ori_data[index+1])*(ori_data[index-1]-ori_data[index+1])
+                                     +(ori_data[index-dim1_offset]-ori_data[index+dim1_offset])*(ori_data[index-dim1_offset]-ori_data[index+dim1_offset])
+                                     +(ori_data[index-dim0_offset]-ori_data[index+dim0_offset])*(ori_data[index-dim0_offset]-ori_data[index+dim0_offset]) );
+                    T dec_gl = 0.5*sqrt( (data[index-1]-data[index+1])*(data[index-1]-data[index+1])
+                                     +(data[index-dim1_offset]-data[index+dim1_offset])*(data[index-dim1_offset]data[index+dim1_offset])
+                                     +(data[index-dim0_offset]-data[index+dim0_offset])*(data[index-dim0_offset]-data[index+dim0_offset]) );
+                    T curerr = fabs(ori_gl-dec_gl);
+                    if (curerr>maxerr)
+                        maxerr = curerr;
+
+                }
+            }
+        }
+                    
+        return maxerr;
+    }
+
+
+
     template<class T>
     T evaluate_L_inf(T const * data, T const * dec_data, uint32_t num_elements, bool normalized=true, bool verbose=false){
         T L_inf_error = 0;
@@ -533,6 +592,13 @@ namespace QoZ {
             if(dims.size() == 2) evaluate_average(ori_data, data, max_qoi - min_qoi, 1, dims[0], dims[1], blockSize);
             else if(dims.size() == 3) evaluate_average(ori_data, data, max_qoi - min_qoi, dims[0], dims[1], dims[2], blockSize);
         }
+
+        if (dims.size() == 3){
+            printf("QoI Lapacian: %.6G\n",compute_3d_laplacian_max_err<Type>(ori_data, data, dims[0], dims[1], dims[2]));
+            printf("QoI Gradient Length: %.6G\n",compute_3d_gradient_length_max_err<Type>(ori_data, data, dims[0], dims[1], dims[2]));
+        }
+
+
 
     }
 
