@@ -273,6 +273,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         auto dims = confs[0].dims;
         auto tmp_abs_eb = confs[0].absErrorBound;
 
+
         //T *ebs = new T[confs[0].num];
         //std::cout<<"p4"<<std::endl;
         //todo: in_block tuning
@@ -301,10 +302,13 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
         for(auto j:{0,1,2}){
            // std::cout<<"p6"<<std::endl;
+            auto min_abs_eb = confs[j].ebs[0];
             std::priority_queue<T> maxHeap;
 
             for (size_t i = 0; i < confs[j].num; i++) {
                 T eb = confs[j].ebs[i];
+                if  (eb < min_abs_eb)
+                    min_abs_eb = eb;
                 if (maxHeap.size() < k) {
                     maxHeap.push(eb);
                 } else if (eb < maxHeap.top()) {
@@ -339,7 +343,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             double smaller_ebs_ratio = (double)(count)/(double)(confs[j].num);
             std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
 
-            if(smaller_ebs_ratio <= 1.0/1024.0){//may fix
+            if(smaller_ebs_ratio <= 1.0/1024.0 and min_abs_eb>= best_abs_eb*0.95){//may fix
                 confs[j].use_global_eb = true;
             }
 
