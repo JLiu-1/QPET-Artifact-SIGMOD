@@ -558,6 +558,8 @@ namespace QoZ {
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
         double confidence = 0.999999;
 
+        double use_global_eb = false;
+
 
 
 
