@@ -139,7 +139,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     {
         auto dims = conf.dims;
         auto tmp_abs_eb = conf.absErrorBound;
-
+        auto min_abs_eb = conf.absErrorBound;
         //T *ebs = new T[conf.num];
         if(conf.qoi==16){
             qoi->pre_compute(data);
@@ -167,6 +167,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         for (size_t i = 0; i < conf.num; i++) {
             T eb = conf.ebs[i];
+            if (eb < min_abs_eb)
+                min_abs_eb = eb;
+
             if (maxHeap.size() < k) {
                 maxHeap.push(eb);
             } else if (eb < maxHeap.top()) {
@@ -183,7 +186,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
         std::cout<<"Smaller ebs: "<<(double)(count)/(double)(conf.num)<<std::endl;
 
-        
+        std::cout << "Min abs eb / Best abs eb: " << min_abs_eb / best_abs_eb << std::endl; 
         std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
         std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
         conf.absErrorBound = best_abs_eb;
