@@ -118,11 +118,12 @@ namespace QoZ {
             else 
                 eb = global_eb;
 
-             for (auto sg : singularities){
+            for (auto sg : singularities){
                 T diff = fabs(data-sg);
                 eb = std::min(diff,eb);
              }
-           // std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
+            if(eb==0)
+                std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
             return std::min(eb, global_eb);
         }
 
