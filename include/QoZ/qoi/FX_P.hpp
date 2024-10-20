@@ -40,7 +40,7 @@ namespace QoZ {
     class QoI_FX_P : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FX_P(T tolerance, T global_eb, std::string f1_c = "x", std::string f2_c = "0", double threshold = 0.0, bool isolated = false) : 
+        QoI_FX_P(T tolerance, T global_eb, std::string f1_c = "x", std::string f2_c = "0", double threshold = 0.0, bool isolated = false, bool use_global_eb = false) : 
                 tolerance(tolerance),
                 global_eb(global_eb), threshold(threshold), isolated (isolated), f1_string(f1_c), f2_string(f2_c) {
             // TODO: adjust type for int data
@@ -48,41 +48,46 @@ namespace QoZ {
             concepts::QoIInterface<T, N>::id = 15;
            // std::cout<<"init 1 "<< std::endl;
             
-            Expression f;
+            Expression f,ff;
             Expression df;
             Expression ddf;
-             x = symbol("x");
+            x = symbol("x");
     
             f = Expression(f1_c);
+            f1 = convert_expression_to_function<T>(f, x);
+            ff = Expression(f2_c);
+            f2 = convert_expression_to_function<T>(ff, x);
             // std::cout<<"init 2"<< std::endl;
             //df = diff(f,x);
-            df = f.diff(x);
-            // std::cout<<"init 3 "<< std::endl;
-            //ddf = diff(df,x);
-            ddf = df.diff(x);
-           // std::cout<<"f: "<< f<<std::endl;
-            //std::cout<<"df: "<< df<<std::endl;
-            //std::cout<<"ddf: "<< ddf<<std::endl;
-            f1 = convert_expression_to_function<T>(f, x);
-            df1 = convert_expression_to_function<T>(df, x);
-            ddf1 = convert_expression_to_function<T>(ddf, x);
+            if(!use_global_eb){
+                df = f.diff(x);
+                // std::cout<<"init 3 "<< std::endl;
+                //ddf = diff(df,x);
+                ddf = df.diff(x);
+               // std::cout<<"f: "<< f<<std::endl;
+                //std::cout<<"df: "<< df<<std::endl;
+                //std::cout<<"ddf: "<< ddf<<std::endl;
+                
+                df1 = convert_expression_to_function<T>(df, x);
+                ddf1 = convert_expression_to_function<T>(ddf, x);
 
-            singularities = find_singularities(f,x);
+                singularities = find_singularities(f,x);
 
-            f = Expression(f2_c);
-        
-            df = f.diff(x);
+                
             
-            ddf = df.diff(x);
+                df = ff.diff(x);
+                
+                ddf = df.diff(x);
 
-            f2 = convert_expression_to_function<T>(f, x);
-            df2 = convert_expression_to_function<T>(df, x);
-            ddf2 = convert_expression_to_function<T>(ddf, x);
-            // std::cout<<"init 4 "<< std::endl;
+                
+                df2 = convert_expression_to_function<T>(df, x);
+                ddf2 = convert_expression_to_function<T>(ddf, x);
+                // std::cout<<"init 4 "<< std::endl;
 
-            std::set<double> sing_2 = find_singularities(f,x);
+                std::set<double> sing_2 = find_singularities(ff,x);
 
-            singularities.insert(sing_2.begin(),sing_2.end());
+                singularities.insert(sing_2.begin(),sing_2.end());
+            }
 
             if (isolated)
                 singularities.insert(threshold);

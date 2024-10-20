@@ -15,6 +15,7 @@
 #include "QoZ/def.hpp"
 #include "QoZ/utils/Config.hpp"
 #include "QoZ/utils/Sample.hpp"
+#include "QoZ/qoi/QoI.hpp"
 #include <cstring>
 #include <cmath>
 #include <limits>
@@ -220,6 +221,13 @@ namespace QoZ {
             //tuning 0: normal compress 1:tuning to return qbins and psnr 2: tuning to return prediction loss
             Timer timer;
             timer.start();
+
+            if(conf.qoi>0 and tuning == 0){
+                check_qoi = true;
+                qoi = QoZ::GetQOI<T, N>(conf);
+            }
+
+            
             
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
             blocksize = conf.interpBlockSize;
@@ -810,7 +818,19 @@ namespace QoZ {
                 return 0;
             }
             else if(mode==0){
-                 quant_inds.push_back(quantizer.quantize_and_overwrite(d, pred));
+
+                 T ori = d;
+                 auto qidx = quantizer.quantize_and_overwrite(d, pred);
+
+    
+                 if(check_qoi and !qoi->check_compliance(ori,d)){
+                    // std::cout << "not compliant" << std::endl;
+                    // save as unpredictable
+                    d = ori;
+                    qidx = 0;
+                    quantizer.insert_unpred(d);
+                 }
+                 quant_inds.push_back(qidx);
                  return 0;
             }
             else if(mode==1){
@@ -7276,6 +7296,9 @@ namespace QoZ {
         size_t cur_level; //temp for "adaptive anchor stride";
         //size_t min_anchor_level;//temp for "adaptive anchor stride";
        // double anchor_threshold=0.0;//temp for "adaptive anchor stride";
+
+        std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
+        bool check_qoi = false;
 
 
 

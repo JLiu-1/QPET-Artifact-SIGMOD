@@ -559,6 +559,8 @@ namespace QoZ {
 
         int qoiRegionMode = 0; //0:no region 1: average 1:laplacian 2: gradient 
 
+        bool use_global_eb = false;
+
 
 
 

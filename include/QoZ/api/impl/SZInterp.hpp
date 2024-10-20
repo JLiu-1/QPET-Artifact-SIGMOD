@@ -175,13 +175,37 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
         }
 
-        double best_abs_eb = maxHeap.top();
+        double init_best_abs_eb = maxHeap.top();
+        double best_abs_eb = init_best_abs_eb;
+
+        size_t init_quantile = maxHeap.size();
+        size_t cur_quantile = init_quantile;
+        double min_ratio = 0.9;
+        while(cur_quantile>0){
+            maxHeap.pop();
+            cur_quantile--;
+            double temp_best_eb = maxHeap.top();
+            double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)init_quantile);
+            if (temp_best_eb/init_best_abs_eb<cur_ratio)
+                break;
+            else
+                best_abs_eb = temp_best_eb;
+
+        }
+
+
+
         size_t count = 0;
         for (size_t i = 0; i < conf.num; i++){
             if(conf.ebs[i] < best_abs_eb)
                 count++;
         }
-        std::cout<<"Smaller ebs: "<<(double)(count)/(double)(conf.num)<<std::endl;
+        double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
+        std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
+
+        if(smaller_ebs_ratio <= 1.0/1024.0){//may fix
+            conf.use_global_eb = true;
+        }
 
         
         std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
@@ -223,11 +247,12 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
     QoZ::calAbsErrorBound(conf, data);
 
     //conf.print();
-    if (conf.qoi>0){
-        if(!conf.qoi_tuned){
-            QoI_tuning<T,N>(conf, data);
-            conf.qoi_tuned = true;
-        }
+    if(conf.qoi >0 and !conf.qoi_tuned){
+        QoI_tuning<T,N>(conf, data);
+        conf.qoi_tuned = true;
+    }
+    if (conf.qoi>0 and !conf.use_global_eb){
+        
         auto qoi = QoZ::GetQOI<T, N>(conf);//todo: bring qoi to conf to avoid duplicated initialization.
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
         auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
