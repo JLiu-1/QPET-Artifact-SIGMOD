@@ -336,7 +336,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     count++;
             }
             std::cout<<"Data "<<j<<":"<<std::endl;
-            double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
+            double smaller_ebs_ratio = (double)(count)/(double)(confs[i].num);
             std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
 
             if(smaller_ebs_ratio <= 1.0/1024.0){//may fix
@@ -394,7 +394,6 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     }
 
     //conf.print();
-    std::array<char *,3>cmpData;
     std::array<bool,3>qoi_used = {false,false,false};
     for (auto i:{0,1,2}){
         if (confs[i].qoi>0)
