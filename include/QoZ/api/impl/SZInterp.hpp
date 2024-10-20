@@ -206,7 +206,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
         std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
 
-        if(smaller_ebs_ratio <= 1.0/1024.0 and (conf.qoiRegionMode==0 or (conf.qoiRegionMode=1 and conf.qoiRegionSize>=3) or min_abs_eb >= 0.95 * best_abs_eb){//may fix
+        if(smaller_ebs_ratio <= 1.0/1024.0 and (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3) or min_abs_eb >= 0.95 * best_abs_eb)){//may fix
             conf.use_global_eb = true;
         }
 
