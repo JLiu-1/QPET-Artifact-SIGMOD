@@ -593,13 +593,13 @@ namespace QoZ {
         if (blockSize>1){
             
             printf("Regional qoi average:\n");
-            if(dims.size() == 2) evaluate_average(ori_data, data, max_qoi - min_qoi, 1, dims[0], dims[1], blockSize);
-            else if(dims.size() == 3) evaluate_average(ori_data, data, max_qoi - min_qoi, dims[0], dims[1], dims[2], blockSize);
+            if(dims.size() == 2) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, 1, dims[0], dims[1], blockSize);
+            else if(dims.size() == 3) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, dims[0], dims[1], dims[2], blockSize);
         }
 
         if (dims.size() == 3){
-            printf("QoI Lapacian: %.6G\n",compute_3d_laplacian_max_err<Type>(ori_data, data, dims[0], dims[1], dims[2]));
-            printf("QoI Gradient Length: %.6G\n",compute_3d_gradient_length_max_err<Type>(ori_data, data, dims[0], dims[1], dims[2]));
+            printf("QoI Lapacian: %.6G\n",compute_3d_laplacian_max_err<double>(ori_data.data(), data.data(), dims[0], dims[1], dims[2]));
+            printf("QoI Gradient Length: %.6G\n",compute_3d_gradient_length_max_err<double>(ori_data.data(), data.data(), dims[0], dims[1], dims[2]));
         }
 
 
