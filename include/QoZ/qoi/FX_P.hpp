@@ -54,9 +54,9 @@ namespace QoZ {
             x = symbol("x");
     
             f = Expression(f1_c);
-            f1 = convert_expression_to_function<T>(f, x);
+            f1 = convert_expression_to_function(f, x);
             ff = Expression(f2_c);
-            f2 = convert_expression_to_function<T>(ff, x);
+            f2 = convert_expression_to_function(ff, x);
             // std::cout<<"init 2"<< std::endl;
             //df = diff(f,x);
             if(!use_global_eb){
@@ -68,8 +68,8 @@ namespace QoZ {
                 //std::cout<<"df: "<< df<<std::endl;
                 //std::cout<<"ddf: "<< ddf<<std::endl;
                 
-                df1 = convert_expression_to_function<T>(df, x);
-                ddf1 = convert_expression_to_function<T>(ddf, x);
+                df1 = convert_expression_to_function(df, x);
+                ddf1 = convert_expression_to_function(ddf, x);
 
                 singularities = find_singularities(f,x);
 
@@ -80,8 +80,8 @@ namespace QoZ {
                 ddf = df.diff(x);
 
                 
-                df2 = convert_expression_to_function<T>(df, x);
-                ddf2 = convert_expression_to_function<T>(ddf, x);
+                df2 = convert_expression_to_function(df, x);
+                ddf2 = convert_expression_to_function(ddf, x);
                 // std::cout<<"init 4 "<< std::endl;
 
                 std::set<double> sing_2 = find_singularities(ff,x);
