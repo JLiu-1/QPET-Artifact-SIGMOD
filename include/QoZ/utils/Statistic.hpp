@@ -551,12 +551,13 @@ namespace QoZ {
         double psnr = 0;
         double nrmse = 0;
         verify(ori_data_T, data_T, num_elements, psnr, nrmse);
-        std::vector<double> ori_data(ori_data_T,ori_data_T+num_elements);
-        std::vector<double> data(data_T,data_T+num_elements);
+        
 
 
         if(conf.qoi == 0)
             return;
+        std::vector<double> ori_data(ori_data_T,ori_data_T+num_elements);
+        std::vector<double> data(data_T,data_T+num_elements);
        // const QoZ::uint N = conf.N;
         auto qoi = QoZ::GetQOI<double, 1>(conf);
 
