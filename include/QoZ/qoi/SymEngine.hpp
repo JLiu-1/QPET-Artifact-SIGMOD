@@ -107,7 +107,7 @@ std::function<double(double)> convert_expression_to_function(const Basic &expr, 
         // sin
         else if (is_a<SymEngine::Sin>(expr)) {
             auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
-            return [arg](Tdouble x_value) {
+            return [arg](double x_value) {
                 return std::sin(arg(x_value));
             };
         }
