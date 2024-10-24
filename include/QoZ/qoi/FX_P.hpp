@@ -151,7 +151,7 @@ namespace QoZ {
             //    return false;
             double y_0 = data >= threshold ? f1(data):f2(data);
             double y_1 = dec_data >= threshold ? f1(dec_data):f2(dec_data);
-            return (fabs(y_0 - y_1) < tolerance);
+            return (fabs(y_0 - y_1) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}

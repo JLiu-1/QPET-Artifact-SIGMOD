@@ -540,7 +540,7 @@ namespace QoZ {
     }
 
     template<typename Type>
-    void verifyQoI_new(Type *ori_data, Type *data, const QoZ::Config &conf) {
+    void verifyQoI_new(Type *ori_data_T, Type *data_T, const QoZ::Config &conf) {
 
         std::vector<size_t> dims = conf.dims;
         int blockSize = conf.qoiRegionSize;
@@ -550,12 +550,15 @@ namespace QoZ {
         }
         double psnr = 0;
         double nrmse = 0;
-        verify(ori_data, data, num_elements, psnr, nrmse);
+        verify(ori_data_T, data_T, num_elements, psnr, nrmse);
+        std::vector<double> ori_data(ori_data_T,ori_data_T+num_elements);
+        std::vector<double> data(data_T,data_T+num_elements);
+
 
         if(conf.qoi == 0)
             return;
        // const QoZ::uint N = conf.N;
-        auto qoi = QoZ::GetQOI<Type, 1>(conf);
+        auto qoi = QoZ::GetQOI<double, 1>(conf);
 
        
         double max_qoi_diff = 0;
