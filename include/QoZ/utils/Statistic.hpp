@@ -481,7 +481,7 @@ namespace QoZ {
     }
 
     template<typename Type>
-    void verifyQoI_new(std::array<Type *,3>ori_data, std::array<Type *,3> data, const QoZ::Config &conf) {
+    void verifyQoI_new(std::array<Type *,3>ori_data_T, std::array<Type *,3> data_T, const QoZ::Config &conf) {
 
         
 
@@ -495,14 +495,20 @@ namespace QoZ {
             std::cout<<"File "<<i+1<<":"<<std::endl;
             double psnr = 0;
             double nrmse = 0;
-            verify(ori_data[i], data[i], num_elements, psnr, nrmse);
+            verify(ori_data_T[i], data_T[i], num_elements, psnr, nrmse);
         }
 
         if(conf.qoi == 0)
             return;
+
+         std::array<std::vector<double>,3> ori_data,data;
+         for(auto i:{0,1,2}){
+            ori_data[i]=std::vector<double>(ori_data_T[i],ori_data_T[i]+num_elements);
+            data[i]=std::vector<double>(data_T[i],data_T[i]+num_elements);
+         }
        // const QoZ::uint N = conf.N;
         
-        auto qoi = QoZ::GetQOI<Type, 1>(std::array<QoZ::Config,3>{conf,conf,conf});
+        auto qoi = QoZ::GetQOI<double, 1>(std::array<QoZ::Config,3>{conf,conf,conf});
 
        
         double max_qoi_diff = 0;
