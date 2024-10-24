@@ -82,9 +82,9 @@ namespace QoZ {
             std::cout<<"df: "<< df<<std::endl;
             std::cout<<"ddf: "<< ddf<<std::endl;
   
-            func = convert_expression_to_function<T>(f, x);
-            deri_1 = convert_expression_to_function<T>(df, x);
-            deri_2 = convert_expression_to_function<T>(ddf, x);
+            func = convert_expression_to_function(f, x);
+            deri_1 = convert_expression_to_function(df, x);
+            deri_2 = convert_expression_to_function(ddf, x);
 
             if (isolated)
                 singularities.insert(threshold);
@@ -176,11 +176,11 @@ namespace QoZ {
 
 
         RCP<const Symbol>  x;
-        T tolerance;
+        double tolerance;
         T global_eb;
-        std::function<double(T)> func;
-        std::function<double(T)> deri_1;
-        std::function<double(T)> deri_2;
+        std::function<double(double)> func;
+        std::function<double(double)> deri_1;
+        std::function<double(double)> deri_2;
         std::set<double>singularities;
         std::string func_string;
 

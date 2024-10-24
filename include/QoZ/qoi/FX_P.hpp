@@ -189,17 +189,17 @@ namespace QoZ {
 
 
         RCP<const Symbol>  x;
-        T tolerance;
+        double tolerance;
         T global_eb;
         double threshold;
         bool isolated;
         std::set<double>singularities;
-        std::function<double(T)> f1;
-        std::function<double(T)> f2;
-        std::function<double(T)> df1;
-        std::function<double(T)> ddf1;
-        std::function<double(T)> df2;
-        std::function<double(T)> ddf2;
+        std::function<double(double)> f1;
+        std::function<double(double)> f2;
+        std::function<double(double)> df1;
+        std::function<double(double)> ddf1;
+        std::function<double(double)> df2;
+        std::function<double(double)> ddf2;
 
         std::string f1_string, f2_string;
      

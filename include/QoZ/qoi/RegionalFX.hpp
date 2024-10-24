@@ -427,7 +427,7 @@ namespace QoZ {
 
 
 
-        T tolerance;
+        double tolerance;
         T global_eb;
         size_t block_id;
         size_t block_size;
@@ -445,9 +445,9 @@ namespace QoZ {
 
 
         RCP<const Symbol>  x;
-        std::function<double(T)> func;
-        std::function<double(T)> deri_1;
-        std::function<double(T)> deri_2;
+        std::function<double(double)> func;
+        std::function<double(double)> deri_1;
+        std::function<double(double)> deri_2;
         std::set<double>singularities;
         //bool tuning = false;
 
