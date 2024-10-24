@@ -221,32 +221,32 @@ namespace QoZ {
     private:
 
         
-        std::function<double(T, T, T)> convert_expression_to_function(const Basic &expr, 
+        std::function<double(double, double, double)> convert_expression_to_function(const Basic &expr, 
                                                               const RCP<const Symbol> &x, 
                                                               const RCP<const Symbol> &y, 
                                                               const RCP<const Symbol> &z) {
             
             if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*x)) {
-                return [](T x_value, T, T) { /*std::cout<<"x="<<x_value<<std::endl;*/return x_value; };
+                return [](double x_value, double, double) { /*std::cout<<"x="<<x_value<<std::endl;*/return x_value; };
             }
           
             else if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*y)) {
-                return [](T, T y_value, T) { /*std::cout<<"y="<<y_value<<std::endl;*/return y_value; };
+                return [](double, double y_value, double) { /*std::cout<<"y="<<y_value<<std::endl;*/return y_value; };
             }
            
             else if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*z)) {
-                return [](T, T, T z_value) { /*std::cout<<"z="<<z_value<<std::endl;*/return z_value; };
+                return [](double, double, double z_value) { /*std::cout<<"z="<<z_value<<std::endl;*/return z_value; };
             }
           
             else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
                 double constant_value = eval_double(expr);
-                return [constant_value](T, T, T) { /*std::cout<<"c="<<constant_value<<std::endl;*/return constant_value; };
+                return [constant_value](double, double, double) { /*std::cout<<"c="<<constant_value<<std::endl;*/return constant_value; };
             }
            
             else if (is_a<SymEngine::Add>(expr)) {
                 auto args = expr.get_args();
               
-                std::vector<std::function<double(T, T, T)> > fs;
+                std::vector<std::function<double(double, double, double)> > fs;
                 for (size_t i = 0; i < args.size(); ++i) {
 
                     fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
@@ -254,7 +254,7 @@ namespace QoZ {
 
                // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-                return [fs](T x_value, T y_value, T z_value) {
+                return [fs](double x_value, double y_value, double z_value) {
                     double result = 0;
                     for (auto &fnc:fs) {
                         result += fnc(x_value, y_value, z_value);
@@ -265,11 +265,11 @@ namespace QoZ {
             else if (is_a<SymEngine::Mul>(expr)) {
                 auto args = expr.get_args();
                
-                std::vector<std::function<double(T, T, T)> > fs;
+                std::vector<std::function<double(double, double, double)> > fs;
                 for (size_t i = 0; i < args.size(); ++i) 
                     fs.push_back(convert_expression_to_function(Expression(args[i]), x, y, z));
 
-                return [ fs](T x_value, T y_value, T z_value) {
+                return [ fs](double x_value, double y_value, double z_value) {
                     double result = 1.0;
                     for (auto &fnc:fs) {
                         result *= fnc(x_value, y_value, z_value);
@@ -282,7 +282,7 @@ namespace QoZ {
                 auto args = expr.get_args();
                 auto base = convert_expression_to_function(Expression(args[0]), x, y, z);
                 auto exponent = convert_expression_to_function(Expression(args[1]), x, y, z);
-                return [base, exponent](T x_value, T y_value, T z_value) {
+                return [base, exponent](double x_value, double y_value, double z_value) {
                     //std::cout<<"pow"<<std::endl;
                     return std::pow(base(x_value, y_value, z_value), exponent(x_value, y_value, z_value));
                 };
@@ -290,14 +290,14 @@ namespace QoZ {
           
             else if (is_a<SymEngine::Sin>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y, z);
-                return [arg](T x_value, T y_value, T z_value) {
+                return [arg](double x_value, double y_value, double z_value) {
                     return std::sin(arg(x_value, y_value, z_value));
                 };
             }
             
             else if (is_a<SymEngine::Cos>(expr)) {
                 auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y, z);
-                return [arg](T x_value, T y_value, T z_value) {
+                return [arg](double x_value, double y_value, double z_value) {
                     return std::cos(arg(x_value, y_value, z_value));
                 };
             }
@@ -307,11 +307,11 @@ namespace QoZ {
                 auto arg = convert_expression_to_function(Expression(args[0]), x, y, z);
                 if (args.size() == 2) { // base log
                     auto base = convert_expression_to_function(Expression(args[1]), x, y, z);
-                    return [arg, base](T x_value, T y_value, T z_value) {
+                    return [arg, base](double x_value, double y_value, double z_value) {
                         return std::log(arg(x_value, y_value, z_value)) / std::log(base(x_value, y_value, z_value));
                     };
                 } else { // ln
-                    return [arg](T x_value, T y_value, T z_value) {
+                    return [arg](double x_value, double y_value, double z_value) {
                         return std::log(arg(x_value, y_value, z_value));
                     };
                 }
@@ -418,14 +418,14 @@ namespace QoZ {
 
 
         RCP<const Symbol>  x,y,z;
-        T tolerance;
+        double tolerance;
         std::array<T,3> global_ebs;
         T global_eb;
         double confidence = 0.999999;
-        std::function<double(T,T,T)> func;
-        std::function<double(T,T,T)> dx;
-        std::function<double(T,T,T)> dy;
-        std::function<double(T,T,T)> dz;
+        std::function<double(double,double,double)> func;
+        std::function<double(double,double,double)> dx;
+        std::function<double(double,double,double)> dy;
+        std::function<double(double,double,double)> dz;
         
         //std::set<double>singularities;
         std::string func_string;
