@@ -162,6 +162,39 @@ void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t 
     QoZ::Config conf(theconf);
     assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
     QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
+
+    if(conf.qoi > 0){
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
+        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
+        auto qoi = QoZ::GetQOI<T, N>(conf);
+        std::shared_ptr<QoZ::concepts::CompressorInterface<T>> sz;
+
+        int methodCnt = (conf.lorenzo + conf.lorenzo2);
+        int use_single_predictor = (methodCnt == 1);
+
+        if(use_single_predictor){
+            if(conf.lorenzo){
+                sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 1>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
+                                                        QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+            }
+            else if(conf.lorenzo2){
+                sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::LorenzoPredictor<T, N, 2>(conf.absErrorBound), quantizer, quantizer_eb, qoi),
+                                                        QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+            }
+        }
+        else{
+            std::vector<std::shared_ptr<QoZ::concepts::PredictorInterface<T, N>>> predictors;
+            predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 1>>(conf.absErrorBound));
+            predictors.push_back(std::make_shared<QoZ::LorenzoPredictor<T, N, 2>>(conf.absErrorBound));
+            sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_qoi_frontend<T, N>(conf, QoZ::ComposedPredictor<T, N>(predictors), quantizer, quantizer_eb, qoi),
+                                                    QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+        }
+        sz->decompress(cmpDataPos, cmpSize, decData);
+        return;
+    }  
+
+
     QoZ::LinearQuantizer<T> quantizer;
   
         
