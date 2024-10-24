@@ -991,107 +991,109 @@ double Tuning(QoZ::Config &conf, T *data){
     auto tmp_abs_eb = conf.absErrorBound;
     if(qoi){
         // compute abs qoi eb
-        T qoi_rel_eb = conf.qoiEB;
-        T max = data[0];
-        T min = data[0];
-        T maxxlogx;
-        T minxlogx;
-        if(qoi == 13){
-            maxxlogx = data[0]!=0 ? data[0]*log(fabs(data[0]))/log(2) : 0;
-            minxlogx = maxxlogx;
-        }
-        for (size_t i = 1; i < conf.num; i++) {
-            if (max < data[i]) max = data[i];
-            if (min > data[i]) min = data[i];
+        if(qoi<=13){//old qois
+            T qoi_rel_eb = conf.qoiEB;
+            T max = data[0];
+            T min = data[0];
+            T maxxlogx;
+            T minxlogx;
             if(qoi == 13){
-                T cur_xlogx = data[i]!=0 ? data[i]*log(fabs(data[i]))/log(2) : 0;
-                if (maxxlogx < cur_xlogx) maxxlogx = cur_xlogx;
-                if (minxlogx > cur_xlogx) minxlogx = cur_xlogx;
+                maxxlogx = data[0]!=0 ? data[0]*log(fabs(data[0]))/log(2) : 0;
+                minxlogx = maxxlogx;
             }
-        }
-        if(qoi == 1 || qoi == 3){
-            // x^2
-            auto max_2 = max * max;
-            auto min_2 = min * min;
-            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-            conf.qoiEB *= max_abs_val;
-        }
-        // else if(qoi == 3){
-        //     // regional average
-        //     conf.qoiEB *= max - min;
-        //     conf.absErrorBound = conf.qoiEB;
-        // }
-        else if(qoi == 4){
-            // compute isovalues
-            conf.isovalues.clear();
-            int isonum = conf.qoiIsoNum;
-            auto range = max - min;
-            for(int i=0; i<isonum; i++){
-                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+            for (size_t i = 1; i < conf.num; i++) {
+                if (max < data[i]) max = data[i];
+                if (min > data[i]) min = data[i];
+                if(qoi == 13){
+                    T cur_xlogx = data[i]!=0 ? data[i]*log(fabs(data[i]))/log(2) : 0;
+                    if (maxxlogx < cur_xlogx) maxxlogx = cur_xlogx;
+                    if (minxlogx > cur_xlogx) minxlogx = cur_xlogx;
+                }
             }
-        }
-        else if(qoi == 9){
-            // x^3
-            auto max_2 = fabs(max * max * max);
-            auto min_2 = fabs(min * min * min);
-            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-            conf.qoiEB *= max_abs_val;
-        }
-        else if(qoi == 10){
-            // sin x
-            //rel is abs
-            conf.qoiEB *= 1;
-        }
-        else if(qoi == 11){
-            // x
-            conf.qoiEB *= (max-min);
-        }
-        else if(qoi == 12){
-            // 2^x
-            auto max_abs_val = pow(2,max);
-            conf.qoiEB *= max_abs_val;
-        }
-        else if(qoi == 13){
-            // 2^x
-            conf.qoiEB *= (maxxlogx-minxlogx);
-        }
-        // qoi_string would be absbound
-        else if(qoi >= 5 and qoi <= 13){//14 15 is FX
-            // (x^2) + (log x) + (isoline)
-            auto max_2 = max * max;
-            auto min_2 = min * min;
-            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-            auto eb_x2 = conf.qoiEB * max_abs_val;
-            auto eb_logx = conf.qoiEB * 10;
-            auto eb_isoline = 0;
-            conf.isovalues.clear();
-            int isonum = conf.qoiIsoNum;
-            auto range = max - min;
-            for(int i=0; i<isonum; i++){
-                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+            if(qoi == 1 || qoi == 3){
+                // x^2
+                auto max_2 = max * max;
+                auto min_2 = min * min;
+                auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+                conf.qoiEB *= max_abs_val;
             }
-            if(qoi == 5){
-                // x^2 + log x
-                conf.qoiEBs.push_back(eb_x2);
-                conf.qoiEBs.push_back(eb_logx);
+            // else if(qoi == 3){
+            //     // regional average
+            //     conf.qoiEB *= max - min;
+            //     conf.absErrorBound = conf.qoiEB;
+            // }
+            else if(qoi == 4){
+                // compute isovalues
+                conf.isovalues.clear();
+                int isonum = conf.qoiIsoNum;
+                auto range = max - min;
+                for(int i=0; i<isonum; i++){
+                    conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+                }
             }
-            else if(qoi == 6){
-                // x^2 + isoline
-                conf.qoiEBs.push_back(eb_x2);
-                conf.qoiEBs.push_back(eb_isoline);                
+            else if(qoi == 9){
+                // x^3
+                auto max_2 = fabs(max * max * max);
+                auto min_2 = fabs(min * min * min);
+                auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+                conf.qoiEB *= max_abs_val;
             }
-            else if(qoi == 7){
-                // log x + isoline
-                conf.qoiEBs.push_back(eb_logx);
-                conf.qoiEBs.push_back(eb_isoline);                
+            else if(qoi == 10){
+                // sin x
+                //rel is abs
+                conf.qoiEB *= 1;
             }
-            else if(qoi == 8){
-                // x^2 + log x + isoline
-                conf.qoiEBs.push_back(eb_x2);
-                conf.qoiEBs.push_back(eb_logx);
-                conf.qoiEBs.push_back(eb_isoline);                                
+            else if(qoi == 11){
+                // x
+                conf.qoiEB *= (max-min);
             }
-            
+            else if(qoi == 12){
+                // 2^x
+                auto max_abs_val = pow(2,max);
+                conf.qoiEB *= max_abs_val;
+            }
+            else if(qoi == 13){
+                // 2^x
+                conf.qoiEB *= (maxxlogx-minxlogx);
+            }
+            // qoi_string would be absbound
+            else if(qoi >= 5 and qoi <= 13){//14 15 is FX
+                // (x^2) + (log x) + (isoline)
+                auto max_2 = max * max;
+                auto min_2 = min * min;
+                auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+                auto eb_x2 = conf.qoiEB * max_abs_val;
+                auto eb_logx = conf.qoiEB * 10;
+                auto eb_isoline = 0;
+                conf.isovalues.clear();
+                int isonum = conf.qoiIsoNum;
+                auto range = max - min;
+                for(int i=0; i<isonum; i++){
+                    conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+                }
+                if(qoi == 5){
+                    // x^2 + log x
+                    conf.qoiEBs.push_back(eb_x2);
+                    conf.qoiEBs.push_back(eb_logx);
+                }
+                else if(qoi == 6){
+                    // x^2 + isoline
+                    conf.qoiEBs.push_back(eb_x2);
+                    conf.qoiEBs.push_back(eb_isoline);                
+                }
+                else if(qoi == 7){
+                    // log x + isoline
+                    conf.qoiEBs.push_back(eb_logx);
+                    conf.qoiEBs.push_back(eb_isoline);                
+                }
+                else if(qoi == 8){
+                    // x^2 + log x + isoline
+                    conf.qoiEBs.push_back(eb_x2);
+                    conf.qoiEBs.push_back(eb_logx);
+                    conf.qoiEBs.push_back(eb_isoline);                                
+                }
+                
+            }
         }
         // set eb base and log base if not set by config
         if(conf.qoiEBBase == 0) 
