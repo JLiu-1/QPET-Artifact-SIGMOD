@@ -2,8 +2,8 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_X_CUBIC_HPP
-#define SZ_QOI_X_CUBIC_HPP
+#ifndef SZ_QOI_X_RECIP_HPP
+#define SZ_QOI_X_RECIP_HPP
 
 #include <algorithm>
 #include "QoZ/def.hpp"
@@ -12,21 +12,22 @@
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_X_Cubic : public concepts::QoIInterface<T, N> {
+    class QoI_X_Recip : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Cubic(T tolerance, T global_eb) : 
+        QoI_X_Recip(T tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 9;
+            concepts::QoIInterface<T, N>::id = 13;
         }
 
         using Range = multi_dimensional_range<T, N>;
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
+            double sqr = sqrt(data)
             
             //if (data == 0)
             //    return global_eb;
@@ -37,7 +38,7 @@ namespace QoZ {
             
             //T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
           
-            T eb = data >= 0 ? std::cbrt(data*data*data+tolerance)-data : data - std::cbrt(data*data*data-tolerance);
+            T eb = data >= 0 ?  tolerance*data*data/(1.0+tolerance*data): tolerance*data*data/(1.0-tolerance*data);
             return std::min(eb, global_eb);
         }
 
@@ -50,7 +51,9 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            return (fabs(data*data*data - dec_data*dec_data*dec_data) < tolerance);
+            if (data == 0 or dec_data == 0)
+                return false; 
+            return (fabs(1.0/data - 1.0/dec_data) < tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -71,12 +74,12 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val*val;//todo
+            return 1.0/val;//todo
 
         } 
 
         std::string get_expression() const{
-            return "x^3";
+            return "1/x";
         }
 
         void pre_compute(const T * data){}

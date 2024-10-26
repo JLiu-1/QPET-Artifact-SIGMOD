@@ -256,7 +256,7 @@ namespace QoZ {
             qoi = cfg.GetInteger("QoISettings", "qoi", 0); // whether to enable qoi
             qoiEB = cfg.GetReal("QoISettings", "qoiEB", 1.0);
             qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
-            qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", 0);
+            qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
             qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", 64);
             qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", 1);
             qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", 1);

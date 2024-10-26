@@ -29,12 +29,15 @@ namespace QoZ {
 
         T interpret_eb(T data) const {
             //base^X
-            //double low_bound = data - log( pow(2, data) - tolerance)/ log(2);
+            double bound = log(tolerance*pow(base,-data)+1)/ log_base;
+            if (pow(base,data)>tolerance)
+                bound = std::min(bound, -log(1-tolerance*pow(base,-data))/ log_base);
+            T eb = bound;
             //double high_bound = log( pow(2, data) + tolerance) / log(2)-data;
             //T eb = std::min(low_bound,high_bound);
-            double a = fabs(pow(base,data)*log_base );//datatype may be T
-            double b = fabs(a*log_base);
-            T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
+            //double a = fabs(pow(base,data)*log_base );//datatype may be T
+            //double b = fabs(a*log_base);
+            //T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
             return std::min(eb, global_eb);
             //return global_eb;
         }

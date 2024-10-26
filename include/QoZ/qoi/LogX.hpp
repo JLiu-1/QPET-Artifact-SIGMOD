@@ -16,9 +16,10 @@ namespace QoZ {
     class QoI_Log_X : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_Log_X(T tolerance, T global_eb, T base=2) : 
+        QoI_Log_X(T tolerance, T global_eb, double base = 2.0) : 
                 tolerance(tolerance),
-                global_eb(global_eb) {
+                global_eb(global_eb),
+                base(base) {
             // TODO: adjust type for int data
             printf("global_eb = %.4f\n", (double) global_eb);
             printf("tolerance = %.4f\n", (double) tolerance);
@@ -40,10 +41,11 @@ namespace QoZ {
             // if b > 1
             // e = min{(1 - b^{-t})|x|, (b^{t} - 1)|x|}
             // return 0;
-            if(data == 0) return global_eb;
-            double a = fabs(1.0 / (data*log_b) );//datatype may be T
-            double b = fabs(-a/data);
-            T eb = std::min((sqrt(a*a+2*b*tolerance)-a)/b,fabs(data));
+            //if(data == 0) return global_eb;
+            //double a = fabs(1.0 / (data*log_b) );//datatype may be T
+            //double b = fabs(-a/data);
+            //T eb = std::min((sqrt(a*a+2*b*tolerance)-a)/b,fabs(data));
+            T eb = (1-pow(base,-tolerance))*data;
             //T eb = coeff * fabs(data);
             return std::min(eb, global_eb);
         }
@@ -103,6 +105,7 @@ namespace QoZ {
         T global_eb;
         double coeff;
         double log_b;
+        double base;
     };
 }
 #endif 
