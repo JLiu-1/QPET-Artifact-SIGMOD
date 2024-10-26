@@ -8,7 +8,7 @@
 #include "XExp.hpp"
 #include "XLin.hpp"
 #include "XSqrt.hpp"
-#include "XRecip.hpp"
+#include "XReciprocal.hpp"
 #include "LogX.hpp"
 #include "XLogX.hpp"
 #include "RegionalAverage.hpp"
