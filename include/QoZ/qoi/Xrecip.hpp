@@ -27,7 +27,6 @@ namespace QoZ {
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            double sqr = sqrt(data)
             
             //if (data == 0)
             //    return global_eb;
