@@ -16,6 +16,7 @@
 #include "Isoline.hpp"
 #include "MultiQoIs.hpp"
 #include "FX.hpp"
+#include "FX_abs.hpp"
 #include "FX_P.hpp"
 #include "RegionalFX.hpp"
 #include <vector>
@@ -104,6 +105,8 @@ namespace QoZ {
                 
                 // return std::make_shared<QoZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
             }
+            case 17:
+                return std::make_shared<QoZ::QoI_FX_ABS<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
         }
         return NULL;
     }

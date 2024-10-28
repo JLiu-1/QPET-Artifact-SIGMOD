@@ -27,7 +27,7 @@ namespace QoZ {
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            double sqr = sqrt(data);
+            double sqr = sqrt(fabs(data));
             
             //if (data == 0)
             //    return global_eb;
@@ -75,12 +75,12 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return sqrt(val);//todo
+            return sqrt(fabs(val));//todo
 
         } 
 
         std::string get_expression() const{
-            return "sqrt(x)";
+            return "sqrt(|x|)";
         }
 
         void pre_compute(const T * data){}

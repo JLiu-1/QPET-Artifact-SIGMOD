@@ -45,6 +45,10 @@ namespace QoZ {
             //double a = fabs(1.0 / (data*log_b) );//datatype may be T
             //double b = fabs(-a/data);
             //T eb = std::min((sqrt(a*a+2*b*tolerance)-a)/b,fabs(data));
+            if (data == 0)
+                return global_eb;
+            data = fabs(data);
+
             T eb = (1-pow(base,-tolerance))*data;
             //T eb = coeff * fabs(data);
             return std::min(eb, global_eb);
@@ -92,7 +96,7 @@ namespace QoZ {
         } 
 
         std::string get_expression() const{
-            return "ln(x)/"+std::to_string(log_b);
+            return "ln(|x|)/"+std::to_string(log_b);
         }
 
         void pre_compute(const T * data){}

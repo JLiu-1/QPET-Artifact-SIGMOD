@@ -991,6 +991,7 @@ double Tuning(QoZ::Config &conf, T *data){
     auto tmp_abs_eb = conf.absErrorBound;
     if(qoi){
         // compute abs qoi eb
+        /*
         if(qoi<=13){//old qois
             T qoi_rel_eb = conf.qoiEB;
             T max = data[0];
@@ -1094,7 +1095,7 @@ double Tuning(QoZ::Config &conf, T *data){
                 }
                 
             }
-        }
+        }*/
         // set eb base and log base if not set by config
         if(conf.qoiEBBase == 0) 
             conf.qoiEBBase = std::numeric_limits<T>::epsilon();

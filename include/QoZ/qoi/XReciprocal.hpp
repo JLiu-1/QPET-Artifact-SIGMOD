@@ -72,6 +72,8 @@ namespace QoZ {
         void set_dims(const std::vector<size_t>& new_dims){}
 
         double eval(T val) const{
+            if (val==0)
+                return 0;
             
             return 1.0/val;//todo
 
