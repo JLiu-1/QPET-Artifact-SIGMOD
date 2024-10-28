@@ -123,9 +123,9 @@ namespace QoZ {
             double b = fabs(ddf(data));
            // 
             T eb;
-            if(!std::isnan(a) and !std::isnan(b) and b >=1e-10 )
+            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and b >=1e-10 )
                 eb = (sqrt(a*a+2*b*tolerance)-a)/b;
-            else if (!std::isnan(a) and a!=0 )
+            else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
                 eb = tolerance/a;
             else 
                 eb = global_eb;
