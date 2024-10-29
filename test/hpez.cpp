@@ -432,7 +432,7 @@ int main(int argc, char *argv[]) {
                 qoiErr = atof (argv[i]);
                 break;
 
-            case 'e':
+            case 'm':
                 if (++i == argc)
                     usage();
                 qoiErrBoundMode = argv[i];
