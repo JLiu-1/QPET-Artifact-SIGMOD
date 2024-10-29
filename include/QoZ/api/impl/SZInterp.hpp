@@ -180,6 +180,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         for (auto quantile:quantiles){
             double cur_rate = (ebs[quantile]-ebs[0])/quantile;
+            std::cout<<(double)quantile/(double)conf.num<<" "<<cur_rate<<" "<<best_rate<<std::endl;
             if (cur_rate>best_rate){
                 best_rate = cur_rate;
                 best_abs_eb = ebs[quantile];
@@ -187,6 +188,21 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
         }
         //while(best)
+
+        size_t cur_quantile = best_quantile-1;
+        double min_ratio = 0.9;
+        while(cur_quantile>0){
+            
+            double temp_best_eb = ebs[cur_quantile];
+            double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
+            if (temp_best_eb/init_best_abs_eb<cur_ratio)
+                break;
+            else
+                best_abs_eb = temp_best_eb;
+            cur_quantile--;
+        best_quantile = cur_quantile + 1;
+
+
         std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
 
 
