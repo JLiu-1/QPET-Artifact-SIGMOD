@@ -245,8 +245,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             delete[]cmprData;
             double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
             std::cout << "current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
-            if(cur_ratio*fixrate[idx++]>best_ratio){
-                best_ratio = cur_ratio;
+            double fr = fixrate[idx++];
+            if(cur_ratio*fr>best_ratio){
+                best_ratio = cur_ratio*fr;
                 best_abs_eb = testConf.absErrorBound;
                 best_quantile = quantile;
             }
