@@ -184,9 +184,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
             testConf.alpha = 1.5;
             testConf.beta = 2.0;
-            QoZ::Interp_Meta def_meta;
-            testConf.interpMeta = def_meta;
+            
         }
+        QoZ::Interp_Meta def_meta;
+        testConf.interpMeta = def_meta;
 
 
         size_t sampling_num, sampling_block;
