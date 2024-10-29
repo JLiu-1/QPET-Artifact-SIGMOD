@@ -164,7 +164,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
     }
 
-    qoi->set_global_eb(conf.absErrorBound);
+    qoi->set_qoi_tolerance(conf.qoiEB);
     
     QoZ::Config testConf = conf;
     conf.ebs = std::vector<double>(conf.num);
