@@ -201,7 +201,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         testConf.qoiEBBase = testConf.absErrorBound / 1030;
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(testConf.quantbinCnt / 2);
-        auto quantizer_eb = QoZ::EBLogQuantizer<T>(testConf.qoiEBBase, testConf.qoiEBLogBase, testConf.qoiQuantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(testConf.qoiEBBase, testConf.qoiEBLogBase, testConf.qoiQuantbinCnt / 2, testConf.absErrorBound);
         
         auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
                 quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
