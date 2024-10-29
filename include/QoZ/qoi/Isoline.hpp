@@ -103,6 +103,8 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {}
+
     private:
         inline float min(float a, float b) const noexcept{
             return std::min(a, b);

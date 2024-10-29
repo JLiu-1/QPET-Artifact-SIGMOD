@@ -185,6 +185,8 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
+
     private:
 
 

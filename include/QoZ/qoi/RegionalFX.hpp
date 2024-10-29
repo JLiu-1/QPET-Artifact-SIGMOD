@@ -127,6 +127,8 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
+
     private:
         T tolerance;
         T global_eb;
@@ -142,7 +144,7 @@ namespace QoZ {
     class QoI_RegionalFX : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_RegionalFX(T tolerance, T global_eb, int block_size, std::vector<size_t> dims, std::string ff = "x^2", double k = 1.732, bool isolated = false, double threshold = 0.0) : 
+        QoI_RegionalFX(double tolerance, T global_eb, int block_size, std::vector<size_t> dims, std::string ff = "x^2", double k = 1.732, bool isolated = false, double threshold = 0.0) : 
                 tolerance(tolerance),
                 global_eb(global_eb),
                 dims(dims),
@@ -388,6 +390,8 @@ namespace QoZ {
             }
             */
         }
+
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
 
     private:
         template<uint NN = N>

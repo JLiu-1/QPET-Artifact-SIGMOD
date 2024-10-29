@@ -52,7 +52,7 @@ namespace QoZ {
     class QoI_FX : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FX(T tolerance, T global_eb, std::string ff = "x^2", bool isolated = false, double threshold = 0.0) : 
+        QoI_FX(double tolerance, T global_eb, std::string ff = "x^2", bool isolated = false, double threshold = 0.0) : 
                 tolerance(tolerance),
                 global_eb(global_eb), isolated (isolated), threshold (threshold), func_string(ff) {
             // TODO: adjust type for int data
@@ -167,6 +167,8 @@ namespace QoZ {
         }
 
         void pre_compute(const T * data){}
+
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
         
     private:
 

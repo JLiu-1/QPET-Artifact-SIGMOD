@@ -15,7 +15,7 @@ namespace QoZ {
     class QoI_X_Recip : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Recip(T tolerance, T global_eb) : 
+        QoI_X_Recip(double tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
@@ -85,8 +85,10 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
+
     private:
-        T tolerance;
+        double tolerance;
         T global_eb;
         
     };

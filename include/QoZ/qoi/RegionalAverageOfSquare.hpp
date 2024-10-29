@@ -227,6 +227,8 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
+
     private:
         template<uint NN = N>
         inline typename std::enable_if<NN == 1, int>::type compute_block_id(ptrdiff_t offset) const noexcept {

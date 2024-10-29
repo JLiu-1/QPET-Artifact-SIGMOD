@@ -109,6 +109,12 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {
+            for(int i=0; i<qois.size(); i++){
+                qois[i]->set_qoi_tolerance(tol);
+            }
+        }
+
     private:
         std::vector<std::shared_ptr<concepts::QoIInterface< T, N>>> qois;
     };

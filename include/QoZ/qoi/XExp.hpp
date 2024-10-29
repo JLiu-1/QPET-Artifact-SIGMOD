@@ -15,7 +15,7 @@ namespace QoZ {
     class QoI_X_Exp : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Exp(T tolerance, T global_eb, double base = 2.0) : 
+        QoI_X_Exp(double tolerance, T global_eb, double base = 2.0) : 
                 tolerance(tolerance),
                 global_eb(global_eb), base(base) {
             // TODO: adjust type for int data
@@ -82,9 +82,11 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
+
 
     private:
-        T tolerance;
+        double tolerance;
         T global_eb;
         double base;
         double log_base;

@@ -16,7 +16,7 @@ namespace QoZ {
     class QoI_XLog_X : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_XLog_X(T tolerance, T global_eb, T base=2) : 
+        QoI_XLog_X(double tolerance, T global_eb, T base=2) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
@@ -102,12 +102,14 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
+
 
     private:
         inline T log_b_a(T a) const {
             return log(a) / log_b;
         }
-        T tolerance;
+        double tolerance;
         T global_eb;
         double coeff;
         double log_b;
