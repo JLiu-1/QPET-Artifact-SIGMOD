@@ -180,7 +180,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         for (auto quantile:quantiles){
             double cur_rate = (ebs[quantile]-ebs[0])/quantile;
-            std::cout<<(double)quantile/(double)conf.num<<" "<<cur_rate<<" "<<best_rate<<std::endl;
+            std::cout<<(double)quantile/(double)conf.num<<" "<<ebs[quantile]<<" "<<ebs[0]<<" "<<cur_rate<<" "<<best_rate<<std::endl;
             if (cur_rate>best_rate){
                 best_rate = cur_rate;
                 best_abs_eb = ebs[quantile];
