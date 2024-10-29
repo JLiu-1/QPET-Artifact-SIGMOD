@@ -497,8 +497,7 @@ int main(int argc, char *argv[]) {
     if (quantile>=0)
         conf.quantile = quantile;
 
-    if(qoiErr>0)
-        conf.qoiEB = qoiErr;
+   
 
 
 
@@ -527,6 +526,10 @@ int main(int argc, char *argv[]) {
     if (compression && conPath != nullptr) {
         conf.loadcfg(conPath);
     }
+
+
+     if(qoiErr>0)
+        conf.qoiEB = qoiErr;
 
 
 

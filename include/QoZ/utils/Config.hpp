@@ -149,6 +149,13 @@ namespace QoZ {
             else if (tuningTargetStr == TUNING_TARGET_STR[TUNING_TARGET_AC]) {
                 tuningTarget = TUNING_TARGET_AC;
             }
+
+            auto qoiebModeStr = cfg.Get("GlobalSettings", "qoiEBMode", "");
+            if (qoiebModeStr == EB_STR[EB_ABS]) {
+                qoiEBMode = EB_ABS;
+            } else{
+                qoiEBMode = EB_REL;
+            } 
                 
 
 
@@ -254,7 +261,7 @@ namespace QoZ {
 
 
             qoi = cfg.GetInteger("QoISettings", "qoi", 0); // whether to enable qoi
-            qoiEB = cfg.GetReal("QoISettings", "qoiEB", 1.0);
+            qoiEB = cfg.GetReal("QoISettings", "qoiEB", qoiEB);
             qoiLogBase = cfg.GetReal("QoISettings", "qoiLogBase", qoiLogBase);
             qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
             qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
@@ -537,7 +544,7 @@ namespace QoZ {
 
 
         int qoi = 0; // whether to enable qoi
-        double qoiEB;
+        double qoiEB = 1.0;
         uint8_t qoiEBMode = EB_ABS;
         double qoiLogBase = 2;
         double qoiEBBase = std::numeric_limits<double>::epsilon();
