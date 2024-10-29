@@ -167,15 +167,15 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         size_t k = std::ceil(quantile_rate * conf.num);
         k = std::max((size_t)1, std::min(conf.num-1, k)); 
         std::vector<size_t> quantiles;
-        std::array<double,4> fixrate = {1.25,1.15,1.05,1.0};
+        std::array<double,4> fixrate = {1.0,1.05,1.15,1.25};
         double quantile_split=0.1;
-        for(auto i:{0.1,0.2,0.5,1.0})
+        for(auto i:{1.0,0.5,0.2,0.1})
             quantiles.push_back((size_t)(i*k));
         int quantile_num = quantiles.size();
 
         std::vector<double>ebs(conf.ebs.begin(),conf.ebs.end());
 
-        std::partial_sort(ebs.begin(),ebs.begin()+k+1,ebs.end());
+        
         //std::sort(ebs.begin(),ebs.begin()+k+1);
 
         if(testConf.QoZ>0){
@@ -213,8 +213,12 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         double best_abs_eb = testConf.absErrorBound;
         size_t best_quantile = 0;
         int idx = 0;
+        size_t last_quantile = conf.num-1
         for(auto quantile:quantiles)
-        {
+        {   
+            std::nth_element(ebs.begin(),ebs.begin()+quantile+1,ebs+last_quantile+1);
+
+            
             testConf.absErrorBound = ebs[quantile];
             qoi->set_global_eb(testConf.absErrorBound);
             size_t sampleOutSize;
@@ -230,6 +234,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 best_abs_eb = testConf.absErrorBound;
                 best_quantile = quantile;
             }
+            last_quantile = quantile;
         }
         // set error bound
         free(sampling_data);
