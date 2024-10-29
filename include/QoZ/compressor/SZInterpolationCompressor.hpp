@@ -458,7 +458,7 @@ namespace QoZ {
                                             cur_meta.adjInterp=adj_interp;
 
                                             if(conf.dynamicDimCoeff){
-                                                for(size_t i=0;i < std::max(3,N);i++){
+                                                for(size_t i=0;i < N;i++){
                                                     cur_meta.dimCoeffs[i]=interp_vars[i];
                                                 }
 
