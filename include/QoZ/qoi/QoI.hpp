@@ -46,7 +46,7 @@ namespace QoZ {
 
             virtual void set_global_eb(T eb) = 0;
 
-            void set_qoi_tolerance(double tol) = 0;
+            virtual void set_qoi_tolerance(double tol) = 0;
 
             virtual void init() = 0;
 
