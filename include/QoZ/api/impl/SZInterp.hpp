@@ -115,8 +115,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             max_qoi = 1.0;
             min_qoi = 0.0;
         }
+        std::cout<<max_qoi << " "<<min_qoi<<" "<<conf.qoiEB << std::endl;
         conf.qoiEB *= (max_qoi-min_qoi);
         conf.qoiEBMode = QoZ::EB_ABS;
+
 
 
     }
