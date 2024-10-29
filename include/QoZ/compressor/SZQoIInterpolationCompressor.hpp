@@ -305,7 +305,7 @@ namespace QoZ {
                     }             
                     cur_eb=eb*cur_ratio;
                 }
-                //qoi->set_global_eb(cur_eb);
+                qoi->set_global_eb(cur_eb);
                 quantizer_eb.set_global_eb(cur_eb);
 
                 QoZ::Interp_Meta cur_meta;
@@ -533,7 +533,7 @@ namespace QoZ {
                // }
             }                    
             //timer.start();
-
+            qoi.set_global_eb(eb);
             quantizer_eb.set_global_eb(eb);
             /*
             if (tuning){
@@ -548,6 +548,7 @@ namespace QoZ {
 
             if(conf.verbose)
                 timer.stop("prediction");//can remove later
+
             
             //timer.start();
             //assert(quant_inds.size() == 2*num_elements);
