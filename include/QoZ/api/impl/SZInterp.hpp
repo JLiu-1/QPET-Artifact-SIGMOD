@@ -201,6 +201,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             else
                 best_abs_eb = temp_best_eb;
             cur_quantile--;
+        }
         best_quantile = cur_quantile + 1;
 
 
