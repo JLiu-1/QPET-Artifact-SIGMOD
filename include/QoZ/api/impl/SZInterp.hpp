@@ -24,6 +24,7 @@
 
 //#include <cunistd>
 #include <cmath>
+#include <algorithm>
 #include <memory>
 #include <limits>
 #include <cstring>
@@ -157,13 +158,40 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
         }
 
-        double quantile = conf.quantile;//quantile
+        double quantile_rate = conf.quantile;//quantile
         //std::cout<<quantile<<std::endl;
 
-        size_t k = std::ceil(quantile * conf.num);
-        k = std::max((size_t)1, std::min(conf.num, k)); 
+        size_t k = std::ceil(quantile_rate * conf.num);
+        k = std::max((size_t)1, std::min(conf.num-1, k)); 
+        std::vector<size_t> quantiles;
+        double quantile_split=0.1;
+        for(double i = quantile_split;i<=1.0;i+=quantile_split)
+            quantiles.push_back((size_t)(i*k));
+        int quantile_num = quantiles.size();
 
-      
+        std::vector<double>ebs(conf.ebs.begin(),conf.ebs.end());
+
+        std::nth_element(ebs.begin(),ebs.begin()+k+1,ebs.end());
+
+        min_abs_eb = ebs[0];
+        double best_rate = (ebs[k]-ebs[0])/k;
+        double best_abs_eb = ebs[k];
+        size_t best_quantile = k;
+
+        for (auto quantile:quantiles){
+            double cur_rate = (ebs[quantile]-ebs[0])/quantile;
+            if (cur_rate<best_rate){
+                best_rate = cur_rate;
+                best_abs_eb = ebs[quantile];
+                best_quantile = quantile;
+            }
+        }
+        //while(best)
+        std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
+
+
+
+        /*
         std::priority_queue<T> maxHeap;
 
         for (size_t i = 0; i < conf.num; i++) {
@@ -195,6 +223,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 best_abs_eb = temp_best_eb;
 
         }
+        */
 
 
 
