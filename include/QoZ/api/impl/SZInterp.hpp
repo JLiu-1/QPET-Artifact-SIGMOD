@@ -190,6 +190,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         //while(best)
 
         size_t cur_quantile = best_quantile-1;
+        double init_best_abs_eb = best_abs_eb;
         double min_ratio = 0.9;
         while(cur_quantile>0){
             
