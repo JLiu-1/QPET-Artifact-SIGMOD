@@ -95,7 +95,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     if (conf.qoi_tuned)
         return;
 
-    auto qoi = QoZ::GetQOI<T, N>(conf);
+    
 
     if(conf.qoiEBMode !=QoZ::EB_ABS){//rel
         double max_qoi = -std::numeric_limits<double>::max();
@@ -164,7 +164,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
     }
 
-        
+    auto qoi = QoZ::GetQOI<T, N>(conf);
     
     QoZ::Config testConf = conf;
     conf.ebs = std::vector<double>(conf.num);
