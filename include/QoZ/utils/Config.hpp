@@ -255,6 +255,7 @@ namespace QoZ {
 
             qoi = cfg.GetInteger("QoISettings", "qoi", 0); // whether to enable qoi
             qoiEB = cfg.GetReal("QoISettings", "qoiEB", 1.0);
+            qoiLogBase = cfg.GetReal("QoISettings", "qoiLogBase", qoiLogBase);
             qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
             qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
             qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", 64);
@@ -537,6 +538,7 @@ namespace QoZ {
 
         int qoi = 0; // whether to enable qoi
         double qoiEB;
+        double qoiLogBase = 2;
         double qoiEBBase = std::numeric_limits<double>::epsilon();
         double qoiEBLogBase = 2;
         int qoiQuantbinCnt = 64;        
