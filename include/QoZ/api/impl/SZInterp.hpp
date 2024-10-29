@@ -166,7 +166,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         size_t k = std::ceil(quantile_rate * conf.num);
         k = std::max((size_t)1, std::min(conf.num-1, k)); 
-        std::vector<size_t> quantiles = ;
+        std::vector<size_t> quantiles;
         double quantile_split=0.1;
         for(auto i:{0.1,0.2,0.5,1.0})
             quantiles.push_back((size_t)(i*k));
@@ -177,7 +177,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         std::partial_sort(ebs.begin(),ebs.begin()+k+1,ebs.end());
         //std::sort(ebs.begin(),ebs.begin()+k+1);
 
-        if(testConf.qoz>0){
+        if(testConf.QoZ>0){
             if (testConf.maxStep==0){
                 std::array<size_t,4> anchor_strides={256,64,32,16};
                 conf.maxStep = anchor_strides[N-1];
