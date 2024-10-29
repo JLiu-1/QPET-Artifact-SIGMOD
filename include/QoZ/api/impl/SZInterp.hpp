@@ -213,10 +213,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         double best_abs_eb = testConf.absErrorBound;
         size_t best_quantile = 0;
         int idx = 0;
-        size_t last_quantile = conf.num-1;
+        size_t last_quantile = conf.num;
         for(auto quantile:quantiles)
         {   
-            std::nth_element(ebs.begin(),ebs.begin()+quantile+1,ebs.begin()+last_quantile+1);
+            std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
 
             
             testConf.absErrorBound = ebs[quantile];
@@ -234,7 +234,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 best_abs_eb = testConf.absErrorBound;
                 best_quantile = quantile;
             }
-            last_quantile = quantile;
+            last_quantile = quantile+1;
         }
         // set error bound
         free(sampling_data);
