@@ -256,6 +256,7 @@ namespace QoZ {
             size_t interp_compressed_size = 0;
             double eb = qoi->get_global_eb();
             quantizer_eb.set_global_eb(eb);
+            quantizer_eb.set_eb_base(eb/1030);//added
 
             if (start_level<=0 or start_level>interpolation_level ){
 

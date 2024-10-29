@@ -135,6 +135,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         
     auto qoi = QoZ::GetQOI<T, N>(conf);
+    QoZ::Config testConf = conf;
     conf.ebs = std::vector<double>(conf.num);
     // use quantile to determine abs bound
     {
@@ -143,7 +144,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         auto tmp_abs_eb = conf.absErrorBound;
         auto min_abs_eb = conf.absErrorBound;
 
-        QoZ::Config testConf = conf;
+        
 
         //T *ebs = new T[conf.num];
         if(conf.qoi==16){
@@ -167,7 +168,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         size_t k = std::ceil(quantile_rate * conf.num);
         k = std::max((size_t)1, std::min(conf.num-1, k)); 
         std::vector<size_t> quantiles;
-        std::array<double,4> fixrate = {1.0,1.05,1.15,1.25};
+        std::array<double,4> fixrate = {1.0,1.05,1.15,1.25};//or{1.0,1.1,1.2,1.3}
         double quantile_split=0.1;
         for(auto i:{1.0,0.5,0.2,0.1})
             quantiles.push_back((size_t)(i*k));
@@ -195,6 +196,21 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         std::vector<size_t> sample_dims(N);
         std::vector<T> samples = QoZ::sampling<T, N>(data, testConf.dims, sampling_num, sample_dims, sampling_block);
         testConf.setDims(sample_dims.begin(), sample_dims.end());
+        testConf.ebs=std::vector<double>(testConf.num);
+        if(testConf.qoi==16){
+            qoi->pre_compute(data);
+            
+            //conf.qoiEB = 1e10;//pass check_compliance, to revise
+            for (size_t i = 0; i < testConf.num; i++){
+                testConf.ebs[i] = qoi->interpret_eb(samples.data()+i,i);
+            }
+            //conf.qoi = 14; //back to pointwise
+        }
+        else{
+            for (size_t i = 0; i < testConf.num; i++){
+                testConf.ebs[i] = qoi->interpret_eb(samples[i]);
+            }
+        }
         T * sampling_data = (T *) malloc(sampling_num * sizeof(T));
 
 
@@ -224,7 +240,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             size_t sampleOutSize;
             memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
             // reset variables for average of square
-            auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,1);
+            auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
             sz.clear();
             delete[]cmprData;
             double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
@@ -238,7 +254,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
         // set error bound
         free(sampling_data);
-        qoi->set_global_eb(best_abs_eb);
+        
+
+        if(best_quantile == quantiles.back())
+            std::sort(ebs.begin(),ebs.begin()+best_quantile);
 
         size_t cur_quantile = best_quantile-1;
         double init_best_abs_eb = best_abs_eb;
@@ -254,6 +273,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             cur_quantile--;
         }
         best_quantile = cur_quantile + 1;
+
+        qoi->set_global_eb(best_abs_eb);
 
 
 

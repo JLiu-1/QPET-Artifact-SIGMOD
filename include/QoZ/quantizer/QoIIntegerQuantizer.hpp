@@ -230,6 +230,10 @@ namespace QoZ {
             global_eb_reciprocal = 1.0 / eb;
         }
 
+        void set_eb_base(double ebase) {
+            eb_base = ebase;
+        }
+
         double get_global_eb() {
             return global_eb;
         }
