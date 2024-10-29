@@ -533,7 +533,7 @@ namespace QoZ {
                // }
             }                    
             //timer.start();
-            qoi.set_global_eb(eb);
+            qoi->set_global_eb(eb);
             quantizer_eb.set_global_eb(eb);
             /*
             if (tuning){
