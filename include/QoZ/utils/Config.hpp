@@ -538,6 +538,7 @@ namespace QoZ {
 
         int qoi = 0; // whether to enable qoi
         double qoiEB;
+        uint8_t qoiEBMode = EB_ABS;
         double qoiLogBase = 2;
         double qoiEBBase = std::numeric_limits<double>::epsilon();
         double qoiEBLogBase = 2;
@@ -547,7 +548,7 @@ namespace QoZ {
         std::vector<double> isovalues;
         int qoiNum = 0;
         std::vector<double> qoiEBs;
-        double quantile = 0.01;
+        double quantile = 0.0;
         bool qoi_tuned=false;
         std::string qoi_string = "x^2";
         std::string qoi_string_2 = "0";

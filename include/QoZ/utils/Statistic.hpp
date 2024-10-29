@@ -196,20 +196,20 @@ namespace QoZ {
         std::vector<T> aggregated = std::vector<T>();
         uint32_t index = 0;
         T const * data_x_pos = data;
-        for(int i=0; i<num_block_1; i++){
-            int size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
+        for(size_t i=0; i<num_block_1; i++){
+            size_t size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
             T const * data_y_pos = data_x_pos;
-            for(int j=0; j<num_block_2; j++){
-                int size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
+            for(size_t j=0; j<num_block_2; j++){
+                size_t size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
                 T const * data_z_pos = data_y_pos;
-                for(int k=0; k<num_block_3; k++){
-                    int size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
+                for(size_t k=0; k<num_block_3; k++){
+                    size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
                     T const * cur_data_pos = data_z_pos;
-                    int n_block_elements = size_1 * size_2 * size_3;
+                    size_t n_block_elements = size_1 * size_2 * size_3;
                     double sum = 0;
-                    for(int ii=0; ii<size_1; ii++){
-                        for(int jj=0; jj<size_2; jj++){
-                            for(int kk=0; kk<size_3; kk++){
+                    for(size_t ii=0; ii<size_1; ii++){
+                        for(size_t jj=0; jj<size_2; jj++){
+                            for(size_t kk=0; kk<size_3; kk++){
                                 sum += *cur_data_pos;
                                 cur_data_pos ++;
                             }
@@ -237,22 +237,22 @@ namespace QoZ {
         std::vector<T> aggregated = std::vector<T>();
         uint32_t index = 0;
         T const * data_x_pos = data;
-        for(int i=0; i<num_block_1; i++){
-            int size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
+        for(size_t i=0; i<num_block_1; i++){
+            size_t size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
             T const * data_y_pos = data_x_pos;
-            for(int j=0; j<num_block_2; j++){
-                int size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
+            for(size_t j=0; j<num_block_2; j++){
+                size_t size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
                 T const * data_z_pos = data_y_pos;
-                for(int k=0; k<num_block_3; k++){
-                    int size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
+                for(size_t k=0; k<num_block_3; k++){
+                    size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
                     if(size_1<num_block_1 or size_2<num_block_2 or size_3<num_block_3)
                         continue;
                     T const * cur_data_pos = data_z_pos;
-                    int n_block_elements = size_1 * size_2 * size_3;
+                    size_t n_block_elements = size_1 * size_2 * size_3;
                     double sum = 0;
-                    for(int ii=0; ii<size_1; ii++){
-                        for(int jj=0; jj<size_2; jj++){
-                            for(int kk=0; kk<size_3; kk++){
+                    for(size_t ii=0; ii<size_1; ii++){
+                        for(size_t jj=0; jj<size_2; jj++){
+                            for(size_t kk=0; kk<size_3; kk++){
                                 sum += (*cur_data_pos) * (*cur_data_pos);
                                 cur_data_pos ++;
                             }
@@ -333,7 +333,7 @@ namespace QoZ {
     T evaluate_L_inf(T const * data, T const * dec_data, uint32_t num_elements, bool normalized=true, bool verbose=false){
         T L_inf_error = 0;
         T L_inf_data = 0;
-        for(int i=0; i<num_elements; i++){
+        for(size_t i=0; i<num_elements; i++){
             if(L_inf_data < fabs(data[i])) L_inf_data = fabs(data[i]);
             T error = data[i] - dec_data[i];
             if(L_inf_error < fabs(error)) L_inf_error = fabs(error);
@@ -351,7 +351,7 @@ namespace QoZ {
         if(block_size == 0){
             double average = 0;
             double average_dec = 0;
-            for(int i=0; i<n1 * n2 * n3; i++){
+            for(size_t i=0; i<n1 * n2 * n3; i++){
                 average += data[i];
                 average_dec += dec_data[i]; 
             }
@@ -474,7 +474,7 @@ namespace QoZ {
         double max_tanh_diff = 0;
         double max_relu_diff = 0;
 
-        for(int i=0; i<num_elements; i++){
+        for(size_t i=0; i<num_elements; i++){
             double x_square_diff = fabs(ori_data[i] * ori_data[i] - data[i] * data[i]);
             if(x_square_diff > max_x_square_diff) max_x_square_diff = x_square_diff;
             double x_cubic_diff = fabs(ori_data[i] * ori_data[i] * ori_data[i] - data[i] * data[i] * data[i]);
@@ -523,7 +523,7 @@ namespace QoZ {
         printf("Max xlogx error = %.6G, relative xlogx error = %.6G\n", max_xlogx_diff, max_xlogx_diff/(max_xlogx_val-min_xlogx_val));
         printf("Max tanh error = %.6G, max relu error = %.6G\n", max_tanh_diff, max_relu_diff);
 
-        for(int i=0; i<num_elements; i++){
+        for(size_t i=0; i<num_elements; i++){
             ori_data[i] = ori_data[i] * ori_data[i];
             data[i] = data[i] * data[i];
         }
@@ -567,7 +567,7 @@ namespace QoZ {
         double max_qoi = qoi->eval(ori_data[0]);
         double min_qoi = max_qoi;
        
-        for(int i=0; i<num_elements; i++){
+        for(size_t i=0; i<num_elements; i++){
             ori_data[i] = qoi->eval(ori_data[i]);
             data[i] = qoi->eval(data[i]);
 

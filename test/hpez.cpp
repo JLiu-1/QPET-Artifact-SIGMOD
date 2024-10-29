@@ -254,6 +254,9 @@ int main(int argc, char *argv[]) {
 
     double quantile = -1;
 
+    double qoiErr = 0.0;
+    char *qoiErrBoundMode = nullptr;
+
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][2]) {
             if (argv[i][1] == 'h' && argv[i][2] == '2') {
@@ -423,6 +426,19 @@ int main(int argc, char *argv[]) {
                 break;
 
 
+            case 'e':
+                if (++i == argc)
+                    usage();
+                qoiErr = atof (argv[i]);
+                break;
+
+            case 'e':
+                if (++i == argc)
+                    usage();
+                qoiErrBoundMode = argv[i];
+                break;
+
+
             default:
                 usage();
                 break;
@@ -477,9 +493,41 @@ int main(int argc, char *argv[]) {
         conf.maxStep=maxStep;
     if(conf.sampleBlockSize>0)
         conf.sampleBlockSize=sampleBlockSize;
+
+    if (quantile>=0)
+        conf.quantile = quantile;
+
+    if(qoiErr>0)
+        conf.qoiEB = qoiErr;
+
+
+
+    if (tuningTarget!= nullptr) {
+       
+        if (strcmp(tuningTarget, "PSNR") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_RD;
+        }
+        else if (strcmp(tuningTarget, "CR") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_CR;
+        }
+        else if (strcmp(tuningTarget, "SSIM") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_SSIM;
+        }
+        else if (strcmp(tuningTarget, "AC") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_AC;
+        }
+        else {
+            printf("Error: wrong tuning target setting by using the option '-T'\n");
+            usage();
+            exit(0);
+        }
+        
+    }
+
     if (compression && conPath != nullptr) {
         conf.loadcfg(conPath);
     }
+
 
 
     if (errBoundMode != nullptr) {
@@ -529,31 +577,25 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (tuningTarget!= nullptr) {
-       
-        if (strcmp(tuningTarget, "PSNR") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_RD;
-        }
-        else if (strcmp(tuningTarget, "CR") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_CR;
-        }
-        else if (strcmp(tuningTarget, "SSIM") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_SSIM;
-        }
-        else if (strcmp(tuningTarget, "AC") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_AC;
-        }
-        else {
-            printf("Error: wrong tuning target setting by using the option '-T'\n");
+    if (qoiErrBoundMode != nullptr) {
+        if (strcmp(qoiErrBoundMode, QoZ::EB_STR[QoZ::EB_ABS]) == 0) {
+            conf.qoiEBMode = QoZ::EB_ABS;
+            
+        } else if (strcmp(qoiErrBoundMode, QoZ::EB_STR[QoZ::EB_REL]) == 0 || strcmp(qoiErrBoundMode, "VR_REL") == 0) {
+            conf.qoiEBMode = QoZ::EB_REL;
+            
+        } else {
+            printf("Error: wrong error bound mode setting by using the option '-M'\n");
             usage();
             exit(0);
         }
-        
     }
 
-    if (quantile>=0)
-        conf.quantile = quantile;
+    
 
+    
+
+    
 
 
     if (compression) {
