@@ -898,7 +898,7 @@ namespace QoZ {
                ///     std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<" "<<ori_data<<std::endl;
                 //}
                 // update cumulative tolerance if needed 
-                qoi->update_tolerance(ori_data, d);
+                //qoi->update_tolerance(ori_data, d);
                 quant_index ++;
 
 
@@ -908,9 +908,33 @@ namespace QoZ {
 
             }
             else if(mode==1){
-                T orig=d;
-                quant_inds.push_back(quantizer.quantize_and_overwrite(d, pred,true));
-                return (d-orig)*(d-orig);
+
+                T ori_data = d;
+                //if(idx == target_idx)
+                //    std::cout<<ori_data<<std::endl;
+                //auto eb = qoi->interpret_eb(data, offset);
+                T eb = qoi->interpret_eb(&d, idx);
+                //debug
+                //if (eb <global_eb)
+               //     count++;
+                //debug end
+                quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
+                quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
+                        d, pred, eb);
+                if(!qoi->check_compliance(ori_data, d)){
+                    // std::cout << "not compliant" << std::endl;
+                    // save as unpredictable
+                    eb = 0.0;
+                    d = ori_data;
+                    quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
+                    if(quant_inds[num_elements + quant_index] != 0){
+                        // avoiding push multiple data
+                        quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
+                                d, 0, T(0.0));                    
+                    }
+                }
+                quant_index ++;
+                return 0;
             }
             else{// if (mode==2){
                 pred_error=fabs(d-pred);
