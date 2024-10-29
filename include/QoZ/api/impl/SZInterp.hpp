@@ -120,7 +120,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
 
     }
-
+    std::cout<<"Abs QoI eb: " << conf.qoiEB << std::endl;
     if(conf.qoiRegionMode > 0 and (conf.qoi!=16 or conf.qoi_string == "x")){//regional average
         //adjust qoieb
         double rate = 1.0;
@@ -400,7 +400,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 count++;
         }
         double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
-        std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
+        //std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
 
         if(smaller_ebs_ratio <= 1.0/1024.0 and (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3) or min_abs_eb >= 0.95 * best_abs_eb)){//may fix
             conf.use_global_eb = true;
@@ -423,7 +423,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         conf.qoiEBBase = conf.absErrorBound / 1030;
-        std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         conf.qoi_tuned = true;
 
         
