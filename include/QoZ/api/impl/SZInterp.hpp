@@ -210,6 +210,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         double best_ratio = 0;
         double best_abs_eb = testConf.absErrorBound;
+        size_t best_quantile = 0;
         for(auto quantile:quantiles)
         {
             testConf.absErrorBound = ebs[quantile];
@@ -225,12 +226,27 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             if(cur_ratio>best_ratio){
                 best_ratio = cur_ratio;
                 best_abs_eb = testConf.absErrorBound;
+                best_quantile = quantile;
             }
         }
         // set error bound
         free(sampling_data);
         qoi->set_global_eb(best_abs_eb);
 
+        size_t cur_quantile = best_quantile-1;
+        double init_best_abs_eb = best_abs_eb;
+        double min_ratio = 0.9;
+        while(cur_quantile>0){
+            
+            double temp_best_eb = ebs[cur_quantile];
+            double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
+            if (temp_best_eb/init_best_abs_eb<cur_ratio)
+                break;
+            else
+                best_abs_eb = temp_best_eb;
+            cur_quantile--;
+        }
+        best_quantile = cur_quantile + 1;
 
 
 
