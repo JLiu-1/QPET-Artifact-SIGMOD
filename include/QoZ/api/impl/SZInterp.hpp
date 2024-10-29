@@ -167,6 +167,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         size_t k = std::ceil(quantile_rate * conf.num);
         k = std::max((size_t)1, std::min(conf.num-1, k)); 
         std::vector<size_t> quantiles;
+        std::array<double,4> fixrate = {1.25,1.15,1.05,1.0};
         double quantile_split=0.1;
         for(auto i:{0.1,0.2,0.5,1.0})
             quantiles.push_back((size_t)(i*k));
@@ -211,6 +212,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         double best_ratio = 0;
         double best_abs_eb = testConf.absErrorBound;
         size_t best_quantile = 0;
+        int idx = 0;
         for(auto quantile:quantiles)
         {
             testConf.absErrorBound = ebs[quantile];
@@ -223,7 +225,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             delete[]cmprData;
             double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
             std::cout << "current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
-            if(cur_ratio>best_ratio){
+            if(cur_ratio*fixrate[idx++]>best_ratio){
                 best_ratio = cur_ratio;
                 best_abs_eb = testConf.absErrorBound;
                 best_quantile = quantile;
