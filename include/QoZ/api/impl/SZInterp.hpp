@@ -171,8 +171,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         std::vector<double>ebs(conf.ebs.begin(),conf.ebs.end());
 
-        std::nth_element(ebs.begin(),ebs.begin()+k+1,ebs.end());
-        std::sort(ebs.begin(),ebs.begin()+k+1);
+        std::partial_sort(ebs.begin(),ebs.begin()+k+1,ebs.end());
+        //std::sort(ebs.begin(),ebs.begin()+k+1);
 
         min_abs_eb = ebs[0];
         double best_rate = (ebs[k]-ebs[0])/k;
