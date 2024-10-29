@@ -564,8 +564,8 @@ namespace QoZ {
        
         double max_qoi_diff = 0;
 
-        double max_qoi = qoi->eval(ori_data[0]);
-        double min_qoi = max_qoi;
+        double max_qoi = -std::numeric_limits<double>::max();
+        double min_qoi = std::numeric_limits<double>::max();
        
         for(size_t i=0; i<num_elements; i++){
             ori_data[i] = qoi->eval(ori_data[i]);
