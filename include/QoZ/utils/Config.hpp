@@ -265,7 +265,7 @@ namespace QoZ {
             qoiLogBase = cfg.GetReal("QoISettings", "qoiLogBase", qoiLogBase);
             qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
             qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
-            qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", 64);
+            qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", qoiQuantbinCnt);
             qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", 1);
             qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", 1);
             quantile = cfg.GetReal("QoISettings", "quantile", 0.01);
@@ -549,7 +549,7 @@ namespace QoZ {
         double qoiLogBase = 2;
         double qoiEBBase = std::numeric_limits<double>::epsilon();
         double qoiEBLogBase = 2;
-        int qoiQuantbinCnt = 64;        
+        int qoiQuantbinCnt = 128;        
         int qoiRegionSize = 1;        
         int qoiIsoNum = 1;
         std::vector<double> isovalues;
