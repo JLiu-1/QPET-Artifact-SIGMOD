@@ -297,7 +297,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 last_quantile = quantile+1;
             }
             // set error bound
-            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<end::endl;
+            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
             free(sampling_data);
             
 
