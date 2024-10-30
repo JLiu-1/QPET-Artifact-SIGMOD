@@ -211,9 +211,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         
         else{
             std::vector<size_t> quantiles;
-            std::array<double,5> fixrate = {0.95, 1.0,1.05,1.10,1.15};//or{1.0,1.1,1.2,1.3}
+            //std::array<double,4> fixrate = {1.0,1.05,1.10,1.15};//or{1.0,1.1,1.2,1.3}
+            std::array<double,4> fixrate = {1.0,1.0,1.0,1.0};
             double quantile_split=0.1;
-            for(auto i:{1.0,0.5,0.25,0.1,0.05})
+            for(auto i:{1.0,0.5,0.2,0.1})
                 quantiles.push_back((size_t)(i*k));
             int quantile_num = quantiles.size();
 
