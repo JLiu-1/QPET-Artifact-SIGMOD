@@ -193,7 +193,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
         }
         //double max_quantile_rate = 0.2;
-        double quantile_rate = conf.quantile<= max_? conf.max_quantile_rate : conf.quantile  ;//conf.quantile;//quantile
+        double quantile_rate = conf.quantile<= 0? conf.max_quantile_rate : conf.quantile  ;//conf.quantile;//quantile
         //std::cout<<quantile<<std::endl;
         size_t k = std::ceil(quantile_rate * conf.num);
         k = std::max((size_t)1, std::min(conf.num-1, k)); 
