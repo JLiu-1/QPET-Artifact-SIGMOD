@@ -893,7 +893,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
         bitrate*=testConfig.lorenzoBrFix;
     }
     delete sz;
-    return std::pair(bitrate,metric);
+    return std::pair<double double>(bitrate,metric);
 }
 
 std::pair <double,double> setABwithRelBound(double rel_bound,int configuration=0){
@@ -1006,8 +1006,8 @@ double Tuning(QoZ::Config &conf, T *data){
    
     T rng=conf.rng;
     double rel_bound = conf.relErrorBound>0?conf.relErrorBound:conf.absErrorBound/rng;
-    //if(rel_bound>1e-3 or conf.tuningTarget==QoZ::TUNING_TARGET_SSIM)//rencently changed, need to fix later
-    //    conf.testLorenzo=0;
+    if(rel_bound>=3e-4 or conf.tuningTarget==QoZ::TUNING_TARGET_SSIM)//rencently changed, need to fix later
+        conf.testLorenzo=0;
    // QoZ::Timer timer(true);
     //timer.stop("")
     if(conf.QoZ>0){
@@ -1396,7 +1396,7 @@ double Tuning(QoZ::Config &conf, T *data){
             adjInterp_Candidates.push_back(1);
         }
         
-        if(conf.levelwisePredictionSelection>0){
+        if(conf.levelwisePredictionSelection>0 and (N==2 or N==3)){
             std::vector<QoZ::Interp_Meta> interpMeta_list(conf.levelwisePredictionSelection);
             auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
                                     QoZ::LinearQuantizer<T>(conf.absErrorBound),
@@ -1540,7 +1540,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
             //frozendim
             
-            if(conf.freezeDimTest and N>=3 ){
+            if(conf.freezeDimTest and N==3 ){
 
                 std::vector<QoZ::Interp_Meta> tempmeta_list=conf.interpMeta_list;
                 conf.interpMeta_list=interpMeta_list;      
