@@ -557,7 +557,7 @@ namespace QoZ {
         int qoiNum = 0;
         std::vector<double> qoiEBs;
         double quantile = 0.0;
-        double max_quantile_rate = 0.2;
+        double max_quantile_rate = 0.1;
         bool qoi_tuned=false;
         std::string qoi_string = "x^2";
         std::string qoi_string_2 = "0";
