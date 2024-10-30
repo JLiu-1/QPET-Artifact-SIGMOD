@@ -192,8 +192,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 conf.ebs[i] = qoi->interpret_eb(data[i]);
             }
         }
-
-        double quantile_rate = conf.quantile<=0 ? 0.1 : conf.quantile  ;//conf.quantile;//quantile
+        //double max_quantile_rate = 0.2;
+        double quantile_rate = conf.quantile<= max_? conf.max_quantile_rate : conf.quantile  ;//conf.quantile;//quantile
         //std::cout<<quantile<<std::endl;
         size_t k = std::ceil(quantile_rate * conf.num);
         k = std::max((size_t)1, std::min(conf.num-1, k)); 
@@ -211,9 +211,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         
         else{
             std::vector<size_t> quantiles;
-            std::array<double,4> fixrate = {1.0,1.05,1.10,1.15};//or{1.0,1.1,1.2,1.3}
+            std::array<double,4> fixrate = {0.95, 1.0,1.05,1.10,1.15};//or{1.0,1.1,1.2,1.3}
             double quantile_split=0.1;
-            for(auto i:{1.0,0.5,0.2,0.1})
+            for(auto i:{1.0,0.5,0.25,0.1,0.05})
                 quantiles.push_back((size_t)(i*k));
             int quantile_num = quantiles.size();
 
@@ -297,6 +297,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 last_quantile = quantile+1;
             }
             // set error bound
+            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<end::endl;
             free(sampling_data);
             
 

@@ -260,20 +260,21 @@ namespace QoZ {
 
 
 
-            qoi = cfg.GetInteger("QoISettings", "qoi", 0); // whether to enable qoi
+            qoi = cfg.GetInteger("QoISettings", "qoi", qoi); // whether to enable qoi
             qoiEB = cfg.GetReal("QoISettings", "qoiEB", qoiEB);
             qoiLogBase = cfg.GetReal("QoISettings", "qoiLogBase", qoiLogBase);
-            qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
+            qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", qoiEBBase);
             qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
             qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", qoiQuantbinCnt);
-            qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", 1);
-            qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", 1);
+            qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", qoiRegionSize);
+            qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", qoiIsoNum);
             quantile = cfg.GetReal("QoISettings", "quantile", quantile);
+            max_quantile_rate = cfg.GetReal("QoISettings", "max_quantile_rate", max_quantile_rate);
             auto qoistring_c = cfg.Get("QoISettings", "qoi_string", "x^2");
             auto qoistring_c2 = cfg.Get("QoISettings", "qoi_string", "0");
             qoi_string = std::string(qoistring_c);
             qoi_string_2 = std::string(qoistring_c2);
-            threshold = cfg.GetReal("QoISettings", "threshold", 0.0);
+            threshold = cfg.GetReal("QoISettings", "threshold", threshold);
             isolated = cfg.GetBoolean("QoISettings", "isolated", false);
             //regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
@@ -556,6 +557,7 @@ namespace QoZ {
         int qoiNum = 0;
         std::vector<double> qoiEBs;
         double quantile = 0.0;
+        double max_quantile_rate = 0.2;
         bool qoi_tuned=false;
         std::string qoi_string = "x^2";
         std::string qoi_string_2 = "0";
