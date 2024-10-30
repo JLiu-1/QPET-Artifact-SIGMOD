@@ -893,7 +893,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
         bitrate*=testConfig.lorenzoBrFix;
     }
     delete sz;
-    return std::pair<double double>(bitrate,metric);
+    return std::pair<double,double>(bitrate,metric);
 }
 
 std::pair <double,double> setABwithRelBound(double rel_bound,int configuration=0){
