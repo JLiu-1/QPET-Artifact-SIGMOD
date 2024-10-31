@@ -274,10 +274,11 @@ namespace QoZ {
                 quantize_integrated(0, *data, 0, tuning);
             }
             else if (start_level==interpolation_level){
+                
+                build_grid(conf,data,maxStep,tuning);
                 if(tuning){
                     conf.quant_bin_counts[start_level-1]=quant_index;
                 }
-                build_grid(conf,data,maxStep,tuning);
                 start_level--;
             }
             double predict_error=0.0;
