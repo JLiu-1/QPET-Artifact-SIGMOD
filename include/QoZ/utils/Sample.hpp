@@ -5,6 +5,7 @@
 
 #include "QoZ/utils/Interpolators.hpp"
 #include "QoZ/utils/CoeffRegression.hpp"
+#include "QoZ/utils/Metrics.hpp"
 namespace QoZ {
 
     
