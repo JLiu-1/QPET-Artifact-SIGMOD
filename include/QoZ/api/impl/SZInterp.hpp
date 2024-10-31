@@ -338,7 +338,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 std::cout<<sampled_blocks[0].size()<<std::endl;
 
                 testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
-                testConf.num=pow(testConf.sampleBlockSize+1,N)
+                testConf.num=pow(testConf.sampleBlockSize+1,N);
 
 
                 double best_br = 9999;
