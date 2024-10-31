@@ -444,7 +444,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                 double best_ratio = 0;
                 best_abs_eb = testConf.absErrorBound;
-                //int idx = 0;
+                int idx = 0;
                 for(auto quantile:quantiles)
                 {   
                     std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
@@ -460,7 +460,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     delete[]cmprData;
                     double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
-                    double fr = fixrate[idx++];
+                    double fr = fixrate[idx];
                     if(cur_ratio*fr>best_ratio){
                         best_ratio = cur_ratio*fr;
                         best_abs_eb = testConf.absErrorBound;
@@ -468,7 +468,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     }
                     last_quantile = quantile+1;
 
-                    //idx ++;
+                    idx ++;
                 }
                 // set error bound
                 
