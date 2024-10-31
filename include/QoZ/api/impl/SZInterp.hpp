@@ -90,7 +90,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
     size_t level_num=q_bin_counts.size();
     size_t last_pos=0;
     for(int k=level_num-1;k>=0;k--){
-        std::cout<<q_bin_counts[k]<<std::endl;
+        //std::cout<<q_bin_counts[k]<<std::endl;
         for (size_t l =0;l<num_sampled_blocks;l++){
             for (size_t m=last_pos;m<q_bin_counts[k];m++){
                 q_bins.push_back(block_q_bins[l][m]);
