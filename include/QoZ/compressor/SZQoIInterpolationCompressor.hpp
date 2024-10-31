@@ -539,7 +539,9 @@ namespace QoZ {
             quantizer_eb.set_global_eb(eb);
             
             if (tuning){
+
                 size_t quant_counts = quant_inds.size()/2;
+                std::cout<<quant_counts<< " "<<quant_inds.size()<<std::endl;
                 conf.quant_bins_eb=std::vector<int>(quant_inds.begin(),quant_inds.begin()+quant_counts);
                 conf.quant_bins=std::vector<int>(quant_inds.begin()+quant_counts,quant_inds.end());
                 std::vector<int>().swap(quant_inds);
