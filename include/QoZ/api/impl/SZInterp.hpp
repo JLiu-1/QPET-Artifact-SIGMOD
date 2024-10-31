@@ -328,7 +328,6 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             testConf.interpMeta = def_meta;
 
             size_t best_quantile = 0;
-            size_t last_quantile = testConf.num;
 
 
             std::nth_element(ebs.begin(),ebs.begin()+quantiles[0], ebs.begin()+last_quantile);
