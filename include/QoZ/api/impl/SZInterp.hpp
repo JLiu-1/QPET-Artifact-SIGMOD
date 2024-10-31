@@ -401,7 +401,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                     last_quantile = quantile+1;
                     idx++;
-                    }
+                    
                 }
 
 
