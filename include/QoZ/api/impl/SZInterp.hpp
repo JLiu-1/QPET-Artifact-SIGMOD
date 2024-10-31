@@ -347,7 +347,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     qoi->set_global_eb(testConf.absErrorBound);
                     // reset variables for average of square
                     
-                    double cur_br = CompressTest_QoI<T,N>(testConfig,sampled_blocks,qoi)        
+                    double cur_br = CompressTest_QoI<T,N>(testConf,sampled_blocks,qoi);        
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                     if(cur_br < best_br){
                         best_br = cur_br;
