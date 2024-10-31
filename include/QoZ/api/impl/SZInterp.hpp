@@ -344,7 +344,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 double prof_rel_threshold = 1e-4;
                 double sample_ratio = 5e-3;
                 for(int i=0;i<N;i++){                      
-                    totalblock_num*=(size_t)((conf.dims[i]-1)/sampleBlockSize);
+                    totalblock_num*=(size_t)((testConf.dims[i]-1)/testConf.sampleBlockSize);
                 }
                 if(N==2){
                     QoZ::profiling_block_2d<T,N>(data,testConf.dims,starts,testConf.sampleBlockSize,testConf.rng * prof_rel_threshold,testConf.profStride);
