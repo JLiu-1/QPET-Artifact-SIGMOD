@@ -602,7 +602,7 @@ namespace QoZ {
                                                      compressed_size);
             lossless.postcompress_data(buffer);
             //timer.stop("Lossless") ;
-            compressed_size += interp_compressed_size;
+            compressed_size += interp_compressed_size;//???
 
 
             //QoZ::writefile<int>("quant_inds_cmp.test", quant_inds.data(),quant_inds.size());//added.
@@ -644,7 +644,6 @@ namespace QoZ {
                                                      compressed_size);
             lossless.postcompress_data(buffer);
             //timer.stop("Lossless") ;
-            compressed_size += interp_compressed_size;
 
 
             //QoZ::writefile<int>("quant_inds_cmp.test", quant_inds.data(),quant_inds.size());//added.

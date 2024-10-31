@@ -31,6 +31,90 @@
 #include <cstdlib>
 #include <queue>
 
+template<class T, QoZ::uint N>
+double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T> > & sampled_blocks,std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoi=nullptr){
+    QoZ::Config testConfig(conf);
+
+    if(qoi==nullptr){
+        qoi = QoZ::GetQOI<T, N>(testConfig);
+    }
+    
+    double bitrate=0.0;
+    size_t sampleBlockSize=testConfig.sampleBlockSize;
+    size_t num_sampled_blocks=sampled_blocks.size();
+    size_t per_block_ele_num=pow(sampleBlockSize+1,N);
+    size_t ele_num=num_sampled_blocks*per_block_ele_num;
+
+    std::vector<T> cur_block(testConfig.num,0);
+    std::vector<int> q_bins;
+    std::vector<int> q_bins_eb;
+    std::vector<std::vector<int> > block_q_bins;
+    std::vector<std::vector<int> > block_q_bins_eb;
+    std::vector<size_t> q_bin_counts;
+    std::vector<T> flattened_cur_blocks;
+    size_t idx=0;   
+    size_t totalOutSize=0;
+
+    testConfig.qoiEBBase = testConfig.absErrorBound / 1030;
+    auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(testConfig.quantbinCnt / 2);
+    auto quantizer_eb = QoZ::EBLogQuantizer<T>(testConfig.qoiEBBase, testConfig.qoiEBLogBase, testConfig.qoiQuantbinCnt / 2, testConfig.absErrorBound);
+            
+    auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
+                    quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+                             
+    for (int k=0;k<num_sampled_blocks;k++){
+        size_t sampleOutSize;
+        std::vector<T> cur_block(testConfig.num);
+        std::copy(sampled_blocks[k].begin(),sampled_blocks[k].end(),cur_block.begin());
+        
+        char *cmprData;
+         
+        
+        cmprData = (char*)sz->compress(testConfig, cur_block.data(), sampleOutSize,1);
+
+        delete[]cmprData;
+        
+        
+
+        
+        
+        block_q_bins.push_back(testConfig.quant_bins);
+        block_q_bins_eb.push_back(testConfig.quant_bins_eb);
+        
+
+
+        
+    }
+    
+    q_bin_counts=testConfig.quant_bin_counts;
+    size_t level_num=q_bin_counts.size();
+    size_t last_pos=0;
+    for(int k=level_num-1;k>=0;k--){
+        for (size_t l =0;l<num_sampled_blocks;l++){
+            for (size_t m=last_pos;m<q_bin_counts[k];m++){
+                q_bins.push_back(block_q_bins[l][m]);
+                q_bins_eb.push_back(block_q_bins_eb[l][m]);
+            }
+        }
+        last_pos=q_bin_counts[k];
+    }      
+    
+    size_t sampleOutSize;
+
+    q_bins_eb.insert(q_bins_eb.end(),q_bins.begin(),q_bins.end())
+    
+    auto cmprData=sz->encoding_lossless(totalOutSize,q_bins_eb);             
+    delete[]cmprData;
+  
+    
+    bitrate=8*double(totalOutSize)/ele_num;
+    
+    //bitrate*=profiling_coeff;
+
+    return bitrate;
+}
+
+
 double estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 2.0){//n: element_per_block N: num_blocks q: confidence
     //no var information
     //if gaussian, just multiply k 
@@ -240,6 +324,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             QoZ::Interp_Meta def_meta;
             testConf.interpMeta = def_meta;
 
+            size_t best_quantile = 0;
+            size_t last_quantile = testConf.num;
+
             if(N==2 or N==3){
 
                 std::vector<std::vector<T>>sampled_blocks;
@@ -249,9 +336,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                 double best_br = 9999;
                 best_abs_eb = testConf.absErrorBound;
-                size_t best_quantile = 0;
-                int idx = 0;
-                size_t last_quantile = testConf.num;
+                                
 
                 for(auto quantile:quantiles)
                 {   
@@ -264,7 +349,6 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     
                     double cur_br = CompressTest_QoI<T,N>(const QoZ::Config &conf,const std::vector< std::vector<T> > & sampled_blocks,std::shared_ptr<concepts::QoIInterface<T, N>> qoi=nullptr)        
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
-                    double fr = fixrate[idx++];
                     if(cur_br < best_br){
                         best_br = cur_br;
                         best_abs_eb = testConf.absErrorBound;
@@ -317,9 +401,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                 double best_ratio = 0;
                 best_abs_eb = testConf.absErrorBound;
-                size_t best_quantile = 0;
                 int idx = 0;
-                size_t last_quantile = testConf.num;
                 for(auto quantile:quantiles)
                 {   
                     std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
@@ -639,142 +721,7 @@ inline void init_betalist(std::vector<double> &beta_list,const double &rel_bound
 
 
 
-template<class T, QoZ::uint N>
-void sampleBlocks(T *data,std::vector<size_t> &dims, size_t sampleBlockSize,std::vector< std::vector<T> > & sampled_blocks,double sample_rate,int profiling ,std::vector<std::vector<size_t> > &starts,int var_first=0){
-    for(int i=0;i<sampled_blocks.size();i++){
-                std::vector< T >().swap(sampled_blocks[i]);                
-            }
-            std::vector< std::vector<T> >().swap(sampled_blocks);
-    for(int i=0;i<sampled_blocks.size();i++){
-        std::vector< T >().swap(sampled_blocks[i]);                  
-    }
-    std::vector< std::vector<T> >().swap(sampled_blocks);                               
-    size_t totalblock_num=1;
-    for(int i=0;i<N;i++){                        
-        totalblock_num*=(int)((dims[i]-1)/sampleBlockSize);
-    }               
-    size_t idx=0,block_idx=0;   
-    if(profiling){
-        size_t num_filtered_blocks=starts.size();    
-        if(var_first==0){  
-            size_t sample_stride=(size_t)(num_filtered_blocks/(totalblock_num*sample_rate));
-            if(sample_stride<=0)
-                sample_stride=1;
-            
-            for(size_t i=0;i<num_filtered_blocks;i+=sample_stride){
-                std::vector<T> s_block;
-                QoZ::sample_blocks<T,N>(data, s_block,dims, starts[i],sampleBlockSize+1);
-                sampled_blocks.push_back(s_block);
-                
-            }
-            
-        }
-        else{
-            std::vector< std::pair<double,std::vector<size_t> > >block_heap;
-            for(size_t i=0;i<num_filtered_blocks;i++){
-                double mean,sigma2,range;
-                QoZ::blockwise_profiling<T>(data,dims, starts[i],sampleBlockSize+1, mean,sigma2,range);
-                block_heap.push_back(std::pair<double,std::vector<size_t> >(sigma2,starts[i]));
-                
-            }
-            std::make_heap(block_heap.begin(),block_heap.end());
-          
 
-            size_t sampled_block_num=totalblock_num*sample_rate;
-            if(sampled_block_num>num_filtered_blocks)
-                sampled_block_num=num_filtered_blocks;
-            if(sampled_block_num==0)
-                sampled_block_num=1;
-
-            for(size_t i=0;i<sampled_block_num;i++){
-                std::vector<T> s_block;
-             
-                QoZ::sample_blocks<T,N>(data, s_block,dims, block_heap.front().second,sampleBlockSize+1);
-              
-                sampled_blocks.push_back(s_block);
-                std::pop_heap(block_heap.begin(),block_heap.end());
-                block_heap.pop_back();
-               
-            }
-        }
-    }               
-    else{
-        if(var_first==0){
-            size_t sample_stride=(size_t)(1.0/sample_rate);
-            if(sample_stride<=0)
-                sample_stride=1;
-            if (N==2){                        
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                           
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                        if (idx%sample_stride==0){
-                            std::vector<size_t> starts{x_start,y_start};
-                            std::vector<T> s_block;
-                            QoZ::sample_blocks<T,N>(data, s_block,dims, starts,sampleBlockSize+1);
-                            sampled_blocks.push_back(s_block);
-                        }
-                        idx+=1;
-                    }
-                }
-            }
-            else if (N==3){                  
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                          
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                        for (size_t z_start=0;z_start<dims[2]-sampleBlockSize;z_start+=sampleBlockSize){
-                            if (idx%sample_stride==0){
-                                std::vector<size_t> starts{x_start,y_start,z_start};
-                                std::vector<T> s_block;
-                                QoZ::sample_blocks<T,N>(data, s_block,dims, starts,sampleBlockSize+1);
-                                sampled_blocks.push_back(s_block);
-                            }
-                            idx+=1;
-                        }
-                    }
-                }
-            }
-        }
-        else{
-            std::vector <std::vector<size_t> > blocks_starts;
-            if (N==2){  
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                           
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                       
-                            blocks_starts.push_back(std::vector<size_t>{x_start,y_start});
-                    }
-                }
-
-            }
-            else if (N==3){           
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                          
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                        for (size_t z_start=0;z_start<dims[2]-sampleBlockSize;z_start+=sampleBlockSize){
-                            blocks_starts.push_back(std::vector<size_t>{x_start,y_start,z_start});
-                        }
-                    }
-                }
-            
-
-                std::vector< std::pair<double,std::vector<size_t> > >block_heap;
-                for(size_t i=0;i<totalblock_num;i++){
-                    double mean,sigma2,range;
-                    QoZ::blockwise_profiling<T>(data,dims, blocks_starts[i],sampleBlockSize+1, mean,sigma2,range);
-                    block_heap.push_back(std::pair<double,std::vector<size_t> >(sigma2,blocks_starts[i]));
-                }
-                std::make_heap(block_heap.begin(),block_heap.end());
-                size_t sampled_block_num=totalblock_num*sample_rate;
-                if(sampled_block_num==0)
-                    sampled_block_num=1;
-                for(size_t i=0;i<sampled_block_num;i++){
-                    std::vector<T> s_block;
-                    QoZ::sample_blocks<T,N>(data, s_block,dims, block_heap.front().second,sampleBlockSize+1);
-                    sampled_blocks.push_back(s_block);
-                    std::pop_heap(block_heap.begin(),block_heap.end());
-                    block_heap.pop_back();
-                }
-
-            }
-        }
-    }
-}
 
 
 template<class T, QoZ::uint N>
@@ -949,88 +896,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     return std::pair<double,double>(bitrate,metric);
 }
 
-template<class T, QoZ::uint N>
-double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T> > & sampled_blocks,std::shared_ptr<concepts::QoIInterface<T, N>> qoi=nullptr){
-    QoZ::Config testConfig(conf);
 
-    if(qoi==nullptr){
-        qoi = QoZ::GetQOI<T, N>(testConfig);
-    }
-    
-    double bitrate=0.0;
-    size_t sampleBlockSize=testConfig.sampleBlockSize;
-    size_t num_sampled_blocks=sampled_blocks.size();
-    size_t per_block_ele_num=pow(sampleBlockSize+1,N);
-    size_t ele_num=num_sampled_blocks*per_block_ele_num;
-
-    std::vector<T> cur_block(testConfig.num,0);
-    std::vector<int> q_bins;
-    std::vector<int> q_bins_eb;
-    std::vector<std::vector<int> > block_q_bins;
-    std::vector<std::vector<int> > block_q_bins_eb;
-    std::vector<size_t> q_bin_counts;
-    std::vector<T> flattened_cur_blocks;
-    size_t idx=0;   
-    size_t totalOutSize=0;
-
-    testConfig.qoiEBBase = testConfig.absErrorBound / 1030;
-    auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(testConfig.quantbinCnt / 2);
-    auto quantizer_eb = QoZ::EBLogQuantizer<T>(testConfig.qoiEBBase, testConfig.qoiEBLogBase, testConfig.qoiQuantbinCnt / 2, testConfig.absErrorBound);
-            
-    auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
-                    quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
-                             
-    for (int k=0;k<num_sampled_blocks;k++){
-        size_t sampleOutSize;
-        std::vector<T> cur_block(testConfig.num);
-        std::copy(sampled_blocks[k].begin(),sampled_blocks[k].end(),cur_block.begin());
-        
-        char *cmprData;
-         
-        
-        cmprData = (char*)sz->compress(testConfig, cur_block.data(), sampleOutSize,1);
-
-        delete[]cmprData;
-        
-        
-
-        
-        
-        block_q_bins.push_back(testConfig.quant_bins);
-        block_q_bins_eb.push_back(testConfig.quant_bins_eb);
-        
-
-
-        
-    }
-    if(algo==QoZ::ALGO_INTERP ){
-        q_bin_counts=testConfig.quant_bin_counts;
-        size_t level_num=q_bin_counts.size();
-        size_t last_pos=0;
-        for(int k=level_num-1;k>=0;k--){
-            for (size_t l =0;l<num_sampled_blocks;l++){
-                for (size_t m=last_pos;m<q_bin_counts[k];m++){
-                    q_bins.push_back(block_q_bins[l][m]);
-                    q_bins_eb.push_back(block_q_bins_eb[l][m]);
-                }
-            }
-            last_pos=q_bin_counts[k];
-        }      
-    }
-    size_t sampleOutSize;
-
-    q_bins_eb.insert(q_bins_eb.end(),q_bins.begin(),q_bins.end())
-    
-    auto cmprData=sz->encoding_lossless(totalOutSize,q_bins_eb);             
-    delete[]cmprData;
-  
-    
-    bitrate=8*double(totalOutSize)/ele_num;
-    
-    //bitrate*=profiling_coeff;
-
-    return bitrate;
-}
 
 
 
