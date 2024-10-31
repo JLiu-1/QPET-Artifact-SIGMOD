@@ -265,6 +265,7 @@ namespace QoZ {
             qoiLogBase = cfg.GetReal("QoISettings", "qoiLogBase", qoiLogBase);
             qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", qoiEBBase);
             qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
+
             qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", qoiQuantbinCnt);
             qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", qoiRegionSize);
             qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", qoiIsoNum);
@@ -275,7 +276,8 @@ namespace QoZ {
             qoi_string = std::string(qoistring_c);
             qoi_string_2 = std::string(qoistring_c2);
             threshold = cfg.GetReal("QoISettings", "threshold", threshold);
-            isolated = cfg.GetBoolean("QoISettings", "isolated", false);
+            isolated = cfg.GetBoolean("QoISettings", "isolated", isolated);
+            early_termination = cfg.GetBoolean("QoISettings", "early_termination", early_termination);
             //regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
             tol_estimation = cfg.GetInteger("QoISettings", "tol_estimation", tol_estimation);
@@ -569,10 +571,12 @@ namespace QoZ {
         double regionalQoIeb;
         double error_std_rate = 1.732;
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
+        bool early_termination = false;
 
         int qoiRegionMode = 0; //0:no region 1: average 1:laplacian 2: gradient 
 
         bool use_global_eb = false;
+
 
 
 

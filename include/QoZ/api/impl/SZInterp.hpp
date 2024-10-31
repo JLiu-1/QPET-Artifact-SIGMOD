@@ -395,7 +395,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                         best_abs_eb = testConf.absErrorBound;
                         best_quantile = quantile;
                     }
-                    else if(cur_br>1.1*best_br){
+                    else if(cur_br>1.1*best_br and testConf.earty_termination){
                         break;
                     }
 
@@ -471,7 +471,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                         best_abs_eb = testConf.absErrorBound;
                         best_quantile = quantile;
                     }
-                    else if(cur_ratio*fr<0.9*best_ratio){
+                    else if(cur_ratio*fr<0.9*best_ratio and testConf.earty_termination){
                         break;
                     }
                     last_quantile = quantile+1;
