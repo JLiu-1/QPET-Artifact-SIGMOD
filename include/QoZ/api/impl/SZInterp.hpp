@@ -335,7 +335,32 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 std::vector<std::vector<T>>sampled_blocks;
                 std::vector<std::vector<size_t>>starts;
 
-                QoZ::sampleBlocks<T,N>(data,conf.dims,testConf.sampleBlockSize,sampled_blocks,5e-3,0,starts,false);
+
+                testConf.profStride=std::max(1,testConf.sampleBlockSize/4);//todo: bugfix for others
+                testConf.profiling = 1;
+
+                size_t totalblock_num=1;  
+
+                double prof_rel_threshold = 1e-4;
+                double sample_ratio = 5e-3;
+                for(int i=0;i<N;i++){                      
+                    totalblock_num*=(size_t)((conf.dims[i]-1)/sampleBlockSize);
+                }
+                if(N==2){
+                    QoZ::profiling_block_2d<T,N>(data,testConf.dims,starts,testConf.sampleBlockSize,testConf.rng * prof_rel_threshold,testConf.profStride);
+                }
+                else if (N==3){
+                    QoZ::profiling_block_3d<T,N>(data,testConf.dims,starts,testConf.sampleBlockSize,testConf.rng * prof_rel_threshold,testConf.profStride);
+                }
+                   
+                
+
+
+                size_t num_filtered_blocks=starts.size();
+                if(num_filtered_blocks<=(int)(0.3*sample_ratio*totalblock_num))//todo: bugfix for others 
+                    conf.profiling=0;
+
+                QoZ::sampleBlocks<T,N>(data,conf.dims,testConf.sampleBlockSize,sampled_blocks,sample_ratio,1,starts,false);
 
                 //std::cout<<sampled_blocks.size()<<std::endl;
                 //std::cout<<sampled_blocks[0].size()<<std::endl;
@@ -1167,7 +1192,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
     std::vector<std::vector<size_t> >starts;
     if((conf.autoTuningRate>0 or conf.predictorTuningRate>0) and conf.profiling){      
-        conf.profStride=conf.sampleBlockSize/4;
+        conf.profStride=std::max(1,conf.sampleBlockSize/4);
         if(N==2){
             QoZ::profiling_block_2d<T,N>(data,conf.dims,starts,sampleBlockSize,conf.absErrorBound,conf.profStride);
         }
@@ -1179,7 +1204,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
 
     size_t num_filtered_blocks=starts.size();
-    if(num_filtered_blocks<=(int)(0.3*conf.predictorTuningRate))//temp. to refine
+    if(num_filtered_blocks<=(int)(0.3*conf.predictorTuningRate*totalblock_num))//temp. to refine
         conf.profiling=0;
     double profiling_coeff=1;//It seems that this coefficent is useless. Need further test
   
