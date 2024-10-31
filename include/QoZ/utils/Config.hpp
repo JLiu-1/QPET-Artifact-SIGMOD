@@ -479,6 +479,7 @@ namespace QoZ {
         //int exhaustiveTuning=0;
         int testLorenzo=0;
         std::vector<int> quant_bins;
+        std::vector<int> quant_bins_eb;
         //double pred_square_error;
         double decomp_square_error;
         std::vector<size_t> quant_bin_counts;
