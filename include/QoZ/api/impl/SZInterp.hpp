@@ -306,7 +306,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             //std::array<double,4> fixrate = {1.0,1.05,1.10,1.15};//or{1.0,1.1,1.2,1.3}
             
             double quantile_split=0.1;
-            for(auto i:{2.5,1.0,0.5,0.25,0.10,0.05,0.025,0.01})
+            for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01})
                 quantiles.push_back((size_t)(i*k));
             int quantile_num = quantiles.size();
 
@@ -395,7 +395,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                         best_abs_eb = testConf.absErrorBound;
                         best_quantile = quantile;
                     }
-                    else if(cur_br>1.03*best_br){
+                    else if(cur_br>1.1*best_br){
                         break;
                     }
 
@@ -411,7 +411,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
 
             else{
-                std::array<double,8> fixrate = {1.08,1.06,1.04,1.02,1.00,1.00,1.00,1.00};
+                std::array<double,7> fixrate = {1.06,1.04,1.02,1.00,1.00,1.00,1.00};
 
                 size_t sampling_num, sampling_block;
                 std::vector<size_t> sample_dims(N);
@@ -471,7 +471,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                         best_abs_eb = testConf.absErrorBound;
                         best_quantile = quantile;
                     }
-                    else if(cur_ratio*fr<0.97*best_ratio){
+                    else if(cur_ratio*fr<0.9*best_ratio){
                         break;
                     }
                     last_quantile = quantile+1;
