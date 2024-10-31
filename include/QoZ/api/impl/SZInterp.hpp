@@ -101,7 +101,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
     
     size_t sampleOutSize;
 
-    q_bins_eb.insert(q_bins_eb.end(),q_bins.begin(),q_bins.end())
+    q_bins_eb.insert(q_bins_eb.end(),q_bins.begin(),q_bins.end());
     
     auto cmprData=sz->encoding_lossless(totalOutSize,q_bins_eb);             
     delete[]cmprData;
@@ -332,7 +332,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 std::vector<std::vector<T>>sampled_blocks;
                 std::vector<std::vector<size_t>>starts;
 
-                sampleBlocks<T,N>(data,conf.dims,conf.sampleBlockSize,sampled_blocks,5e-3,0,starts,false);
+                QoZ::sampleBlocks<T,N>(data,conf.dims,conf.sampleBlockSize,sampled_blocks,5e-3,0,starts,false);
 
                 double best_br = 9999;
                 best_abs_eb = testConf.absErrorBound;
@@ -347,7 +347,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     qoi->set_global_eb(testConf.absErrorBound);
                     // reset variables for average of square
                     
-                    double cur_br = CompressTest_QoI<T,N>(const QoZ::Config &conf,const std::vector< std::vector<T> > & sampled_blocks,std::shared_ptr<concepts::QoIInterface<T, N>> qoi=nullptr)        
+                    double cur_br = CompressTest_QoI<T,N>(testConfig,sampled_blocks,qoi)        
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                     if(cur_br < best_br){
                         best_br = cur_br;
