@@ -275,7 +275,7 @@ namespace QoZ {
             }
             else if (start_level==interpolation_level){
                 if(tuning){
-                    conf.quant_bin_counts[start_level-1]=quant_inds.size();
+                    conf.quant_bin_counts[start_level-1]=quant_index;
                 }
                 build_grid(conf,data,maxStep,tuning);
                 start_level--;
