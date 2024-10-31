@@ -231,7 +231,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             if(testConf.QoZ>0){
                 if (testConf.maxStep==0){
                     std::array<size_t,4> anchor_strides={256,64,32,16};
-                    conf.maxStep = anchor_strides[N-1];
+                    testConf.maxStep = anchor_strides[N-1];
                 }
                 testConf.alpha = 1.5;
                 testConf.beta = 2.0;
