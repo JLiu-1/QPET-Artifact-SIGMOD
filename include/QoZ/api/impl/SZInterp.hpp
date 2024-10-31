@@ -103,7 +103,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
 
     q_bins_eb.insert(q_bins_eb.end(),q_bins.begin(),q_bins.end());
     
-    auto cmprData=sz->encoding_lossless(totalOutSize,q_bins_eb);             
+    auto cmprData=sz.encoding_lossless(totalOutSize,q_bins_eb);             
     delete[]cmprData;
   
     
