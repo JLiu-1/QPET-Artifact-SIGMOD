@@ -242,14 +242,15 @@ namespace QoZ {
             std::vector<Interp_Meta>interp_metas;
             int cross_block=conf.crossBlock;
             init();
-            /*
+            
             if (tuning){
                 std::vector<int>().swap(quant_inds);
                 std::vector<int>().swap(conf.quant_bins);
+                std::vector<int>().swap(conf.quant_bins_eb);
                 conf.quant_bin_counts=std::vector<size_t>(interpolation_level,0);
                 conf.decomp_square_error=0.0;
 
-            }*/
+            }
 
             quant_inds = std::vector<int>(num_elements * 2);//eb + data
             ebs = conf.ebs;
@@ -273,9 +274,9 @@ namespace QoZ {
                 quantize_integrated(0, *data, 0, tuning);
             }
             else if (start_level==interpolation_level){
-                //if(tuning){
-                //    conf.quant_bin_counts[start_level-1]=quant_inds.size();
-                //}
+                if(tuning){
+                    conf.quant_bin_counts[start_level-1]=quant_inds.size();
+                }
                 build_grid(conf,data,maxStep,tuning);
                 start_level--;
             }
@@ -529,23 +530,25 @@ namespace QoZ {
                     }
 
                 }
-                //if(tuning){
-                //    conf.quant_bin_counts[level-1]=quant_inds.size();
-               // }
+                if(tuning){
+                    conf.quant_bin_counts[level-1]=quant_inds.size();
+                }
             }                    
             //timer.start();
             qoi->set_global_eb(eb);
             quantizer_eb.set_global_eb(eb);
-            /*
+            
             if (tuning){
-                conf.quant_bins=quant_inds;
+                size_t quant_counts = quant_inds.size()/2;
+                conf.quant_bins_eb=std::vector<int>(quant_inds.begin(),quant_inds.begin()+quant_counts);
+                conf.quant_bins=std::vector<int>(quant_inds.begin()+quant_counts,quant_inds.end());
                 std::vector<int>().swap(quant_inds);
-                conf.decomp_square_error=predict_error;
+                //conf.decomp_square_error=predict_error;
                 size_t bufferSize = 1;
                 uchar *buffer = new uchar[bufferSize];
                 buffer[0]=0;
                 return buffer;
-            }*/
+            }
 
             if(conf.verbose)
                 timer.stop("prediction");//can remove later
@@ -618,27 +621,40 @@ namespace QoZ {
 
             if(q_inds.size()>0)
                 quant_inds=q_inds;
-            size_t bufferSize = 2.5 * (quant_inds.size() * sizeof(T) + quantizer.size_est());//original is 3
+            
+
+            encoder.preprocess_encode(quant_inds, 0);
+            size_t bufferSize = 2.5 * (quantizer.size_est() + encoder.size_est() + sizeof(T) * quant_inds.size());
             uchar *buffer = new uchar[bufferSize];
             uchar *buffer_pos = buffer;
             quantizer_eb.save(buffer_pos);
             quantizer_eb.postcompress_data();
             quantizer.save(buffer_pos);
             quantizer.postcompress_data();
-           // quantizer.clear();
+            //quantizer.clear();
             encoder.preprocess_encode(quant_inds, 0);
             encoder.save(buffer_pos);
             encoder.encode(quant_inds, buffer_pos);
             encoder.postprocess_encode();       
-//            timer.stop("Coding");
-            assert(buffer_pos - buffer < bufferSize);
+            //timer.stop("Coding");
             //timer.start();
+            assert(buffer_pos - buffer < bufferSize);         
             uchar *lossless_data = lossless.compress(buffer,
                                                      buffer_pos - buffer,
                                                      compressed_size);
             lossless.postcompress_data(buffer);
-//            timer.stop("Lossless");
+            //timer.stop("Lossless") ;
+            compressed_size += interp_compressed_size;
+
+
+            //QoZ::writefile<int>("quant_inds_cmp.test", quant_inds.data(),quant_inds.size());//added.
+
+            //std::cout<<"quant index: "<<quant_index<<std::endl;
+
+            //std::cout<<quant_inds.size()<<" "<<num_elements*2<<std::endl;
             return lossless_data;
+
+
 
         }
 
