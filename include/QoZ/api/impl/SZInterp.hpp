@@ -90,6 +90,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
     size_t level_num=q_bin_counts.size();
     size_t last_pos=0;
     for(int k=level_num-1;k>=0;k--){
+        std::cout<<q_bin_counts[k]<<std::endl;
         for (size_t l =0;l<num_sampled_blocks;l++){
             for (size_t m=last_pos;m<q_bin_counts[k];m++){
                 q_bins.push_back(block_q_bins[l][m]);
@@ -98,10 +99,12 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
         }
         last_pos=q_bin_counts[k];
     }      
+    std::cout<<q_bins.size()<<" "<<q_bins_eb.size()<<std::endl;
     
     size_t sampleOutSize;
 
     q_bins_eb.insert(q_bins_eb.end(),q_bins.begin(),q_bins.end());
+    std::cout<<q_bins_eb.size()<<std::endl;
     
     auto cmprData=sz.encoding_lossless(totalOutSize,q_bins_eb);             
     delete[]cmprData;
@@ -334,8 +337,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                 QoZ::sampleBlocks<T,N>(data,conf.dims,testConf.sampleBlockSize,sampled_blocks,5e-3,0,starts,false);
 
-                std::cout<<sampled_blocks.size()<<std::endl;
-                std::cout<<sampled_blocks[0].size()<<std::endl;
+                //std::cout<<sampled_blocks.size()<<std::endl;
+                //std::cout<<sampled_blocks[0].size()<<std::endl;
 
                 testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
                 testConf.num=pow(testConf.sampleBlockSize+1,N);
