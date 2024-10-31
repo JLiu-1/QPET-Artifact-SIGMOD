@@ -626,25 +626,19 @@ namespace QoZ {
             if(q_inds.size()>0)
                 quant_inds=q_inds;
             
-            std::cout<<"p1"<<std::endl;
             encoder.preprocess_encode(quant_inds, 0);
             size_t bufferSize = 2.5 * (quantizer.size_est() + encoder.size_est() + sizeof(T) * quant_inds.size());
             uchar *buffer = new uchar[bufferSize];
             uchar *buffer_pos = buffer;
-            std::cout<<"p2"<<std::endl;
             quantizer_eb.save(buffer_pos);
             quantizer_eb.postcompress_data();
-            std::cout<<"p3"<<std::endl;
             quantizer.save(buffer_pos);
             quantizer.postcompress_data();
-            std::cout<<"p4"<<std::endl;
             //quantizer.clear();
             encoder.preprocess_encode(quant_inds, 0);
             encoder.save(buffer_pos);
-            std::cout<<"p5"<<std::endl;
             encoder.encode(quant_inds, buffer_pos);
             encoder.postprocess_encode(); 
-            std::cout<<"p6"<<std::endl;      
             //timer.stop("Coding");
             //timer.start();
             assert(buffer_pos - buffer < bufferSize);         
@@ -652,7 +646,6 @@ namespace QoZ {
                                                      buffer_pos - buffer,
                                                      compressed_size);
             lossless.postcompress_data(buffer);
-            std::cout<<"p7"<<std::endl;
             //timer.stop("Lossless") ;
 
 

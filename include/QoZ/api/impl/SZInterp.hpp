@@ -99,12 +99,12 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
         }
         last_pos=q_bin_counts[k];
     }      
-    std::cout<<q_bins.size()<<" "<<q_bins_eb.size()<<std::endl;
+    //std::cout<<q_bins.size()<<" "<<q_bins_eb.size()<<std::endl;
     
     size_t sampleOutSize;
 
     q_bins_eb.insert(q_bins_eb.end(),q_bins.begin(),q_bins.end());
-    std::cout<<q_bins_eb.size()<<std::endl;
+   // std::cout<<q_bins_eb.size()<<std::endl;
     
     auto cmprData=sz.encoding_lossless(totalOutSize,q_bins_eb);             
     delete[]cmprData;
