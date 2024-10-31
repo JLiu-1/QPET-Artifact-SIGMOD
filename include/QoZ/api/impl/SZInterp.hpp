@@ -332,7 +332,14 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 std::vector<std::vector<T>>sampled_blocks;
                 std::vector<std::vector<size_t>>starts;
 
-                QoZ::sampleBlocks<T,N>(data,conf.dims,conf.sampleBlockSize,sampled_blocks,5e-3,0,starts,false);
+                QoZ::sampleBlocks<T,N>(data,conf.dims,testConf.sampleBlockSize,sampled_blocks,5e-3,0,starts,false);
+
+                std::cout<<sampled_blocks.size()<<std::endl;
+                std::cout<<sampled_blocks[0].size()<<std::endl;
+
+                testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
+                testConf.num=pow(testConf.sampleBlockSize+1,N)
+
 
                 double best_br = 9999;
                 best_abs_eb = testConf.absErrorBound;
@@ -1014,6 +1021,11 @@ double Tuning(QoZ::Config &conf, T *data){
         conf.testLorenzo=0;
    // QoZ::Timer timer(true);
     //timer.stop("")
+    if (conf.sampleBlockSize<=0){
+            
+        conf.sampleBlockSize = (N<=2?64:32);
+    }
+
     if(conf.QoZ>0){
         
         //testLorenzo?
@@ -1032,10 +1044,7 @@ double Tuning(QoZ::Config &conf, T *data){
         }
         if (conf.levelwisePredictionSelection<=0)
             conf.levelwisePredictionSelection = (N<=2?5:4);
-        if (conf.sampleBlockSize<=0){
-            
-            conf.sampleBlockSize = (N<=2?64:32);
-        }
+        
 
         if(conf.QoZ>=2){
             //conf.testLorenzo=1;
@@ -1111,10 +1120,7 @@ double Tuning(QoZ::Config &conf, T *data){
  
 
     
-    if (conf.sampleBlockSize<=0){
-        conf.sampleBlockSize = (N==2?64:32);
-            
-    }
+ 
 
     
     
