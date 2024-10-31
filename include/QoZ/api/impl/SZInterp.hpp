@@ -184,12 +184,17 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             //conf.qoiEB = 1e10;//pass check_compliance, to revise
             for (size_t i = 0; i < conf.num; i++){
                 conf.ebs[i] = qoi->interpret_eb(data+i,i);
+                if (min_abs_eb>conf.ebs[i])
+                    min_abs_eb = conf.ebs[i];
+
             }
             //conf.qoi = 14; //back to pointwise
         }
         else{
             for (size_t i = 0; i < conf.num; i++){
                 conf.ebs[i] = qoi->interpret_eb(data[i]);
+                    if (min_abs_eb>conf.ebs[i])
+                        min_abs_eb = conf.ebs[i];
             }
         }
         //double max_quantile_rate = 0.2;
@@ -302,23 +307,27 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             free(sampling_data);
             
 
-            if(best_quantile == quantiles.back())
+            if(best_quantile == quantiles.back()){
                 std::sort(ebs.begin(),ebs.begin()+best_quantile);
+            
 
-            size_t cur_quantile = best_quantile-1;
-            double init_best_abs_eb = best_abs_eb;
-            double min_ratio = 0.9;
-            while(cur_quantile>0){
-                
-                double temp_best_eb = ebs[cur_quantile];
-                double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
-                if (temp_best_eb/init_best_abs_eb<cur_ratio)
-                    break;
-                else
-                    best_abs_eb = temp_best_eb;
-                cur_quantile--;
+
+
+                size_t cur_quantile = best_quantile-1;
+                double init_best_abs_eb = best_abs_eb;
+                double min_ratio = 0.9;
+                while(cur_quantile>0){
+                    
+                    double temp_best_eb = ebs[cur_quantile];
+                    double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
+                    if (temp_best_eb/init_best_abs_eb<cur_ratio)
+                        break;
+                    else
+                        best_abs_eb = temp_best_eb;
+                    cur_quantile--;
+                }
+                best_quantile = cur_quantile + 1;
             }
-            best_quantile = cur_quantile + 1;
         }
 
        
@@ -406,7 +415,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
         //std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
 
-        if(smaller_ebs_ratio <= 1.0/1024.0 and (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3) or min_abs_eb >= 0.95 * best_abs_eb)){//may fix
+        if( (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and (smaller_ebs_ratio <= 1.0/1024.0 or min_abs_eb >= 0.95 * best_abs_eb ) ){//may fix
             conf.use_global_eb = true;
         }
 
