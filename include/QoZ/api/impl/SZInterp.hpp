@@ -70,7 +70,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
         char *cmprData;
          
         
-        cmprData = (char*)sz->compress(testConfig, cur_block.data(), sampleOutSize,1);
+        cmprData = (char*)sz.compress(testConfig, cur_block.data(), sampleOutSize,1);
 
         delete[]cmprData;
         
