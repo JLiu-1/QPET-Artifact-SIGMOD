@@ -330,7 +330,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             size_t best_quantile = 0;
 
 
-            std::nth_element(ebs.begin(),ebs.begin()+quantiles[0], ebs.begin()+last_quantile);
+            std::nth_element(ebs.begin(),ebs.begin()+quantiles[0], ebs.end());
 
             size_t last_quantile = quantiles[0]+1;
 
