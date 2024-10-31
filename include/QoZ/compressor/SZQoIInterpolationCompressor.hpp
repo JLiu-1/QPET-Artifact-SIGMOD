@@ -531,7 +531,7 @@ namespace QoZ {
 
                 }
                 if(tuning){
-                    conf.quant_bin_counts[level-1]=quant_inds.size();
+                    conf.quant_bin_counts[level-1]=quant_index;
                 }
             }                    
             //timer.start();
@@ -542,8 +542,8 @@ namespace QoZ {
 
                 size_t quant_counts = quant_inds.size()/2;
                 //std::cout<<quant_counts<< " "<<quant_inds.size()<<std::endl;
-                for(size_t i=0;i<conf.quant_bin_counts.size();i++)
-                    std::cout<<conf.quant_bin_counts[i]<<std::endl;
+                //for(size_t i=0;i<conf.quant_bin_counts.size();i++)
+                //    std::cout<<conf.quant_bin_counts[i]<<std::endl;
                 conf.quant_bins_eb=std::vector<int>(quant_inds.begin(),quant_inds.begin()+quant_counts);
                 conf.quant_bins=std::vector<int>(quant_inds.begin()+quant_counts,quant_inds.end());
                 std::vector<int>().swap(quant_inds);
