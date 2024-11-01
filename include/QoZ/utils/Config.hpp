@@ -5,8 +5,9 @@
 #include <iostream>
 #include <vector>
 #include <numeric>
-#include <memory>
+//#include <memory>
 #include "QoZ/def.hpp"
+#include "QoZ/qoi/QoI.hpp"
 #include "MemoryUtil.hpp"
 #include "QoZ/utils/inih/INIReader.h"
 namespace QoZ {
@@ -578,7 +579,7 @@ namespace QoZ {
 
         bool use_global_eb = false;
 
-        std::shared_ptr<concepts::QoIInterface<T, N>> qoiPtr = nullptr;
+        std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoiPtr = nullptr;
 
 
 
