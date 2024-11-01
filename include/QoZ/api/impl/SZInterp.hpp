@@ -137,7 +137,6 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
         //QoZ::Timer timer;
 
         //timer.start();
-        std::cout<<"non-qoi"<<std::endl;
         char *cmpData = (char *) sz.compress(conf, data, outSize);
         conf.qoi = 0;
          //double incall_time = timer.stop();
@@ -162,7 +161,6 @@ void SZ_decompress_Interp(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *d
         sz.decompress(cmpDataPos, cmpSize, decData);
         return;
     }   
-    std::cout<<"non-qoi"<<std::endl;
     auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
             QoZ::LinearQuantizer<T>(),
             QoZ::HuffmanEncoder<int>(),
