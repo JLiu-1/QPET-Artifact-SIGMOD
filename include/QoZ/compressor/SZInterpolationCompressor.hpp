@@ -838,7 +838,7 @@ namespace QoZ {
                  return 0;
             }
             else if(mode==1){
-                T orig=d;
+                T ori=d;
                 auto qidx = quantizer.quantize_and_overwrite(d, pred);
 
     
@@ -850,7 +850,7 @@ namespace QoZ {
                     quantizer.insert_unpred(d);
                  }
                  quant_inds.push_back(qidx);
-                return (d-orig)*(d-orig);
+                return (d-ori)*(d-ori);
             }
             else{// if (mode==2){
                 pred_error=fabs(d-pred);
