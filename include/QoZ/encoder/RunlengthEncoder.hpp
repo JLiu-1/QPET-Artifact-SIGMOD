@@ -30,8 +30,8 @@ namespace QoZ {
                     s = i;
                 }
             }
-            write(bins[bins.size() - 1], bytes);
-            write(int(bins.size() - s), bytes);
+            write(bins[num_elements - 1], bytes);
+            write(int(num_elements - s), bytes);
             printf("RunLengthEncoder max length = %d\n", max);
             return 0;
         };
