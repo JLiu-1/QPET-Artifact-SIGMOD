@@ -97,11 +97,11 @@ namespace QoZ {
 
     };
 
-    
+
 
 
     template<class T>
-    class QoIEncoder : public concepts::EncoderInterface<T> {
+    class QoIEncoder_RLE : public concepts::EncoderInterface<T> {
 
     public:
 
