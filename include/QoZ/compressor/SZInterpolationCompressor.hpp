@@ -222,7 +222,7 @@ namespace QoZ {
             Timer timer;
             timer.start();
 
-            if(conf.qoi>0 and tuning == 0){
+            if(conf.qoi>0){
                 check_qoi = true;
                 if (qoi == nullptr or qoi->id != conf.qoi)
                     qoi = QoZ::GetQOI<T, N>(conf);
