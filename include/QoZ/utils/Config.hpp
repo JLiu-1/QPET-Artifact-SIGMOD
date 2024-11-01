@@ -7,7 +7,7 @@
 #include <numeric>
 //#include <memory>
 #include "QoZ/def.hpp"
-#include "QoZ/qoi/QoI.hpp"
+//#include "QoZ/qoi/QoI.hpp"
 #include "MemoryUtil.hpp"
 #include "QoZ/utils/inih/INIReader.h"
 namespace QoZ {
