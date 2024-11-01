@@ -263,11 +263,11 @@ namespace QoZ {
                 end_level=0;
             }
 
-
+            std::cout<<maxStep<<" "<<conf.dims[0]<<" "start_level<<" "<<interpolation_level<<std::endl;
             if(!anchor){
                 quant_inds.push_back(quantizer.quantize_and_overwrite(*data, 0));
             }
-            std::cout<<start_level<<" "<<interpolation_level<<std::endl;
+            
             else if (start_level==interpolation_level){
                 
                 build_grid(conf,data,maxStep,tuning);
@@ -673,6 +673,8 @@ namespace QoZ {
         void build_grid(Config &conf, T *data,size_t maxStep,int tuning=0){
             
             assert(maxStep>0);
+
+            std::cout<<tuning<<std::endl;
 
            
             if(tuning>1)
