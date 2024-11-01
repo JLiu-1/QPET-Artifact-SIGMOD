@@ -18,7 +18,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 find_package(PkgConfig)
-find_package(OpenMP)
+
 find_package(SymEngine REQUIRED)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/QoZ/version.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/QoZ/version.hpp)
@@ -35,8 +35,14 @@ target_compile_features(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} INTERFACE symengine)
 target_link_libraries(${PROJECT_NAME} INTERFACE gmp)
+
+option(OMP "build OpenMP functions" ON)
+find_package(OpenMP AND OMP)
 if (OpenMP_FOUND)
+    message("OpenMP Found.")
     target_link_libraries(${PROJECT_NAME} INTERFACE OpenMP::OpenMP_CXX)
+else()
+    message("OpenMP not found or skipped.")
 endif ()
 
 option(QoZ_USE_BUNDLED_ZSTD "prefer the bundled version of Zstd" OFF)
