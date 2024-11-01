@@ -91,7 +91,8 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
     
 }
 */
-
+template<class T, QoZ::uint N>
+void QoI_tuning(QoZ::Config &conf, T *data);
 
 template<class T, QoZ::uint N>
 char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
