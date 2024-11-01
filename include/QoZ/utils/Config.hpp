@@ -579,7 +579,7 @@ namespace QoZ {
 
         bool use_global_eb = false;
 
-        std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoiPtr = nullptr;
+        //std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoiPtr = nullptr;
 
 
 

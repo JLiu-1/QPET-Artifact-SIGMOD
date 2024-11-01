@@ -224,10 +224,8 @@ namespace QoZ {
 
             if(conf.qoi>0 and tuning == 0){
                 check_qoi = true;
-                if (conf.qoiPtr == nullptr)
+                if (qoi == nullptr or qoi->id != conf.qoi)
                     qoi = QoZ::GetQOI<T, N>(conf);
-                else
-                    qoi = conf.qoiPtr;
             }
 
             

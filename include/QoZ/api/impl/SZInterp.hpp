@@ -432,13 +432,13 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     if(best_abs_eb != min_abs_eb){
                         testConf.absErrorBound = best_abs_eb;
                         testConf.use_global_eb = true;
-                        testConf.qoiPtr = qoi;
+                        //testConf.qoiPtr = qoi;
 
                         std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
                         double cur_br =results[0];
                         if(cur_br<best_br){
                             conf.use_global_eb = true;
-                            Conf.qoiPtr = qoi;
+                            //Conf.qoiPtr = qoi;
                             best_br = cur_br;
                         }
 
@@ -450,13 +450,13 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                     testConf.absErrorBound = min_abs_eb;
                     testConf.use_global_eb = true;
-                    testConf.qoiPtr = qoi;
+                   // testConf.qoiPtr = qoi;
 
                     std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
                     double cur_br =results[0];
                     if(cur_br<best_br){
                         conf.use_global_eb = true;
-                        Conf.qoiPtr = qoi;
+                        //Conf.qoiPtr = qoi;
                         best_br = cur_br;
                         best_quantile = 0;
                     }
@@ -573,10 +573,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 }
 
                 double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
-                
+
                 if( (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and (smaller_ebs_ratio <= 1.0/1024.0 or min_abs_eb >= 0.95 * best_abs_eb ) ){//may fix
                     conf.use_global_eb = true;
-                    conf.qoiPtr = qoi;
+                    //conf.qoiPtr = qoi;
                 }
 
 
