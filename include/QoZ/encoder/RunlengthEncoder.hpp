@@ -17,10 +17,10 @@ namespace QoZ {
         void preprocess_encode(const std::vector<T> &bins, int stateNum) {
         };
 
-        size_t encode(const std::vector<T> &bins, uchar *&bytes) {
+        size_t encode(const T * bins, size_t num_elements, uchar *&bytes) {
             int max = 0;
             size_t s = 0;
-            for (size_t i = 1; i < bins.size(); i++) {
+            for (size_t i = 1; i < num_elements; i++) {
                 if (bins[i] != bins[i - 1]) {
                     write(bins[i - 1], bytes);
                     write(int(i - s), bytes);
@@ -35,6 +35,10 @@ namespace QoZ {
             printf("RunLengthEncoder max length = %d\n", max);
             return 0;
         };
+
+        size_t encode(const std::vector<T> &bins, size_t num_elements, uchar *&bytes) {
+            return encode(bins.data(), num_elements, bytes);
+        }
 
         void postprocess_encode() {};
 

@@ -4,6 +4,7 @@
 #include "QoZ/def.hpp"
 #include "QoZ/encoder/Encoder.hpp"
 #include "QoZ/encoder/HuffmanEncoder.hpp"
+#include "QoZ/encoder/RunLengthEncoder.hpp"
 #include "QoZ/utils/ByteUtil.hpp"
 #include "QoZ/utils/MemoryUtil.hpp"
 #include "QoZ/utils/Timer.hpp"
@@ -40,7 +41,7 @@ namespace QoZ {
          */
         void preprocess_encode(const std::vector<T> &bins, int stateNum) {
             size_t num_elements = bins.size() / 2;
-            eb_encoder.preprocess_encode(bins.data(), num_elements, stateNum);
+            eb_encoder.preprocess_encode();
             data_encoder.preprocess_encode(bins.data() + num_elements, num_elements, stateNum);
         }
 
@@ -91,11 +92,13 @@ namespace QoZ {
         bool isLoaded() { return loaded; }
 
     private:
-        HuffmanEncoder<T> eb_encoder;
+        RunlengthEncoder<T> eb_encoder;
         HuffmanEncoder<T> data_encoder;
         bool loaded = false;
 
     };
+
+
 }
 
 #endif
