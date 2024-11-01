@@ -363,9 +363,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                 size_t num_filtered_blocks=starts.size();
                 if(num_filtered_blocks<=(int)(0.3*sample_ratio*totalblock_num))//todo: bugfix for others 
-                    conf.profiling=0;
+                    testConf.profiling=0;
 
-                QoZ::sampleBlocks<T,N>(data,conf.dims,testConf.sampleBlockSize,sampled_blocks,sample_ratio,1,starts,false);
+                QoZ::sampleBlocks<T,N>(data,testConf.dims,testConf.sampleBlockSize,sampled_blocks,sample_ratio,testConf.profiling,starts,false);
 
                 //std::cout<<sampled_blocks.size()<<std::endl;
                 //std::cout<<sampled_blocks[0].size()<<std::endl;
