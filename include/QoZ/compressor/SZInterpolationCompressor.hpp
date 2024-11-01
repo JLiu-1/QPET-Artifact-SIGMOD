@@ -224,7 +224,10 @@ namespace QoZ {
 
             if(conf.qoi>0 and tuning == 0){
                 check_qoi = true;
-                qoi = QoZ::GetQOI<T, N>(conf);
+                if (conf.qoiPtr == nullptr)
+                    qoi = QoZ::GetQOI<T, N>(conf);
+                else
+                    qoi = conf.qoiPtr;
             }
 
             
@@ -836,7 +839,17 @@ namespace QoZ {
             }
             else if(mode==1){
                 T orig=d;
-                quant_inds.push_back(quantizer.quantize_and_overwrite(d, pred));
+                auto qidx = quantizer.quantize_and_overwrite(d, pred);
+
+    
+                 if(check_qoi and !qoi->check_compliance(ori,d)){
+                    // std::cout << "not compliant" << std::endl;
+                    // save as unpredictable
+                    d = ori;
+                    qidx = 0;
+                    quantizer.insert_unpred(d);
+                 }
+                 quant_inds.push_back(qidx);
                 return (d-orig)*(d-orig);
             }
             else{// if (mode==2){

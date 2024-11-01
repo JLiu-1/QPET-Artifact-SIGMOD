@@ -404,6 +404,68 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     
                 }
 
+                if(best_quantile == quantiles.back()){
+                    std::sort(ebs.begin(),ebs.begin()+best_quantile);
+                
+
+
+
+                    size_t cur_quantile = best_quantile-1;
+                    double init_best_abs_eb = best_abs_eb;
+                    double min_ratio = 0.9;
+                    while(cur_quantile>0){
+                        
+                        double temp_best_eb = ebs[cur_quantile];
+                        double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
+                        if (temp_best_eb/init_best_abs_eb<cur_ratio)
+                            break;
+                        else
+                            best_abs_eb = temp_best_eb;
+                        cur_quantile--;
+                    }
+                    best_quantile = cur_quantile + 1;
+                }
+
+
+                if (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)){
+                //test full-global mode
+                    if(best_abs_eb != min_abs_eb){
+                        testConf.absErrorBound = best_abs_eb;
+                        testConf.use_global_eb = true;
+                        testConf.qoiPtr = qoi;
+
+                        std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
+                        double cur_br =results[0];
+                        if(cur_br<best_br){
+                            conf.use_global_eb = true;
+                            Conf.qoiPtr = qoi;
+                            best_br = cur_br;
+                        }
+
+
+
+
+
+                    } 
+
+                    testConf.absErrorBound = min_abs_eb;
+                    testConf.use_global_eb = true;
+                    testConf.qoiPtr = qoi;
+
+                    std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
+                    double cur_br =results[0];
+                    if(cur_br<best_br){
+                        conf.use_global_eb = true;
+                        Conf.qoiPtr = qoi;
+                        best_br = cur_br;
+                        best_quantile = 0;
+                    }
+                }
+
+
+                
+
+
 
 
 
@@ -481,33 +543,55 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 // set error bound
                 
                 free(sampling_data);
-            }
-            
-            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
-            if(best_quantile == quantiles.back()){
-                std::sort(ebs.begin(),ebs.begin()+best_quantile);
-            
+
+                if(best_quantile == quantiles.back()){
+                    std::sort(ebs.begin(),ebs.begin()+best_quantile);
+                
 
 
 
-                size_t cur_quantile = best_quantile-1;
-                double init_best_abs_eb = best_abs_eb;
-                double min_ratio = 0.9;
-                while(cur_quantile>0){
-                    
-                    double temp_best_eb = ebs[cur_quantile];
-                    double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
-                    if (temp_best_eb/init_best_abs_eb<cur_ratio)
-                        break;
-                    else
-                        best_abs_eb = temp_best_eb;
-                    cur_quantile--;
+                    size_t cur_quantile = best_quantile-1;
+                    double init_best_abs_eb = best_abs_eb;
+                    double min_ratio = 0.9;
+                    while(cur_quantile>0){
+                        
+                        double temp_best_eb = ebs[cur_quantile];
+                        double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
+                        if (temp_best_eb/init_best_abs_eb<cur_ratio)
+                            break;
+                        else
+                            best_abs_eb = temp_best_eb;
+                        cur_quantile--;
+                    }
+                    best_quantile = cur_quantile + 1;
                 }
-                best_quantile = cur_quantile + 1;
+
+                size_t count = 0;
+                for (size_t i = 0; i < conf.num; i++){
+                    if(conf.ebs[i] < best_abs_eb)
+                        count++;
+                }
+
+                double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
+                
+                if( (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and (smaller_ebs_ratio <= 1.0/1024.0 or min_abs_eb >= 0.95 * best_abs_eb ) ){//may fix
+                    conf.use_global_eb = true;
+                    conf.qoiPtr = qoi;
+                }
+
+
             }
+            
+            
+            
+
+            
+            
         }
 
-       
+        
+
+        std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
 
 
 
@@ -584,17 +668,12 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         qoi->set_global_eb(best_abs_eb);
 
-        size_t count = 0;
-        for (size_t i = 0; i < conf.num; i++){
-            if(conf.ebs[i] < best_abs_eb)
-                count++;
-        }
-        double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
+        
         //std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
 
-        if( (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and (smaller_ebs_ratio <= 1.0/1024.0 or min_abs_eb >= 0.95 * best_abs_eb ) ){//may fix
-            conf.use_global_eb = true;
-        }
+        
+        if(conf.use_global_eb)
+            std::cout<<"Use global eb."<<std::endl; 
 
         
         std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
@@ -932,6 +1011,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     
     bitrate*=profiling_coeff;
     if(tuningTarget==QoZ::TUNING_TARGET_RD){
+
         double mse=square_error/ele_num;
         mse*=profiling_coeff;      
         
