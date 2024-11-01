@@ -4,7 +4,7 @@
 #include "QoZ/def.hpp"
 #include "QoZ/encoder/Encoder.hpp"
 #include "QoZ/encoder/HuffmanEncoder.hpp"
-#include "QoZ/encoder/RunLengthEncoder.hpp"
+#include "QoZ/encoder/RunlengthEncoder.hpp"
 #include "QoZ/utils/ByteUtil.hpp"
 #include "QoZ/utils/MemoryUtil.hpp"
 #include "QoZ/utils/Timer.hpp"
