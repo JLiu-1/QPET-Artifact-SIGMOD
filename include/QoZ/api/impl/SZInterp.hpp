@@ -766,10 +766,12 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     if(best_abs_eb != min_abs_eb){
                         testConf.absErrorBound = best_abs_eb;
                         testConf.use_global_eb = true;
+                        std::cout << "Global test,current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                         //testConf.qoiPtr = qoi;
 
                         std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
                         double cur_br =results.first;
+                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                         if(cur_br<best_br){
                             conf.use_global_eb = true;
                             //Conf.qoiPtr = qoi;
@@ -788,6 +790,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                         std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
                         double cur_br =results.first;
+                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                         if(cur_br<best_br){
                             conf.use_global_eb = true;
                             //Conf.qoiPtr = qoi;
