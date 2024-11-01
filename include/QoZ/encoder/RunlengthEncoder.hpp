@@ -40,6 +40,10 @@ namespace QoZ {
             return encode(bins.data(), num_elements, bytes);
         }
 
+        size_t encode(const std::vector<T> &bins, uchar *&bytes) {
+            return encode(bins.data(), bins.size(), bytes);
+        }
+
         void postprocess_encode() {};
 
         void preprocess_decode() {};
@@ -64,6 +68,10 @@ namespace QoZ {
         uint save(uchar *&c) {
             return 0;
         };
+
+        size_t size_est() {
+            return 0;
+        }
 
         void load(const uchar *&c, size_t &remaining_length) {};
 
