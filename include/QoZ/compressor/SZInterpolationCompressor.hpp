@@ -263,7 +263,7 @@ namespace QoZ {
                 end_level=0;
             }
 
-            std::cout<<maxStep<<" "<<conf.dims[0]<<" "start_level<<" "<<interpolation_level<<std::endl;
+            std::cout<<maxStep<<" "<<conf.dims[0]<<" "<<start_level<<" "<<interpolation_level<<std::endl;
             if(!anchor){
                 quant_inds.push_back(quantizer.quantize_and_overwrite(*data, 0));
             }
