@@ -263,7 +263,7 @@ namespace QoZ {
                 end_level=0;
             }
 
-            std::cout<<maxStep<<" "<<conf.dims[0]<<" "<<start_level<<" "<<interpolation_level<<std::endl;
+            //std::cout<<maxStep<<" "<<conf.dims[0]<<" "<<start_level<<" "<<interpolation_level<<std::endl;
             if(!anchor){
                 quant_inds.push_back(quantizer.quantize_and_overwrite(*data, 0));
             }
@@ -674,8 +674,6 @@ namespace QoZ {
             
             assert(maxStep>0);
 
-            std::cout<<tuning<<std::endl;
-
            
             if(tuning>1)
                 return;
@@ -707,14 +705,12 @@ namespace QoZ {
                 int fd=conf.frozen_dim;
                 if(fd>=0)
                     anchor_strides[fd]=1;
-                std::cout<<maxStep<<" "<<conf.dims[0]<<std::endl;
 
                 
                 for (size_t x=anchor_strides[0]*(tuning==1);x<conf.dims[0];x+=anchor_strides[0]){
                     for (size_t y=anchor_strides[1]*(tuning==1);y<conf.dims[1];y+=anchor_strides[1]){
                         for(size_t z=anchor_strides[2]*(tuning==1);z<conf.dims[2];z+=anchor_strides[2]){
                             if(tuning == 1)
-                                std::cout<<x<<" "<<y<<" "<<z<<std::endl;
                             quantizer.insert_unpred(*(data+x*dimension_offsets[0]+y*dimension_offsets[1]+z) );
                             quant_inds.push_back(0);
                         }           
