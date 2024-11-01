@@ -68,19 +68,19 @@ namespace QoZ {
             f = Expression(ff);
 
             singularities = find_singularities(f,x);
-            std::cout << "Singularities:" << std::endl;
-            for (const auto& singularity : singularities) {
-                std::cout << singularity << std::endl;
-            }
+            //std::cout << "Singularities:" << std::endl;
+            //for (const auto& singularity : singularities) {
+            //    std::cout << singularity << std::endl;
+            //}
             // std::cout<<"init 2"<< std::endl;
             //df = diff(f,x);
             df = f.diff(x);
             // std::cout<<"init 3 "<< std::endl;
             //ddf = diff(df,x);
             ddf = df.diff(x);
-            std::cout<<"f: "<< f<<std::endl;
-            std::cout<<"df: "<< df<<std::endl;
-            std::cout<<"ddf: "<< ddf<<std::endl;
+            //std::cout<<"f: "<< f<<std::endl;
+            //std::cout<<"df: "<< df<<std::endl;
+            //std::cout<<"ddf: "<< ddf<<std::endl;
   
             func = convert_expression_to_function(f, x);
             deri_1 = convert_expression_to_function(df, x);
