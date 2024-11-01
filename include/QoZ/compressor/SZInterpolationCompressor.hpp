@@ -267,6 +267,7 @@ namespace QoZ {
             if(!anchor){
                 quant_inds.push_back(quantizer.quantize_and_overwrite(*data, 0));
             }
+            std::cout<<start_level<<" "<<interpolation_level<<std::endl;
             else if (start_level==interpolation_level){
                 
                 build_grid(conf,data,maxStep,tuning);
