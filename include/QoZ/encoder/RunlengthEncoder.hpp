@@ -17,6 +17,9 @@ namespace QoZ {
         void preprocess_encode(const std::vector<T> &bins, int stateNum) {
         };
 
+        void preprocess_encode() {
+        };
+
         size_t encode(const T * bins, size_t num_elements, uchar *&bytes) {
             int max = 0;
             size_t s = 0;
