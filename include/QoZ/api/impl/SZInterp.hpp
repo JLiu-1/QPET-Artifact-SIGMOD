@@ -248,7 +248,7 @@ void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3>
         size_t offset_size=0;
         T* offset_data;
         size_t cmpSize = cmpSizes[i];
-        QoZ::read(offset_size,reinterpret_cast< QoZ::uchar *>(cmpData[i])+cmpSize-sizeof(size_t));
+        QoZ::read<size_t>(offset_size,reinterpret_cast< QoZ::uchar const *>(cmpData[i])+cmpSize-sizeof(size_t));
         cmpSize-=sizeof(size_t);     
         if (offset_size!=0){
             //outlier_data.resize(confs[i].num);
