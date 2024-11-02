@@ -689,6 +689,9 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
             testConf.num=pow(testConf.sampleBlockSize+1,N);
             std::cout<<sampled_blocks[0].size()<<" "<<sampled_blocks[0][0].size()<<" "<<testConf.num<<std::endl;
+            sample_block_ebs.resize(3);
+            for(auto j:{0,1,2})
+                sample_block_ebs[j].resize(sampled_blocks[0].size());
 
             for(int i=0;i<sampled_blocks[0].size();i++){
                 for(auto j:{0,1,2}){
