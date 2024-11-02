@@ -694,7 +694,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
 
 template<class T, QoZ::uint N>
 void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
-    std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
+    //std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
     auto qoi_id = confs[0].qoi;
     if(qoi_id){
        
@@ -1110,6 +1110,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         confs[j].qoi_tuned = true;
     }
+    std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
     return;
         
 }
