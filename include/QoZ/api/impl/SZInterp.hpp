@@ -118,6 +118,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     //conf.print();
     std::array<bool,3>qoi_used = {false,false,false};
     for (auto i:{0,1,2}){
+        std::cout<<confs[i].qoi<<" "<<confs[i].use_global_eb<<std::endl;
         if (confs[i].qoi>0)
             confs[i].qoi = 10;//empty qoi;
         if (confs[i].qoi>0 and !confs[i].use_global_eb){
