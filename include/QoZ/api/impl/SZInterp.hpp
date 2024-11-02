@@ -1110,7 +1110,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         confs[j].qoi_tuned = true;
     }
-    std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
+    //std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
     return;
         
 }
@@ -2245,6 +2245,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
     for(auto i:{0,1,2})
         Tuning<T,N>(confs[i],data[i]);
     
+    std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
 
 
     if (1) {
