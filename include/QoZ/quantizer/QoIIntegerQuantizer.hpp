@@ -234,6 +234,11 @@ namespace QoZ {
             return global_eb;
         }
 
+        void set_eb_base(double ebase) {
+            eb_base = ebase;
+            eb_base_reciprocal = ((double) 1.0) / eb_base;
+        }
+
 
         // quantize the data with a prediction value, and returns the quantization index
         int quantize(T eb) {
