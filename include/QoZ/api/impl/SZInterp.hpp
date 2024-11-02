@@ -91,7 +91,7 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
 */
 
 template<class T, QoZ::uint N>
-void QoI_tuning(std::array<QoZ::Config,3> &conf, std::array<T *,3> *data);
+void QoI_tuning(std::array<QoZ::Config,3> &conf, std::array<T *,3> data);
 
 
 
@@ -604,7 +604,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
     QoZ::Config testConfig(conf);
 
     if(qoi==nullptr){
-        qoi = QoZ::GetQOI<T, N>(testConfig);
+        qoi = QoZ::GetQOI<T, N>({testConfig,testConfig,testConfig});
     }
     
     double bitrate=0.0;
@@ -959,7 +959,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     best_quantile = cur_quantile + 1;
                 }
                 else{
-                    min_abs_eb = std::min_element(ebs.begin(),ebs.begin()+last_quantile);
+                    min_abs_eb = *std::min_element(ebs.begin(),ebs.begin()+last_quantile);
                 }
 
 
