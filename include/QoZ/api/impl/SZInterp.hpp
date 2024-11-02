@@ -110,9 +110,21 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     for (auto i:{0,1,2})
         QoZ::calAbsErrorBound(confs[i], data[i]);
     std::array<char*,3> cmpData;
-    if(confs[0].qoi and !confs[0].qoi_tuned){
+    std::array<std::vector<T>,3> ori_data;
+
+
+    int ori_qoi = 0;
+    if(confs[0].qoi>0){
+        ori_qoi = confs[0].qoi;
+
+        if(confs[0].qoiRegionMode==0){
+            for (auto i:{0,1,2})
+                ori_data[i]=std::vector(data[i],data[i]+confs[i].num);
+        }
+
+        if(!confs[0].qoi_tuned)
         
-        QoI_tuning<T,N>(confs, data);
+           QoI_tuning<T,N>(confs, data);
     
     }
 
@@ -126,7 +138,6 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             //std::cout<<"Compress Data "<<i<<" with qoi interpolator"<<std::endl;
             qoi_used[i]=true;
             
-           
             auto qoi = QoZ::GetQOI<T, N>(confs);//todo: bring qoi to conf to avoid duplicated initialization.
             
             
@@ -170,15 +181,82 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         if (!qoi_used[i])
             confs[i].qoi = 0;
     }
+    if(ori_qoi>0 and conf.qoiRegionMode==0){
+        confs[0].qoi = ori_qoi;
+        auto qoi = QoZ::GetQOI<T, N>(confs);//todo: avoid duplicated initialization.
+        confs[0].qoi = 10;//empty
+    
+
+        for(size_t i=0;i<confs[0].num;i++){
+
+            double oq = qoi->eval(ori_data[0][i],ori_data[1][i],ori_data[2][i]);
+            double q = qoi->eval(data[0][i],data[1][i],data[2][i]);
+            if (fabs(oq-q)<=conf[0].qoiEB){
+                for (auto j:{0,1,2})
+                    ori_data[j][i]=0;
+            }
+            else{
+                for (auto j:{0,1,2})
+                    ori_data[j][i]-=data[j][i];
+            }
+        }
+
+        auto zstd = QoZ::Lossless_zstd();
+        size_t offset_size;
+        for (auto i:{0,1,2}){
+            uchar *lossless_data = zstd.compress(ori_data[i].data(),
+                                                         ori_data[i].data()+confs[i].num,
+                                                         offset_size);
+            ori_data[i].clear();
+            QoZ::write(lossless_data,offset_size,cmpData[i]+outSizes[i]);
+            outSizes[i]+=offset_size;
+            delete []lossless_data;
+
+            QoZ::write(offset_size,cmpData[i]+outSizes[i]);
+            outSizes[i]+=sizeof(size_t);
+
+            
+        }
+            
+
+
+
+
+    }
+    else{
+        for(auto i:{0,1,2}){
+            QoZ::write((size_t)0,cmpData[i]+outSizes[i]);
+            outSizes[i]+=sizeof(size_t);
+
+    }
+
+
     return cmpData;
+        }
 }
 
 template<class T, QoZ::uint N>
 void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
     assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP&&confs[1].cmprAlgo == QoZ::ALGO_INTERP&&confs[2].cmprAlgo == QoZ::ALGO_INTERP);
+
+
+
     
    //std::cout<<"5 "<<confs[0].qoi<<std::endl;
    for (auto i:{0,1,2}){
+
+        size_t offset_size=0;
+        T* offset_data;
+        size_t cmpSize = cmpSizes[i];
+        QoZ::read(offset_size,cmpData[i]+cmpSizes-sizeof(size_t));
+        cmpSize-=sizeof(size_t);     
+        if (offset_size!=0){
+            //outlier_data.resize(confs[i].num);
+            auto zstd = QoZ::Lossless_zstd();
+            offset_data = reinterpret_cast<const T *> zstd.decompress(cmpData[i]+cmpSize-offset_size, offset_size);
+            cmpSize-=offset_size;
+
+        }   
        if(confs[i].qoi > 0){
             //QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
             //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
@@ -196,7 +274,7 @@ void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3>
                 
                 auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
                         quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());//may need 3 encoders
-                sz.decompress(cmpDataPos, cmpSizes[i], decData[i]);
+                sz.decompress(cmpDataPos, cmpSize, decData[i]);
             
             
         }
@@ -207,7 +285,12 @@ void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3>
                     QoZ::LinearQuantizer<T>(),
                     QoZ::HuffmanEncoder<int>(),
                     QoZ::Lossless_zstd());
-            sz.decompress(cmpDataPos, cmpSizes[i], decData[i]);
+            sz.decompress(cmpDataPos, cmpSize, decData[i]);
+        }
+        if (offset_size!=0){
+            for(size_t j=0;j<confs[i].num;j++)
+                decData[j]+=offset_data[j];
+            delete []offset_data;
         }
     }
         

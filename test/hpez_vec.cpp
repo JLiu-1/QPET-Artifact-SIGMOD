@@ -262,7 +262,7 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
    
     }
     printf("decompression time = %f seconds.\n", decompress_time);
-    printf(" Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (cmpSizes[0]+cmpSizes[1]+cmpSizes[2]));
+    printf("Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (cmpSizes[0]+cmpSizes[1]+cmpSizes[2]));
 }
 
 int main(int argc, char *argv[]) {
