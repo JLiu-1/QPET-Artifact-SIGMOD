@@ -616,6 +616,10 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
            confs[j].ebs[i]=cur_ebs[j];
     }
 
+    for(auto j:{0,1,2})
+
+       std::cout<<j<<" "<<confs[j].ebs.front()<<" "<<confs[j].ebs.back()<<std::endl;
+
     std::array<double,3> best_abs_ebs;
 
     double quantile_rate = confs[0].quantile<= 0? confs[0].max_quantile_rate : confs[0].quantile  ;//conf.quantile;//quantile
