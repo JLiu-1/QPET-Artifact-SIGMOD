@@ -253,7 +253,8 @@ namespace QoZ {
             }
 
             quant_inds = std::vector<int>(num_elements * 2);//eb + data
-            ebs = conf.ebs;
+            if(tuning==0)
+                ebs = conf.ebs;
             size_t interp_compressed_size = 0;
             double eb = qoi->get_global_eb();
             //std::cout<<"setting eb "<<eb<<std::endl;
