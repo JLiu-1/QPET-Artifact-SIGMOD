@@ -91,7 +91,7 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
 */
 
 template<class T, QoZ::uint N>
-void QoI_tuning(std::array<QoZ::Config,3> &conf, std::array<T *,3> data);
+void QoI_tuning(std::array<QoZ::Config,3> &conf, std::array<T *,3> &data);
 
 
 

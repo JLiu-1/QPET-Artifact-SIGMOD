@@ -309,7 +309,7 @@ namespace QoZ {
                     }             
                     cur_eb=eb*cur_ratio;
                 }
-                qoi->set_global_eb(cur_eb);
+                //qoi->set_global_eb(cur_eb);
                 quantizer_eb.set_global_eb(cur_eb);
 
                 QoZ::Interp_Meta cur_meta;
