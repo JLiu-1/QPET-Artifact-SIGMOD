@@ -110,7 +110,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     for (auto i:{0,1,2})
         QoZ::calAbsErrorBound(confs[i], data[i]);
     std::array<char*,3> cmpData;
-    if(!confs[0].qoi_tuned){
+    if(confs[0].qoi and !confs[0].qoi_tuned){
         QoI_tuning<T,N>(confs, data);
     
     }
