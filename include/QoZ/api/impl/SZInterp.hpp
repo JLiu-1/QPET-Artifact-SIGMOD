@@ -229,12 +229,12 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         for(auto i:{0,1,2}){
             memcpy(cmpData[i]+outSizes[i],&offset_size,sizeof(size_t));
             outSizes[i]+=sizeof(size_t);
+        }
 
     }
 
 
     return cmpData;
-        }
 }
 
 template<class T, QoZ::uint N>
