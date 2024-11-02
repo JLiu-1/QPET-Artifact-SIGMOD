@@ -50,6 +50,8 @@ namespace QoZ {
 
             virtual double eval(T x,T y, T z) const = 0;
 
+            virtual void set_qoi_tolerance(double tol) = 0;
+
             virtual std::string get_expression() const = 0;
 
             virtual void set_dims(const std::vector<size_t>& new_dims) = 0;

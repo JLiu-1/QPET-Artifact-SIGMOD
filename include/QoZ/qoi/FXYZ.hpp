@@ -216,6 +216,8 @@ namespace QoZ {
             return func_string;
         }
 
+         void set_qoi_tolerance(double tol) {tolerance = tol;}
+
         //void pre_compute(const T * data){}
         
     private:

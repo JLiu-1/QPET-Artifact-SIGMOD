@@ -255,7 +255,7 @@ namespace QoZ {
             quant_inds = std::vector<int>(num_elements * 2);//eb + data
             ebs = conf.ebs;
             size_t interp_compressed_size = 0;
-            double eb = qoi->get_global_eb();
+            double eb = conf.absErrorBound;
             //std::cout<<"setting eb "<<eb<<std::endl;
             quantizer_eb.set_global_eb(eb);
             quantizer_eb.set_eb_base(eb/1030);//added
@@ -537,7 +537,7 @@ namespace QoZ {
                 }
             }                    
             //timer.start();
-            qoi->set_global_eb(eb);
+            //qoi->set_global_eb(eb);
             quantizer_eb.set_global_eb(eb);
             
             if (tuning){

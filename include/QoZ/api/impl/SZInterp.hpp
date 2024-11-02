@@ -91,7 +91,7 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
 */
 
 template<class T, QoZ::uint N>
-void QoI_tuning(QoZ::Config &conf, T *data);
+void QoI_tuning(std::array<QoZ::Config,3> &conf, std::array<T *,3> *data);
 
 
 
@@ -600,7 +600,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
 }
 
 template<class T, QoZ::uint N>
-double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T> > & sampled_blocks, const std::vector<std::vector<T> > & eb_blocks,std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoi=nullptr){
+double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T> > & sampled_blocks, const std::vector<std::vector<double> > & eb_blocks,std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoi=nullptr){
     QoZ::Config testConfig(conf);
 
     if(qoi==nullptr){
@@ -718,7 +718,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         double max_qoi = -std::numeric_limits<double>::max();
         double min_qoi = std::numeric_limits<double>::max();
        
-        for(size_t i=0; i<conf.num; i++){
+        for(size_t i=0; i<confs[0].num; i++){
             
             double q = qoi->eval(data[0][i],data[1][i],data[2][i]);
             if(std::isinf(q) or std::isnan(q))
@@ -761,13 +761,13 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
     size_t k = std::ceil(quantile_rate * confs[0].num);
     k = std::max((size_t)1, std::min(confs[0].num-1, k)); 
 
-    std::array<std::vector<std::vector<T> >,3>sample_block_ebs;
+    std::array<std::vector<std::vector<double> >,3>sample_block_ebs;
     std::array<std::vector<std::vector<T> >,3>sampled_blocks;
     std::vector<std::vector<size_t>>starts;
 
 
     std::array < std::vector<T>,3 > sampled_regions;
-    std::array<std::vector<T>,3>sample_region_ebs;
+    std::array<std::vector<double>,3>sample_region_ebs;
     size_t sampling_num, sampling_block;
     std::vector<size_t> sample_dims(N);
 
@@ -791,9 +791,9 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             size_t totalblock_num=1; 
 
 
-            std::nth_element(ebs[0].begin(),ebs[0].begin()+k, ebs.end()); 
+            std::nth_element(ebs.begin(),ebs.begin()+k, ebs.end()); 
 
-            double prof_abs_threshold = ebs[0][k];
+            double prof_abs_threshold = ebs[k];
             double sample_ratio = 5e-3;
 
             for(int i=0;i<N;i++){                      
@@ -821,7 +821,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
             testConf.num=pow(testConf.sampleBlockSize+1,N);
 
-            for(int i=0;i<sampled_blocks[j].size();i++){
+            for(int i=0;i<sampled_blocks[0].size();i++){
                 for(auto j:{0,1,2}){
                     sample_block_ebs[j][i].resize(testConf.num);
 
@@ -915,7 +915,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                     
                     testConf.absErrorBound = ebs[quantile];
-                    qoi->set_global_eb(testConf.absErrorBound);
+                    //qoi->set_global_eb(testConf.absErrorBound);
                     // reset variables for average of square
                     
                     double cur_br = CompressTest_QoI<T,N>(testConf,sampled_blocks[j],sample_block_ebs[j], qoi);        
@@ -963,8 +963,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 }
 
 
-                if( (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and  min_abs_eb >= 0.95 * best_abs_eb ){//may fix
-                    conf.use_global_eb = true;
+                if( (confs[j].qoiRegionMode == 0 or (confs[j].qoiRegionMode == 1 and confs[j].qoiRegionSize >= 3)) and  min_abs_eb >= 0.95 * best_abs_eb ){//may fix
+                    confs[j].use_global_eb = true;
                     //conf.qoiPtr = qoi;
                 }
 
@@ -1000,9 +1000,9 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                     
                     testConf.absErrorBound = ebs[quantile];
-                    qoi->set_global_eb(testConf.absErrorBound);
+                    //qoi->set_global_eb(testConf.absErrorBound);
                     size_t sampleOutSize;
-                    memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
+                    memcpy(sampling_data, sampled_regions[j].data(), testConf.num * sizeof(T));
                     // reset variables for average of square
                     auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,1);
                     sz.clear();
@@ -1049,13 +1049,13 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     best_quantile = cur_quantile + 1;
                 }
                 else{
-                    min_abs_eb = std::min_element(ebs.begin(),ebs.begin()+last_quantile);
+                    min_abs_eb = (*std::min_element(ebs.begin(),ebs.begin()+last_quantile));
                 }
 
 
 
-                if( (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and min_abs_eb >= 0.95 * best_abs_eb ){//may fix
-                    conf.use_global_eb = true;
+                if( (confs[j].qoiRegionMode == 0 or (confs[j].qoiRegionMode == 1 and confs[j].qoiRegionSize >= 3)) and min_abs_eb >= 0.95 * best_abs_eb ){//may fix
+                    confs[j].use_global_eb = true;
                     //conf.qoiPtr = qoi;
                 }
 
@@ -1063,7 +1063,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
                 
                 
-            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
+            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)confs[0].num<<std::endl;
             best_abs_ebs[j]=best_abs_eb;
             
         }
@@ -1085,7 +1085,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
     for(auto j:{0,1,2}){
         std::cout<<"File "<<j+1<<":"<<std::endl;
-        if(confs[i].use_global_eb)
+        if(confs[j].use_global_eb)
             std::cout<<"Use global eb."<<std::endl; 
 
         
@@ -1099,7 +1099,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
          //   qoi->set_dims(dims);
         //    qoi->init();
         //}
-        for (size_t i = 0; i < conf.num; i++){
+        for (size_t i = 0; i < confs[j].num; i++){
             if(confs[j].ebs[i] > best_abs_ebs[j])
                 confs[j].ebs[i] = best_abs_ebs[j];
         }
@@ -2204,7 +2204,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
 
 template<class T, QoZ::uint N>
-std::array<char *,3>SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs, std::array<T *,3>&data, std::array<size_t,3> &outSizes) {
+std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs, std::array<T *,3>&data, std::array<size_t,3> &outSizes) {
     assert(confs[0].cmprAlgo == QoZ::ALGO_INTERP_LORENZO);
     for(auto i:{0,1,2})
        QoZ::calAbsErrorBound(confs[i], data[i]);
