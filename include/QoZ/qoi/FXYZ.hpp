@@ -125,21 +125,21 @@ namespace QoZ {
             std::array<double,3> derivatives = {alpha,beta, gamma};
             double sum= alpha+beta+gamma;
             double square_sum= alpha*alpha+beta*beta+gamma*gamma;
-            double reci_square_sum = 0;
+           // double reci_square_sum = 0;
             //double reci_square_sum= 1.0/(alpha*alpha)+ 1.0/(beta*beta)+ 1.0/(gamma*gamma);
             
-            for (auto i:{0,1,2}){
-                if (derivatives[i]!=0)
-                    reci_square_sum+= 1.0/(derivatives[i]*derivatives[i]);
-            }
+            //for (auto i:{0,1,2}){
+            //    if (derivatives[i]!=0)
+            //        reci_square_sum+= 1.0/(derivatives[i]*derivatives[i]);
+            //}
             std::array<T,3> res;
             for (auto i:{0,1,2}){
                 
-                double Li = derivatives[i];
-                if (Li==0){
-                    res[i]=global_ebs[i];
-                    continue;
-                }
+                //double Li = derivatives[i];
+                //if (Li==0){
+                 //   res[i]=global_ebs[i];
+                 //   continue;
+                //}
                 //T est_1 = estimate_base/(sqrt(reci_square_sum)*Li*Li);
                 //T est_2 = tolerance/(3*Li);
                 T est_1 = square_sum!=0 ? estimate_base/sqrt(square_sum): global_ebs[i];
@@ -216,7 +216,7 @@ namespace QoZ {
             return func_string;
         }
 
-         void set_qoi_tolerance(double tol) {tolerance = tol;}
+        void set_qoi_tolerance(double tol) {tolerance = tol;}
 
         //void pre_compute(const T * data){}
         
