@@ -724,7 +724,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     
                     double cur_br = CompressTest_QoI<T,N>(testConf,sampled_blocks,qoi);        
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
-                    if(cur_br < best_br){
+                    if(cur_br < best_br * 1.02){
                         best_br = cur_br;
                         best_abs_eb = testConf.absErrorBound;
                         best_quantile = quantile;
