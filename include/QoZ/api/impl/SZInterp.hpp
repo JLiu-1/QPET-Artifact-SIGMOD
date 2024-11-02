@@ -700,7 +700,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 }   
 
                 for (size_t k = 0; k < testConf.num; k++){
-                    std::cout<<" "<<i<<" "<<k<<std::endl;
+                    //std::cout<<" "<<i<<" "<<k<<std::endl;
                     std::array<T,3>cur_ebs = qoi->interpret_eb(sampled_blocks[0][i][k],sampled_blocks[1][i][k],sampled_blocks[2][i][k]);
                     for(auto j:{0,1,2})
                        sample_block_ebs[j][i][k]=cur_ebs[j];
