@@ -246,7 +246,7 @@ namespace QoZ {
                 //eb = 0;
                 return 0;
             }
-            int id = log2(eb * eb_base_reciprocal) * log_of_base_reciprocal;
+            int id = int(eb * eb_base_reciprocal) ;
             return id;
         }
 
@@ -257,14 +257,14 @@ namespace QoZ {
                 eb = global_eb;
                 return 0;
             }
-            int id = log2(eb * eb_base_reciprocal) * log_of_base_reciprocal;
+            int id = int(eb * eb_base_reciprocal) ;
             // need to check if id = 0
             if(id == 0){
                 eb = global_eb;
                 return 0;
             }
             id = std::min(id, radius);
-            eb = pow(log_base, id) * eb_base;
+            eb = id * eb_base;
             return id;            
         }
 
@@ -274,7 +274,7 @@ namespace QoZ {
                 //return 0;
                 return global_eb; 
             } else {
-                return pow(log_base, quant_index) * eb_base;
+                return quant_index * eb_base;
             }
         }
 
