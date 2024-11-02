@@ -232,7 +232,7 @@ namespace QoZ {
 
         void set_eb_base(double ebase) {
             eb_base = ebase;
-            set_reciprocal();
+            eb_base_reciprocal = ((double) 1.0) / eb_base;
         }
 
         double get_global_eb() {
