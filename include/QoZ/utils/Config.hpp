@@ -273,8 +273,8 @@ namespace QoZ {
             qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", qoiIsoNum);
             quantile = cfg.GetReal("QoISettings", "quantile", quantile);
             max_quantile_rate = cfg.GetReal("QoISettings", "max_quantile_rate", max_quantile_rate);
-            auto qoistring_c = cfg.Get("QoISettings", "qoi_string", "x^2");
-            auto qoistring_c2 = cfg.Get("QoISettings", "qoi_string_2", "0");
+            auto qoistring_c = cfg.Get("QoISettings", "qoi_string", qoi_string);
+            auto qoistring_c2 = cfg.Get("QoISettings", "qoi_string_2", qoi_string_2);
             qoi_string = std::string(qoistring_c);
             qoi_string_2 = std::string(qoistring_c2);
             threshold = cfg.GetReal("QoISettings", "threshold", threshold);
