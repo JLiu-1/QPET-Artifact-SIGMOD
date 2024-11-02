@@ -253,21 +253,24 @@ namespace QoZ {
 
 
 
-            qoi = cfg.GetInteger("QoISettings", "qoi", 0); // whether to enable qoi
-            qoiEB = cfg.GetReal("QoISettings", "qoiEB", 1.0);
-            qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", 0);
-            qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", 0);
-            qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", 64);
-            qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", 1);
-            qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", 1);
-            quantile = cfg.GetReal("QoISettings", "quantile", 0.01);
+            qoi = cfg.GetInteger("QoISettings", "qoi", qoi); // whether to enable qoi
+            qoiEB = cfg.GetReal("QoISettings", "qoiEB", qoiEB);
+            qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", qoiEBBase);
+            qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
+
+            qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", qoiQuantbinCnt);
+            qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", qoiRegionSize);
+            qoiIsoNum = cfg.GetInteger("QoISettings", "qoiIsoNum", qoiIsoNum);
+            quantile = cfg.GetReal("QoISettings", "quantile", quantile);
+            max_quantile_rate = cfg.GetReal("QoISettings", "max_quantile_rate", max_quantile_rate);
             auto qoistring_c = cfg.Get("QoISettings", "qoi_string", qoi_string);
-            auto qoistring_c2 = cfg.Get("QoISettings", "qoi_string", qoi_string_2);
+            auto qoistring_c2 = cfg.Get("QoISettings", "qoi_string_2", qoi_string_2);
             qoi_string = std::string(qoistring_c);
             qoi_string_2 = std::string(qoistring_c2);
-            threshold = cfg.GetReal("QoISettings", "threshold", 0.0);
-            isolated = cfg.GetBoolean("QoISettings", "isolated", false);
-            regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
+            threshold = cfg.GetReal("QoISettings", "threshold", threshold);
+            isolated = cfg.GetBoolean("QoISettings", "isolated", isolated);
+            early_termination = cfg.GetBoolean("QoISettings", "early_termination", early_termination);
+            //regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
             tol_estimation = cfg.GetInteger("QoISettings", "tol_estimation", tol_estimation);
             confidence = cfg.GetReal("QoISettings", "confidence", confidence);
@@ -536,7 +539,8 @@ namespace QoZ {
 
 
         int qoi = 0; // whether to enable qoi
-        double qoiEB;
+        double qoiEB = 1.0;
+        uint8_t qoiEBMode = EB_ABS;
         double qoiEBBase = std::numeric_limits<double>::epsilon();
         double qoiEBLogBase = 2;
         int qoiQuantbinCnt = 64;        
@@ -545,18 +549,23 @@ namespace QoZ {
         std::vector<double> isovalues;
         int qoiNum = 0;
         std::vector<double> qoiEBs;
-        double quantile = 0.01;
+        double quantile = 0.0;
+        double max_quantile_rate = 0.2;
         bool qoi_tuned=false;
         std::string qoi_string = "(x^2+y^2+z^2)**0.5";
         std::string qoi_string_2 = "0";
         double threshold = 0.0;
         bool isolated = false;
-        bool regionalQoI = false;
+        //bool regionalQoI = false;
         std::vector<double> ebs;
         double regionalQoIeb;
         double error_std_rate = 2.0;
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
         double confidence = 0.999999;
+
+
+        bool early_termination = false;
+        int qoiRegionMode = 0;
 
         double use_global_eb = false;
 

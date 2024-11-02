@@ -242,9 +242,11 @@ namespace QoZ {
             std::vector<Interp_Meta>interp_metas;
             int cross_block=conf.crossBlock;
             init();
+            
             if (tuning){
                 std::vector<int>().swap(quant_inds);
                 std::vector<int>().swap(conf.quant_bins);
+                std::vector<int>().swap(conf.quant_bins_eb);
                 conf.quant_bin_counts=std::vector<size_t>(interpolation_level,0);
                 conf.decomp_square_error=0.0;
 
@@ -253,8 +255,10 @@ namespace QoZ {
             quant_inds = std::vector<int>(num_elements * 2);//eb + data
             ebs = conf.ebs;
             size_t interp_compressed_size = 0;
-            double eb = quantizer_eb.get_global_eb();
-            //quantizer_eb.set_global_eb(eb);
+            double eb = qoi->get_global_eb();
+            //std::cout<<"setting eb "<<eb<<std::endl;
+            quantizer_eb.set_global_eb(eb);
+            quantizer_eb.set_eb_base(eb/1030);//added
 
             if (start_level<=0 or start_level>interpolation_level ){
 
@@ -271,10 +275,11 @@ namespace QoZ {
                 quantize_integrated(0, *data, 0, tuning);
             }
             else if (start_level==interpolation_level){
-                if(tuning){
-                    conf.quant_bin_counts[start_level-1]=quant_inds.size();
-                }
+                
                 build_grid(conf,data,maxStep,tuning);
+                if(tuning){
+                    conf.quant_bin_counts[start_level-1]=quant_index;
+                }
                 start_level--;
             }
             double predict_error=0.0;
@@ -304,7 +309,7 @@ namespace QoZ {
                     }             
                     cur_eb=eb*cur_ratio;
                 }
-                //qoi->set_global_eb(cur_eb);
+                qoi->set_global_eb(cur_eb);
                 quantizer_eb.set_global_eb(cur_eb);
 
                 QoZ::Interp_Meta cur_meta;
@@ -347,7 +352,7 @@ namespace QoZ {
                         }
                     }
 
-                    if(!conf.blockwiseTuning){
+                    if(!conf.blockwiseTuning or (N!=2 and N!=3)){
                         predict_error+=block_interpolation(data, start_idx, end_idx, PB_predict_overwrite,
                                     interpolators[cur_meta.interpAlgo],cur_meta, stride,tuning,cross_block);//,cross_block,regressiveInterp);
 
@@ -528,17 +533,23 @@ namespace QoZ {
 
                 }
                 if(tuning){
-                    conf.quant_bin_counts[level-1]=quant_inds.size();
+                    conf.quant_bin_counts[level-1]=quant_index;
                 }
             }                    
             //timer.start();
-
+            qoi->set_global_eb(eb);
             quantizer_eb.set_global_eb(eb);
-
+            
             if (tuning){
-                conf.quant_bins=quant_inds;
+
+                size_t quant_counts = quant_inds.size()/2;
+                //std::cout<<quant_counts<< " "<<quant_inds.size()<<std::endl;
+                //for(size_t i=0;i<conf.quant_bin_counts.size();i++)
+                //    std::cout<<conf.quant_bin_counts[i]<<std::endl;
+                conf.quant_bins_eb=std::vector<int>(quant_inds.begin(),quant_inds.begin()+quant_counts);
+                conf.quant_bins=std::vector<int>(quant_inds.begin()+quant_counts,quant_inds.end());
                 std::vector<int>().swap(quant_inds);
-                conf.decomp_square_error=predict_error;
+                //conf.decomp_square_error=predict_error;
                 size_t bufferSize = 1;
                 uchar *buffer = new uchar[bufferSize];
                 buffer[0]=0;
@@ -547,6 +558,7 @@ namespace QoZ {
 
             if(conf.verbose)
                 timer.stop("prediction");//can remove later
+
             
             //timer.start();
             //assert(quant_inds.size() == 2*num_elements);
@@ -596,7 +608,7 @@ namespace QoZ {
                                                      compressed_size);
             lossless.postcompress_data(buffer);
             //timer.stop("Lossless") ;
-            compressed_size += interp_compressed_size;
+            compressed_size += interp_compressed_size;//???
 
 
             //QoZ::writefile<int>("quant_inds_cmp.test", quant_inds.data(),quant_inds.size());//added.
@@ -615,27 +627,38 @@ namespace QoZ {
 
             if(q_inds.size()>0)
                 quant_inds=q_inds;
-            size_t bufferSize = 2.5 * (quant_inds.size() * sizeof(T) + quantizer.size_est());//original is 3
+            
+            encoder.preprocess_encode(quant_inds, 0);
+            size_t bufferSize = 2.5 * (quantizer.size_est() + encoder.size_est() + sizeof(T) * quant_inds.size());
             uchar *buffer = new uchar[bufferSize];
             uchar *buffer_pos = buffer;
             quantizer_eb.save(buffer_pos);
             quantizer_eb.postcompress_data();
             quantizer.save(buffer_pos);
             quantizer.postcompress_data();
-           // quantizer.clear();
+            //quantizer.clear();
             encoder.preprocess_encode(quant_inds, 0);
             encoder.save(buffer_pos);
             encoder.encode(quant_inds, buffer_pos);
-            encoder.postprocess_encode();       
-//            timer.stop("Coding");
-            assert(buffer_pos - buffer < bufferSize);
+            encoder.postprocess_encode(); 
+            //timer.stop("Coding");
             //timer.start();
+            assert(buffer_pos - buffer < bufferSize);         
             uchar *lossless_data = lossless.compress(buffer,
                                                      buffer_pos - buffer,
                                                      compressed_size);
             lossless.postcompress_data(buffer);
-//            timer.stop("Lossless");
+            //timer.stop("Lossless") ;
+
+
+            //QoZ::writefile<int>("quant_inds_cmp.test", quant_inds.data(),quant_inds.size());//added.
+
+            //std::cout<<"quant index: "<<quant_index<<std::endl;
+
+            //std::cout<<quant_inds.size()<<" "<<num_elements*2<<std::endl;
             return lossless_data;
+
+
 
         }
 
@@ -870,11 +893,7 @@ namespace QoZ {
                 //if(idx == target_idx)
                 //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
-                T eb;
-                //if (qoi_id == 16)//todo: qoi.getid()
-                //    eb = qoi->interpret_eb(&d, idx);
-                //else 
-                    eb = ebs[idx];
+                T eb = ebs[idx];
                 //debug
                 //if (eb <global_eb)
                //     count++;
@@ -894,13 +913,12 @@ namespace QoZ {
                         quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
                                 d, 0, T(0.0));                    
                     }
-                }
+                }*/
                 //if(idx == target_idx){
                ///     std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<" "<<ori_data<<std::endl;
                 //}
                 // update cumulative tolerance if needed 
-                qoi->update_tolerance(ori_data, d);
-                */
+                //qoi->update_tolerance(ori_data, d);
                 quant_index ++;
 
 
@@ -910,9 +928,34 @@ namespace QoZ {
 
             }
             else if(mode==1){
-                T orig=d;
-                quant_inds.push_back(quantizer.quantize_and_overwrite(d, pred,true));
-                return (d-orig)*(d-orig);
+
+                T ori_data = d;
+                //if(idx == target_idx)
+                //    std::cout<<ori_data<<std::endl;
+                //auto eb = qoi->interpret_eb(data, offset);
+                T eb = ebs[idx];
+                //debug
+                //if (eb <global_eb)
+               //     count++;
+                //debug end
+                quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
+                quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
+                        d, pred, eb);
+                /*
+                if(!qoi->check_compliance(ori_data, d)){
+                    // std::cout << "not compliant" << std::endl;
+                    // save as unpredictable
+                    eb = 0.0;
+                    d = ori_data;
+                    quant_inds[quant_index] = quantizer_eb.quantize_and_overwrite(eb);
+                    if(quant_inds[num_elements + quant_index] != 0){
+                        // avoiding push multiple data
+                        quant_inds[num_elements + quant_index] = quantizer.quantize_and_overwrite(
+                                d, 0, T(0.0));                    
+                    }
+                }*/
+                quant_index ++;
+                return 0;
             }
             else{// if (mode==2){
                 pred_error=fabs(d-pred);

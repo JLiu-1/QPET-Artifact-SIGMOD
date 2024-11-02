@@ -310,6 +310,8 @@ int main(int argc, char *argv[]) {
     int width = -1;
 
     double quantile = -1;
+    double qoiErr = 0.0;
+    char *qoiErrBoundMode = nullptr;
 
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][2]) {
@@ -519,6 +521,18 @@ int main(int argc, char *argv[]) {
                 quantile = atof (argv[i]);
                 break;
 
+            case 'e':
+                if (++i == argc)
+                    usage();
+                qoiErr = atof (argv[i]);
+                break;
+
+            case 'm':
+                if (++i == argc)
+                    usage();
+                qoiErrBoundMode = argv[i];
+                break;
+
 
             default:
                 usage();
@@ -568,6 +582,11 @@ int main(int argc, char *argv[]) {
     } else {
         conf = QoZ::Config(r4, r3, r2, r1);
     }
+    
+    if (compression && conPath != nullptr) {
+        conf.loadcfg(conPath);
+    }
+
     if (qoz>=0){
         conf.QoZ=qoz;
     }
@@ -576,11 +595,12 @@ int main(int argc, char *argv[]) {
     }
     if(maxStep>0)
         conf.maxStep=maxStep;
-    if(conf.sampleBlockSize>0)
+    if(sampleBlockSize>0)
         conf.sampleBlockSize=sampleBlockSize;
-    if (compression && conPath != nullptr) {
-        conf.loadcfg(conPath);
-    }
+    
+
+    if(qoiErr>0)
+        conf.qoiEB = qoiErr;
 
 
     if (errBoundMode != nullptr) {
@@ -629,6 +649,21 @@ int main(int argc, char *argv[]) {
             exit(0);
         }
     }
+
+    if (qoiErrBoundMode != nullptr) {
+        if (strcmp(qoiErrBoundMode, QoZ::EB_STR[QoZ::EB_ABS]) == 0) {
+            conf.qoiEBMode = QoZ::EB_ABS;
+            
+        } else if (strcmp(qoiErrBoundMode, QoZ::EB_STR[QoZ::EB_REL]) == 0 || strcmp(qoiErrBoundMode, "VR_REL") == 0) {
+            conf.qoiEBMode = QoZ::EB_REL;
+            
+        } else {
+            printf("Error: wrong error bound mode setting by using the option '-M'\n");
+            usage();
+            exit(0);
+        }
+    }
+
 
     if (tuningTarget!= nullptr) {
        
