@@ -123,7 +123,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         if (confs[i].qoi>0)
             confs[i].qoi = 10;//empty qoi;
         if (confs[i].qoi>0 and !confs[i].use_global_eb){
-            std::cout<<"Compress Data "<<i<<" with qoi interpolator"<<std::endl;
+            //std::cout<<"Compress Data "<<i<<" with qoi interpolator"<<std::endl;
             qoi_used[i]=true;
             
            
@@ -167,9 +167,9 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         
     }
     for (auto i:{0,1,2}){
-            if (!qoi_used[i])
-                confs[i].qoi = 0;
-        }
+        if (!qoi_used[i])
+            confs[i].qoi = 0;
+    }
     return cmpData;
 }
 
@@ -288,144 +288,6 @@ inline void init_betalist(std::vector<double> &beta_list,const double &rel_bound
 }
 
 
-
-
-template<class T, QoZ::uint N>
-void sampleBlocks(T *data,std::vector<size_t> &dims, size_t sampleBlockSize,std::vector< std::vector<T> > & sampled_blocks,double sample_rate,int profiling ,std::vector<std::vector<size_t> > &starts,int var_first=0){
-    for(int i=0;i<sampled_blocks.size();i++){
-        std::vector< T >().swap(sampled_blocks[i]);                
-    }
-    std::vector< std::vector<T> >().swap(sampled_blocks);
-    for(int i=0;i<sampled_blocks.size();i++){
-        std::vector< T >().swap(sampled_blocks[i]);                  
-    }
-    std::vector< std::vector<T> >().swap(sampled_blocks);                               
-    size_t totalblock_num=1;
-    for(int i=0;i<N;i++){                        
-        totalblock_num*=(int)((dims[i]-1)/sampleBlockSize);
-    }               
-    size_t idx=0,block_idx=0;   
-    if(profiling){
-        size_t num_filtered_blocks=starts.size();    
-        if(var_first==0){  
-            size_t sample_stride=(size_t)(num_filtered_blocks/(totalblock_num*sample_rate));
-            if(sample_stride<=0)
-                sample_stride=1;
-            
-            for(size_t i=0;i<num_filtered_blocks;i+=sample_stride){
-                std::vector<T> s_block;
-                QoZ::sample_blocks<T,N>(data, s_block,dims, starts[i],sampleBlockSize+1);
-                sampled_blocks.push_back(s_block);
-                
-            }
-            
-        }
-        else{
-            std::vector< std::pair<double,std::vector<size_t> > >block_heap;
-            for(size_t i=0;i<num_filtered_blocks;i++){
-                double mean,sigma2,range;
-                QoZ::blockwise_profiling<T>(data,dims, starts[i],sampleBlockSize+1, mean,sigma2,range);
-                block_heap.push_back(std::pair<double,std::vector<size_t> >(sigma2,starts[i]));
-                
-            }
-            std::make_heap(block_heap.begin(),block_heap.end());
-          
-
-            size_t sampled_block_num=totalblock_num*sample_rate;
-            if(sampled_block_num>num_filtered_blocks)
-                sampled_block_num=num_filtered_blocks;
-            if(sampled_block_num==0)
-                sampled_block_num=1;
-
-            for(size_t i=0;i<sampled_block_num;i++){
-                std::vector<T> s_block;
-             
-                QoZ::sample_blocks<T,N>(data, s_block,dims, block_heap.front().second,sampleBlockSize+1);
-              
-                sampled_blocks.push_back(s_block);
-                std::pop_heap(block_heap.begin(),block_heap.end());
-                block_heap.pop_back();
-               
-            }
-        }
-    }               
-    else{
-        if(var_first==0){
-            size_t sample_stride=(size_t)(1.0/sample_rate);
-            if(sample_stride<=0)
-                sample_stride=1;
-            if (N==2){                        
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                           
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                        if (idx%sample_stride==0){
-                            std::vector<size_t> starts{x_start,y_start};
-                            std::vector<T> s_block;
-                            QoZ::sample_blocks<T,N>(data, s_block,dims, starts,sampleBlockSize+1);
-                            sampled_blocks.push_back(s_block);
-                        }
-                        idx+=1;
-                    }
-                }
-            }
-            else if (N==3){                  
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                          
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                        for (size_t z_start=0;z_start<dims[2]-sampleBlockSize;z_start+=sampleBlockSize){
-                            if (idx%sample_stride==0){
-                                std::vector<size_t> starts{x_start,y_start,z_start};
-                                std::vector<T> s_block;
-                                QoZ::sample_blocks<T,N>(data, s_block,dims, starts,sampleBlockSize+1);
-                                sampled_blocks.push_back(s_block);
-                            }
-                            idx+=1;
-                        }
-                    }
-                }
-            }
-        }
-        else{
-            std::vector <std::vector<size_t> > blocks_starts;
-            if (N==2){  
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                           
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                       
-                            blocks_starts.push_back(std::vector<size_t>{x_start,y_start});
-                    }
-                }
-
-            }
-            else if (N==3){           
-                for (size_t x_start=0;x_start<dims[0]-sampleBlockSize;x_start+=sampleBlockSize){                          
-                    for (size_t y_start=0;y_start<dims[1]-sampleBlockSize;y_start+=sampleBlockSize){
-                        for (size_t z_start=0;z_start<dims[2]-sampleBlockSize;z_start+=sampleBlockSize){
-                            blocks_starts.push_back(std::vector<size_t>{x_start,y_start,z_start});
-                        }
-                    }
-                }
-            
-
-                std::vector< std::pair<double,std::vector<size_t> > >block_heap;
-                for(size_t i=0;i<totalblock_num;i++){
-                    double mean,sigma2,range;
-                    QoZ::blockwise_profiling<T>(data,dims, blocks_starts[i],sampleBlockSize+1, mean,sigma2,range);
-                    block_heap.push_back(std::pair<double,std::vector<size_t> >(sigma2,blocks_starts[i]));
-                }
-                std::make_heap(block_heap.begin(),block_heap.end());
-                size_t sampled_block_num=totalblock_num*sample_rate;
-                if(sampled_block_num==0)
-                    sampled_block_num=1;
-                for(size_t i=0;i<sampled_block_num;i++){
-                    std::vector<T> s_block;
-                    QoZ::sample_blocks<T,N>(data, s_block,dims, block_heap.front().second,sampleBlockSize+1);
-                    sampled_blocks.push_back(s_block);
-                    std::pop_heap(block_heap.begin(),block_heap.end());
-                    block_heap.pop_back();
-                }
-
-            }
-        }
-    }
-}
 
 
 template<class T, QoZ::uint N>
@@ -785,6 +647,12 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
 
         if(N==2 or N==3){
+
+            if (testConf.sampleBlockSize<=0){
+            
+                testConf.sampleBlockSize = (N<=2?64:32);
+            }
+            
             ebs = std::vector<double>(confs[0].ebs.begin(),confs[0].ebs.end());
 
 
