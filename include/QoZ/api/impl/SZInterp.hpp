@@ -707,7 +707,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 }
 
             }
-            std::cout<<"p4"<<std::endl;
+            //std::cout<<"p4"<<std::endl;
 
         }
         else{
@@ -791,7 +791,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     testConf.absErrorBound = ebs[quantile];
                     //qoi->set_global_eb(testConf.absErrorBound);
                     // reset variables for average of square
-                    
+                    std::cout <<"quantile = "<<quantile<< " current_eb = " << testConf.absErrorBound<<std::endl;
                     double cur_br = CompressTest_QoI<T,N>(testConf,sampled_blocks[j],sample_block_ebs[j], qoi);        
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                     if(cur_br < best_br * 1.02){//todo: optimize
