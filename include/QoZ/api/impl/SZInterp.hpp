@@ -205,14 +205,14 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         size_t offset_size;
         for (auto i:{0,1,2}){
             QoZ::uchar *lossless_data = zstd.compress(reinterpret_cast< QoZ::uchar *>(ori_data[i].data()),
-                                                         ori_data[i].data()+confs[i].num,
+                                                         confs[i].num*sizeof(T),
                                                          offset_size);
             ori_data[i].clear();
-            QoZ::write<QoZ::uchar>(lossless_data,offset_size,reinterpret_cast<const QoZ::uchar *>(cmpData[i])+outSizes[i]);
+            QoZ::write<QoZ::uchar>(lossless_data,offset_size,(QoZ::uchar *)cmpData[i]+outSizes[i]);
             outSizes[i]+=offset_size;
             delete []lossless_data;
 
-            QoZ::write<size_t>(offset_size,reinterpret_cast<QoZ::uchar *>(cmpData[i])+outSizes[i]);
+            QoZ::write<size_t>(offset_size,(QoZ::uchar *)cmpData[i]+outSizes[i]);
             outSizes[i]+=sizeof(size_t);
 
             
