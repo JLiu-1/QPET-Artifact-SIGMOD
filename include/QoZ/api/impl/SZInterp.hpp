@@ -663,7 +663,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
             double prof_abs_threshold = ebs[k];
             double sample_ratio = 5e-3;
-            std::cout<<"p1"<<std::endl;
+            //std::cout<<"p1"<<std::endl;
             for(int i=0;i<N;i++){                      
                 totalblock_num*=(size_t)((testConf.dims[i]-1)/testConf.sampleBlockSize);
             }
@@ -673,7 +673,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             else if (N==3){
                 QoZ::profiling_block_3d<T,N>(data[0],testConf.dims,starts,testConf.sampleBlockSize, prof_abs_threshold,testConf.profStride);
             } 
-            std::cout<<"p2"<<std::endl;
+            //std::cout<<"p2"<<std::endl;
             size_t num_filtered_blocks=starts.size();
             if(num_filtered_blocks<=(int)(0.3*sample_ratio*totalblock_num))//todo: bugfix for others 
                 testConf.profiling=0;
@@ -682,12 +682,13 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                 QoZ::sampleBlocks<T,N>(data[j],testConf.dims,testConf.sampleBlockSize,sampled_blocks[j],sample_ratio,testConf.profiling,starts,false);
             }
-            std::cout<<"p3"<<std::endl;
+            //std::cout<<"p3"<<std::endl;
             //std::cout<<sampled_blocks.size()<<std::endl;
             //std::cout<<sampled_blocks[0].size()<<std::endl;
 
             testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
             testConf.num=pow(testConf.sampleBlockSize+1,N);
+            std::cout<<sampled_blocks[0].size()<<" "<<sampled_blocks[0][0].size()<<" "<<testConf.num<<std::endl;
 
             for(int i=0;i<sampled_blocks[0].size();i++){
                 for(auto j:{0,1,2}){
