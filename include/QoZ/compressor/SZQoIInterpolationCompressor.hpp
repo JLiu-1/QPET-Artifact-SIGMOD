@@ -256,7 +256,7 @@ namespace QoZ {
             ebs = conf.ebs;
             size_t interp_compressed_size = 0;
             double eb = qoi->get_global_eb();
-            std::cout<<"setting eb "<<eb<<std::endl;
+            //std::cout<<"setting eb "<<eb<<std::endl;
             quantizer_eb.set_global_eb(eb);
             quantizer_eb.set_eb_base(eb/1030);//added
 
