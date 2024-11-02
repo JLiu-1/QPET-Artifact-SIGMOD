@@ -181,7 +181,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         if (!qoi_used[i])
             confs[i].qoi = 0;
     }
-    if(ori_qoi>0 and conf.qoiRegionMode==0){
+    if(ori_qoi>0 and confs[0].qoiRegionMode==0){
         confs[0].qoi = ori_qoi;
         auto qoi = QoZ::GetQOI<T, N>(confs);//todo: avoid duplicated initialization.
         confs[0].qoi = 10;//empty
@@ -204,15 +204,15 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         auto zstd = QoZ::Lossless_zstd();
         size_t offset_size;
         for (auto i:{0,1,2}){
-            uchar *lossless_data = zstd.compress(ori_data[i].data(),
+            QoZ::uchar *lossless_data = zstd.compress(ori_data[i].data(),
                                                          ori_data[i].data()+confs[i].num,
                                                          offset_size);
             ori_data[i].clear();
-            QoZ::write(lossless_data,offset_size,cmpData[i]+outSizes[i]);
+            QoZ::write<QoZ::uchar>(lossless_data,offset_size,cmpData[i]+outSizes[i]);
             outSizes[i]+=offset_size;
             delete []lossless_data;
 
-            QoZ::write(offset_size,cmpData[i]+outSizes[i]);
+            QoZ::write<size_t>(offset_size,cmpData[i]+outSizes[i]);
             outSizes[i]+=sizeof(size_t);
 
             
@@ -225,7 +225,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     }
     else{
         for(auto i:{0,1,2}){
-            QoZ::write((size_t)0,cmpData[i]+outSizes[i]);
+            QoZ::write<size_t>((size_t)0,cmpData[i]+outSizes[i]);
             outSizes[i]+=sizeof(size_t);
 
     }
@@ -253,7 +253,7 @@ void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3>
         if (offset_size!=0){
             //outlier_data.resize(confs[i].num);
             auto zstd = QoZ::Lossless_zstd();
-            offset_data = reinterpret_cast<const T *> zstd.decompress(cmpData[i]+cmpSize-offset_size, offset_size);
+            offset_data = reinterpret_cast<const T *> ( zstd.decompress(cmpData[i]+cmpSize-offset_size, offset_size) );
             cmpSize-=offset_size;
 
         }   
