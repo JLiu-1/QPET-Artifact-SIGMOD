@@ -121,6 +121,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         if (confs[i].qoi>0)
             confs[i].qoi = 10;//empty qoi;
         if (confs[i].qoi>0 and !confs[i].use_global_eb){
+            std::cout<<"Compress Data "<<i<<" with qoi interpolator"<<std::endl;
             qoi_used[i]=true;
             
            
