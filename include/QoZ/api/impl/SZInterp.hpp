@@ -879,7 +879,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 }
                 // set error bound
                 
-                free(sampling_data);
+               
 
                 if(best_quantile == quantiles.back()){
                     std::sort(ebs.begin(),ebs.begin()+best_quantile);
@@ -915,6 +915,56 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     conf.use_global_eb = true;
                     //conf.qoiPtr = qoi;
                 }
+
+                else if (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)){
+                //test full-global mode
+                    if(best_abs_eb != min_abs_eb){
+                        testConf.absErrorBound = best_abs_eb;
+                        testConf.use_global_eb = true;
+                        //testConf.qoiPtr = qoi;
+
+                        size_t sampleOutSize;
+                        memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
+                        // reset variables for average of square
+                        auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
+                        sz.clear();
+                        delete[]cmprData;
+                        double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
+                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
+                        //double fr = fixrate[idx];
+                        if(cur_ratio>best_ratio*1.02){
+                            best_ratio = cur_ratio;
+                            conf.use_global_eb = true;
+                            
+                        }
+
+
+
+
+
+                    } 
+                    if(min_abs_eb>0.5*best_abs_eb){
+                        testConf.absErrorBound = min_abs_eb;
+                        testConf.use_global_eb = true;
+                       // testConf.qoiPtr = qoi;
+
+                        size_t sampleOutSize;
+                        memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
+                        // reset variables for average of square
+                        auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
+                        sz.clear();
+                        delete[]cmprData;
+                        double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
+                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
+                        //double fr = fixrate[idx];
+                        if(cur_ratio>best_ratio*1.02){
+                            best_ratio = cur_ratio;
+                            conf.use_global_eb = true;
+                            best_quantile = 0;
+                        }
+                    }
+                }
+                free(sampling_data);
 
 
             }
