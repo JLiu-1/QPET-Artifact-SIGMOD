@@ -119,7 +119,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     //conf.print();
     std::array<bool,3>qoi_used = {false,false,false};
     for (auto i:{0,1,2}){
-        std::cout<<confs[i].qoi<<" "<<confs[i].use_global_eb<<std::endl;
+        //std::cout<<confs[i].qoi<<" "<<confs[i].use_global_eb<<std::endl;
         if (confs[i].qoi>0)
             confs[i].qoi = 10;//empty qoi;
         if (confs[i].qoi>0 and !confs[i].use_global_eb){
@@ -164,11 +164,12 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             
             
         }
-        for (auto i:{0,1,2}){
+        
+    }
+    for (auto i:{0,1,2}){
             if (!qoi_used[i])
                 confs[i].qoi = 0;
         }
-    }
     return cmpData;
 }
 
@@ -2258,7 +2259,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
             std::cout << "====================================== END TUNING ======================================" << std::endl;
         }
 
-        std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
+        //std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
         return SZ_compress_Interp<T, N>(confs, data, outSizes);        
 
     } 
