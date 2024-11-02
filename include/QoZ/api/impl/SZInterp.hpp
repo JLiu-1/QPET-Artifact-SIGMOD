@@ -111,6 +111,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         QoZ::calAbsErrorBound(confs[i], data[i]);
     std::array<char*,3> cmpData;
     if(confs[0].qoi and !confs[0].qoi_tuned){
+        
         QoI_tuning<T,N>(confs, data);
     
     }
@@ -2245,7 +2246,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
     for(auto i:{0,1,2})
         Tuning<T,N>(confs[i],data[i]);
     
-    std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
+    //std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
 
 
     if (1) {
@@ -2257,7 +2258,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
             std::cout << "====================================== END TUNING ======================================" << std::endl;
         }
 
-            
+        std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
         return SZ_compress_Interp<T, N>(confs, data, outSizes);        
 
     } 

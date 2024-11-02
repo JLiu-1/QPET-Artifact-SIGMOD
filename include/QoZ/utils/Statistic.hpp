@@ -526,8 +526,8 @@ namespace QoZ {
             if (qoi_diff > max_qoi_diff)
                 max_qoi_diff = qoi_diff;
 
-            if(qoi_diff > 0.080516)
-                std::cout<<ori_data[0][i]<<" "<<ori_data[1][i]<<" "<<ori_data[2][i]<<" "<<data[0][i]<<" "<<data[1][i]<<" "<<data[2][i]<<" "<<cur_ori_qoi<<" "<<cur_qoi<<std::endl;
+            //if(qoi_diff > 0.080516)
+             //   std::cout<<ori_data[0][i]<<" "<<ori_data[1][i]<<" "<<ori_data[2][i]<<" "<<data[0][i]<<" "<<data[1][i]<<" "<<data[2][i]<<" "<<cur_ori_qoi<<" "<<cur_qoi<<std::endl;
             
 
 
