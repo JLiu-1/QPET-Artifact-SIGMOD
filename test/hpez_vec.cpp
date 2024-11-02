@@ -175,7 +175,7 @@ void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Co
         delete[] bytes[i];
     }
     printf("compression time = %f\n", compress_time);
-    printf(" Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (outSizes[0]+outSizes[1]+outSizes[2]));
+    printf("Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (outSizes[0]+outSizes[1]+outSizes[2]));
 
   
 

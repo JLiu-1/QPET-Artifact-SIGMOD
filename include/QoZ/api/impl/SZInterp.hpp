@@ -135,7 +135,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         //std::cout<<confs[i].qoi<<" "<<confs[i].use_global_eb<<std::endl;
         if (confs[i].qoi>0)
             confs[i].qoi = 10;//empty qoi;
-        if (confs[i].qoi>0 and !confs[i].use_global_eb){
+        if (0 and confs[i].qoi>0 and !confs[i].use_global_eb){
             //std::cout<<"Compress Data "<<i<<" with qoi interpolator"<<std::endl;
             qoi_used[i]=true;
             
@@ -178,14 +178,12 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         }
         
     }
-    for (auto i:{0,1,2}){
-        if (!qoi_used[i])
-            confs[i].qoi = 0;
-    }
+    
     if(ori_qoi>0 and confs[0].qoiRegionMode==0){
+        int conf_ori_qoi = confs[0].qoi;
         confs[0].qoi = ori_qoi;
         auto qoi = QoZ::GetQOI<T, N>(confs);//todo: avoid duplicated initialization.
-        confs[0].qoi = 10;//empty
+        confs[0].qoi = conf_ori_qoi;
     
 
         for(size_t i=0;i<confs[0].num;i++){
@@ -218,11 +216,6 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
 
             
         }
-            
-
-
-
-
     }
     else{
         offset_size=0;
@@ -231,6 +224,11 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             outSizes[i]+=sizeof(size_t);
         }
 
+    }
+
+    for (auto i:{0,1,2}){
+        if (!qoi_used[i])
+            confs[i].qoi = 0;
     }
 
 
