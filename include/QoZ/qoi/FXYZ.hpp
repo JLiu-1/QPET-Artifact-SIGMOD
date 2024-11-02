@@ -61,6 +61,7 @@ namespace QoZ {
             func_string = confs[0].qoi_string;
             confidence = confs[0].confidence;
             global_eb = confs[0].absErrorBound;
+            k = confs[0].error_std_rate>0.0?confs[0].error_std_rate:k ;
             for(auto i:{0,1,2})
                 global_ebs[i]=confs[i].absErrorBound;
 
@@ -432,7 +433,7 @@ namespace QoZ {
         //std::set<double>singularities;
         std::string func_string;
         double estimate_base;
-        double k = 3.0;
+        double k = 2.0;
 
         //double threshold;
        // bool isolated;
