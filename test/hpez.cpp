@@ -501,34 +501,14 @@ int main(int argc, char *argv[]) {
 
 
 
-    if (tuningTarget!= nullptr) {
-       
-        if (strcmp(tuningTarget, "PSNR") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_RD;
-        }
-        else if (strcmp(tuningTarget, "CR") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_CR;
-        }
-        else if (strcmp(tuningTarget, "SSIM") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_SSIM;
-        }
-        else if (strcmp(tuningTarget, "AC") == 0) {
-            conf.tuningTarget = QoZ::TUNING_TARGET_AC;
-        }
-        else {
-            printf("Error: wrong tuning target setting by using the option '-T'\n");
-            usage();
-            exit(0);
-        }
-        
-    }
+    
 
     if (compression && conPath != nullptr) {
         conf.loadcfg(conPath);
     }
 
 
-     if(qoiErr>0)
+    if(qoiErr>0)
         conf.qoiEB = qoiErr;
 
 
@@ -592,6 +572,28 @@ int main(int argc, char *argv[]) {
             usage();
             exit(0);
         }
+    }
+
+    if (tuningTarget!= nullptr) {
+       
+        if (strcmp(tuningTarget, "PSNR") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_RD;
+        }
+        else if (strcmp(tuningTarget, "CR") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_CR;
+        }
+        else if (strcmp(tuningTarget, "SSIM") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_SSIM;
+        }
+        else if (strcmp(tuningTarget, "AC") == 0) {
+            conf.tuningTarget = QoZ::TUNING_TARGET_AC;
+        }
+        else {
+            printf("Error: wrong tuning target setting by using the option '-T'\n");
+            usage();
+            exit(0);
+        }
+        
     }
 
     
