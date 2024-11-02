@@ -688,7 +688,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
             testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
             testConf.num=pow(testConf.sampleBlockSize+1,N);
-            std::cout<<sampled_blocks[0].size()<<" "<<sampled_blocks[0][0].size()<<" "<<testConf.num<<std::endl;
+            //std::cout<<sampled_blocks[0].size()<<" "<<sampled_blocks[0][0].size()<<" "<<testConf.num<<std::endl;
             //sample_block_ebs.resize(3);
             for(auto j:{0,1,2})
                 sample_block_ebs[j].resize(sampled_blocks[0].size());
@@ -743,12 +743,13 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             double best_abs_eb;
 
             ebs=std::vector<double>(confs[j].ebs.begin(),confs[j].ebs.end());
+            std::cout<<j<<" "<<confs[j].ebs.front()<<" "<<confs[j].ebs.bacl()<<std::endl;
 
        
             std::vector<size_t> quantiles;
             //std::array<double,4> fixrate = {1.0,1.05,1.10,1.15};//or{1.0,1.1,1.2,1.3}
             
-            double quantile_split=0.1;
+            //double quantile_split=0.1;
             for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01})
                 quantiles.push_back((size_t)(i*k));
             int quantile_num = quantiles.size();
