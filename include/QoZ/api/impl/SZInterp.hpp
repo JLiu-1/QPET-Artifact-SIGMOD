@@ -289,7 +289,7 @@ void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3>
         }
         if (offset_size!=0){
             for(size_t j=0;j<confs[i].num;j++)
-                decData[j]+=offset_data[j];
+                decData[i][j]+=offset_data[j];
             delete []offset_data;
         }
     }
