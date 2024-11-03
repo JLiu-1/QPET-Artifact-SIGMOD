@@ -381,7 +381,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,std::vector< std::
     QoZ::Config testConfig(conf);
     size_t ssim_size=conf.SSIMBlockSize;
     std::vector< std::vector<T> > ori_sampled_blocks;
-    if(tuningTarget!=QoZ::TUNING_TARGET_CR and (algo != QoZ::ALGO_INTERP or tuningTarget!=QoZ::TUNING_TARGET_PSNR)) 
+    if(tuningTarget!=QoZ::TUNING_TARGET_CR and (algo != QoZ::ALGO_INTERP or tuningTarget!=QoZ::TUNING_TARGET_RD)) 
         ori_sampled_blocks=sampled_blocks;
     /*    
     if(algo == QoZ::ALGO_LORENZO_REG){
@@ -1039,7 +1039,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             best_abs_ebs[j]=best_abs_eb;
             
         }
-        if((conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and not (confs[0].use_global_eb and confs[1].use_global_eb and confs[2].use_global_eb) ){//global tuning
+        if((confs[0].qoiRegionMode == 0 or (confs[0].qoiRegionMode == 1 and confs[0].qoiRegionSize >= 3)) and not (confs[0].use_global_eb and confs[1].use_global_eb and confs[2].use_global_eb) ){//global tuning
             double cur_overall_br = 0.0;
             if(N==2 or N==3){
 
@@ -1098,15 +1098,18 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     
                 for(auto j:{0,1,2}){
                     sampling_data_dec[j] = (T *) malloc(testConf.num * sizeof(T));
-                    testConf.absErrorBound = best_abs_eb[j];
+                    testConf.absErrorBound = best_abs_ebs[j];
                     testConf.use_global_eb = true;
                     //testConf.qoiPtr = qoi;
 
                     size_t sampleOutSize;
                     memcpy(sampling_data_dec[j], sampled_regions[j].data(), testConf.num * sizeof(T));
                     // reset variables for average of square
+                    auto sz =  QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
+                        QoZ::LinearQuantizer<T>(testConfig.absErrorBound),
+                        QoZ::HuffmanEncoder<int>(),
+                        QoZ::Lossless_zstd());
                     auto cmprData = sz.compress(testConf, sampling_data_dec[j], sampleOutSize,0);
-                    sz.clear();
                     delete[]cmprData;
                     double cur_br = (double)sampleOutSize*8/ (double)sampling_num; 
                     cur_overall_br += cur_br/3;              
