@@ -920,9 +920,11 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                     size_t sampleOutSize;
                     memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
-                    // reset variables for average of square
+                    auto sz =  QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
+                        QoZ::LinearQuantizer<T>(testConf.absErrorBound),
+                        QoZ::HuffmanEncoder<int>(),
+                        QoZ::Lossless_zstd());
                     auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
-                    sz.clear();
                     delete[]cmprData;
                     double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                     std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
@@ -930,14 +932,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     if(cur_ratio>best_ratio*1.02){
                         best_ratio = cur_ratio;
                         conf.use_global_eb = true;
-                            
-                        
-
-
-
-
-
                     } 
+
                     if(best_abs_eb!=min_abs_eb and min_abs_eb>0.5*best_abs_eb){
                         testConf.absErrorBound = min_abs_eb;
                         testConf.use_global_eb = true;
