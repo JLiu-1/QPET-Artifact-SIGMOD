@@ -943,7 +943,6 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                         memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
                         // reset variables for average of square
                         auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
-                        sz.clear();
                         delete[]cmprData;
                         double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                         std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
