@@ -1047,7 +1047,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 
                 for(auto j:{0,1,2}){
 
-                    testConf[j].absErrorBound = best_abs_ebs[j];
+                    testConf.absErrorBound = best_abs_ebs[j];
                     testConf.use_global_eb = true;
                     //qoi->set_global_eb(testConf.absErrorBound);
                     // reset variables for average of square
@@ -1061,7 +1061,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     
                 }
                 std::array<std::vector<T>,3>offsets;
-                for(size_t i=0;i<sampled_blocks[0].size;i++){
+                for(size_t i=0;i<sampled_blocks[0].size();i++){
                     for(size_t j=0;j<testConf.num;j++){
 
                         double oq = qoi->eval(sampled_blocks[0][i][j],sampled_blocks[1][i][j],sampled_blocks[2][i][j]);
@@ -1106,7 +1106,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     memcpy(sampling_data_dec[j], sampled_regions[j].data(), testConf.num * sizeof(T));
                     // reset variables for average of square
                     auto sz =  QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
-                        QoZ::LinearQuantizer<T>(testConfig.absErrorBound),
+                        QoZ::LinearQuantizer<T>(testConf.absErrorBound),
                         QoZ::HuffmanEncoder<int>(),
                         QoZ::Lossless_zstd());
                     auto cmprData = sz.compress(testConf, sampling_data_dec[j], sampleOutSize,0);
@@ -1839,7 +1839,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
                 tempmeta_list=conf.interpMeta_list;
                 conf.interpMeta_list=interpMeta_list;      
-                auto sampled_blocks_copy=sampled_blocks;
+                sampled_blocks_copy=sampled_blocks;
                 results=CompressTest<T,N>(conf,sampled_blocks_copy,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR,false);
                 double best_interp_cr_2=sizeof(T)*8.0/results.first;     
                 conf.interpMeta_list=tempmeta_list;
