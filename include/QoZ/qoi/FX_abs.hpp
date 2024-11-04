@@ -140,8 +140,8 @@ namespace QoZ {
             //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
             //    return false;
             //if(fabs(func(data) - func(dec_data)) > tolerance)
-                std::cout<<data<<" "<<dec_data<<" "<<fabs(func(data) - func(dec_data))<<std::endl;
-            return (fabs(func(data) - func(dec_data)) <= tolerance);
+                //std::cout<<data<<" "<<dec_data<<" "<<fabs(func(data) - func(dec_data))<<std::endl;
+            return (fabs(eval(data) - eval(dec_data)) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}

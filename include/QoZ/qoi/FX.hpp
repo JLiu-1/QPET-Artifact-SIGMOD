@@ -139,7 +139,7 @@ namespace QoZ {
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
             //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
             //    return false;
-            return (fabs(func(data) - func(dec_data)) <= tolerance);
+            return (fabs(eval(data) - eval(dec_data)) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
