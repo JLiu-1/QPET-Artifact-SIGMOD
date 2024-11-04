@@ -105,6 +105,8 @@ namespace QoZ {
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
+            if (data == threshold)
+                return global_eb;
             
             data = fabs(data);
             double a = fabs(deri_1(data));//datatype may be T

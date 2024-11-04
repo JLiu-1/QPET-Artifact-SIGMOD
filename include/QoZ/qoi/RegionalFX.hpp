@@ -242,6 +242,8 @@ namespace QoZ {
                 T diff = fabs(*data-sg);
                 eb = std::min(diff,eb);
              }
+             if(eb==0)
+                eb = global_eb;
 
             return std::min(eb, global_eb);
 
