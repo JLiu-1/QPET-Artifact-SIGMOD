@@ -139,6 +139,8 @@ namespace QoZ {
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
             //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
             //    return false;
+            if(fabs(func(data) - func(dec_data)) > tolerance)
+                std::cout<<data<<" "<<dec_data<<std::endl;
             return (fabs(func(data) - func(dec_data)) <= tolerance);
         }
 
