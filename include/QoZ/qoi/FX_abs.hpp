@@ -122,8 +122,8 @@ namespace QoZ {
                 T diff = fabs(data-sg);
                 eb = std::min(diff,eb);
              }
-             if(eb<=1e-20)
-                eb = global_eb;
+             //if(eb<=1e-20)
+             //   eb = global_eb;
            // std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
             return std::min(eb, global_eb);
         }
@@ -139,8 +139,8 @@ namespace QoZ {
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
             //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
             //    return false;
-            if(fabs(func(data) - func(dec_data)) > tolerance)
-                std::cout<<data<<" "<<dec_data<<std::endl;
+            //if(fabs(func(data) - func(dec_data)) > tolerance)
+            //    std::cout<<data<<" "<<dec_data<<std::endl;
             return (fabs(func(data) - func(dec_data)) <= tolerance);
         }
 
