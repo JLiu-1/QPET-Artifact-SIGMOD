@@ -165,8 +165,6 @@ namespace QoZ {
 
             double res = func(val);
             if (std::isnan(res) or std::isinf(res))
-                std::cout<<val<<std::endl;
-            if (std::isnan(res) or std::isinf(res))
                 return 0;
             return res; 
 
