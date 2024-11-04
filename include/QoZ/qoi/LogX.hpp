@@ -46,7 +46,7 @@ namespace QoZ {
             //double b = fabs(-a/data);
             //T eb = std::min((sqrt(a*a+2*b*tolerance)-a)/b,fabs(data));
             if (data == 0)
-                return global_eb;
+                return 0;
             data = fabs(data);
 
             T eb = (1-pow(base,-tolerance))*data;
