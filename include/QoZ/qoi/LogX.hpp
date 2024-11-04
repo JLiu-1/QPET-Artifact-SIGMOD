@@ -68,7 +68,7 @@ namespace QoZ {
                 std::cout << data << " " << dec_data << std::endl;
                 std::cout << log_b_a(fabs(data)) << " " << log_b_a(fabs(dec_data)) << std::endl;
             }
-            return (fabs( log_b_a(fabs(data)) - log_b_a(fabs(dec_data)) ) < tolerance );
+            return (fabs( eval(data) - eval(dec_data) ) < tolerance );
         }
 
         void update_tolerance(T data, T dec_data){}

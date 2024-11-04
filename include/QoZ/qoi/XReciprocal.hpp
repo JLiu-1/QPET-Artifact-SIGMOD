@@ -50,9 +50,9 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            if (data == 0 or dec_data == 0)
-                return false; 
-            return (fabs(1.0/data - 1.0/dec_data) < tolerance);
+            if (data == dec_data)
+                return true; 
+            return (fabs(eval(data) - eval(dec_data)) < tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
