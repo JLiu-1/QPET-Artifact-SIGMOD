@@ -1075,7 +1075,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 }
 
                 auto zstd = QoZ::Lossless_zstd();
-                size_t overall_offset_size;
+                size_t overall_offset_size=0;
                 
                 for (auto i:{0,1,2}){
                     size_t offset_size;
@@ -1087,6 +1087,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     delete []lossless_data;
 
                 }
+
                 cur_overall_br += (double)(overall_offset_size*8)/(double)(3*sampled_blocks[0].size()*testConf.num);
                 
             }
