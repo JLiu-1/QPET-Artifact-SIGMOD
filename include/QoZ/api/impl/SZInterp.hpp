@@ -1067,7 +1067,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                                 offsets[l].push_back(0);
                         }
                         else{
-                            std::cout<<"incomp "<<i<<" "<<j<<std::endl;
+                            //std::cout<<"incomp "<<i<<" "<<j<<std::endl;
                             for (auto l:{0,1,2})
                                 offsets[l].push_back(sampled_blocks[l][i][j]-sampled_blocks_dec[l][i][j]);
                         }
