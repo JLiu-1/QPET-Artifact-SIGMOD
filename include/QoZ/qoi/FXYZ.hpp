@@ -194,7 +194,7 @@ namespace QoZ {
         bool check_compliance(T x, T y, T z, T dec_x, T dec_y, T dec_z) const{
             auto q_ori = eval(x,y,z);
             if (std::isnan(q_ori) or std::isinf(q_ori))
-                return data == dec_data;
+                return x == dec_x and y == dec_y and z == dec_z;
             auto q_dec = eval(dec_x,dec_y,dec_z);
             if (std::isnan(q_dec) or std::isinf(q_dec))
                 return false;
