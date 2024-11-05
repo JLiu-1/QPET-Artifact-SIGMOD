@@ -141,7 +141,15 @@ namespace QoZ {
             //    return false;
             //if(fabs(func(data) - func(dec_data)) > tolerance)
                 //std::cout<<data<<" "<<dec_data<<" "<<fabs(func(data) - func(dec_data))<<std::endl;
-            return (fabs(eval(data) - eval(dec_data)) <= tolerance);
+            
+            double q_ori = eval(data);
+            if (std::isnan(q_ori) or std::isinf(q_ori))
+                q_ori=0;
+            double q_dec = eval(dec_data);
+            if (std::isnan(q_dec) or std::isinf(q_dec))
+                q_dec=0;
+
+            return (fabs(q_ori - q_dec) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -163,12 +171,12 @@ namespace QoZ {
         double eval(T val) const{
 
 
-            val = fabs(val);
+            //val = fabs(val);
 
-            double res = func(val);
-            if (std::isnan(res) or std::isinf(res))
-                return 0;
-            return res; 
+            //double res = ;
+            //if (std::isnan(res) or std::isinf(res))
+            //    return 0;
+            return func(val); 
 
         } 
 
