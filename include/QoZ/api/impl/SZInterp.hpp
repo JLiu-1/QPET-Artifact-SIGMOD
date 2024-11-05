@@ -187,10 +187,8 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     
 
         for(size_t i=0;i<confs[0].num;i++){
-
-            double oq = qoi->eval(ori_data[0][i],ori_data[1][i],ori_data[2][i]);
-            double q = qoi->eval(data[0][i],data[1][i],data[2][i]);
-            if (fabs(oq-q)<=confs[0].qoiEB){
+            
+            if (qoi->check_compliance(ori_data[0][i],ori_data[1][i],ori_data[2][i],data[0][i],data[1][i],data[2][i])){
                 for (auto j:{0,1,2})
                     ori_data[j][i]=0;
             }
@@ -1063,10 +1061,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 std::array<std::vector<T>,3>offsets;
                 for(size_t i=0;i<sampled_blocks[0].size();i++){
                     for(size_t j=0;j<testConf.num;j++){
-
-                        double oq = qoi->eval(sampled_blocks[0][i][j],sampled_blocks[1][i][j],sampled_blocks[2][i][j]);
-                        double q = qoi->eval(sampled_blocks_dec[0][i][j],sampled_blocks_dec[1][i][j],sampled_blocks_dec[2][i][j]);
-                        if (fabs(oq-q)<=testConf.qoiEB){
+                        if ( qoi->check_compliance(sampled_blocks[0][i][j],sampled_blocks[1][i][j],sampled_blocks[2][i][j],
+                                                   sampled_blocks_dec[0][i][j],sampled_blocks_dec[1][i][j],sampled_blocks_dec[2][i][j])){
                             for (auto l:{0,1,2})
                                 offsets[l].push_back(0);
                         }
@@ -1121,16 +1117,14 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                 for(size_t i=0;i<testConf.num;i++){
                    
-
-                    double oq = qoi->eval(sampled_regions[0][i], sampled_regions[1][i],sampled_regions[2][i]);
-                    double q = qoi->eval(sampling_data_dec[0][i],sampling_data_dec[1][i],sampling_data_dec[2][i]);
-                    if (fabs(oq-q)<=testConf.qoiEB){
-                        for (auto l:{0,1,2})
-                            offsets[l].push_back(0);
+                    if (qoi->check_compliance(sampled_regions[0][i],sampled_regions[1][i],sampled_regions[2][i],
+                                                   sampling_data_dec[0][i],sampling_data_dec[1][i],sampling_data_dec[2][i])){
+                        for (auto j:{0,1,2})
+                            offsets[j].push_back(0);
                     }
                     else{
-                        for (auto l:{0,1,2})
-                            offsets[l].push_back(sampled_regions[0][i]-sampling_data_dec[0][i]);
+                        for (auto j:{0,1,2})
+                            offsets[j].push_back(sampled_regions[j][i]-sampling_data_dec[j][i]);
                     }
                     
                 }

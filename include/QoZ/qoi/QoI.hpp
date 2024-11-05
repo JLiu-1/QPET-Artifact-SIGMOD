@@ -31,7 +31,7 @@ namespace QoZ {
 
             //virtual void update_tolerance(T data, T dec_data) = 0;
 
-           // virtual bool check_compliance(T x, T y, T z, T dec_x, T dec_y, T dec_z, bool verbose=false) const = 0;
+            virtual bool check_compliance(T x, T y, T z, T dec_x, T dec_y, T dec_z) const = 0;
 
             //virtual void precompress_block(const std::shared_ptr<Range> &range) = 0;
 
@@ -44,7 +44,7 @@ namespace QoZ {
             // for interpolation compressors
           //  virtual T get_global_eb() const = 0;
 
-           // virtual void set_global_eb(T eb) = 0;
+            //virtual void set_global_eb(T eb1, T eb2, T eb3) = 0;
 
             virtual void init() = 0;
 

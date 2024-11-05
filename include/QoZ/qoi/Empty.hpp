@@ -80,6 +80,9 @@ namespace QoZ {
             return true;
         }
         */
+        bool check_compliance(T x, T y, T z, T dec_x, T dec_y, T dec_z) const{
+            return true;
+        }
 
         //void update_tolerance(T data, T dec_data){}
 

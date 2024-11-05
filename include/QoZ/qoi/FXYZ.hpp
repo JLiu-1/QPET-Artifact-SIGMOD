@@ -191,6 +191,15 @@ namespace QoZ {
             return (fabs(func(data) - func(dec_data)) < tolerance);
         }
         */
+        bool check_compliance(T x, T y, T z, T dec_x, T dec_y, T dec_z) const{
+            auto q_ori = eval(x,y,z);
+            if (std::isnan(q_ori) or std::isinf(q_ori))
+                return data == dec_data;
+            auto q_dec = eval(dec_x,dec_y,dec_z);
+            if (std::isnan(q_dec) or std::isinf(q_dec))
+                return false;
+            return (fabs(q_ori - q_dec) <= tolerance);
+        }
         //void update_tolerance(T data, T dec_data){}
 
         //void precompress_block(const std::shared_ptr<Range> &range){}
