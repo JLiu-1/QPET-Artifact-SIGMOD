@@ -513,15 +513,24 @@ namespace QoZ {
        
         double max_qoi_diff = 0;
 
-        double max_qoi = qoi->eval(ori_data[0][0],ori_data[1][0],ori_data[2][0]);
-        double min_qoi = max_qoi;
+        double max_qoi = -std::numeric_limits<double>::max();
+        double min_qoi = std::numeric_limits<double>::max();
        
         for(int i=0; i<num_elements; i++){
             auto cur_ori_qoi = qoi->eval(ori_data[0][i],ori_data[1][i],ori_data[2][i]);
             auto cur_qoi = qoi->eval(data[0][i],data[1][i],data[2][i]);
 
-            if (max_qoi < cur_ori_qoi) max_qoi = cur_ori_qoi;
-            if (min_qoi > cur_ori_qoi) min_qoi = cur_ori_qoi;
+            if(!std::isinf(cur_ori_qoi) and !std::isnan(cur_ori_qoi)) {
+
+                if (max_qoi < cur_ori_qoi) max_qoi = cur_ori_qoi;
+                if (min_qoi > cur_ori_qoi) min_qoi = cur_ori_qoi;
+            }
+            else{
+                cur_ori_qoi = 0.0;
+            }
+            if(std::isinf(cur_qoi) or std::isnan(cur_qoi))
+                cur_qoi = 0.0;
+
             double qoi_diff = fabs( cur_ori_qoi - cur_qoi );
             if (qoi_diff > max_qoi_diff)
                 max_qoi_diff = qoi_diff;
