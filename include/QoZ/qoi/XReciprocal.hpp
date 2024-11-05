@@ -50,8 +50,8 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            if (data == dec_data)
-                return true; 
+            if (data == 0) return (dec_data == 0);
+            if (dec_data == 0) return false; 
             return (fabs(eval(data) - eval(dec_data)) < tolerance);
         }
 
@@ -72,8 +72,6 @@ namespace QoZ {
         void set_dims(const std::vector<size_t>& new_dims){}
 
         double eval(T val) const{
-            if (val==0)
-                return 0;
             
             return 1.0/val;//todo
 

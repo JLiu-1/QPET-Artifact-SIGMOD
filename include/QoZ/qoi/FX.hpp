@@ -139,7 +139,15 @@ namespace QoZ {
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
             //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
             //    return false;
-            return (fabs(eval(data) - eval(dec_data)) <= tolerance);
+            
+            double q_ori = eval(data);
+            if (std::isnan(q_ori) or std::isinf(q_ori))
+                return data == dec_data;
+            double q_dec = eval(dec_data);
+            if (std::isnan(q_dec) or std::isinf(q_dec))
+                return false;
+
+            return (fabs(q_ori - q_dec) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
