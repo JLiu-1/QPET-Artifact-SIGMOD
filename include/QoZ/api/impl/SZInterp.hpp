@@ -187,7 +187,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
     
 
         for(size_t i=0;i<confs[0].num;i++){
-            
+
             if (qoi->check_compliance(ori_data[0][i],ori_data[1][i],ori_data[2][i],data[0][i],data[1][i],data[2][i])){
                 for (auto j:{0,1,2})
                     ori_data[j][i]=0;
@@ -1067,6 +1067,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                                 offsets[l].push_back(0);
                         }
                         else{
+                            std::cout<<"incomp "<<i<<" "<<j<<std::endl;
                             for (auto l:{0,1,2})
                                 offsets[l].push_back(sampled_blocks[l][i][j]-sampled_blocks_dec[l][i][j]);
                         }
