@@ -33,6 +33,13 @@ target_compile_features(${PROJECT_NAME}
     INTERFACE cxx_std_17
   )
 
+pkg_check_modules(GMP REQUIRED gmp)
+if (GMP_FOUND)
+    message("GMP found.")
+else()
+    message("GMP not found.")
+endif()
+
 target_link_libraries(${PROJECT_NAME} INTERFACE symengine)
 target_link_libraries(${PROJECT_NAME} INTERFACE gmp)
 
@@ -72,6 +79,8 @@ if (GSL_FOUND)
 else()
   message("GSL not found.")
 endif()
+
+
 
 
 add_subdirectory(test)
