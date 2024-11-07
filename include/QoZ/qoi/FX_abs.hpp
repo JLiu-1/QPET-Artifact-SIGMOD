@@ -176,7 +176,7 @@ namespace QoZ {
             //double res = ;
             //if (std::isnan(res) or std::isinf(res))
             //    return 0;
-            return func(val); 
+            return func(abs(val)); 
 
         } 
 
