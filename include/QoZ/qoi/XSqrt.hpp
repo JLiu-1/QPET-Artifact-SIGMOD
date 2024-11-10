@@ -40,7 +40,7 @@ namespace QoZ {
             //T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
           
             T eb = sqr >= tolerance ?  2*tolerance*sqr-tolerance*tolerance : 2*tolerance*sqr+tolerance*tolerance;
-            eb = std::min (data,eb);
+            //eb = std::min (data,eb);
             return std::min(eb, global_eb);
         }
 
