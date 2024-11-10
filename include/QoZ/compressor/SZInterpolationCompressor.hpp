@@ -256,7 +256,7 @@ namespace QoZ {
 
 
             if(!anchor){
-                quant_inds.push_back(quantizer.quantize_and_overwrite(*data, 0));
+                quantize_integrated(0,*data,0,tuning);
             }
             else if (start_level==interpolation_level){
                 if(tuning){
