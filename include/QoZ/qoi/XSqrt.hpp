@@ -27,7 +27,8 @@ namespace QoZ {
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            double sqr = sqrt(fabs(data));
+            data = fabs(data);
+            double sqr = sqrt(data);
             
             //if (data == 0)
             //    return global_eb;
@@ -53,7 +54,7 @@ namespace QoZ {
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
             
-            return (fabs(sqrt(fabs(data))-sqrt(fabs(dec_data)) ) < tolerance);
+            return (  fabs( sqrt(fabs(data))-sqrt(fabs(dec_data)) ) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
