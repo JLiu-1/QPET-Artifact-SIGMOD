@@ -454,15 +454,19 @@ namespace QoZ {
         verify(ori_data, data, num_elements, psnr, nrmse);
         Type max = ori_data[0];
         Type min = ori_data[0];
+        Type maxabs = fabs(ori_data[0]);
+        Type minabs = fabs(ori_data[0]);
         for (size_t i = 1; i < num_elements; i++) {
             if (max < ori_data[i]) max = ori_data[i];
             if (min > ori_data[i]) min = ori_data[i];
+            if (maxabs < fabs(ori_data[i])) maxabs = fabs(ori_data[i]);
+            if (minabs > fabs(ori_data[i])) minabs = fabs(ori_data[i]);
         }
 
         double max_abs_val = std::max(fabs(max), fabs(min));
-        double max_abs_val_sq = max_abs_val * max_abs_val;
+        double max_abs_val_sq = maxabs * maxabs - minabs * minabs;
         double max_abs_val_pow = pow(2,max);
-        double max_abs_val_cu = max_abs_val * max_abs_val * max_abs_val;
+        double max_abs_val_cu = max * max * max - min * min * min;
         double max_x_square_diff = 0;
         double max_x_cubic_diff = 0;
         double max_log_diff = 0;
