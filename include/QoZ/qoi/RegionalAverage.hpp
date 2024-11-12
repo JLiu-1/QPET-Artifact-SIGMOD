@@ -84,19 +84,6 @@ namespace QoZ {
 
         void set_dims(const std::vector<size_t>& new_dims){}
 
-        double eval(T val) const{
-            
-            return 0;//todo
-
-        } 
-
-        std::string get_expression() const{
-            return "Regional average of x";
-        }
-        void pre_compute(const T * data){}
-
-        void set_qoi_tolerance(double tol) {tolerance = tol;}
-
     private:
         T tolerance;
         T global_eb;
@@ -153,18 +140,6 @@ namespace QoZ {
         void init(){}
 
         void set_dims(const std::vector<size_t>& new_dims){}
-
-        double eval(T val) const{
-            
-            return 0;//todo
-
-        } 
-
-        std::string get_expression() const{
-            return "Regional average of x";
-        }
-
-        void pre_compute(const T * data){}
 
     private:
         T tolerance;

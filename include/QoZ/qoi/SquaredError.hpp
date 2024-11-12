@@ -14,7 +14,7 @@ namespace QoZ {
     class QoI_SquaredError : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_SquaredError(double tolerance, size_t num_elements, T global_eb) : 
+        QoI_SquaredError(T tolerance, size_t num_elements, T global_eb) : 
                 tolerance(tolerance),
                 num_rest(num_elements),
                 global_eb(global_eb) {
@@ -53,20 +53,6 @@ namespace QoZ {
         }
 
         void print(){}
-
-        double eval(T val) const{
-            
-            return 0;//todo
-
-        } 
-
-        std::string get_expression() const{
-            return "";
-        } 
-
-        void pre_compute(const T * data){}
-
-        void set_qoi_tolerance(double tol) {tolerance = tol;}
 
     private:
         T compute_eb(){

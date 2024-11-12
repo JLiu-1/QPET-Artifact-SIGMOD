@@ -33,64 +33,8 @@
 
 
 
-double estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 2.0){//n: element_per_block N: num_blocks q: confidence
-    //no var information
-    //if gaussian, just multiply k 
-   
-    /*
-    if (q>=0.95 and N >= 1000){
-        return sqrt( -n / ( 2 * ( log(1-q) - log(2*N) ) ) );
-    }
-    else{
-        return sqrt( -n / ( 2 * ( log(1- pow(q,1.0/N) ) - log(2) ) ) );
-    }
-    */
-
-    double p;
-    if (q>=0.95 and N >= 1000){
-        p = (1-q)/N;
-    }
-    else{
-        p = 1- pow(q,1.0/N);
-    }
 
 
-    return k*sqrt(0.5*n/log(2.0/p));
-    
-}
-
-double estimate_rate_Bernstein(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
-    //estimate var as gaussian
-    double p;
-    if (q>=0.95 and N >= 1000){
-        p = (1-q)/N;
-    }
-    else{
-        p = 1- pow(q,1.0/N);
-    }
-
-
-    return (k*k/6)*(sqrt(1+18*n/(k*k*log(2/p)))-1);
-    
-}
-
-/*
-double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
-    //assume gaussian error
-    //inaccurate
-    double p;
-    if (q>=0.95 and N >= 1000){
-        p = (1-q)/N;
-    }
-    else{
-        p = 1- pow(q,1.0/N);
-    }
-
-
-    return k*sqrt(0.5*n/log(2.0/p));
-    
-}
-*/
 template<class T, QoZ::uint N>
 void QoI_tuning(QoZ::Config &conf, T *data);
 
@@ -112,20 +56,85 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
         QoI_tuning<T,N>(conf, data);
         conf.qoi_tuned = true;
     }
-    if (conf.qoi>0 and !conf.use_global_eb){
-        
-        auto qoi = QoZ::GetQOI<T, N>(conf);//todo: bring qoi to conf to avoid duplicated initialization.
+    if(conf.qoi > 0){
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
-        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
+        auto qoi = QoZ::GetQOI<T, N>(conf);
         auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
                 quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
+        double max_abs_eb = 0;
+        // use sampling to determine abs bound
+        {
+            auto dims = conf.dims;
+            auto tmp_abs_eb = conf.absErrorBound;
 
+            size_t sampling_num, sampling_block;
+            std::vector<size_t> sample_dims(N);
+            std::vector<T> samples = QoZ::sampling<T, N>(data, conf.dims, sampling_num, sample_dims, sampling_block);
+            conf.setDims(sample_dims.begin(), sample_dims.end());
+
+            T * sampling_data = (T *) malloc(sampling_num * sizeof(T));
+            // reset dimensions for average of square
+            if(conf.qoi == 3) qoi->set_dims(sample_dims);
+            // get current ratio
+            double ratio = 0;
+            {
+                size_t sampleOutSize;
+                memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
+                // reset variables for average of square
+                if(conf.qoi == 3) qoi->init();
+                auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
+                max_abs_eb = sz.get_max_eb();
+                sz.clear();
+                delete[]cmprData;
+                ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
+                std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << ratio << std::endl;
+            }
+            double prev_ratio = 1;
+            double current_ratio = ratio;
+            double best_abs_eb = std::min(conf.absErrorBound, max_abs_eb);
+            double best_ratio = current_ratio;
+            // check smaller bounds
+            int max_iter = 100; 
+            int iter = 0;
+            while(iter++ < max_iter){
+                auto prev_eb = conf.absErrorBound;
+                prev_ratio = current_ratio;
+                conf.absErrorBound /= 2;
+                qoi->set_global_eb(conf.absErrorBound);
+                size_t sampleOutSize;
+                memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
+                // reset variables for average of square
+                if(conf.qoi == 3) qoi->init();
+                auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
+                sz.clear();
+                delete[]cmprData;
+                current_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
+                std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << current_ratio << std::endl;
+                if(current_ratio < prev_ratio * 0.99){
+                    if(prev_ratio > best_ratio){
+                        best_abs_eb = prev_eb;
+                        best_ratio = prev_ratio;
+                    }
+                    break;
+                }
+            }
+            // set error bound
+            free(sampling_data);
+            //std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
+            //std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
+            conf.absErrorBound = best_abs_eb;
+            qoi->set_global_eb(best_abs_eb);
+            conf.setDims(dims.begin(), dims.end());
+            // reset dimensions and variables for average of square
+            if(conf.qoi == 3){
+                qoi->set_dims(dims);
+                qoi->init();
+            }
+        }
         char *cmpData = (char *) sz.compress(conf, data, outSize);
-
-         //double incall_time = timer.stop();
-        //std::cout << "incall time = " << incall_time << "s" << std::endl;
         return cmpData;
-
     }
     else{
         auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
@@ -517,563 +526,130 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         return;
 
     
-    auto qoi = QoZ::GetQOI<T, N>(conf);
-    if(conf.qoiEBMode !=QoZ::EB_ABS){//rel
-        double max_qoi = -std::numeric_limits<double>::max();
-        double min_qoi = std::numeric_limits<double>::max();
-       
-        for(size_t i=0; i<conf.num; i++){
-            
-            double q = qoi->eval(data[i]);
-            if(std::isinf(q) or std::isnan(q))
-                continue;
-
-            if (max_qoi < q) max_qoi = q;
-            if (min_qoi > q) min_qoi = q;
+    int qoi = conf.qoi;
+    if(qoi and conf.qoiEBMode !=QoZ::EB_ABS){
+        // compute abs qoi eb
+        T qoi_rel_eb = conf.qoiEB;
+        std::cout << "qoi_rel_eb = " << qoi_rel_eb << std::endl;
+        T max = data[0];
+        T min = data[0];
+        double min_abs = fabs(data[0]); 
+        double max_abs = fabs(data[0]); 
+        double min_abs_2;
+        for (size_t i = 1; i < conf.num; i++) {
+            if (max < data[i]) max = data[i];
+            if (min > data[i]) min = data[i];
+            double cur_abs = fabs(data[i]);
+            if (max_abs < cur_abs) max_abs = cur_abs;
+            if (min_abs > cur_abs) min_abs = cur_abs;
         }
+        if(qoi == 1 || qoi == 3){
+            // x^2
+            // auto max_2 = max * max;
+            // auto min_2 = min * min;
+            // double max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+            // double min_abs_val = (max_2 > min_2) ? min_2 : max_2;
+            // if(min< 0) min_abs_2 = 0;
+            // else min_abs_2 = min_abs_val;
+            // conf.qoiEB *= (max_abs_val - min_abs_2);
+            conf.qoiEB *= (max_abs*max_abs - min_abs*min_abs);
 
-        if (max_qoi == min_qoi){
-            max_qoi = 1.0;
-            min_qoi = 0.0;
+            printf("qoiEB = %f\n", conf.qoiEB);
         }
-        //std::cout<<max_qoi << " "<<min_qoi<<" "<<conf.qoiEB << std::endl;
-        conf.qoiEB *= (max_qoi-min_qoi);
+        else if(qoi == 2){
+            // log x
+            double max_log, min_log, cur_log; 
+            max_log = std::numeric_limits<double>::lowest(); 
+            min_log = std::numeric_limits<double>::max(); 
+            double log_base = log(2);
+            for (size_t i = 0; i < conf.num; i++) {
+                if(data[i] == 0){
+                    continue;
+                }
+                cur_log = log(fabs(data[i])); 
+                if (max_log < cur_log) max_log = cur_log;
+                if (min_log > cur_log) min_log = cur_log;
+            }
+            conf.qoiEB *= (max_log - min_log)/log_base;
+
+        }
+        // else if(qoi == 3){
+        //     // regional average
+        //     conf.qoiEB *= max - min;
+        //     conf.absErrorBound = conf.qoiEB;
+        // }
+        else if(qoi == 4){
+            // compute isovalues
+            conf.isovalues.clear();
+            int isonum = conf.qoiIsoNum;
+            auto range = max - min;
+            for(int i=0; i<isonum; i++){
+                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+            }
+        }
+        else if(qoi == 9){
+            // compute isovalues
+            double max_cubic = max * max * max;
+            double min_cubic = min * min * min;
+            conf.qoiEB *= (max_cubic - min_cubic);
+        }
+        else if(qoi == 10){
+            conf.qoiEB *= (sqrt(max_abs)  - sqrt(min_abs));
+        }
+        else if(qoi == 12){
+            double max_abs_val = std::pow(2, max);
+            double min_abs_val = std::pow(2, min);
+            conf.qoiEB *= (max_abs_val - min_abs_val);
+        }
+        else if(qoi >= 5){
+            // (x^2) + (log x) + (isoline)
+            auto max_2 = max * max;
+            auto min_2 = min * min;
+            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+            auto eb_x2 = conf.qoiEB * max_abs_val;
+            auto eb_logx = conf.qoiEB * 10;
+            auto eb_isoline = 0;
+            conf.isovalues.clear();
+            int isonum = conf.qoiIsoNum;
+            auto range = max - min;
+            for(int i=0; i<isonum; i++){
+                conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
+            }
+            if(qoi == 5){
+                // x^2 + log x
+                conf.qoiEBs.push_back(eb_x2);
+                conf.qoiEBs.push_back(eb_logx);
+            }
+            else if(qoi == 6){
+                // x^2 + isoline
+                conf.qoiEBs.push_back(eb_x2);
+                conf.qoiEBs.push_back(eb_isoline);                
+            }
+            else if(qoi == 7){
+                // log x + isoline
+                conf.qoiEBs.push_back(eb_logx);
+                conf.qoiEBs.push_back(eb_isoline);                
+            }
+            else if(qoi == 8){
+                // x^2 + log x + isoline
+                conf.qoiEBs.push_back(eb_x2);
+                conf.qoiEBs.push_back(eb_logx);
+                conf.qoiEBs.push_back(eb_isoline);                                
+            }
+        }
+        // set eb base and log base if not set by config
+        if(conf.qoiEBBase == 0) 
+            conf.qoiEBBase = std::numeric_limits<T>::epsilon();
+        if(conf.qoiEBLogBase == 0)
+            conf.qoiEBLogBase = 2;        
+        // update eb base
+        if(qoi != 4 && qoi != 7) conf.qoiEBBase = (max - min) * qoi_rel_eb / 1030;
+        std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         conf.qoiEBMode = QoZ::EB_ABS;
 
-
-
     }
-    std::cout<<"ABS QoI eb: " << conf.qoiEB << std::endl;
-    if(conf.qoiRegionMode > 0 and (conf.qoi!=16 or conf.qoi_string == "x")){//regional average
-        //adjust qoieb
-        double rate = 1.0;
-        if(conf.qoiRegionMode == 2){//lap
-            rate = 1.0/(4.0 * N);
-
-        }
-        else if(conf.qoiRegionMode == 3){//grad
-            rate = 1.0/sqrt((double)N);
-
-        }
-
-        else{//average
-            conf.regionalQoIeb=conf.qoiEB;//store original regional eb
-            double num_blocks = 1;
-            double num_elements = 1;
-            for(int i=0; i<conf.dims.size(); i++){
-                num_elements *= conf.qoiRegionSize;
-                num_blocks *= (conf.dims[i] - 1) / conf.qoiRegionSize + 1;
-            }
-
-            double q = 0.999999;
-            double rate;
-            if(conf.tol_estimation==0)
-                rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q, conf.error_std_rate);
-            else
-                rate = estimate_rate_Bernstein(num_elements,num_blocks,q, conf.error_std_rate);
-            
-            rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
-        }
-        std::cout<<"Point wise QoI eb rate: " << rate << std::endl;
-        conf.qoiEB *= rate;
-    }
-
-    if (conf.qoi != 15 and conf.qoi_string == "x"){
-        conf.qoi = 0;
-        conf.absErrorBound = std::min(conf.absErrorBound,conf.qoiEB);
-        return;
-
-    }
-
-    qoi->set_qoi_tolerance(conf.qoiEB);
     
-    QoZ::Config testConf = conf;
-    conf.ebs = std::vector<double>(conf.num);
-    // use quantile to determine abs bound
-    {
-
-        auto dims = conf.dims;
-        auto tmp_abs_eb = conf.absErrorBound;
-        auto min_abs_eb = conf.absErrorBound;
-
-        
-
-        //T *ebs = new T[conf.num];
-        if(conf.qoi==16){
-            qoi->pre_compute(data);
-            
-            //conf.qoiEB = 1e10;//pass check_compliance, to revise
-            for (size_t i = 0; i < conf.num; i++){
-                conf.ebs[i] = qoi->interpret_eb(data+i,i);
-                if (min_abs_eb>conf.ebs[i])
-                    min_abs_eb = conf.ebs[i];
-
-            }
-            //conf.qoi = 14; //back to pointwise
-        }
-        else{
-            for (size_t i = 0; i < conf.num; i++){
-                conf.ebs[i] = qoi->interpret_eb(data[i]);
-                    if (min_abs_eb>conf.ebs[i])
-                        min_abs_eb = conf.ebs[i];
-            }
-        }
-        //double max_quantile_rate = 0.2;
-        double quantile_rate = conf.quantile<= 0? conf.max_quantile_rate : conf.quantile  ;//conf.quantile;//quantile
-        //std::cout<<quantile<<std::endl;
-        size_t k = std::ceil(quantile_rate * conf.num);
-        k = std::max((size_t)1, std::min(conf.num-1, k)); 
-
-
-        double best_abs_eb;
-
-        std::vector<double>ebs(conf.ebs.begin(),conf.ebs.end());
-
-
-        if(conf.quantile>0){
-            std::nth_element(ebs.begin(),ebs.begin()+k, ebs.end());
-            best_abs_eb = ebs[k];
-        }
-        
-        else{
-            std::vector<size_t> quantiles;
-            //std::array<double,4> fixrate = {1.0,1.05,1.10,1.15};//or{1.0,1.1,1.2,1.3}
-            
-            double quantile_split=0.1;
-            for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01})
-                quantiles.push_back((size_t)(i*k));
-            int quantile_num = quantiles.size();
-
-            
-
-            
-            //std::sort(ebs.begin(),ebs.begin()+k+1);
-
-            if(testConf.QoZ>0){
-                if (testConf.maxStep==0){
-                    std::array<size_t,4> anchor_strides={256,64,32,16};
-                    testConf.maxStep = anchor_strides[N-1];
-                }
-                testConf.alpha = 1.5;
-                testConf.beta = 2.0;
-                
-            }
-            QoZ::Interp_Meta def_meta;
-            testConf.interpMeta = def_meta;
-
-            size_t best_quantile = 0;
-
-
-            std::nth_element(ebs.begin(),ebs.begin()+quantiles[0], ebs.end());
-
-            size_t last_quantile = quantiles[0]+1;
-
-
-            if(N==2 or N==3){
-
-                std::vector<std::vector<T>>sampled_blocks;
-                std::vector<std::vector<size_t>>starts;
-
-
-                testConf.profStride=std::max(1,testConf.sampleBlockSize/4);//todo: bugfix for others
-                testConf.profiling = 1;
-
-                size_t totalblock_num=1;  
-
-                double prof_abs_threshold = ebs[quantiles[0]];
-                double sample_ratio = 5e-3;
-                for(int i=0;i<N;i++){                      
-                    totalblock_num*=(size_t)((testConf.dims[i]-1)/testConf.sampleBlockSize);
-                }
-                if(N==2){
-                    QoZ::profiling_block_2d<T,N>(data,testConf.dims,starts,testConf.sampleBlockSize, prof_abs_threshold,testConf.profStride);
-                }
-                else if (N==3){
-                    QoZ::profiling_block_3d<T,N>(data,testConf.dims,starts,testConf.sampleBlockSize, prof_abs_threshold,testConf.profStride);
-                }
-                   
-                
-
-
-                size_t num_filtered_blocks=starts.size();
-                if(num_filtered_blocks<=(int)(0.3*sample_ratio*totalblock_num))//todo: bugfix for others 
-                    testConf.profiling=0;
-
-                QoZ::sampleBlocks<T,N>(data,testConf.dims,testConf.sampleBlockSize,sampled_blocks,sample_ratio,testConf.profiling,starts,false);
-
-                //std::cout<<sampled_blocks.size()<<std::endl;
-                //std::cout<<sampled_blocks[0].size()<<std::endl;
-
-                testConf.dims=std::vector<size_t>(N,testConf.sampleBlockSize+1);
-                testConf.num=pow(testConf.sampleBlockSize+1,N);
-
-
-                double best_br = 9999;
-                best_abs_eb = testConf.absErrorBound;
-                                
-                int idx = 0;
-                for(auto quantile:quantiles)
-                {   
-                    if(idx!=0)
-                        std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
-
-                    
-                    testConf.absErrorBound = ebs[quantile];
-                    qoi->set_global_eb(testConf.absErrorBound);
-                    // reset variables for average of square
-                    
-                    double cur_br = CompressTest_QoI<T,N>(testConf,sampled_blocks,qoi);        
-                    std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
-                    if(cur_br < best_br * 1.02){//todo: optimize
-                        best_br = cur_br;
-                        best_abs_eb = testConf.absErrorBound;
-                        best_quantile = quantile;
-                    }
-                    else if(cur_br>1.1*best_br and testConf.early_termination){
-                        break;
-                    }
-
-                    last_quantile = quantile+1;
-                    idx++;
-                    
-                }
-
-                if(best_quantile == quantiles.back()){
-                    std::sort(ebs.begin(),ebs.begin()+best_quantile);
-                
-
-
-
-                    size_t cur_quantile = best_quantile-1;
-                    double init_best_abs_eb = best_abs_eb;
-                    double min_ratio = 0.9;
-                    while(cur_quantile>0){
-                        
-                        double temp_best_eb = ebs[cur_quantile];
-                        double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
-                        if (temp_best_eb/init_best_abs_eb<cur_ratio)
-                            break;
-                        else
-                            best_abs_eb = temp_best_eb;
-                        cur_quantile--;
-                    }
-                    best_quantile = cur_quantile + 1;
-                }
-
-
-                if (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)){
-                //test full-global mode
-                   
-                    testConf.absErrorBound = best_abs_eb;
-                    testConf.use_global_eb = true;
-                    //testConf.qoiPtr = qoi;
-
-                    std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
-                    double cur_br =results.first;
-                    std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
-                    if(cur_br<0.98*best_br){//todo: optimize
-                        conf.use_global_eb = true;
-                        //Conf.qoiPtr = qoi;
-                        best_br = cur_br;
-                    }
-                     
-                    if(min_abs_eb!=best_abs_eb and min_abs_eb>0.5*best_abs_eb){
-                        testConf.absErrorBound = min_abs_eb;
-                        testConf.use_global_eb = true;
-                       // testConf.qoiPtr = qoi;
-
-                        std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
-                        double cur_br =results.first;
-                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
-                        if(cur_br<0.98*best_br){//todo: optimize
-                            conf.use_global_eb = true;
-                            //Conf.qoiPtr = qoi;
-                            best_br = cur_br;
-                            best_quantile = 0;
-                        }
-                    }
-                }
-
-
-                
-
-
-
-
-
-            }
-
-
-            else{
-                std::array<double,7> fixrate = {1.06,1.04,1.02,1.00,1.00,1.00,1.00};
-
-                size_t sampling_num, sampling_block;
-                std::vector<size_t> sample_dims(N);
-                std::vector<T> samples = QoZ::sampling<T, N>(data, testConf.dims, sampling_num, sample_dims, sampling_block);
-                testConf.setDims(sample_dims.begin(), sample_dims.end());
-                testConf.ebs=std::vector<double>(testConf.num);
-                if(testConf.qoi==16){
-                    qoi->pre_compute(data);
-                    
-                    //conf.qoiEB = 1e10;//pass check_compliance, to revise
-                    for (size_t i = 0; i < testConf.num; i++){
-                        testConf.ebs[i] = qoi->interpret_eb(samples.data()+i,i);
-                    }
-                    //conf.qoi = 14; //back to pointwise
-                }
-                else{
-                    for (size_t i = 0; i < testConf.num; i++){
-                        testConf.ebs[i] = qoi->interpret_eb(samples[i]);
-                    }
-                }
-                T * sampling_data = (T *) malloc(sampling_num * sizeof(T));
-
-
-
-
-                testConf.qoiEBBase = testConf.absErrorBound / 1030;
-                auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(testConf.quantbinCnt / 2);
-                auto quantizer_eb = QoZ::EBLogQuantizer<T>(testConf.qoiEBBase, testConf.qoiEBLogBase, testConf.qoiQuantbinCnt / 2, testConf.absErrorBound);
-                
-                auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
-                        quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
-
-
-
-                double best_ratio = 0;
-                best_abs_eb = testConf.absErrorBound;
-                int idx = 0;
-                for(auto quantile:quantiles)
-                {   
-                    if(idx!=0)
-                        std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
-
-                    
-                    testConf.absErrorBound = ebs[quantile];
-                    qoi->set_global_eb(testConf.absErrorBound);
-                    size_t sampleOutSize;
-                    memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
-                    // reset variables for average of square
-                    auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
-                    sz.clear();
-                    delete[]cmprData;
-                    double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-                    std::cout << "current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
-                    double fr = fixrate[idx];
-                    if(cur_ratio*fr>best_ratio){
-                        best_ratio = cur_ratio*fr;
-                        best_abs_eb = testConf.absErrorBound;
-                        best_quantile = quantile;
-                    }
-                    else if(cur_ratio*fr<0.9*best_ratio and testConf.early_termination){
-                        break;
-                    }
-                    last_quantile = quantile+1;
-
-                    idx ++;
-                }
-                // set error bound
-                
-               
-
-                if(best_quantile == quantiles.back()){
-                    std::sort(ebs.begin(),ebs.begin()+best_quantile);
-                
-
-
-
-                    size_t cur_quantile = best_quantile-1;
-                    double init_best_abs_eb = best_abs_eb;
-                    double min_ratio = 0.9;
-                    while(cur_quantile>0){
-                        
-                        double temp_best_eb = ebs[cur_quantile];
-                        double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
-                        if (temp_best_eb/init_best_abs_eb<cur_ratio)
-                            break;
-                        else
-                            best_abs_eb = temp_best_eb;
-                        cur_quantile--;
-                    }
-                    best_quantile = cur_quantile + 1;
-                }
-
-                size_t count = 0;
-                for (size_t i = 0; i < conf.num; i++){
-                    if(conf.ebs[i] < best_abs_eb)
-                        count++;
-                }
-
-                double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
-
-                if( (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)) and (smaller_ebs_ratio <= 1.0/1024.0 or min_abs_eb >= 0.95 * best_abs_eb ) ){//may fix
-                    conf.use_global_eb = true;
-                    //conf.qoiPtr = qoi;
-                }
-
-                else if (conf.qoiRegionMode == 0 or (conf.qoiRegionMode == 1 and conf.qoiRegionSize >= 3)){//untested
-                //test full-global mode
-                   
-                    testConf.absErrorBound = best_abs_eb;
-                    testConf.use_global_eb = true;
-                    //testConf.qoiPtr = qoi;
-
-                    size_t sampleOutSize;
-                    memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
-                    auto sz =  QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
-                        QoZ::LinearQuantizer<T>(testConf.absErrorBound),
-                        QoZ::HuffmanEncoder<int>(),
-                        QoZ::Lossless_zstd());
-                    auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
-                    delete[]cmprData;
-                    double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-                    std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
-                    //double fr = fixrate[idx];
-                    if(cur_ratio>best_ratio*1.02){
-                        best_ratio = cur_ratio;
-                        conf.use_global_eb = true;
-                    } 
-
-                    if(best_abs_eb!=min_abs_eb and min_abs_eb>0.5*best_abs_eb){
-                        testConf.absErrorBound = min_abs_eb;
-                        testConf.use_global_eb = true;
-                       // testConf.qoiPtr = qoi;
-
-                        size_t sampleOutSize;
-                        memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
-                        // reset variables for average of square
-                        auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
-                        delete[]cmprData;
-                        double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
-                        //double fr = fixrate[idx];
-                        if(cur_ratio>best_ratio*1.02){
-                            best_ratio = cur_ratio;
-                            conf.use_global_eb = true;
-                            best_quantile = 0;
-                        }
-                    }
-                }
-                free(sampling_data);
-
-
-            }
-            
-            
-            
-             std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
-            
-            
-        }
-
-        
-
-       
-
-
-
-        /*
-        min_abs_eb = ebs[0];
-        double best_rate = (ebs[k]-ebs[(quantiles[0]/2)])/k;
-        double best_abs_eb = ebs[k];
-        size_t best_quantile = k;
-
-        for (auto quantile:quantiles){
-            double cur_rate = (ebs[quantile]-ebs[0])/quantile;
-            std::cout<<(double)quantile/(double)conf.num<<" "<<ebs[quantile]<<" "<<ebs[0]<<" "<<cur_rate<<" "<<best_rate<<std::endl;
-            if (cur_rate>best_rate){
-                best_rate = cur_rate;
-                best_abs_eb = ebs[quantile];
-                best_quantile = quantile;
-            }
-        }
-        //while(best)
-
-        size_t cur_quantile = best_quantile-1;
-        double init_best_abs_eb = best_abs_eb;
-        double min_ratio = 0.9;
-        while(cur_quantile>0){
-            
-            double temp_best_eb = ebs[cur_quantile];
-            double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)best_quantile);
-            if (temp_best_eb/init_best_abs_eb<cur_ratio)
-                break;
-            else
-                best_abs_eb = temp_best_eb;
-            cur_quantile--;
-        }
-        best_quantile = cur_quantile + 1;
-
-
-        std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
-        */
-
-
-        /*
-        std::priority_queue<T> maxHeap;
-
-        for (size_t i = 0; i < conf.num; i++) {
-            T eb = conf.ebs[i];
-            if(eb < min_abs_eb)
-                min_abs_eb  = eb;
-            if (maxHeap.size() < k) {
-                maxHeap.push(eb);
-            } else if (eb < maxHeap.top()) {
-                maxHeap.pop();
-                maxHeap.push(eb);
-            }
-        }
-
-        double init_best_abs_eb = maxHeap.top();
-        double best_abs_eb = init_best_abs_eb;
-
-        size_t init_quantile = maxHeap.size();
-        size_t cur_quantile = init_quantile;
-        double min_ratio = 0.9;
-        while(cur_quantile>0){
-            maxHeap.pop();
-            cur_quantile--;
-            double temp_best_eb = maxHeap.top();
-            double cur_ratio = min_ratio + (1.0-min_ratio) * ((double)cur_quantile/(double)init_quantile);
-            if (temp_best_eb/init_best_abs_eb<cur_ratio)
-                break;
-            else
-                best_abs_eb = temp_best_eb;
-
-        }
-        */
-
-        qoi->set_global_eb(best_abs_eb);
-
-        
-        //std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
-
-        
-        if(conf.use_global_eb)
-            std::cout<<"Use global eb."<<std::endl; 
-
-        
-        std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
-        std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
-        conf.absErrorBound = best_abs_eb;
-        //qoi->set_global_eb(best_abs_eb);
-       // conf.setDims(dims.begin(), dims.end());
-        // reset dimensions and variables for average of square
-        //if(conf.qoi == 3){
-         //   qoi->set_dims(dims);
-        //    qoi->init();
-        //}
-        for (size_t i = 0; i < conf.num; i++){
-            if(conf.ebs[i]>best_abs_eb)
-                conf.ebs[i] = best_abs_eb;
-        }
-
-        conf.qoiEBBase = conf.absErrorBound / 1030;
-        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
-        conf.qoi_tuned = true;
-
-        
-    }
+    conf.qoi_tuned = true;
 
 }
 
@@ -1370,113 +946,7 @@ double Tuning(QoZ::Config &conf, T *data){
     int qoi = conf.qoi;
     auto tmp_abs_eb = conf.absErrorBound;
     if(qoi){
-        // compute abs qoi eb
-        /*
-        if(qoi<=13){//old qois
-            T qoi_rel_eb = conf.qoiEB;
-            T max = data[0];
-            T min = data[0];
-            T maxxlogx;
-            T minxlogx;
-            if(qoi == 13){
-                maxxlogx = data[0]!=0 ? data[0]*log(fabs(data[0]))/log(2) : 0;
-                minxlogx = maxxlogx;
-            }
-            for (size_t i = 1; i < conf.num; i++) {
-                if (max < data[i]) max = data[i];
-                if (min > data[i]) min = data[i];
-                if(qoi == 13){
-                    T cur_xlogx = data[i]!=0 ? data[i]*log(fabs(data[i]))/log(2) : 0;
-                    if (maxxlogx < cur_xlogx) maxxlogx = cur_xlogx;
-                    if (minxlogx > cur_xlogx) minxlogx = cur_xlogx;
-                }
-            }
-            if(qoi == 1 || qoi == 3){
-                // x^2
-                auto max_2 = max * max;
-                auto min_2 = min * min;
-                auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-                conf.qoiEB *= max_abs_val;
-            }
-            // else if(qoi == 3){
-            //     // regional average
-            //     conf.qoiEB *= max - min;
-            //     conf.absErrorBound = conf.qoiEB;
-            // }
-            else if(qoi == 4){
-                // compute isovalues
-                conf.isovalues.clear();
-                int isonum = conf.qoiIsoNum;
-                auto range = max - min;
-                for(int i=0; i<isonum; i++){
-                    conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
-                }
-            }
-            else if(qoi == 9){
-                // x^3
-                auto max_2 = fabs(max * max * max);
-                auto min_2 = fabs(min * min * min);
-                auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-                conf.qoiEB *= max_abs_val;
-            }
-            else if(qoi == 10){
-                // sin x
-                //rel is abs
-                conf.qoiEB *= 1;
-            }
-            else if(qoi == 11){
-                // x
-                conf.qoiEB *= (max-min);
-            }
-            else if(qoi == 12){
-                // 2^x
-                auto max_abs_val = pow(2,max);
-                conf.qoiEB *= max_abs_val;
-            }
-            else if(qoi == 13){
-                // 2^x
-                conf.qoiEB *= (maxxlogx-minxlogx);
-            }
-            // qoi_string would be absbound
-            else if(qoi >= 5 and qoi <= 13){//14 15 is FX
-                // (x^2) + (log x) + (isoline)
-                auto max_2 = max * max;
-                auto min_2 = min * min;
-                auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-                auto eb_x2 = conf.qoiEB * max_abs_val;
-                auto eb_logx = conf.qoiEB * 10;
-                auto eb_isoline = 0;
-                conf.isovalues.clear();
-                int isonum = conf.qoiIsoNum;
-                auto range = max - min;
-                for(int i=0; i<isonum; i++){
-                    conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
-                }
-                if(qoi == 5){
-                    // x^2 + log x
-                    conf.qoiEBs.push_back(eb_x2);
-                    conf.qoiEBs.push_back(eb_logx);
-                }
-                else if(qoi == 6){
-                    // x^2 + isoline
-                    conf.qoiEBs.push_back(eb_x2);
-                    conf.qoiEBs.push_back(eb_isoline);                
-                }
-                else if(qoi == 7){
-                    // log x + isoline
-                    conf.qoiEBs.push_back(eb_logx);
-                    conf.qoiEBs.push_back(eb_isoline);                
-                }
-                else if(qoi == 8){
-                    // x^2 + log x + isoline
-                    conf.qoiEBs.push_back(eb_x2);
-                    conf.qoiEBs.push_back(eb_logx);
-                    conf.qoiEBs.push_back(eb_isoline);                                
-                }
-                
-            }
-        }*/
-        // set eb base and log base if not set by config
+        
         if(conf.qoiEBBase == 0) 
             conf.qoiEBBase = std::numeric_limits<T>::epsilon();
         if(conf.qoiEBLogBase == 0)

@@ -19,7 +19,6 @@ endif()
 
 find_package(PkgConfig)
 
-find_package(SymEngine REQUIRED)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/QoZ/version.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/QoZ/version.hpp)
 
@@ -33,15 +32,8 @@ target_compile_features(${PROJECT_NAME}
     INTERFACE cxx_std_17
   )
 
-pkg_check_modules(GMP REQUIRED gmp)
-if (GMP_FOUND)
-    message("GMP found.")
-else()
-    message("GMP not found.")
-endif()
 
-target_link_libraries(${PROJECT_NAME} INTERFACE symengine)
-target_link_libraries(${PROJECT_NAME} INTERFACE gmp)
+
 
 option(OMP "build OpenMP functions" ON)
 find_package(OpenMP)

@@ -20,6 +20,7 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
+            //std::cout << "tolerance = " << tolerance << std::endl;
             concepts::QoIInterface<T, N>::id = 10;
         }
 
@@ -54,7 +55,7 @@ namespace QoZ {
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
             
-            return (  fabs( sqrt(fabs(data))-sqrt(fabs(dec_data)) ) <= tolerance);
+            return (fabs(sqrt(fabs(data))-sqrt(fabs(dec_data)) ) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}

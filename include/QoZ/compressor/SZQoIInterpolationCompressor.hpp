@@ -227,7 +227,6 @@ namespace QoZ {
         // compress given the error bound
         uchar *compress( Config &conf, T *data, size_t &compressed_size,int tuning,int start_level,int end_level=0) {
             //tuning 0: normal compress 1:tuning to return qbins and psnr 2: tuning to return prediction loss
-            qoi_id = conf.qoi;
             Timer timer;
             timer.start();
             
@@ -253,13 +252,9 @@ namespace QoZ {
             }
 
             quant_inds = std::vector<int>(num_elements * 2);//eb + data
-            if(tuning==0)
-                ebs = conf.ebs;
             size_t interp_compressed_size = 0;
             double eb = qoi->get_global_eb();
             //std::cout<<"setting eb "<<eb<<std::endl;
-            quantizer_eb.set_global_eb(eb);
-            quantizer_eb.set_eb_base(eb/1030);//added
 
             if (start_level<=0 or start_level>interpolation_level ){
 
@@ -311,8 +306,6 @@ namespace QoZ {
                     cur_eb=eb*cur_ratio;
                 }
                 qoi->set_global_eb(cur_eb);
-                quantizer_eb.set_global_eb(cur_eb);
-
                 QoZ::Interp_Meta cur_meta;
                 if (levelwise_predictor_levels==0){
                     cur_meta=interp_meta;
@@ -539,7 +532,6 @@ namespace QoZ {
             }                    
             //timer.start();
             qoi->set_global_eb(eb);
-            quantizer_eb.set_global_eb(eb);
             
             if (tuning){
 
@@ -894,11 +886,7 @@ namespace QoZ {
                 //if(idx == target_idx)
                 //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
-                T eb;
-                if (qoi_id == 16)//todo: qoi.getid()
-                    eb = qoi->interpret_eb(&d, idx);
-                else 
-                    eb = ebs[idx];
+                T eb = qoi->interpret_eb(&d, idx)
                 //debug
                 //if (eb <global_eb)
                //     count++;
@@ -922,7 +910,7 @@ namespace QoZ {
                ///     std::cout<<eb<<" "<<quant_index<<" "<<quant_inds[quant_index]<<" "<<quant_inds[num_elements + quant_index]<<" "<<pred<<" "<<d<<" "<<ebs[idx]<<" "<<ori_data<<std::endl;
                 //}
                 // update cumulative tolerance if needed 
-                //qoi->update_tolerance(ori_data, d);
+                qoi->update_tolerance(ori_data, d);
                 quant_index ++;
 
 
@@ -7421,9 +7409,7 @@ namespace QoZ {
        // double anchor_threshold=0.0;//temp for "adaptive anchor stride";
 
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
-        std::vector<double> ebs;
 
-        int qoi_id;
 
 
 

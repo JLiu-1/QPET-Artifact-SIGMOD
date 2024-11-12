@@ -201,11 +201,11 @@ void decompress(char *inPath, char *cmpPath, char *decPath,
         auto ori_data = QoZ::readfile<T>(inPath, totalNbEle);
         assert(totalNbEle == conf.num);
         //QoZ::verify<T>(ori_data.get(), decData, conf.num);
-        //QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
+        QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
 
 
 
-        QoZ::verifyQoI_new<T>(ori_data.get(), decData, conf);
+        //QoZ::verifyQoI_new<T>(ori_data.get(), decData, conf);
     }
     delete[]decData;
 

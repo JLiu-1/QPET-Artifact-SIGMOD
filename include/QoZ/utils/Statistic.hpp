@@ -479,17 +479,17 @@ namespace QoZ {
             if(x_square_diff > max_x_square_diff) max_x_square_diff = x_square_diff;
             double x_cubic_diff = fabs(ori_data[i] * ori_data[i] * ori_data[i] - data[i] * data[i] * data[i]);
             if(x_cubic_diff > max_x_cubic_diff) max_x_cubic_diff = x_cubic_diff;
-            double x_sin_diff = fabs(sin(ori_data[i]) - sin(data[i]));
-            if(x_sin_diff > max_sin_diff) max_sin_diff = x_sin_diff;
+            //double x_sin_diff = fabs(sin(ori_data[i]) - sin(data[i]));
+            //if(x_sin_diff > max_sin_diff) max_sin_diff = x_sin_diff;
             double x_pow_diff = fabs(pow(2,ori_data[i]) -pow(2,data[i]));
             if(x_pow_diff > max_pow_diff) max_pow_diff = x_pow_diff;
             // if(x_square_diff / max_abs_val_sq > 1e-5){
             //     std::cout << i << ": ori = " << ori_data[i] << ", dec = " << data[i] << ", err = " << x_square_diff / max_abs_val_sq << std::endl;
             // }
-            double x_tanh_diff = fabs(std::tanh(ori_data[i])-std::tanh(data[i]));
-            if (x_tanh_diff>max_tanh_diff) max_tanh_diff=x_tanh_diff;
-            double x_relu_diff = fabs(ori_data[i]*(double)(ori_data[i]>0)-data[i]*(double)(data[i]>0));
-            if (x_relu_diff>max_relu_diff) max_relu_diff=x_relu_diff;
+            //double x_tanh_diff = fabs(std::tanh(ori_data[i])-std::tanh(data[i]));
+            //if (x_tanh_diff>max_tanh_diff) max_tanh_diff=x_tanh_diff;
+            //double x_relu_diff = fabs(ori_data[i]*(double)(ori_data[i]>0)-data[i]*(double)(data[i]>0));
+            //if (x_relu_diff>max_relu_diff) max_relu_diff=x_relu_diff;
             if(ori_data[i] == 0){
                 // for log x only
                 // if(data[i] != 0){
@@ -504,12 +504,12 @@ namespace QoZ {
                 // if(log_diff > 1){
                 //     std::cout << i << ": " << ori_data[i] << " " << data[i] << std::endl;
                 // }              
-                double cur_xlogx = ori_data[i]!=0 ? ori_data[i]*log(fabs(ori_data[i]))/log(2) : 0;
-                if (max_xlogx_val < cur_xlogx) max_xlogx_val = cur_xlogx;
-                if (min_xlogx_val > cur_xlogx) min_xlogx_val = cur_xlogx;
-                double dec_xlogx = data[i]!=0 ? data[i]*log(fabs(data[i]))/log(2) : 0;
-                double xlogx_diff = fabs(cur_xlogx-dec_xlogx);
-                if(xlogx_diff > max_xlogx_diff) max_xlogx_diff = xlogx_diff;  
+                //double cur_xlogx = ori_data[i]!=0 ? ori_data[i]*log(fabs(ori_data[i]))/log(2) : 0;
+                //if (max_xlogx_val < cur_xlogx) max_xlogx_val = cur_xlogx;
+                //if (min_xlogx_val > cur_xlogx) min_xlogx_val = cur_xlogx;
+                //double dec_xlogx = data[i]!=0 ? data[i]*log(fabs(data[i]))/log(2) : 0;
+                //double xlogx_diff = fabs(cur_xlogx-dec_xlogx);
+                //if(xlogx_diff > max_xlogx_diff) max_xlogx_diff = xlogx_diff;  
 
             }
 
@@ -518,10 +518,10 @@ namespace QoZ {
 
         printf("QoI error info:\n");
         printf("Max x^2 error = %.6G, relative x^2 error = %.6G\n, Max x^3 error = %.6G, relative x^3 error = %.6G\n", max_x_square_diff, max_x_square_diff / max_abs_val_sq, max_x_cubic_diff, max_x_cubic_diff / max_abs_val_cu);
-        printf("Max log error = %.6G, max sin error = %.6G, max 2^x error = %.6G, relative 2^x error = %.6G\n", max_log_diff, max_sin_diff, max_pow_diff, max_pow_diff / max_abs_val_pow);
+        printf("Max log error = %.6G, max 2^x error = %.6G, relative 2^x error = %.6G\n", max_log_diff, max_pow_diff, max_pow_diff / max_abs_val_pow);
         //std::cout<<max_xlogx_val<<" "<<min_xlogx_val<<std::endl;
-        printf("Max xlogx error = %.6G, relative xlogx error = %.6G\n", max_xlogx_diff, max_xlogx_diff/(max_xlogx_val-min_xlogx_val));
-        printf("Max tanh error = %.6G, max relu error = %.6G\n", max_tanh_diff, max_relu_diff);
+        //printf("Max xlogx error = %.6G, relative xlogx error = %.6G\n", max_xlogx_diff, max_xlogx_diff/(max_xlogx_val-min_xlogx_val));
+        //printf("Max tanh error = %.6G, max relu error = %.6G\n", max_tanh_diff, max_relu_diff);
 
         for(size_t i=0; i<num_elements; i++){
             ori_data[i] = ori_data[i] * ori_data[i];
@@ -538,7 +538,7 @@ namespace QoZ {
         else if(dims.size() == 3) evaluate_average(ori_data, data, max - min, dims[0], dims[1], dims[2], blockSize);
 
     }
-
+    /*
     template<typename Type>
     void verifyQoI_new(Type *ori_data_T, Type *data_T, const QoZ::Config &conf) {
 
@@ -621,7 +621,7 @@ namespace QoZ {
 
 
 
-    }
+    }*/
 
 
 };

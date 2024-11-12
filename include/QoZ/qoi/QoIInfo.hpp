@@ -3,33 +3,26 @@
 
 #include "QoI.hpp"
 #include "XSquare.hpp"
-#include "XCubic.hpp"
-#include "XSin.hpp"
-#include "XExp.hpp"
-#include "XLin.hpp"
-#include "XSqrt.hpp"
-#include "XReciprocal.hpp"
 #include "LogX.hpp"
-#include "XLogX.hpp"
 #include "RegionalAverage.hpp"
 #include "RegionalAverageOfSquare.hpp"
 #include "Isoline.hpp"
 #include "MultiQoIs.hpp"
-#include "FX.hpp"
-#include "FX_abs.hpp"
-#include "FX_P.hpp"
-#include "RegionalFX.hpp"
 #include <vector>
+#include "XCubic.hpp"
+#include "XSqrt.hpp"
+#include "XExp.hpp"
+#include "XLin.hpp"
 
 namespace QoZ {
 
-    template<class T, QoZ::uint N >
+    template<class T, QoZ::uint N>
     std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(const Config &conf){
         switch(conf.qoi){
             case 1:
                 return std::make_shared<QoZ::QoI_X_Square<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 2:
-                return std::make_shared<QoZ::QoI_Log_X<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiLogBase);
+                return std::make_shared<QoZ::QoI_Log_X<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 3:{
                 if(!conf.lorenzo && !conf.lorenzo2) return std::make_shared<QoZ::QoI_RegionalAverageOfSquareInterp<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims);
                 else return std::make_shared<QoZ::QoI_RegionalAverageOfSquare<T, N>>(conf.qoiEB, conf.absErrorBound);
@@ -83,30 +76,17 @@ namespace QoZ {
                 qois.push_back(std::make_shared<QoZ::QoI_Isoline<T, N>>(conf.dims, values, conf.absErrorBound));
                 return std::make_shared<QoZ::QoI_MultiQoIs<T, N>>(qois);            	
             }
-            case 9:
+            case 9:{
                 return std::make_shared<QoZ::QoI_X_Cubic<T, N>>(conf.qoiEB, conf.absErrorBound);
-            case 10:
-                //return std::make_shared<QoZ::QoI_X_Sin<T, N>>(conf.qoiEB, conf.absErrorBound);
+
+            }
+            case 10:{
                 return std::make_shared<QoZ::QoI_X_Sqrt<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }
             case 11:
                 return std::make_shared<QoZ::QoI_X_Lin<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 12:
                 return std::make_shared<QoZ::QoI_X_Exp<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
-            case 13:
-                //return std::make_shared<QoZ::QoI_XLog_X<T, N>>(conf.qoiEB, conf.absErrorBound);
-                return std::make_shared<QoZ::QoI_X_Recip<T, N>>(conf.qoiEB, conf.absErrorBound);
-            case 14:
-                return std::make_shared<QoZ::QoI_FX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
-            case 15:
-                return std::make_shared<QoZ::QoI_FX_P<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.qoi_string_2, conf.threshold, conf.isolated);
-
-            case 16:{
-                return std::make_shared<QoZ::QoI_RegionalFX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims, conf.qoi_string, conf.error_std_rate, conf.isolated, conf.threshold);
-                
-                // return std::make_shared<QoZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
-            }
-            case 17:
-                return std::make_shared<QoZ::QoI_FX_ABS<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
         }
         return NULL;
     }

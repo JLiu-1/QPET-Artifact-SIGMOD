@@ -15,7 +15,6 @@
 #include "QoZ/def.hpp"
 #include "QoZ/utils/Config.hpp"
 #include "QoZ/utils/Sample.hpp"
-#include "QoZ/qoi/QoI.hpp"
 #include <cstring>
 #include <cmath>
 #include <limits>
@@ -222,11 +221,6 @@ namespace QoZ {
             Timer timer;
             timer.start();
 
-            if(conf.qoi>0){
-                check_qoi = true;
-                if (qoi == nullptr or qoi->id != conf.qoi)
-                    qoi = QoZ::GetQOI<T, N>(conf);
-            }
 
             
             
@@ -7310,8 +7304,6 @@ namespace QoZ {
         //size_t min_anchor_level;//temp for "adaptive anchor stride";
        // double anchor_threshold=0.0;//temp for "adaptive anchor stride";
 
-        std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
-        bool check_qoi = false;
 
 
 

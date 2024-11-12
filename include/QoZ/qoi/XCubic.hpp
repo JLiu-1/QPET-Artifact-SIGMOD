@@ -10,6 +10,7 @@
 #include "QoZ/qoi/QoI.hpp"
 #include "QoZ/utils/Iterator.hpp"
 
+
 namespace QoZ {
     template<class T, uint N>
     class QoI_X_Cubic : public concepts::QoIInterface<T, N> {
@@ -20,6 +21,7 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
+            printf("tolerance = %.4f\n", tolerance);
             concepts::QoIInterface<T, N>::id = 9;
         }
 

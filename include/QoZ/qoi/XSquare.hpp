@@ -15,7 +15,7 @@ namespace QoZ {
     class QoI_X_Square : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Square(double tolerance, T global_eb) : 
+        QoI_X_Square(T tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
@@ -82,22 +82,8 @@ namespace QoZ {
 
         void set_dims(const std::vector<size_t>& new_dims){}
 
-        double eval(T val) const{
-            
-            return val*val;//todo
-
-        } 
-        std::string get_expression() const{
-            return "x^2";
-        }
-
-        void pre_compute(const T * data){}
-
-        void set_qoi_tolerance(double tol) {tolerance = tol;}
-
-
     private:
-        double tolerance;
+        T tolerance;
         T global_eb;
     };
 }
