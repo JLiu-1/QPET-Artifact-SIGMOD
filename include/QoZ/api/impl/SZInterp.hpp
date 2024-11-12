@@ -1490,6 +1490,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
         QoI_tuning<T,N>(conf, data);
     }
+    /*
     else{
         // compute isovalues for comparison
         T max = data[0];
@@ -1504,7 +1505,7 @@ double Tuning(QoZ::Config &conf, T *data){
         for(int i=0; i<num; i++){
             conf.isovalues.push_back(min + range / (num + 1));
         }        
-    }
+    }*/
 
 
 
