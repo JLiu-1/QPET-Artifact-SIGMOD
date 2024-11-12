@@ -667,6 +667,10 @@ namespace QoZ {
            // count = 0;//debug;
 
         }
+
+        double get_max_eb() {
+            return max_abs_eb;
+        }
     private:
 
         enum PredictorBehavior {
@@ -887,6 +891,7 @@ namespace QoZ {
                 //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb = qoi->interpret_eb(&d, idx);
+                max_abs_eb = std::max(max_abs_eb, (double) eb);
                 //debug
                 //if (eb <global_eb)
                //     count++;
@@ -926,6 +931,7 @@ namespace QoZ {
                 //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb = qoi->interpret_eb(&d, idx);
+                max_abs_eb = std::max(max_abs_eb, (double) eb);
                 //debug
                 //if (eb <global_eb)
                //     count++;
@@ -7409,6 +7415,8 @@ namespace QoZ {
        // double anchor_threshold=0.0;//temp for "adaptive anchor stride";
 
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
+
+        double max_abs_eb= std::numeric_limits<double>::lowest();
 
 
 
