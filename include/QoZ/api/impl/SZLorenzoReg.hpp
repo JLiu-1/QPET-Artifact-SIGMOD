@@ -139,6 +139,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         {
             auto dims = conf.dims;
             auto tmp_abs_eb = conf.absErrorBound;
+            double max_abs_eb = 0;
 
             size_t sampling_num, sampling_block;
             std::vector<size_t> sample_dims(N);
@@ -153,27 +154,33 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
                 size_t sampleOutSize;
                 memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
                 auto cmprData = sz->compress(conf, sampling_data, sampleOutSize);
+                max_abs_eb = sz.get_max_eb();
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                 std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << ratio << std::endl;
             }
             double prev_ratio = 1;
             double current_ratio = ratio;
-            double best_abs_eb = conf.absErrorBound;
+            double best_abs_eb = std::min(conf.absErrorBound, max_abs_eb);
             double best_ratio = current_ratio;
             // check smaller bounds
-            while(true){
+            int max_iter = 100; 
+            int iter = 0;
+            while(iter++ < max_iter){
                 auto prev_eb = conf.absErrorBound;
                 prev_ratio = current_ratio;
                 conf.absErrorBound /= 2;
                 qoi->set_global_eb(conf.absErrorBound);
                 size_t sampleOutSize;
                 memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
-                auto cmprData = sz->compress(conf, sampling_data, sampleOutSize);
+                // reset variables for average of square
+                if(conf.qoi == 3) qoi->init();
+                auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
+                sz.clear();
                 delete[]cmprData;
                 current_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                 std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << current_ratio << std::endl;
-                if(current_ratio < prev_ratio){
+                if(current_ratio < prev_ratio * 0.99){
                     if(prev_ratio > best_ratio){
                         best_abs_eb = prev_eb;
                         best_ratio = prev_ratio;
