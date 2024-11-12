@@ -1466,6 +1466,7 @@ double Tuning(QoZ::Config &conf, T *data){
             lorenzo_config.regression2 = false;
             lorenzo_config.openmp = false;
             lorenzo_config.blockSize = 5;//why?
+            lorenzo_config.qoi = 0;
             size_t sampleOutSize;
             std::vector<T> cur_sampling_data=sampling_data;
             auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, cur_sampling_data.data(), sampleOutSize);
@@ -1842,6 +1843,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         lorenzo_config.regression2 = false;
         lorenzo_config.openmp = false;
         lorenzo_config.blockSize = 5;//why?
+        lorenzo_config.qoi = 0;
         if (sampling_num != conf.num) {
             lorenzo_config.setDims(sample_dims.begin(), sample_dims.end());
        
