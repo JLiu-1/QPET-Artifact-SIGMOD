@@ -218,8 +218,8 @@ namespace QoZ {
         // compress given the error bound
         uchar *compress( Config &conf, T *data, size_t &compressed_size,int tuning,int start_level,int end_level=0) {
             //tuning 0: normal compress 1:tuning to return qbins and psnr 2: tuning to return prediction loss
-            Timer timer;
-            timer.start();
+            //Timer timer;
+           // timer.start();
             
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
             blocksize = conf.interpBlockSize;
@@ -532,8 +532,8 @@ namespace QoZ {
                 return buffer;
             }
 
-            if(conf.verbose)
-                timer.stop("prediction");//can remove later
+            //if(conf.verbose)
+            //    timer.stop("prediction");//can remove later
             
             //timer.start();
             assert(quant_inds.size() == num_elements);
