@@ -139,7 +139,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         {
             auto dims = conf.dims;
             auto tmp_abs_eb = conf.absErrorBound;
-            double max_abs_eb = 0;
+            //double max_abs_eb = 0;
 
             size_t sampling_num, sampling_block;
             std::vector<size_t> sample_dims(N);
@@ -154,14 +154,15 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
                 size_t sampleOutSize;
                 memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
                 auto cmprData = sz->compress(conf, sampling_data, sampleOutSize);
-                max_abs_eb = sz.get_max_eb();
+                //max_abs_eb = sz.get_max_eb();
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                 std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << ratio << std::endl;
             }
             double prev_ratio = 1;
             double current_ratio = ratio;
-            double best_abs_eb = std::min(conf.absErrorBound, max_abs_eb);
+            //double best_abs_eb = std::min(conf.absErrorBound, max_abs_eb);
+            double best_abs_eb = conf.absErrorBound;
             double best_ratio = current_ratio;
             // check smaller bounds
             int max_iter = 100; 
@@ -176,7 +177,6 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
                 // reset variables for average of square
                 if(conf.qoi == 3) qoi->init();
                 auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
-                sz.clear();
                 delete[]cmprData;
                 current_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                 std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << current_ratio << std::endl;
