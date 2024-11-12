@@ -927,7 +927,6 @@ namespace QoZ {
                 //    std::cout<<ori_data<<std::endl;
                 //auto eb = qoi->interpret_eb(data, offset);
                 T eb = qoi->interpret_eb(&d, idx);
-                max_abs_eb = std::max(max_abs_eb, (double) eb);
                 //debug
                 //if (eb <global_eb)
                //     count++;
