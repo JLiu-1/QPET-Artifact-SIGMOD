@@ -668,9 +668,6 @@ namespace QoZ {
 
         }
 
-        double get_max_eb() {
-            return max_abs_eb;
-        }
     private:
 
         enum PredictorBehavior {
@@ -7416,7 +7413,6 @@ namespace QoZ {
 
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
 
-        double max_abs_eb= std::numeric_limits<double>::lowest();
 
 
 

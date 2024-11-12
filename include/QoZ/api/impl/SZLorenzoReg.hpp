@@ -132,6 +132,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
         auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
         auto qoi = QoZ::GetQOI<T, N>(conf);
+        double max_abs_eb = 0;
         if(conf.qoi == 3){
             conf.blockSize = conf.qoiRegionSize;
         }
@@ -158,11 +159,14 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                 std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << ratio << std::endl;
+                max_abs_eb = fabs(sampling_data[0] - samples[0]);
+                for(size_t i=1; i<sampling_num; i++){
+                    max_abs_eb = std::max(max_abs_eb, fabs(sampling_data[i] - samples[i]));
+                }
             }
             double prev_ratio = 1;
             double current_ratio = ratio;
-            //double best_abs_eb = std::min(conf.absErrorBound, max_abs_eb);
-            double best_abs_eb = conf.absErrorBound;
+            double best_abs_eb = std::min(conf.absErrorBound, max_abs_eb);
             double best_ratio = current_ratio;
             // check smaller bounds
             int max_iter = 100; 
