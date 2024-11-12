@@ -27,7 +27,7 @@ namespace QoZ {
                 block_size(conf.blockSize),
                 num_elements(conf.num),
                 quantizer_eb(quantizer_eb),
-                qoi(qoi),
+                qoi(qoi)
                 {
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
         }

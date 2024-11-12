@@ -820,13 +820,6 @@ namespace QoZ {
                  auto qidx = quantizer.quantize_and_overwrite(d, pred);
 
     
-                 if(check_qoi and !qoi->check_compliance(ori,d)){
-                    // std::cout << "not compliant" << std::endl;
-                    // save as unpredictable
-                    d = ori;
-                    qidx = 0;
-                    quantizer.insert_unpred(d);
-                 }
                  quant_inds.push_back(qidx);
                  return 0;
             }
@@ -835,13 +828,7 @@ namespace QoZ {
                 auto qidx = quantizer.quantize_and_overwrite(d, pred);
 
     
-                 if(check_qoi and !qoi->check_compliance(ori,d)){
-                    // std::cout << "not compliant" << std::endl;
-                    // save as unpredictable
-                    d = ori;
-                    qidx = 0;
-                    quantizer.insert_unpred(d);
-                 }
+                
                  quant_inds.push_back(qidx);
                 return (d-ori)*(d-ori);
             }
