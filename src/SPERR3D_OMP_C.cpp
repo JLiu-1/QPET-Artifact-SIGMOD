@@ -66,8 +66,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     m_orig_is_float = true;
   else
     m_orig_is_float = false;
-  auto qoi = QoZ::GetQOI<double>(1, 1, 1, "x^2" );
-  std::cout<<qoi->eval(2.5)<<std::endl;
+  //auto qoi = QoZ::GetQOI<double>(1, 1, 1, "x^2" );
   if (m_mode == sperr::CompMode::Unknown)
     return RTNType::CompModeUnknown;
   if (buf_len != m_dims[0] * m_dims[1] * m_dims[2])
@@ -105,7 +104,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     assert(!chunk.empty());
     compressor->take_data(std::move(chunk));
     compressor->set_dims({chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]});
-    std::cout<<chunk_idx[i][1]<<" "<<chunk_idx[i][3]<<" "<<chunk_idx[i][5]<<std::endl;//its reversed (fastest first)
+    //std::cout<<chunk_idx[i][1]<<" "<<chunk_idx[i][3]<<" "<<chunk_idx[i][5]<<std::endl;//its reversed (fastest first)
     switch (m_mode) {
       case CompMode::PSNR:
         compressor->set_psnr(m_quality);
