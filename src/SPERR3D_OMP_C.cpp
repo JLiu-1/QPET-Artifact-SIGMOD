@@ -66,7 +66,8 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     m_orig_is_float = true;
   else
     m_orig_is_float = false;
-  auto qoi = GetQOI<double>(1, 1, 1, "x^2" );
+  auto qoi = QoZ::GetQOI<double>(1, 1, 1, "x^2" );
+  std::cout<<qoi->eval(2.5)<<std::endl;
   if (m_mode == sperr::CompMode::Unknown)
     return RTNType::CompModeUnknown;
   if (buf_len != m_dims[0] * m_dims[1] * m_dims[2])

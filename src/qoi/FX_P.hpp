@@ -44,7 +44,7 @@ namespace QoZ {
                 global_eb(global_eb), threshold(threshold), isolated (isolated), f1_string(f1_c), f2_string(f2_c) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 2;
+            concepts::QoIInterface<T>::id = 2;
            // std::cout<<"init 1 "<< std::endl;
             
             Expression f,ff;
