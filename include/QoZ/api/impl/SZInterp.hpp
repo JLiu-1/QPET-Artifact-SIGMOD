@@ -147,6 +147,10 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
 
             }
             std::cout<<"Global correction done. "<<corr_count<<" blocks corrected."<<std::endl;
+            for(size_t i=0;i<conf.num;i++){
+                if (ori_data[i]!=0)
+                    std::cout<<i<<" "<<ori_data[i]<<std::endl;
+            }
 
             auto zstd = QoZ::Lossless_zstd();
             
