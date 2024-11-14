@@ -156,7 +156,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
                                                          offset_size);
             ori_data.clear();
             memcpy(cmpData+outSize,lossless_data,offset_size);
-            outSizes += offset_size;
+            outSize += offset_size;
             delete lossless_data;
 
             memcpy(cmpData+outSize,&offset_size,sizeof(size_t));
