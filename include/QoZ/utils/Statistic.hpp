@@ -666,12 +666,17 @@ namespace QoZ {
                         size_t n_block_elements = size_1 * size_2 * size_3;
                         double ave = 0;
                         double ori_ave =0;
+                        std::vector<T>ori_qoi_vals;
+                        std::vector<T>qoi_vals;
                         for(size_t ii=0; ii<size_1; ii++){
                             for(size_t jj=0; jj<size_2; jj++){
                                 for(size_t kk=0; kk<size_3; kk++){
-                                    ave += qoi->eval(*cur_data_pos);
+                                    double q = qoi->eval(*cur_data_pos);
+                                    ave += q;
+                                    qoi_vals.push_back(q);
                                     cur_data_pos ++;
-                                    ori_ave += qoi->eval(*cur_ori_data_pos);
+                                    double oq = qoi->eval(*cur_ori_data_pos);
+                                    ori_qoi_vals.push_back(oq);
                                     cur_ori_data_pos ++;
                                 }
                                 cur_data_pos += dim1_offset - size_3;
@@ -682,18 +687,34 @@ namespace QoZ {
                         }
                         ave /= n_block_elements;
                         ori_ave /= n_block_elements;
-                        if(fabs(ave-ori_ave)> tol){
+                        double err = ori_ave-ave;
+                        if(fabs(err)> tol){
+                            
                             corr_count++;
                             T * cur_data_pos = data_z_pos;
                             T * cur_ori_data_pos = ori_data_z_pos;
+                            bool fixing=true;
+                            size_t local_idx = 0;
                             for(size_t ii=0; ii<size_1; ii++){
                                 for(size_t jj=0; jj<size_2; jj++){
                                     for(size_t kk=0; kk<size_3; kk++){
-                                        T offset = *cur_ori_data_pos - *cur_data_pos;
-                                        *cur_data_pos = *cur_ori_data_pos;
-                                        *cur_ori_data_pos = offset;
+                                        if(fixing){
+                                           
+                                            T offset = *cur_ori_data_pos - *cur_data_pos;
+                                            *cur_data_pos = *cur_ori_data_pos;
+                                            *cur_ori_data_pos = offset;
+                                            err -= (ori_qoi_vals[local_idx]-qoi_vals[local_idx])/n_block_elements;
+                                            if (fabs(err)<=tol)
+                                                fixing=false;
+
+                                        }
+                                        else{
+                                            *cur_ori_data_pos = 0;
+                                        }
+                                        local_idx++;
                                         cur_data_pos ++;
                                         cur_ori_data_pos ++;
+
                                     }
                                     cur_data_pos += dim1_offset - size_3;
                                     cur_ori_data_pos += dim1_offset - size_3;
