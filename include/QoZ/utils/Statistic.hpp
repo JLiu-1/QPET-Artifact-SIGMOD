@@ -653,6 +653,7 @@ namespace QoZ {
                             for(size_t jj=0; jj<size_2; jj++){
                                 for(size_t kk=0; kk<size_3; kk++){
                                     *cur_ori_data_pos = 0;
+                                    cur_ori_data_pos ++;
                                 }
                                 cur_ori_data_pos += dim1_offset - size_3;
                             }
@@ -691,6 +692,8 @@ namespace QoZ {
                                         T offset = *cur_ori_data_pos - *cur_data_pos;
                                         *cur_data_pos = *cur_ori_data_pos;
                                         *cur_ori_data_pos = offset;
+                                        cur_data_pos ++;
+                                        cur_ori_data_pos ++;
                                     }
                                     cur_data_pos += dim1_offset - size_3;
                                     cur_ori_data_pos += dim1_offset - size_3;
@@ -705,6 +708,7 @@ namespace QoZ {
                                 for(size_t jj=0; jj<size_2; jj++){
                                     for(size_t kk=0; kk<size_3; kk++){
                                         *cur_ori_data_pos = 0;
+                                        cur_ori_data_pos ++;
                                     }
                                     cur_ori_data_pos += dim1_offset - size_3;
                                 }
