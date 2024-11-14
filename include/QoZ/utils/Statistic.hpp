@@ -640,11 +640,11 @@ namespace QoZ {
         for(size_t i=0; i<num_block_1; i++){
             size_t size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
             T * data_y_pos = data_x_pos;
-            T * ori_data_y_pos = ori_data_y_pos;
+            T * ori_data_y_pos = ori_data_x_pos;
             for(size_t j=0; j<num_block_2; j++){
                 size_t size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
                 T * data_z_pos = data_y_pos;
-                T * ori_data_z_pos = ori_data_z_pos;
+                T * ori_data_z_pos = ori_data_y_pos;
                 for(size_t k=0; k<num_block_3; k++){
                     size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
                     if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size){
