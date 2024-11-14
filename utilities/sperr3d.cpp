@@ -171,9 +171,9 @@ int main(int argc, char* argv[])
   //
   // Compression settings
   //
-  auto chunks = std::array<size_t, 3>{256, 256, 256};
+  auto chunks = std::array<size_t, 3>{512, 512, 512};
   app.add_option("--chunks", chunks,
-                 "Dimensions of the preferred chunk size. Default: 256 256 256\n"
+                 "Dimensions of the preferred chunk size. Default: 512 512 512\n"
                  "(Volume dims don't need to be divisible by these chunk dims.)")
       ->group("Compression settings");
 
