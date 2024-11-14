@@ -135,15 +135,15 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
         if(global_correction){
             size_t corr_count = 0;
             if(N==3){
-                corr_count=compute_qoi_average_and_correct<T,N>(ori_data.data(), data, conf.dims[0], conf.dims[1], conf.dims[2], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
+                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, conf.dims[0], conf.dims[1], conf.dims[2], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
             else if (N==2){
-                corr_count=compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, conf.dims[0], conf.dims[1], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
+                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, conf.dims[0], conf.dims[1], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
             else{//N==1
-                corr_count=compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, 1, conf.dims[0], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
+                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, 1, conf.dims[0], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
             std::cout<<"Global correction done. "<<corr_count<<" blocks corrected."<<std::endl;
@@ -155,11 +155,11 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
                                                          conf.num*sizeof(T),
                                                          offset_size);
             ori_data.clear();
-            memcpy(cmpData+outSizes,lossless_data,offset_size);
+            memcpy(cmpData+outSize,lossless_data,offset_size);
             outSizes += offset_size;
             delete lossless_data;
 
-            memcpy(cmpData+outSizes,&offset_size,sizeof(size_t));
+            memcpy(cmpData+outSize,&offset_size,sizeof(size_t));
             outSizes+=sizeof(size_t);
 
                 
@@ -168,7 +168,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
         else{
             offset_size=0;
             
-            memcpy(cmpData+outSizes,&offset_size,sizeof(size_t));
+            memcpy(cmpData+outSize,&offset_size,sizeof(size_t));
             outSizes+=sizeof(size_t);
             
 
