@@ -155,7 +155,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
             QoZ::uchar *lossless_data = zstd.compress(reinterpret_cast< QoZ::uchar *>(ori_data.data()),
                                                          conf.num*sizeof(T),
                                                          offset_size);
-            std::cout<<offset_size<<std::endl;
+            //std::cout<<offset_size<<std::endl;
             //ori_data.clear();
             //std::cout<<"001"<<std::endl;
             memcpy(cmpData+outSize,lossless_data,offset_size);
