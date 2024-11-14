@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
-#include "qoi/QoI.hpp"
-#include "qoi/SymEngine.hpp"
+#include "QoI.hpp"
+#include "SymEngine.hpp"
 #include <symengine/expression.h>
 #include <symengine/parser.h>
 #include <symengine/symbol.h>

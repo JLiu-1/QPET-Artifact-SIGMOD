@@ -8,10 +8,9 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
-#include "QoZ/def.hpp"
-#include "QoZ/qoi/QoI.hpp"
-#include "QoZ/utils/Iterator.hpp"
-#include "QoZ/qoi/SymEngine.hpp"
+#include "QoI.hpp"
+
+#include "SymEngine.hpp"
 #include <symengine/expression.h>
 #include <symengine/parser.h>
 #include <symengine/symbol.h>
