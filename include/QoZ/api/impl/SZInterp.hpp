@@ -193,8 +193,11 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
                     ori_data[j][i]=0;
             }
             else{
-                for (auto j:{0,1,2})
-                    ori_data[j][i]-=data[j][i];
+                for (auto j:{0,1,2}){
+                    T offset = ori_data[j][i]-data[j][i];
+                    data[j][i] = ori_data[j][i];
+                    ori_data[j][i]=offset;
+                }
             }
         }
 
