@@ -660,7 +660,7 @@ namespace QoZ {
                                 ave += qoi->eval(*cur_data_pos);
                                 cur_data_pos ++;
                                 ori_ave += qoi->eval(*cur_ori_data_pos);
-                                ori_cur_data_pos ++;
+                                curori__data_pos ++;
                             }
                             cur_data_pos += dim1_offset - size_3;
                             cur_ori_data_pos += dim1_offset - size_3;
@@ -686,6 +686,7 @@ namespace QoZ {
                             }
                             cur_data_pos += dim0_offset - size_2 * dim1_offset;
                             cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+                        }
                     }
                     else{
                         T * cur_ori_data_pos = ori_data_z_pos;
@@ -697,6 +698,7 @@ namespace QoZ {
                                 cur_ori_data_pos += dim1_offset - size_3;
                             }
                             cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+                        }
                     }
                     data_z_pos += size_3;
                     ori_data_z_pos += size_3;
