@@ -644,7 +644,6 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
 
             double q = 0.999999;
-            double rate;
             if(conf.tol_estimation==0)
                 rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q, conf.error_std_rate);
             else
