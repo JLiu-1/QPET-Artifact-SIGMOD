@@ -164,6 +164,9 @@ if( BUILD_UNIT_TESTS )
 endif()
 
 
+target_link_libraries(${PROJECT_NAME} PRIVATE symengine)
+target_link_libraries(${PROJECT_NAME} PRIVATE gmp)
+
 #
 # Start installation using GNU installation rules
 #
