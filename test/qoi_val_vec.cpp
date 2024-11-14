@@ -122,7 +122,7 @@ void qoiValidation(std::array<char*,3> inPaths, std::array<char*,3> decPaths,
 
 
         //conf.qoi = 1;//Forced verify qoi
-        QoZ::verifyQoI_new<T>(ori_data, decData, conf);
+        QoZ::verifyQoI_new<T>(ori_data, dec_data, conf);
     
 }
 
@@ -161,8 +161,6 @@ int main(int argc, char *argv[]) {
             case 'h':
                 usage();
                 exit(0);
-           
-                printCmpResults = 1;
                 break;
 
             case 'f':
@@ -253,7 +251,7 @@ int main(int argc, char *argv[]) {
         conf = QoZ::Config(r4, r3, r2, r1);
     }
     
-    if (compression && conPath != nullptr) {
+    if (conPath != nullptr) {
         conf.loadcfg(conPath);
     }
 
