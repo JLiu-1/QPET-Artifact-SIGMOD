@@ -52,8 +52,7 @@ else()
     message("GMP not found.")
 endif()
 
-add_library(symengine)
-add_library(gmp)
+
 
 #
 # Gather git commit SHA1
