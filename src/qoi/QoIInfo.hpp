@@ -18,7 +18,7 @@ namespace QoZ {
             case 2:
                 return std::make_shared<QoZ::QoI_FX_P<T>>(qoiEB, absErrorBound, qoi_string, qoi_string_2, threshold, isolated);
             case 3
-                return std::make_shared<QoZ::QoI_FX_ABS<T>>(qoiEB, absErrorBound, qoi_string, isolated, conf.threshold);
+                return std::make_shared<QoZ::QoI_FX_ABS<T>>(qoiEB, absErrorBound, qoi_string, isolated, threshold);
         }
         return NULL;
     }

@@ -44,7 +44,7 @@ namespace QoZ {
                 global_eb(global_eb), threshold(threshold), isolated (isolated), f1_string(f1_c), f2_string(f2_c) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 15;
+            concepts::QoIInterface<T, N>::id = 2;
            // std::cout<<"init 1 "<< std::endl;
             
             Expression f,ff;
@@ -102,10 +102,6 @@ namespace QoZ {
             //std::cout<< (down_cast<const RealDouble &>(*result)).as_double()<<std::endl;
         }
 
-        using Range = multi_dimensional_range<T, N>;
-        using iterator = typename multi_dimensional_range<T, N>::iterator;
-
-    
 
         T interpret_eb(T data) const {
             
@@ -137,9 +133,6 @@ namespace QoZ {
             return std::min(eb, global_eb);
         }
 
-        T interpret_eb(const iterator &iter) const {
-            return interpret_eb(*iter);
-        }
 
         T interpret_eb(const T * data, ptrdiff_t offset) {
             return interpret_eb(*data);
@@ -160,7 +153,7 @@ namespace QoZ {
 
         void update_tolerance(T data, T dec_data){}
 
-        void precompress_block(const std::shared_ptr<Range> &range){}
+        void precompress_block(){}
 
         void postcompress_block(){}
 
