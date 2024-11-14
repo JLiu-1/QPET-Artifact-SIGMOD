@@ -135,15 +135,15 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
         if(global_correction){
             size_t corr_count = 0;
             if(N==3){
-                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, conf.dims[0], conf.dims[1], conf.dims[2], conf.qoiRegionSize, qoi, 9999);//conf.regionalQoIeb);
+                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, conf.dims[0], conf.dims[1], conf.dims[2], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
             else if (N==2){
-                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, conf.dims[0], conf.dims[1], conf.qoiRegionSize, qoi, 9999);//, conf.regionalQoIeb);
+                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, conf.dims[0], conf.dims[1], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
             else{//N==1
-                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, 1, conf.dims[0], conf.qoiRegionSize, qoi, 9999);//, conf.regionalQoIeb);
+                corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, 1, conf.dims[0], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
             std::cout<<"Global correction done. "<<corr_count<<" blocks corrected."<<std::endl;
@@ -157,14 +157,14 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
                                                          offset_size);
             std::cout<<offset_size<<std::endl;
             //ori_data.clear();
-            std::cout<<"001"<<std::endl;
+            //std::cout<<"001"<<std::endl;
             memcpy(cmpData+outSize,lossless_data,offset_size);
             outSize += offset_size;
             delete []lossless_data;
-            std::cout<<"002"<<std::endl;
+            //std::cout<<"002"<<std::endl;
             memcpy(cmpData+outSize,&offset_size,sizeof(size_t));
             outSize+=sizeof(size_t);
-            std::cout<<"003"<<std::endl;
+            //std::cout<<"003"<<std::endl;
 
                 
             
