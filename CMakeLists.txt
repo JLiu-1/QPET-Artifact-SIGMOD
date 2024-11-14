@@ -52,9 +52,8 @@ else()
     message("GMP not found.")
 endif()
 
-target_link_libraries(${PROJECT_NAME} symengine)
-target_link_libraries(${PROJECT_NAME} gmp)
-
+add_library(symengine)
+add_library(gmp)
 
 #
 # Gather git commit SHA1
