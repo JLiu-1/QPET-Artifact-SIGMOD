@@ -1,5 +1,5 @@
 #include "SPERR3D_OMP_C.h"
-#include "qoi/QOIInfo.hpp"
+#include "qoi/QoIInfo.hpp"
 #include <algorithm>  // std::all_of()
 #include <cassert>
 #include <cstring>
