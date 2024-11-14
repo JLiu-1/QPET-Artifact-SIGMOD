@@ -544,7 +544,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
     }
     std::cout<<"ABS QoI eb: " << conf.qoiEB << std::endl;
-    if(conf.qoiRegionMode > 0 and (conf.qoi!=16 or conf.qoi_string == "x")){//regional average
+    if(conf.qoiRegionMode > 0 and (conf.qoi!=16 or conf.qoi_string == "x")){//regional 
         //adjust qoieb
         double rate = 1.0;
         if(conf.qoiRegionMode == 2){//lap

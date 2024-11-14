@@ -345,7 +345,7 @@ namespace QoZ {
             write(qoiEBBase, c);
             write(qoiEBLogBase, c);
             write(qoiQuantbinCnt, c);
-            //write(qoiRegionSize, c);
+            write(qoiRegionSize, c);
             //qoiIsoNum = isovalues.size();
             //write(qoiIsoNum, c);
             //write(isovalues.data(), isovalues.size(), c);
@@ -575,7 +575,7 @@ namespace QoZ {
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
         bool early_termination = false;
 
-        int qoiRegionMode = 0; //0:no region 1: average 1:laplacian 2: gradient 
+        int qoiRegionMode = 0; //0:no region 1: average 2:laplacian 3: gradient 
 
         bool use_global_eb = false;
 
