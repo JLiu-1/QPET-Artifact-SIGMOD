@@ -660,7 +660,7 @@ namespace QoZ {
                                 ave += qoi->eval(*cur_data_pos);
                                 cur_data_pos ++;
                                 ori_ave += qoi->eval(*cur_ori_data_pos);
-                                curori__data_pos ++;
+                                cur_ori_data_pos ++;
                             }
                             cur_data_pos += dim1_offset - size_3;
                             cur_ori_data_pos += dim1_offset - size_3;
