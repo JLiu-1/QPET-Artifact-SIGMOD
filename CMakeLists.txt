@@ -44,6 +44,20 @@ if(USE_OMP)
   endif()
 endif()
 
+find_package(SymEngine REQUIRED)
+pkg_check_modules(GMP REQUIRED gmp)
+if (GMP_FOUND)
+    message("GMP found.")
+else()
+    message("GMP not found.")
+endif()
+
+target_link_libraries(${PROJECT_NAME} INTERFACE symengine)
+target_link_libraries(${PROJECT_NAME} INTERFACE gmp)
+
+
+
+
 #
 # Gather git commit SHA1
 #
