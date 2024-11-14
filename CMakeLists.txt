@@ -43,7 +43,7 @@ if(USE_OMP)
     message(FATAL_ERROR "OpenMP NOT found! Try turning it off to continue configuring SPERR!")
   endif()
 endif()
-
+find_package(PkgConfig)
 find_package(SymEngine REQUIRED)
 pkg_check_modules(GMP REQUIRED gmp)
 if (GMP_FOUND)
