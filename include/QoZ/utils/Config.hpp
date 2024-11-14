@@ -345,7 +345,7 @@ namespace QoZ {
             write(qoiEBBase, c);
             write(qoiEBLogBase, c);
             write(qoiQuantbinCnt, c);
-            write(qoiRegionSize, c);
+            //write(qoiRegionSize, c);
             //qoiIsoNum = isovalues.size();
             //write(qoiIsoNum, c);
             //write(isovalues.data(), isovalues.size(), c);
