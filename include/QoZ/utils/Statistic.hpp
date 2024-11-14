@@ -640,55 +640,14 @@ namespace QoZ {
         for(size_t i=0; i<num_block_1; i++){
             size_t size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
             T * data_y_pos = data_x_pos;
-            T * ori_data_y_pos = ori_data_x_pos;
+            T * ori_data_y_pos = ori_data_y_pos;
             for(size_t j=0; j<num_block_2; j++){
                 size_t size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
                 T * data_z_pos = data_y_pos;
-                T * ori_data_z_pos = ori_data_y_pos;
+                T * ori_data_z_pos = ori_data_z_pos;
                 for(size_t k=0; k<num_block_3; k++){
                     size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
-                    if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
-                        continue;
-                    T * cur_data_pos = data_z_pos;
-                    T * cur_ori_data_pos = ori_data_z_pos;
-                    size_t n_block_elements = size_1 * size_2 * size_3;
-                    double ave = 0;
-                    double ori_ave =0;
-                    for(size_t ii=0; ii<size_1; ii++){
-                        for(size_t jj=0; jj<size_2; jj++){
-                            for(size_t kk=0; kk<size_3; kk++){
-                                ave += qoi->eval(*cur_data_pos);
-                                cur_data_pos ++;
-                                ori_ave += qoi->eval(*cur_ori_data_pos);
-                                cur_ori_data_pos ++;
-                            }
-                            cur_data_pos += dim1_offset - size_3;
-                            cur_ori_data_pos += dim1_offset - size_3;
-                        }
-                        cur_data_pos += dim0_offset - size_2 * dim1_offset;
-                        cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
-                    }
-                    ave /= n_block_elements;
-                    ori_ave /= n_block_elements;
-                    if(fabs(ave-ori_ave)> tol){
-                        corr_count++;
-                        T * cur_data_pos = data_z_pos;
-                        T * cur_ori_data_pos = ori_data_z_pos;
-                        for(size_t ii=0; ii<size_1; ii++){
-                            for(size_t jj=0; jj<size_2; jj++){
-                                for(size_t kk=0; kk<size_3; kk++){
-                                    T offset = *cur_ori_data_pos - *cur_data_pos;
-                                    *cur_data_pos = *cur_ori_data_pos;
-                                    *cur_ori_data_pos = offset;
-                                }
-                                cur_data_pos += dim1_offset - size_3;
-                                cur_ori_data_pos += dim1_offset - size_3;
-                            }
-                            cur_data_pos += dim0_offset - size_2 * dim1_offset;
-                            cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
-                        }
-                    }
-                    else{
+                    if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size){
                         T * cur_ori_data_pos = ori_data_z_pos;
                         for(size_t ii=0; ii<size_1; ii++){
                             for(size_t jj=0; jj<size_2; jj++){
@@ -698,6 +657,59 @@ namespace QoZ {
                                 cur_ori_data_pos += dim1_offset - size_3;
                             }
                             cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+                        }
+                    }
+                    else{
+                        T * cur_data_pos = data_z_pos;
+                        T * cur_ori_data_pos = ori_data_z_pos;
+                        size_t n_block_elements = size_1 * size_2 * size_3;
+                        double ave = 0;
+                        double ori_ave =0;
+                        for(size_t ii=0; ii<size_1; ii++){
+                            for(size_t jj=0; jj<size_2; jj++){
+                                for(size_t kk=0; kk<size_3; kk++){
+                                    ave += qoi->eval(*cur_data_pos);
+                                    cur_data_pos ++;
+                                    ori_ave += qoi->eval(*cur_ori_data_pos);
+                                    cur_ori_data_pos ++;
+                                }
+                                cur_data_pos += dim1_offset - size_3;
+                                cur_ori_data_pos += dim1_offset - size_3;
+                            }
+                            cur_data_pos += dim0_offset - size_2 * dim1_offset;
+                            cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+                        }
+                        ave /= n_block_elements;
+                        ori_ave /= n_block_elements;
+                        if(fabs(ave-ori_ave)> tol){
+                            corr_count++;
+                            T * cur_data_pos = data_z_pos;
+                            T * cur_ori_data_pos = ori_data_z_pos;
+                            for(size_t ii=0; ii<size_1; ii++){
+                                for(size_t jj=0; jj<size_2; jj++){
+                                    for(size_t kk=0; kk<size_3; kk++){
+                                        T offset = *cur_ori_data_pos - *cur_data_pos;
+                                        *cur_data_pos = *cur_ori_data_pos;
+                                        *cur_ori_data_pos = offset;
+                                    }
+                                    cur_data_pos += dim1_offset - size_3;
+                                    cur_ori_data_pos += dim1_offset - size_3;
+                                }
+                                cur_data_pos += dim0_offset - size_2 * dim1_offset;
+                                cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+                            }
+                        }
+                        else{
+                            T * cur_ori_data_pos = ori_data_z_pos;
+                            for(size_t ii=0; ii<size_1; ii++){
+                                for(size_t jj=0; jj<size_2; jj++){
+                                    for(size_t kk=0; kk<size_3; kk++){
+                                        *cur_ori_data_pos = 0;
+                                    }
+                                    cur_ori_data_pos += dim1_offset - size_3;
+                                }
+                                cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+                            }
                         }
                     }
                     data_z_pos += size_3;
