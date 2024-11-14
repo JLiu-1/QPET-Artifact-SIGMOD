@@ -159,7 +159,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
             std::cout<<"001"<<std::endl;
             memcpy(cmpData+outSize,lossless_data,offset_size);
             outSize += offset_size;
-            delete lossless_data;
+            delete []lossless_data;
             std::cout<<"002"<<std::endl;
             memcpy(cmpData+outSize,&offset_size,sizeof(size_t));
             outSize+=sizeof(size_t);
