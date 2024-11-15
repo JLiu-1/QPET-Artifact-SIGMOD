@@ -516,13 +516,13 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
   }
   if(qoi!=nullptr){
-    std::vector<T>offsets(total_vals,0);
+    std::vector<double>offsets(total_vals,0);
     for (size_t i = 0; i < total_vals; i++) {
   
       if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  )
         offsets[i]=m_vals_orig[i]-m_vals_d[i];
     }
-    zstd_encoder.encode(offsets);
+    zstd_encoder.encode<double>(offsets);
 
   }
   
