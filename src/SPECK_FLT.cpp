@@ -246,7 +246,7 @@ void sperr::SPECK_FLT::set_qoi_tol(double q_tol)
   qoi_tol = q_tol;
 }
 
-void sperr::SPECK_FLT::set_qoi_block_size(double q_bs)
+void sperr::SPECK_FLT::set_qoi_block_size(int q_bs)
 {
   qoi_block_size = q_bs;
 }
@@ -724,12 +724,12 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
 
 void sperr::SPECK_FLT::block_qoi_outlier_correction(){
 
-  std::vector<double>offsets(total_vals,0);
+  std::vector<double>offsets(m_vals_d.size(),0);
  // size_t count=0;
   
    
   size_t n1 = m_dims[2], n2 = m_dims[1], n3 = m_dims[0];
-
+  int block_size = qoi_block_size;
   uint32_t dim0_offset = n2 * n3;
   uint32_t dim1_offset = n3;
   uint32_t num_block_1 = (n1 - 1) / block_size + 1;
@@ -768,7 +768,7 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
                           double oq = qoi->eval(*cur_ori_data_pos);
                           bool compliance = true;
                           if ((std::isnan(oq) or std::isinf(oq)))
-                            compliance = *cur_data_pos == *cur_ori_data_pos
+                            compliance = (*cur_data_pos == *cur_ori_data_pos);
                           else if (std::isnan(q_dec) or std::isinf(q_dec))
                             compliance = false;
                           else
@@ -811,10 +811,10 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
                               auto qoi_err = (ori_qoi_vals[local_idx]-qoi_vals[local_idx]);
                               if(fixing and qoi_err!=0 ){
                                  
-                                  offset[cur_data_pos-data] = *cur_ori_data_pos - *cur_data_pos;
+                                  offsets[cur_data_pos-data] = *cur_ori_data_pos - *cur_data_pos;
                                   *cur_data_pos = *cur_ori_data_pos;
                                   err -= qoi_err/n_block_elements;
-                                  if (fabs(err)<=tol)
+                                  if (fabs(err)<=qoi_tol)
                                       fixing=false;
 
                               }
