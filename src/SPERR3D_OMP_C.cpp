@@ -236,7 +236,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             test_encoded_stream.clear();
             test_encoded_stream.reserve(128);
             //m_encoded_streams[i].reserve(1280000);
-            compressor->append_encoded_bitstream(test_encoded_stream);
+            test_compressor->append_encoded_bitstream(test_encoded_stream);
             
             double cur_br = test_encoded_stream.size()*8.0/(double)sample_num;       
             std::cout << "current_eb = " << cur_abs_eb << ", current_br = " << cur_br << std::endl;
