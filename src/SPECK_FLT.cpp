@@ -769,7 +769,7 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
                           bool compliance = true;
                           if ((std::isnan(oq) or std::isinf(oq)))
                             compliance = (*cur_data_pos == *cur_ori_data_pos);
-                          else if (std::isnan(q_dec) or std::isinf(q_dec))
+                          else if (std::isnan(q) or std::isinf(q))
                             compliance = false;
                           else
                             compliance = (std::abs(q - oq) <= pw_qoi_tol);
