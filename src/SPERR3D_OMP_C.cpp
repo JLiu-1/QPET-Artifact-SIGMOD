@@ -75,7 +75,7 @@ void sperr::SPERR3D_OMP_C::set_qoi_tol(double q_tol)
 
 }
 
-void sperr::SPERR3D_OMP_C::set_qoi_block_size(double q_bs)
+void sperr::SPERR3D_OMP_C::set_qoi_block_size(int q_bs)
 {
   qoi_block_size = q_bs;
 }
@@ -155,7 +155,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         double num_elements = 1;
         for(int i=0; i<m_dims.size(); i++){
             num_elements *= qoi_block_size;
-            num_blocks *= (m_dims - 1) / qoi_block_size + 1;
+            num_blocks *= (m_dims[i] - 1) / qoi_block_size + 1;
         }
 
         double q = 0.999999;
