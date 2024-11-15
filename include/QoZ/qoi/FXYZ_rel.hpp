@@ -2,8 +2,8 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_FXYZ_HPP
-#define SZ_QOI_FXYZ_HPP
+#ifndef SZ_QOI_FXYZ_REL_HPP
+#define SZ_QOI_FXYZ_REL_HPP
 
 #include <algorithm>
 #include <cmath>
