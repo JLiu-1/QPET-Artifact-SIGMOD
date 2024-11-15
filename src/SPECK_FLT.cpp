@@ -94,7 +94,7 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
   m_has_lossless = false;
   while (pos < len) {
 
-    const uint8_t* const out_p = ptr + pos;
+    const uint8_t* out_p = ptr + pos;
 
     uint8_t identifier;
     memcpy(&identifier,out_p,sizeof(uint8_t));
