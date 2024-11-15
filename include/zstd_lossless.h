@@ -45,7 +45,7 @@ class Lossless_zstd {
     std::cout<<"written bitstream "<<std::endl;
     size_t dataLength = 0;
     size_t compressedSize = byte_size;
-    memcpy(&dataLength,dataPos,compressedSize);
+    memcpy(&dataLength,dataPos,sizeof(dataLength));
     std::cout<<"dl d: "<<dataLength<<std::endl;
     dataPos += sizeof (dataLength);
     compressedSize -= sizeof (dataLength);
@@ -54,6 +54,7 @@ class Lossless_zstd {
 
     uint8_t* oriData = new uint8_t [dataLength];
     ZSTD_decompress(oriData, dataLength, dataPos, compressedSize);
+    delete[]dataPos;
     return oriData;
   }
 
