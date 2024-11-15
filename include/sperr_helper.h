@@ -184,7 +184,7 @@ template <typename T>
 auto calc_qoi_maxerr(const T* ori, const T* dec, size_t len, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi) -> std::array<double, 2>;
 
 template <typename T>
-auto calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_t,3> dims, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi, int block_size) -> std::array<double, 2>;
+auto calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_t,3> dims, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi, int block_size = 4) -> std::array<double, 2>;
 
 };  // namespace sperr
 
