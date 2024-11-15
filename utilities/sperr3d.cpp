@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
       encoder->set_bitrate(bpp);
     }
 
-    if (and qoi_tol>0 and qoi_id>0){
+    if (qoi_tol>0 and qoi_id>0){
         
         encoder->set_qoi_id(qoi_id);
         encoder->set_qoi_string(qoi_string);
