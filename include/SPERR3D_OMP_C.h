@@ -84,7 +84,7 @@ class SPERR3D_OMP_C {
 
   auto m_sample_center(vecd_type chunk,std::array<size_t, 3> chunk_dim, std::array<size_t,3>sample_dim) -> vecd_type;
 
-  double estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 2.0);
+  double estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k);
 };
 
 }  // End of namespace sperr
