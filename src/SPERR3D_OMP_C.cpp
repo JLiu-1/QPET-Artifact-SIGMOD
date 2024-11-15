@@ -188,7 +188,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         k = std::max((size_t)1, std::min(chunk_ele_num, k)); 
 
 
-        double best_abs_ebs;
+        double best_abs_eb;
 
       
         std::vector<size_t> quantiles;
@@ -223,12 +223,12 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             auto cur_abs_eb = ebs[quantile];
             qoi->set_global_eb(cur_abs_eb);
             // reset variables for average of square
-            test_compressor = std::make_unique<SPECK3D_FLT>();
+            auto test_compressor = std::make_unique<SPECK3D_FLT>();
             auto sampled_copy = sampled_data;
             compressor->take_data(std::move(sampled_copy));
             compressor->set_dims(sample_dims);
             compressor->set_tolerance(cur_abs_eb);
-            std::vector<vec8_type> test_encoded_stream;
+            vec8_type test_encoded_stream;
 
             test_compressor->compress();
 
@@ -241,7 +241,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             std::cout << "current_eb = " << cur_abs_eb << ", current_br = " << cur_br << std::endl;
             if(cur_br < best_br * 1.02){//todo: optimize
                 best_br = cur_br;
-                best_abs_eb = testConf.absErrorBound;
+                best_abs_eb = cur_abs_eb;
                 best_quantile = quantile;
             }
             /*else if(cur_br>1.1*best_br and testConf.early_termination){
@@ -450,7 +450,6 @@ template auto sperr::SPERR3D_OMP_C::m_gather_chunk(const double*,
 
 
 
-template <typename T>
 auto sperr::SPERR3D_OMP_C::m_sample_center(vecd_type chunk,std::array<size_t, 3> chunk_dims,std::array<size_t,3>sample_dims) -> vecd_type
 {
   std::array<size_t,3>starts= {(chunk_dims[0]-sample_dims[0])/2,(chunk_dims[1]-sample_dims[1])/2,(chunk_dims[2]-sample_dims[2])/2};
