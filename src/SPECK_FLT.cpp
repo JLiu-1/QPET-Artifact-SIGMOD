@@ -92,6 +92,7 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
   //    In that case, we simply discard the remaining bitstream.
   m_has_outlier = false;
   m_has_lossless = false;
+  std::cout<<"111"<<std::endl;
   while (pos < len) {
 
     const uint8_t* out_p = ptr + pos;
@@ -100,7 +101,9 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
     memcpy(&identifier,out_p,sizeof(uint8_t));
     out_p += sizeof(uint8_t);
     pos += sizeof(uint8_t);
+    std::cout<<"222"<<std::endl;
     if(identifier==0){
+      std::cout<<"333"<<std::endl;
       remaining_len = len - pos;
       if (remaining_len >= SPECK_INT<uint8_t>::header_size) {
         auto suppose_len = m_out_coder.get_stream_full_len(out_p);
@@ -112,13 +115,16 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
           m_has_outlier = true;
         }
       }
+      std::cout<<"444"<<std::endl;
       break;
     }
     else{//lossless
+      std::cout<<"555"<<std::endl;
       zstd_encoder.use_bitstream(out_p, pos);
       m_has_lossless = true;
     }
   }
+  std::cout<<"666"<<std::endl;
 
   return RTNType::Good;
 }
@@ -131,7 +137,7 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
   if (!m_conditioner.is_constant(m_condi_bitstream[0])) {
     // Append SPECK_INT bitstream.
     std::visit([&buf](auto&& enc) { enc->append_encoded_bitstream(buf); }, m_encoder);
-    std::cout<<"111"<<std::endl;
+    //std::cout<<"111"<<std::endl;
     //append lossless bitstream
     if(m_has_lossless){
       const auto orig_size = buf.size();
@@ -141,7 +147,7 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
       memcpy(ptr,&identifier,sizeof(uint8_t));
       zstd_encoder.append_encoded_bitstream(buf);
     }
-     std::cout<<"222"<<std::endl;
+     //std::cout<<"222"<<std::endl;
 
     // Append outlier coder bitstream.
     if (m_has_outlier){
@@ -152,7 +158,7 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
       memcpy(ptr,&identifier,sizeof(uint8_t));
       m_out_coder.append_encoded_bitstream(buf);
     }
-     std::cout<<"333"<<std::endl;
+     //std::cout<<"333"<<std::endl;
     
   }
 }
