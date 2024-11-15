@@ -139,7 +139,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
       size_t chunk_ele_num = chunk_idx[i][1]*chunk_idx[i][3]*chunk_idx[i][5];
       double sample_rate = 0.01;
       double length_sample_rate = pow(sample_rate,1.0/3.0);
-      std::array<size_t,3> sample_dims = {chunk_idx[i][1]*length_sample_rate, chunk_idx[i][3]*length_sample_rate, chunk_idx[i][5]*length_sample_rate};
+      std::array<size_t,3> sample_dims = {(size_t)(chunk_idx[i][1]*length_sample_rate), (size_t)(chunk_idx[i][3]*length_sample_rate), (size_t)(chunk_idx[i][5]*length_sample_rate)};
       size_t sample_num = sample_dims[0]*sample_dims[1]*sample_dims[2];
 
       auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
@@ -456,7 +456,7 @@ auto sperr::SPERR3D_OMP_C::m_sample_center(vecd_type chunk,std::array<size_t, 3>
   //std::array<size_t,3>ends= {(chunk_dim[0]+sample_dim[0])/2,(chunk_dim[1]+sample_dim[1])/2,(chunk_dim[2]+sample_dim[2])/2};
   vecd_type sampled_data;
   size_t idx = 0;
-  size_t y_offset = chunk_dim[0];
+  size_t y_offset = chunk_dims[0];
   size_t z_offset = y_offset * chunk_dim[1];
   for (size_t z = starts[2]; z < starts[2]+sample_dims[2]; z++) {
     const size_t plane_offset = z * z_offset;
@@ -465,6 +465,7 @@ auto sperr::SPERR3D_OMP_C::m_sample_center(vecd_type chunk,std::array<size_t, 3>
       sampled_data.insert(sampled_data.end(), chunk.begin()+start_idx, chunk.begin()+start_idx+sample_dims[0]);
     }
   }
+  return sampled_data;
 
 }
 
