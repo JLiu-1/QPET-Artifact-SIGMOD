@@ -1,6 +1,6 @@
 #ifndef SPECK_FLT_H
 #define SPECK_FLT_H
-#include "qoi/QoIInfo.hpp"
+
 //
 // This class serves as the base class of 1D, 2D, and 3D SPECK algorithm on floats.
 //
@@ -9,6 +9,8 @@
 #include "Conditioner.h"
 #include "Outlier_Coder.h"
 #include "SPECK_INT.h"
+#include "qoi/QoIInfo.hpp"
+#include "zstd_lossless.h"
 
 #include <variant>
 
@@ -85,6 +87,7 @@ class SPECK_FLT {
   Outlier_Coder m_out_coder;
   std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi = nullptr;
   double qoi_tol = 0.0;
+  Lossless_zstd zstd_encoder;
 
 
 
