@@ -488,14 +488,12 @@ FIXED_RATE_HIGH_PREC_LABEL:
       if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  )
         LOS.emplace_back(i, diff);
     }
-    std::cout<<LOS.size()<<std::endl;
-    auto LOS_backup=LOS;
     if (LOS.empty())
       m_has_outlier = false;
     else {
       m_has_outlier = true;
       m_out_coder.set_length(total_vals);
-      m_out_coder.set_tolerance(m_quality);
+      m_out_coder.set_tolerance(0);
       m_out_coder.use_outlier_list(std::move(LOS));
       m_out_coder.set_qoi(true);
       rtn = m_out_coder.encode();
@@ -503,14 +501,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         return rtn;
       
       auto new_LOS = m_out_coder.view_outlier_list_decoded();
-      std::cout<<new_LOS.size()<<std::endl;
-      for(auto i=0;i<new_LOS.size();i++){
-        //std::cout<<i<<" "<<LOS[i].pos<<" "<<new_LOS[i].pos<<" "<<LOS[i].err<<" "<<new_LOS[i].err<<std::endl;
-        if(std::abs(LOS_backup[i].err-new_LOS[i].err)>m_quality){
-          std::cout<<LOS_backup[i].pos<<std::endl;
-        }
-      }
-    }
+     
   }
   //or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) )
   // Step 4: Integer SPECK encoding
