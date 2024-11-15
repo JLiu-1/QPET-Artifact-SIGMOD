@@ -103,8 +103,8 @@ endif()
 # Compile the SPERR library
 #
 add_subdirectory( src )
-target_link_libraries(${PROJECT_NAME} PRIVATE symengine)
-target_link_libraries(${PROJECT_NAME} PRIVATE gmp)
+target_link_libraries(${PROJECT_NAME} symengine)
+target_link_libraries(${PROJECT_NAME} gmp)
 
 
 
