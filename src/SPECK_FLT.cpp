@@ -101,13 +101,14 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
     memcpy(&identifier,out_p,sizeof(uint8_t));
     out_p += sizeof(uint8_t);
     pos += sizeof(uint8_t);
-    std::cout<<"222"<<std::endl;
+    std::cout<<"222"<<" "<<identifier<<std::endl;
     if(identifier==0){
       std::cout<<"333"<<std::endl;
       remaining_len = len - pos;
       if (remaining_len >= SPECK_INT<uint8_t>::header_size) {
         auto suppose_len = m_out_coder.get_stream_full_len(out_p);
         assert(suppose_len >= remaining_len);
+        std::cout<<suppose_len<<" "<<remaining_len<<std::endl;
         if (remaining_len == suppose_len) {
           auto rtn = m_out_coder.use_bitstream(out_p, suppose_len);
           if (rtn != RTNType::Good)
