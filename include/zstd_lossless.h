@@ -32,7 +32,7 @@ class Lossless_zstd {
     byte_size = ZSTD_compress(compressBytesPos, estimatedCompressedSize, data.data(), dataLength,
                               compression_level);
     byte_size+= sizeof(dataLength);
-    std::cout<<"bs c: "<<byte_size<<std::endl;
+    //std::cout<<"bs c: "<<byte_size<<std::endl;
     m_bit_buffer.parse_bitstream(compressBytes, byte_size);
     delete []compressBytes;
 
@@ -41,7 +41,7 @@ class Lossless_zstd {
   uint8_t* decode(){
     std::cout<<"start decoding: "<<std::endl;
     uint8_t *dataPos = new uint8_t[byte_size];
-    m_bit_buffer.write_bitstream(dataPos, byte_size); 
+    m_bit_buffer.write_bitstream(dataPos, byte_size*8); 
     std::cout<<"written bitstream "<<std::endl;
     size_t dataLength = 0;
     size_t compressedSize = byte_size;
