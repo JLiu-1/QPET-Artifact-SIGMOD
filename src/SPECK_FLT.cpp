@@ -676,7 +676,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   if(m_has_lossless){
     //std::cout<<"re1"<<std::endl;
     double* offsets = reinterpret_cast<double *> (zstd_encoder.decode()); 
-    count=0;
+    size_t count=0;
     for(size_t i=0;i<m_dims[0] * m_dims[1] * m_dims[2] ;i++){
       if(offsets[i]!=0)
         count++;
