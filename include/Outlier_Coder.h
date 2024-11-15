@@ -41,7 +41,7 @@ class Outlier_Coder {
   //
   auto encode() -> RTNType;
   auto decode() -> RTNType;
-
+  void inverse_quantize();
  private:
   size_t m_total_len = 0;
   double m_tol = 0.0;

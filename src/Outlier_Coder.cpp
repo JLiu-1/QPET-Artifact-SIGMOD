@@ -33,6 +33,12 @@ auto sperr::Outlier_Coder::view_outlier_list() const -> const std::vector<Outlie
   return m_LOS;
 }
 
+void sperr::Outlier_Coder::inverse_quantize()
+{
+  m_inverse_quantize();
+}
+
+
 void sperr::Outlier_Coder::append_encoded_bitstream(vec8_type& buf) const
 {
   // Just append the bitstream produced by `m_encoder` is fine.
