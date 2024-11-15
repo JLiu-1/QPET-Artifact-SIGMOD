@@ -551,23 +551,23 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
     if(qoi!=nullptr){
       auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
-      std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
+      //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
       for(auto &los:decoded_LOS)
         m_vals_d[los.pos]+=los.err;
     }
   }
   if(qoi!=nullptr){
     std::vector<double>offsets(total_vals,0);
-    size_t count=0;
+   // size_t count=0;
     for (size_t i = 0; i < total_vals; i++) {
   
       if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  ){
         m_has_lossless = true;
         offsets[i]=m_vals_orig[i]-m_vals_d[i];
-        count++;
+        //count++;
       }
     }
-    std::cout<<"lossless data count: "<<count<<std::endl;
+    //std::cout<<"lossless data count: "<<count<<std::endl;
     if(m_has_lossless)
       zstd_encoder.encode<double>(offsets);
 
@@ -670,7 +670,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     if (rtn != RTNType::Good)
       return rtn;
     const auto& recovered = m_out_coder.view_outlier_list();
-    std::cout<<"outlier num: "<<recovered.size()<<std::endl;
+    //std::cout<<"outlier num: "<<recovered.size()<<std::endl;
     for (auto out : recovered)
       m_vals_d[out.pos] += out.err;
   }
@@ -678,15 +678,15 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   if(m_has_lossless){
     //std::cout<<"re1"<<std::endl;
     double* offsets = reinterpret_cast<double *> (zstd_encoder.decode()); 
-    size_t count=0;
-    std::cout<<m_dims[0] * m_dims[1] * m_dims[2]<<std::endl;
+    //size_t count=0;
+    //std::cout<<m_dims[0] * m_dims[1] * m_dims[2]<<std::endl;
     for(size_t i=0;i<m_dims[0] * m_dims[1] * m_dims[2] ;i++){
-      if(offsets[i]!=0)
-        count++;
+      //if(offsets[i]!=0)
+        //count++;
       m_vals_d[i] += offsets[i];
     }
     //std::cout<<"re2"<<std::endl;
-    std::cout<<"lossless data count: "<<count<<std::endl;
+    //std::cout<<"lossless data count: "<<count<<std::endl;
     delete []offsets;
     //std::cout<<"re3"<<std::endl;
   }
