@@ -60,7 +60,7 @@ class Lossless_zstd {
     m_bit_buffer.parse_bitstream(p +sizeof(byte_size), byte_size);
 
   }
-  size_t encoded_bitstream_len(){
+  size_t encoded_bitstream_len() const{
     return byte_size+sizeof(byte_size);
   }
   // Output
