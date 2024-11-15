@@ -53,7 +53,7 @@ class Lossless_zstd {
   }
 
   // Input
-  void use_bitstream(const void* pp,size t &pos){
+  void use_bitstream(const void* pp,size_t &pos){
 
     const auto* const p = static_cast<const uint8_t*>(pp);
     std::memcpy(&byte_size, p, sizeof(byte_size));
