@@ -493,7 +493,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     else {
       m_has_outlier = true;
       m_out_coder.set_length(total_vals);
-      m_out_coder.set_tolerance(0);
+      m_out_coder.set_tolerance(m_quality);
       m_out_coder.use_outlier_list(std::move(LOS));
       m_out_coder.set_qoi(true);
       rtn = m_out_coder.encode();
