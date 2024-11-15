@@ -4,8 +4,8 @@
  * Interface for some specific quantities of interest (QoIs)
  * Created by Xin Liang on 12/06/2021.
  */
-
-
+#include<vector>
+#include<string>
 namespace QoZ {
 
 
@@ -22,7 +22,7 @@ namespace QoZ {
             // interpret eb with iterator (Lorenzo)
 
             // interpret eb with data pointer (Interpolation)
-            virtual T interpret_eb(const T * data, ptrdiff_t offset) = 0;
+            virtual T interpret_eb(const T * data, size_t offset) = 0;
 
             virtual void update_tolerance(T data, T dec_data) = 0;
 

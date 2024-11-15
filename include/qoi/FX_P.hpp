@@ -134,7 +134,7 @@ namespace QoZ {
         }
 
 
-        T interpret_eb(const T * data, ptrdiff_t offset) {
+        T interpret_eb(const T * data, size_t offset) {
             return interpret_eb(*data);
         }
 
