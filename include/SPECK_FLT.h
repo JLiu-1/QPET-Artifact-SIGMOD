@@ -83,7 +83,7 @@ class SPECK_FLT {
   CDF97 m_cdf;
   Conditioner m_conditioner;
   Outlier_Coder m_out_coder;
-  std::shared_ptr<concepts::QoIInterface<double> > qoi = nullptr;
+  std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi = nullptr;
   double qoi_tol = 0.0;
 
 

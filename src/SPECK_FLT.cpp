@@ -195,7 +195,7 @@ void sperr::SPECK_FLT::set_qoi(std::shared_ptr<QoZ::concepts::QoIInterface<doubl
   qoi = q;
 }
 
-std::shared_ptr<concepts::QoIInterface<double> > sperr::SPECK_FLT::get_qoi()
+std::shared_ptr<oZ::concepts::QoIInterface<double> > sperr::SPECK_FLT::get_qoi()
 {
   return qoi;
 }
