@@ -661,7 +661,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
       m_vals_d[out.pos] += out.err;
   }
   if(m_has_lossless){
-    double* offsets =reinterpret_cast<double *>zstd_encoder.decode(); 
+    double* offsets = reinterpret_cast<double *> (zstd_encoder.decode()); 
     for(size_t i=0;i<m_dims[0] * m_dims[1] * m_dims[2] ;i++)
       m_vals_d[i] += offsets[i];
     delete []offsets;
