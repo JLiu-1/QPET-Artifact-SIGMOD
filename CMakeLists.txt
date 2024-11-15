@@ -104,8 +104,7 @@ endif()
 #
 add_subdirectory( src )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE symengine)
-target_link_libraries(${PROJECT_NAME} PRIVATE gmp)
+
 
 
 #
@@ -115,6 +114,8 @@ if( BUILD_CLI_UTILITIES )
   # Download and build CLI11
   #
   include(FetchContent)
+  target_link_libraries(${PROJECT_NAME} PRIVATE symengine)
+  target_link_libraries(${PROJECT_NAME} PRIVATE gmp)
 
   # Control internal options of CLI11
   #
