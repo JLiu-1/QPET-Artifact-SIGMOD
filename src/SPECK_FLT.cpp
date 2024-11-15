@@ -190,7 +190,7 @@ void sperr::SPECK_FLT::set_dims(dims_type dims)
   m_dims = dims;
 }
 
-void sperr::SPECK_FLT::set_qoi(std::shared_ptr<concepts::QoIInterface<double> > q)
+void sperr::SPECK_FLT::set_qoi(std::shared_ptr<QoZ::concepts::QoIInterface<double> > q)
 {
   qoi = q;
 }

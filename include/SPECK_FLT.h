@@ -52,7 +52,7 @@ class SPECK_FLT {
   void set_tolerance(double tol);
   void set_bitrate(double bpp);
   void set_dims(dims_type);
-  void set_qoi(std::shared_ptr<concepts::QoIInterface<double> >);
+  void set_qoi(std::shared_ptr<QoZ::concepts::QoIInterface<double> >);
   //void set_qoi_tol(double);
   std::shared_ptr<concepts::QoIInterface<double> > get_qoi();
   auto integer_len() const -> size_t;
