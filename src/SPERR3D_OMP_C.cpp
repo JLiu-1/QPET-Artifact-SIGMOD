@@ -132,6 +132,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     assert(!chunk.empty());
 
     if(qoi_id>0 and qoi_tol>0){//qoi tuning
+      std::cout<<"Tuning eb with qoi"<<std::endl;
       auto pwe = m_mode == CompMode::PWE ? m_quality : std::numeric_limits<double>::max();
       m_mode == CompMode::PWE;
       

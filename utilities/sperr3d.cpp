@@ -215,11 +215,11 @@ int main(int argc, char* argv[])
                       ->group("Compression settings");
 
   int qoi_block_size = 1;
-  auto* qoi_tol_ptr = app.add_option("--qoi_bs", qoi_block_soze, "QoI avg_block_size.")
+  auto* qoi_bs_ptr = app.add_option("--qoi_bs", qoi_block_soze, "QoI avg_block_size.")
                       ->group("Compression settings");
 
   auto qoi_k = 1.732;
-  auto* qoi_tol_ptr = app.add_option("--qoi_k", qoi_k, "QoI k.")
+  auto* qoi_k_ptr = app.add_option("--qoi_k", qoi_k, "QoI k.")
                       ->group("Compression settings");
 
   CLI11_PARSE(app, argc, argv);
