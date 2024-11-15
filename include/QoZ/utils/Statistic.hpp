@@ -367,11 +367,11 @@ namespace QoZ {
             auto average = compute_average(data, n1, n2, n3, block_size);
             auto average_dec = compute_average(dec_data, n1, n2, n3, block_size);
             auto minmax = std::minmax_element(average.begin(),average.end());
-            value_range = minmax.second - minmax.first;
+            value_range = *minmax.second - *minmax.first;
             if (value_range == 0)
                 value_range = 1.0;
             auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
-            std::cout << "QoI average with block size " << block_size << ": Min = " << minmax.first << ", Max = " << minmax.second<<", Range = "<< value_range << std::endl;
+            std::cout << "QoI average with block size " << block_size << ": Min = " << *minmax.first << ", Max = " << *minmax.second<<", Range = "<< value_range << std::endl;
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
 
             //auto square_average = compute_square_average(data, n1, n2, n3, block_size);
