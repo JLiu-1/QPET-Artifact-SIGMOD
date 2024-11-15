@@ -261,7 +261,6 @@ void SZ_decompress_Interp(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *d
     T* offset_data;
     memcpy(&offset_size,cmpData+cmpSize-sizeof(size_t),sizeof(size_t));
     cmpSize-=sizeof(size_t);   
-    std::cout<<"d1"<<std::endl;
     if (offset_size!=0){
         //outlier_data.resize(confs[i].num);
         auto zstd = QoZ::Lossless_zstd();
@@ -269,7 +268,6 @@ void SZ_decompress_Interp(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *d
         offset_data = reinterpret_cast<T *> ( zstd.decompress(reinterpret_cast<QoZ::uchar *>(cmpData)+cmpSize, offset_size) );
         
     } 
-    std::cout<<"d2"<<std::endl;
 
    
         
@@ -291,13 +289,11 @@ void SZ_decompress_Interp(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *d
         
     }   
     else{
-        std::cout<<"d3"<<std::endl;
         auto sz = QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
                 QoZ::LinearQuantizer<T>(),
                 QoZ::HuffmanEncoder<int>(),
                 QoZ::Lossless_zstd());
         sz.decompress(cmpDataPos, cmpSize, decData);
-        std::cout<<"d4"<<std::endl;
     }
     if (offset_size!=0){
         for(size_t j=0;j<conf.num;j++)
