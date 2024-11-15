@@ -33,11 +33,21 @@ auto sperr::Outlier_Coder::view_outlier_list() const -> const std::vector<Outlie
   return m_LOS;
 }
 
+auto sperr::Outlier_Coder::view_outlier_list_decoded() const -> const std::vector<Outlier>&
+{
+  return m_LOS_decoded;
+}
+
 void sperr::Outlier_Coder::inverse_quantize()
 {
   m_inverse_quantize();
 }
 
+
+void sperr::Outlier_Coder::set_qoi(bool q)
+{
+  qoi = q;
+}
 
 void sperr::Outlier_Coder::append_encoded_bitstream(vec8_type& buf) const
 {
@@ -107,6 +117,10 @@ auto sperr::Outlier_Coder::encode() -> RTNType
 
   // Step 2: quantize the outliers.
   m_quantize();
+
+  if(qoi)
+    m_inverse_quantize_2();
+
 
   // Step 3: integer SPECK encoding.
   std::visit([len = m_total_len](auto&& enc) { enc.set_dims({len, 1, 1}); }, m_encoder);
@@ -232,6 +246,36 @@ void sperr::Outlier_Coder::m_inverse_quantize()
   // Second, restore the floating-point correctors.
   const auto tmp = std::array<double, 2>{-1.0, 1.0};
   std::transform(m_LOS.cbegin(), m_LOS.cend(), m_LOS.begin(),
+                 [q = m_tol, &signs = m_sign_array, tmp](auto los) {
+                   auto b = signs.rbit(los.pos);
+                   los.err *= (q * tmp[b]);
+                   return los;
+                 });
+}
+
+void sperr::Outlier_Coder::m_inverse_quantize_2()
+{
+  m_LOS_decoded.clear();
+
+  // First, bring all non-zero integer correctors to `m_LOS`.
+  std::visit(
+      [&los = m_LOS_decoded](auto&& vec) {
+        for (size_t i = 0; i < vec.size(); i++)
+          switch (vec[i]) {
+            case 0:
+              break;
+            case 1:
+              los.emplace_back(i, 1.1);
+              break;
+            default:
+              los.emplace_back(i, static_cast<double>(vec[i]) - 0.25);
+          }
+      },
+      m_vals_ui);
+
+  // Second, restore the floating-point correctors.
+  const auto tmp = std::array<double, 2>{-1.0, 1.0};
+  std::transform(m_LOS_decoded.cbegin(), m_LOS_decoded.cend(), m_LOS_decoded.begin(),
                  [q = m_tol, &signs = m_sign_array, tmp](auto los) {
                    auto b = signs.rbit(los.pos);
                    los.err *= (q * tmp[b]);

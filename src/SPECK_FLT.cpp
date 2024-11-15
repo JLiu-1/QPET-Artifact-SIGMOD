@@ -496,11 +496,12 @@ FIXED_RATE_HIGH_PREC_LABEL:
       m_out_coder.set_length(total_vals);
       m_out_coder.set_tolerance(m_quality);
       m_out_coder.use_outlier_list(std::move(LOS));
+      m_out_coder.set_qoi(true);
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
-      m_out_coder.decode();
-      LOS = m_out_coder.view_outlier_list();
+      
+      LOS = m_out_coder.view_outlier_list_decoded();
       std::cout<<LOS.size()<<std::endl;
     }
   }

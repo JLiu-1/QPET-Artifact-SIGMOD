@@ -33,6 +33,7 @@ class Outlier_Coder {
   // Output
   //
   auto view_outlier_list() const -> const std::vector<Outlier>&;
+  auto view_outlier_list_decoded() const -> const std::vector<Outlier>&;
   void append_encoded_bitstream(vec8_type& buf) const;
   auto get_stream_full_len(const void*) const -> size_t;
 
@@ -42,11 +43,14 @@ class Outlier_Coder {
   auto encode() -> RTNType;
   auto decode() -> RTNType;
   void inverse_quantize();
+  void set_qoi(bool);
  private:
   size_t m_total_len = 0;
   double m_tol = 0.0;
+  bool qoi = false;
   Bitmask m_sign_array;
   std::vector<Outlier> m_LOS;
+  std::vector<Outlier> m_LOS_decoded;
 
   std::variant<SPECK1D_INT_ENC<uint8_t>,
                SPECK1D_INT_ENC<uint16_t>,
@@ -69,6 +73,7 @@ class Outlier_Coder {
   void m_instantiate_uvec_coders(UINTType);
   void m_quantize();
   void m_inverse_quantize();
+  void m_inverse_quantize_2();
 };
 
 }  // namespace sperr
