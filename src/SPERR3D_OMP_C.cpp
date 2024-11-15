@@ -457,7 +457,7 @@ auto sperr::SPERR3D_OMP_C::m_sample_center(vecd_type chunk,std::array<size_t, 3>
   vecd_type sampled_data;
   size_t idx = 0;
   size_t y_offset = chunk_dims[0];
-  size_t z_offset = y_offset * chunk_dim[1];
+  size_t z_offset = y_offset * chunk_dims[1];
   for (size_t z = starts[2]; z < starts[2]+sample_dims[2]; z++) {
     const size_t plane_offset = z * z_offset;
     for (size_t y = starts[1]; y < starts[1]+sample_dims[1]; y++) {
