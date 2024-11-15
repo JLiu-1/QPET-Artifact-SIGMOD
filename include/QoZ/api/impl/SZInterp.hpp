@@ -253,10 +253,11 @@ void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3>
         memcpy(&offset_size,cmpData[i]+cmpSize-sizeof(size_t),sizeof(size_t));
         cmpSize-=sizeof(size_t);     
         if (offset_size!=0){
+            cmpSize-=offset_size;
             //outlier_data.resize(confs[i].num);
             auto zstd = QoZ::Lossless_zstd();
-            offset_data = reinterpret_cast<T *> ( zstd.decompress(reinterpret_cast<QoZ::uchar *>(cmpData[i])+cmpSize-offset_size, offset_size) );
-            cmpSize-=offset_size;
+            offset_data = reinterpret_cast<T *> ( zstd.decompress(reinterpret_cast<QoZ::uchar *>(cmpData[i])+cmpSize, offset_size) );
+            
 
         }   
        if(confs[i].qoi > 0){
