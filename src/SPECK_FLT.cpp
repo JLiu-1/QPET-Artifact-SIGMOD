@@ -489,6 +489,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         LOS.emplace_back(i, diff);
     }
     std::cout<<LOS.size()<<std::endl;
+    auto LOS_backup=LOS;
     if (LOS.empty())
       m_has_outlier = false;
     else {
@@ -504,9 +505,9 @@ FIXED_RATE_HIGH_PREC_LABEL:
       auto new_LOS = m_out_coder.view_outlier_list_decoded();
       std::cout<<new_LOS.size()<<std::endl;
       for(auto i=0;i<new_LOS.size();i++){
-        std::cout<<i<<" "<<LOS[i].pos<<" "<<new_LOS[i].pos<<" "<<LOS[i].err<<" "<<new_LOS[i].err<<std::endl;
-        if(std::abs(LOS[i].err-new_LOS[i].err)>m_quality){
-          std::cout<<LOS[i].pos<<std::endl;
+        //std::cout<<i<<" "<<LOS[i].pos<<" "<<new_LOS[i].pos<<" "<<LOS[i].err<<" "<<new_LOS[i].err<<std::endl;
+        if(std::abs(LOS_backup[i].err-new_LOS[i].err)>m_quality){
+          std::cout<<LOS_backup[i].pos<<std::endl;
         }
       }
     }
