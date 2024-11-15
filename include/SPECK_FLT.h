@@ -55,9 +55,13 @@ class SPECK_FLT {
   void set_bitrate(double bpp);
   void set_dims(dims_type);
   void set_qoi(std::shared_ptr<QoZ::concepts::QoIInterface<double> >);
+  void set_qoi_tol(double);
+  void set_qoi_block_size(int);
   //void set_qoi_tol(double);
   std::shared_ptr<QoZ::concepts::QoIInterface<double> > get_qoi();
   auto integer_len() const -> size_t;
+
+  void block_qoi_outlier_correction();
 
 #ifdef EXPERIMENTING
   void set_direct_q(double q);
@@ -88,6 +92,7 @@ class SPECK_FLT {
   Outlier_Coder m_out_coder;
   std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi = nullptr;
   double qoi_tol = 0.0;
+  int qoi_block_size = 1;
   Lossless_zstd zstd_encoder;
 
 

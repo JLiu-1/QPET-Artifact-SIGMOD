@@ -240,12 +240,17 @@ std::shared_ptr<QoZ::concepts::QoIInterface<double> > sperr::SPECK_FLT::get_qoi(
 {
   return qoi;
 }
-/*
+
 void sperr::SPECK_FLT::set_qoi_tol(double q_tol)
 {
   qoi_tol = q_tol;
 }
-*/
+
+void sperr::SPECK_FLT::set_qoi_block_size(double q_bs)
+{
+  qoi_block_size = q_bs;
+}
+
 auto sperr::SPECK_FLT::integer_len() const -> size_t
 {
   switch (m_uint_flag) {
@@ -557,19 +562,24 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
   }
   if(qoi!=nullptr){
-    std::vector<double>offsets(total_vals,0);
-   // size_t count=0;
-    for (size_t i = 0; i < total_vals; i++) {
-  
-      if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  ){
-        m_has_lossless = true;
-        offsets[i]=m_vals_orig[i]-m_vals_d[i];
-        //count++;
+    if(qoi_block_size==1){//pointwise
+      std::vector<double>offsets(total_vals,0);
+     // size_t count=0;
+      for (size_t i = 0; i < total_vals; i++) {
+    
+        if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  ){
+          m_has_lossless = true;
+          offsets[i]=m_vals_orig[i]-m_vals_d[i];
+          //count++;
+        }
       }
+      //std::cout<<"lossless data count: "<<count<<std::endl;
+      if(m_has_lossless)
+        zstd_encoder.encode<double>(offsets);
     }
-    //std::cout<<"lossless data count: "<<count<<std::endl;
-    if(m_has_lossless)
-      zstd_encoder.encode<double>(offsets);
+    else{
+      block_qoi_outlier_correction();
+    }
 
   }
   
@@ -710,4 +720,138 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   }
 
   return RTNType::Good;
+}
+
+void sperr::SPECK_FLT::block_qoi_outlier_correction(){
+
+  std::vector<double>offsets(total_vals,0);
+ // size_t count=0;
+  
+   
+  size_t n1 = m_dims[2], n2 = m_dims[1], n3 = m_dims[0];
+
+  uint32_t dim0_offset = n2 * n3;
+  uint32_t dim1_offset = n3;
+  uint32_t num_block_1 = (n1 - 1) / block_size + 1;
+  uint32_t num_block_2 = (n2 - 1) / block_size + 1;
+  uint32_t num_block_3 = (n3 - 1) / block_size + 1;
+  double* data = m_vals_d.data();
+  double* ori_data = m_vals_orig.data();
+  double * data_x_pos = data;
+  double * ori_data_x_pos = ori_data;
+  size_t corr_count = 0;
+  double pw_qoi_tol = qoi->get_qoi_tolerance();
+  for(size_t i=0; i<num_block_1; i++){
+      size_t size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
+      double * data_y_pos = data_x_pos;
+      double * ori_data_y_pos = ori_data_x_pos;
+      for(size_t j=0; j<num_block_2; j++){
+          size_t size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
+          double * data_z_pos = data_y_pos;
+          double * ori_data_z_pos = ori_data_y_pos;
+          for(size_t k=0; k<num_block_3; k++){
+              size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
+              //if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size){
+             
+          
+              double * cur_data_pos = data_z_pos;
+              double * cur_ori_data_pos = ori_data_z_pos;
+              size_t n_block_elements = size_1 * size_2 * size_3;
+              double ave = 0;
+              double ori_ave =0;
+              std::vector<double>ori_qoi_vals;
+              std::vector<double>qoi_vals;
+              for(size_t ii=0; ii<size_1; ii++){
+                  for(size_t jj=0; jj<size_2; jj++){
+                      for(size_t kk=0; kk<size_3; kk++){
+                          double q = qoi->eval(*cur_data_pos);
+                          double oq = qoi->eval(*cur_ori_data_pos);
+                          bool compliance = true;
+                          if ((std::isnan(oq) or std::isinf(oq)))
+                            compliance = *cur_data_pos == *cur_ori_data_pos
+                          else if (std::isnan(q_dec) or std::isinf(q_dec))
+                            compliance = false;
+                          else
+                            compliance = (std::abs(q - oq) <= pw_qoi_tol);
+                          if(!compliance){
+                            offsets[cur_data_pos-data] = *cur_ori_data_pos-*cur_data_pos;
+                            *cur_data_pos = *cur_ori_data_pos;
+                            q = oq;
+                          }
+                          if(std::isinf(q) or std::isnan(q))
+                              q = 0.0;
+                          if(std::isinf(oq) or std::isnan(oq))
+                              oq = 0.0;
+                          ave += q;
+                          qoi_vals.push_back(q);
+                          ori_ave += oq;
+                          ori_qoi_vals.push_back(oq);
+                          cur_data_pos ++;
+                          cur_ori_data_pos ++;
+                      }
+                      cur_data_pos += dim1_offset - size_3;
+                      cur_ori_data_pos += dim1_offset - size_3;
+                  }
+                  cur_data_pos += dim0_offset - size_2 * dim1_offset;
+                  cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+              }
+              ave /= n_block_elements;
+              ori_ave /= n_block_elements;
+              double err = ori_ave-ave;
+              if(std::abs(err)> qoi_tol){
+                  
+                  corr_count++;
+                  double * cur_data_pos = data_z_pos;
+                  double * cur_ori_data_pos = ori_data_z_pos;
+                  bool fixing=true;
+                  size_t local_idx = 0;
+                  for(size_t ii=0; ii<size_1; ii++){
+                      for(size_t jj=0; jj<size_2; jj++){
+                          for(size_t kk=0; kk<size_3; kk++){
+                              auto qoi_err = (ori_qoi_vals[local_idx]-qoi_vals[local_idx]);
+                              if(fixing and qoi_err!=0 ){
+                                 
+                                  offset[cur_data_pos-data] = *cur_ori_data_pos - *cur_data_pos;
+                                  *cur_data_pos = *cur_ori_data_pos;
+                                  err -= qoi_err/n_block_elements;
+                                  if (fabs(err)<=tol)
+                                      fixing=false;
+
+                              }
+                              else if(!fixing)
+                                break;
+
+                              local_idx++;
+                              cur_data_pos ++;
+                              cur_ori_data_pos ++;
+
+                          }
+                          cur_data_pos += dim1_offset - size_3;
+                          cur_ori_data_pos += dim1_offset - size_3;
+                      }
+                      cur_data_pos += dim0_offset - size_2 * dim1_offset;
+                      cur_ori_data_pos += dim0_offset - size_2 * dim1_offset;
+                  }
+              }
+              data_z_pos += size_3;
+              ori_data_z_pos += size_3;
+          }
+          data_y_pos += dim1_offset * size_2;
+          ori_data_y_pos += dim1_offset * size_2;
+      }
+      data_x_pos += dim0_offset * size_1;
+      ori_data_x_pos += dim0_offset * size_1;
+  }    
+
+  for(auto x:offsets){
+    if (x!=0){
+      m_has_lossless = true;
+      break;
+    }
+  }
+
+  if(m_has_lossless)
+    zstd_encoder.encode<double>(offsets);
+
+
 }

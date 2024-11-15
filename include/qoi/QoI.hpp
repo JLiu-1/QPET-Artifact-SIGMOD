@@ -43,6 +43,8 @@ namespace QoZ {
 
             virtual void set_qoi_tolerance(double tol) = 0;
 
+            virtual double get_qoi_tolerance() = 0;
+
             virtual void init() = 0;
 
             virtual double eval(T val) const = 0;

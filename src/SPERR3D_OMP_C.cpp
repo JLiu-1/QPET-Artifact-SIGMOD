@@ -147,6 +147,8 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 
       if(qoi_block_size > 1){//regional 
         //adjust qoieb
+        compressor->set_qoi_tol( qoi_tol);
+        compressor->set_qoi_block_size(qoi_block_size);
         double rate = 1.0;
       
 

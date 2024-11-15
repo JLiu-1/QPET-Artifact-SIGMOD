@@ -49,6 +49,7 @@ class SPERR3D_OMP_C {
   int qoi_id = 0;
   std::string qoi_string = "x^2";
   double qoi_tol = 0.0;
+  //double block_qoi_tol = 0.0;
   int qoi_block_size = 1;
   double qoi_k = 1.732;
 
