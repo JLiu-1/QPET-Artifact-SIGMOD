@@ -630,7 +630,7 @@ auto sperr::calc_qoi_maxerr(const T* ori, const T* dec, size_t len, std::shared_
   double min_qoi = std::numeric_limits<double>::max();
 
 
-  for(size_t i=0; i<num_elements; i++){
+  for(size_t i=0; i<len; i++){
 
       auto cur_ori_qoi = qoi->eval(ori[i]);
       auto cur_qoi = qoi->eval(dec[i]);
@@ -658,7 +658,7 @@ auto sperr::calc_qoi_maxerr(const T* ori, const T* dec, size_t len, std::shared_
   return {max_qoi_diff,max_qoi_diff/(max_qoi-min_qoi)};
 }
 template auto sperr::calc_qoi_maxerr(const double* , const double* , size_t , std::shared_ptr<QoZ::concepts::QoIInterface<double> > ) -> std::array<double, 2>;
-template auto sperr::calc_qoi_maxerr(const float* , const float* , size_t , std::shared_ptr<QoZ::concepts::QoIInterface<double> > ) -> std::array<float, 2>;
+template auto sperr::calc_qoi_maxerr(const float* , const float* , size_t , std::shared_ptr<QoZ::concepts::QoIInterface<double> > ) -> std::array<double, 2>;
 
 
 template <typename T>
@@ -755,4 +755,4 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
 }
 
 template auto sperr::calc_qoi_maxerr_blocked(const double* , const double*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<double, 2>;
-template auto sperr::calc_qoi_maxerr_blocked(const float* , const float*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<float, 2>;
+template auto sperr::calc_qoi_maxerr_blocked(const float* , const float*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<double, 2>;
