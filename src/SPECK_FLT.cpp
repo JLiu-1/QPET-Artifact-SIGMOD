@@ -501,8 +501,13 @@ FIXED_RATE_HIGH_PREC_LABEL:
       if (rtn != RTNType::Good)
         return rtn;
       
-      LOS = m_out_coder.view_outlier_list_decoded();
-      std::cout<<LOS.size()<<std::endl;
+      new_LOS = m_out_coder.view_outlier_list_decoded();
+      std::cout<<new_LOS.size()<<std::endl;
+      for(auto i=0;i<new_LOS.size();i++){
+        if(std::abs(LOS[i].err-new_LOS[i].err)>m_quality){
+          std::cout<<LOS[i].pos<<std::endl;
+        }
+      }
     }
   }
   //or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) )
