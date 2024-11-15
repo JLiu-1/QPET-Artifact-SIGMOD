@@ -48,10 +48,10 @@ using SymEngine::FiniteSet;
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_FXYZ : public concepts::QoIInterface<T, N> {
+    class QoI_FXYZ_rel : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FXYZ(const std::array<Config,3> confs)  {
+        QoI_FXYZ_rel(const std::array<Config,3> confs)  {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 2;
