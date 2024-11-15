@@ -551,6 +551,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
     if(qoi!=nullptr){
       auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
+      std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
       for(auto &los:decoded_LOS)
         m_vals_d[los.pos]+=los.err;
     }
@@ -669,6 +670,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     if (rtn != RTNType::Good)
       return rtn;
     const auto& recovered = m_out_coder.view_outlier_list();
+    std::cout<<"outlier num: "<<recovered.size()<<std::endl;
     for (auto out : recovered)
       m_vals_d[out.pos] += out.err;
   }
