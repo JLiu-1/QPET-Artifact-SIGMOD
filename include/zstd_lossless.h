@@ -87,7 +87,7 @@ class Lossless_zstd {
 
     // Step 3: assemble the right amount of bits into bytes.
     // See discussion on the number of bits to pack in function `encoded_bitstream_len()`.
-    m_bit_buffer.write_bitstream(ptr + pos, byte_size);
+    m_bit_buffer.write_bitstream(ptr + pos, byte_size*8);
   }
 
 
