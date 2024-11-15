@@ -15,7 +15,7 @@
 #include <optional>
 #include <string>
 #include <vector>
-
+#include "qoi/QoIInfo.hpp"
 #ifndef USE_VANILLA_CONFIG
 #include "SperrConfig.h"
 #endif
@@ -180,5 +180,14 @@ template <typename T>
 auto calc_mean_var(const T*, size_t len, size_t omp_nthreads = 0) -> std::array<T, 2>;
 
 };  // namespace sperr
+
+template <typename T>
+auto calc_qoi_maxerr(const T* ori, const T* dec, size_t len, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi) -> std::array<double, 2>;
+
+template <typename T>
+auto calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_t,3> dims, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi, int block_size) -> std::array<double, 2>;
+
+};  // namespace sperr
+
 
 #endif

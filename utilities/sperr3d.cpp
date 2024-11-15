@@ -382,6 +382,7 @@ int main(int argc, char* argv[])
       if (print_stats) {
         const double print_bpp = stream.size() * 8.0 / total_vals;
         double rmse, linfy, print_psnr, min, max, sigma;
+        double qoi_err_abs, qoi_err_rel;
         if (ftype == 32) {
           const float* inputf = reinterpret_cast<const float*>(input.data());
           auto outputf = sperr::vecf_type(total_vals);
@@ -394,6 +395,19 @@ int main(int argc, char* argv[])
           max = stats[4];
           auto mean_var = sperr::calc_mean_var(inputf, total_vals, omp_num_threads);
           sigma = std::sqrt(mean_var[1]);
+          if (qoi_tol>0 and qoi_id>0){
+            auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
+            if (qoi_block_size==1){
+              auto qoi_err = sperr::calc_qoi_maxerr(inputf , outputf, total_vals, qoi);
+              qoi_err_abs = qoi_err[0];
+              qoi_err_rel = qoi_err[1];
+            }
+            else{
+              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputf , outputf, dims, qoi,qoi_block_size);
+              qoi_err_abs = qoi_err[0];
+              qoi_err_rel = qoi_err[1];
+            }
+          }
         }
         else {
           const double* inputd = reinterpret_cast<const double*>(input.data());
@@ -405,10 +419,27 @@ int main(int argc, char* argv[])
           max = stats[4];
           auto mean_var = sperr::calc_mean_var(inputd, total_vals, omp_num_threads);
           sigma = std::sqrt(mean_var[1]);
+          if (qoi_tol>0 and qoi_id>0){
+            auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
+            if (qoi_block_size==1){
+              auto qoi_err = sperr::calc_qoi_maxerr(inputd , outputd, total_vals, qoi);
+              qoi_err_abs = qoi_err[0];
+              qoi_err_rel = qoi_err[1];
+            }
+            else{
+              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputd , outputd, dims, qoi,qoi_block_size);
+              qoi_err_abs = qoi_err[0];
+              qoi_err_rel = qoi_err[1];
+            }
+          }
         }
         std::printf("Input range = (%.2e, %.2e), L-Infty = %.2e\n", min, max, linfy);
         std::printf("Bitrate = %.6f, PSNR = %.2fdB, Accuracy Gain = %.2f\n", print_bpp, print_psnr,
                     std::log2(sigma / rmse) - print_bpp);
+        if (qoi_tol>0 and qoi_id>0){
+          std::printf("QoI error info:\n");
+          std::printf("Max qoi error = %.6G, relative qoi error = %.6G\n", qoi_err_abs, qoi_err_rel);
+        }
       }
     }
   }

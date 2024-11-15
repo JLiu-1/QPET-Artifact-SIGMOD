@@ -619,3 +619,140 @@ auto sperr::calc_mean_var(const T* arr, size_t len, size_t omp_nthreads) -> std:
 }
 template auto sperr::calc_mean_var(const float*, size_t, size_t) -> std::array<float, 2>;
 template auto sperr::calc_mean_var(const double*, size_t, size_t) -> std::array<double, 2>;
+
+
+template <typename T>
+auto sperr::calc_qoi_maxerr(const T* ori, const T* dec, size_t len, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi) -> std::array<double, 2>{
+
+  double max_qoi_diff = 0;
+
+  double max_qoi = -std::numeric_limits<double>::max();
+  double min_qoi = std::numeric_limits<double>::max();
+
+
+  for(size_t i=0; i<num_elements; i++){
+
+      auto cur_ori_qoi = qoi->eval(ori[i]);
+      auto cur_qoi = qoi->eval(dec[i]);
+
+      if(!std::isinf(cur_ori_qoi) and !std::isnan(cur_ori_qoi)) {
+
+          if (max_qoi < cur_ori_qoi) max_qoi = cur_ori_qoi;
+          if (min_qoi > cur_ori_qoi) min_qoi = cur_ori_qoi;
+      }
+      else{
+          cur_ori_qoi = 0.0;
+      }
+      if(std::isinf(cur_qoi) or std::isnan(cur_qoi))
+          cur_qoi = 0.0;
+
+      double qoi_diff = std::abs( cur_ori_qoi - cur_qoi );
+      if (qoi_diff > max_qoi_diff)
+          max_qoi_diff = qoi_diff;
+  }
+
+  if (max_qoi == min_qoi){
+      max_qoi = 1.0;
+      min_qoi = 0.0;
+  }
+  return {max_qoi_diff,max_qoi_diff/(max_qoi-min_qoi)};
+}
+template auto sperr::calc_qoi_maxerr(const double* , const double* , size_t , std::shared_ptr<QoZ::concepts::QoIInterface<double> > ) -> std::array<double, 2>;
+template auto sperr::calc_qoi_maxerr(const float* , const float* , size_t , std::shared_ptr<QoZ::concepts::QoIInterface<double> > ) -> std::array<float, 2>;
+
+
+template <typename T>
+auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_t,3> dims, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi, int block_size = 4) -> std::array<double, 2>{
+  
+  uint32_t n1 = dims[2];
+  uint32_t n2 = dims[1];
+  uint32_t n3 = dims[0];
+
+  uint32_t dim0_offset = n2 * n3;
+  uint32_t dim1_offset = n3;
+  uint32_t num_block_1 = (n1 - 1) / block_size + 1;
+  uint32_t num_block_2 = (n2 - 1) / block_size + 1;
+  uint32_t num_block_3 = (n3 - 1) / block_size + 1;
+  uint32_t index = 0;
+
+  double max_qoi_diff = 0;
+
+  double max_qoi = -std::numeric_limits<double>::max();
+  double min_qoi = std::numeric_limits<double>::max();
+
+
+  T const * data_x_pos = ori;
+  T const * dec_data_x_pos = dec;
+  for(size_t i=0; i<num_block_1; i++){
+      size_t size_1 = (i == num_block_1 - 1) ? n1 - i * block_size : block_size;
+      T const * data_y_pos = data_x_pos;
+      T const * dec_data_y_pos = dec_data_x_pos;
+      for(size_t j=0; j<num_block_2; j++){
+          size_t size_2 = (j == num_block_2 - 1) ? n2 - j * block_size : block_size;
+          T const * data_z_pos = data_y_pos;
+          T const * dec_data_z_pos = dec_data_y_pos;
+          for(size_t k=0; k<num_block_3; k++){
+              size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
+              if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
+                  continue;
+              T const * cur_data_pos = data_z_pos;
+              T const * cur_dec_data_pos = dec_data_z_pos;
+              size_t n_block_elements = size_1 * size_2 * size_3;
+              double ori_ave = 0;
+              double dec_ave = 0;
+              for(size_t ii=0; ii<size_1; ii++){
+                  for(size_t jj=0; jj<size_2; jj++){
+                      for(size_t kk=0; kk<size_3; kk++){
+                          auto ori_qoi_val = qoi->eval(*cur_data_pos);
+                          if(!std::isinf(ori_qoi_val) and !std::isnan(ori_qoi_val))
+                            ori_ave += ori_qoi_val;
+                          cur_data_pos ++;
+                          auto dec_qoi_val = qoi->eval(*cur_dec_data_pos);
+                          if(!std::isinf(dec_qoi_val) and !std::isnan(dec_qoi_val))
+                            dec_ave += dec_qoi_val;
+                          cur_dec_data_pos ++;
+                      }
+                      cur_data_pos += dim1_offset - size_3;
+                      cur_dec_data_pos += dim1_offset - size_3;
+                  }
+                  cur_data_pos += dim0_offset - size_2 * dim1_offset;
+                  cur_dec_data_pos += dim0_offset - size_2 * dim1_offset;
+              }
+              ori_ave /= n_block_elements;
+              dec_ave /= n_block_elements;
+
+              if(!std::isinf(ori_ave) and !std::isnan(ori_ave)) {
+
+                if (max_qoi < ori_ave) max_qoi = ori_ave;
+                if (min_qoi > ori_ave) min_qoi = ori_ave;
+              }
+              else{
+                  ori_ave = 0.0;
+              }
+              if(std::isinf(dec_ave) or std::isnan(dec_ave))
+                  dec_ave = 0.0;
+
+              double qoi_diff = std::abs( ori_ave - dec_ave );
+              if (qoi_diff > max_qoi_diff)
+                  max_qoi_diff = qoi_diff;
+
+
+        
+              data_z_pos += size_3;
+              dec_data_z_pos += size_3;
+          }
+          data_y_pos += dim1_offset * size_2;
+          dec_data_y_pos += dim1_offset * size_2;
+      }
+      data_x_pos += dim0_offset * size_1;
+      dec_data_x_pos += dim0_offset * size_1;
+  }    
+  if (max_qoi == min_qoi){
+    max_qoi = 1.0;
+    min_qoi = 0.0;
+  }
+  return {max_qoi_diff,max_qoi_diff/(max_qoi-min_qoi)};
+}
+
+template auto sperr::calc_qoi_maxerr_blocked(const double* , const double*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<double, 2>;
+template auto sperr::calc_qoi_maxerr_blocked(const float* , const float*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<float, 2>;
