@@ -694,7 +694,8 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
           for(size_t k=0; k<num_block_3; k++){
               size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
 
-              bool compute_block = (size_1==1 or size_1 == block_size) and (size_2==1 or size_2 == block_size) and size_3 == block_size;
+              //bool compute_block = (size_1==1 or size_1 == block_size) and (size_2==1 or size_2 == block_size) and size_3 == block_size;
+              bool compute_block = true;
               T const * cur_data_pos = data_z_pos;
               T const * cur_dec_data_pos = dec_data_z_pos;
               size_t n_block_elements = size_1 * size_2 * size_3;
@@ -707,8 +708,8 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
                           if(!std::isinf(ori_qoi_val) and !std::isnan(ori_qoi_val)){
                             if(compute_block)
                               ori_ave += ori_qoi_val;
-                            if (max_qoi < ori_qoi_val) max_qoi = ori_qoi_val;
-                            if (min_qoi > ori_qoi_val) min_qoi = ori_qoi_val;
+                            //if (max_qoi < ori_qoi_val) max_qoi = ori_qoi_val;
+                           // if (min_qoi > ori_qoi_val) min_qoi = ori_qoi_val;
 
                           }
                           cur_data_pos ++;
@@ -726,9 +727,9 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
               if(compute_block){
                 ori_ave /= n_block_elements;
                 dec_ave /= n_block_elements;
-                if(std::isinf(ori_ave) or std::isnan(ori_ave))
-                  ori_ave = 0.0;
-                /*
+                //if(std::isinf(ori_ave) or std::isnan(ori_ave))
+                //  ori_ave = 0.0;
+                
                 if(!std::isinf(ori_ave) and !std::isnan(ori_ave)) {
 
                   if (max_qoi < ori_ave) max_qoi = ori_ave;
@@ -737,7 +738,7 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
                 else{
                     ori_ave = 0.0;
                 }
-                */
+                
                 if(std::isinf(dec_ave) or std::isnan(dec_ave))
                   dec_ave = 0.0;
                 
