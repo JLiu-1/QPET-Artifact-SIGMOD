@@ -106,6 +106,15 @@ add_subdirectory( src )
 target_link_libraries(${PROJECT_NAME} PUBLIC symengine)
 target_link_libraries(${PROJECT_NAME} PUBLIC gmp)
 
+pkg_search_module(ZSTD IMPORTED_TARGET libzstd)
+if(ZSTD_FOUND)
+  message("Zstd found.")
+  target_link_libraries(${PROJECT_NAME} INTERFACE PkgConfig::ZSTD)
+else()
+  message("Zstd not found.")
+  add_subdirectory(zstd)
+  target_link_libraries(${PROJECT_NAME} INTERFACE zstd)
+endif()
 
 
 #

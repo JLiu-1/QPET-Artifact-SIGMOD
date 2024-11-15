@@ -1,5 +1,6 @@
 #include "SPECK_FLT.h"
 
+
 #include <algorithm>
 #include <cassert>
 #include <cfenv>
@@ -474,7 +475,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
   // CompMode::PWE only: perform outlier coding: find out all the outliers, and encode them!
   if (m_mode == CompMode::PWE) {
     //std::cout<<"perform outlier"<<std::endl;
-    std::cout<<qoi->get_expression()<<" "<<qoi->get_global_eb()<<std::endl;
+    //std::cout<<qoi->get_expression()<<" "<<qoi->get_global_eb()<<std::endl;
     m_midtread_inv_quantize();
     rtn = m_cdf.take_data(std::move(m_vals_d), m_dims);
     if (rtn != RTNType::Good)
@@ -482,12 +483,14 @@ FIXED_RATE_HIGH_PREC_LABEL:
     m_inverse_wavelet_xform(false);  // No multi-resolution needed!
     m_vals_d = m_cdf.release_data();
     auto LOS = std::vector<Outlier>();
-    LOS.reserve(1.0 * total_vals);  // Reserve space to hold about 100% of total values.
+    LOS.reserve(0.04 * total_vals);  // Reserve space to hold about 100% of total values.
     for (size_t i = 0; i < total_vals; i++) {
       auto diff = m_vals_orig[i] - m_vals_d[i];
       if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  )
         LOS.emplace_back(i, diff);
     }
+    //std::cout<<LOS.size()<<std::endl;
+    //auto LOS_backup=LOS;
     if (LOS.empty())
       m_has_outlier = false;
     else {
@@ -495,14 +498,35 @@ FIXED_RATE_HIGH_PREC_LABEL:
       m_out_coder.set_length(total_vals);
       m_out_coder.set_tolerance(m_quality);
       m_out_coder.use_outlier_list(std::move(LOS));
-      m_out_coder.set_qoi(true);
+      if(qoi!=nullptr)
+        m_out_coder.set_qoi(true);
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
       
-      auto new_LOS = m_out_coder.view_outlier_list_decoded();
-     
+      //auto new_LOS = m_out_coder.view_outlier_list_decoded();
+      //std::cout<<new_LOS.size()<<std::endl;
+
+    }
+
+    if(qoi!=nullptr){
+      auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
+      for(auto &los:decoded_LOS)
+        m_vals_d[los.pos]+=los.err;
+    }
   }
+  if(qoi!=nullptr){
+    std::vector<T>offsets(total_vals,0);
+    for (size_t i = 0; i < total_vals; i++) {
+  
+      if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  )
+        offsets[i]=m_vals_orig[i]-m_vals_d[i];
+    }
+    zstd_encoder.encode(offsets);
+
+  }
+  
+
   //or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) )
   // Step 4: Integer SPECK encoding
   m_instantiate_encoder();
