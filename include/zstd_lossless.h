@@ -10,7 +10,7 @@
 #include "Bitstream.h"
 #include "zstd.h"
 #include <vector>
-namespace zstd {
+namespace sperr {
 
 class Lossless_zstd {
 
@@ -89,6 +89,6 @@ class Lossless_zstd {
   int compression_level = 3;
 };
 
-};  // namespace zstd
+};  // namespace sperr
 
 #endif
