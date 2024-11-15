@@ -398,12 +398,12 @@ int main(int argc, char* argv[])
           if (qoi_tol>0 and qoi_id>0){
             auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
             if (qoi_block_size==1){
-              auto qoi_err = sperr::calc_qoi_maxerr(inputf , outputf, total_vals, qoi);
+              auto qoi_err = sperr::calc_qoi_maxerr(inputf , outputf.data(), total_vals, qoi);
               qoi_err_abs = qoi_err[0];
               qoi_err_rel = qoi_err[1];
             }
             else{
-              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputf , outputf, dims, qoi,qoi_block_size);
+              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputf , outputf.data(), dims, qoi,qoi_block_size);
               qoi_err_abs = qoi_err[0];
               qoi_err_rel = qoi_err[1];
             }
@@ -422,12 +422,12 @@ int main(int argc, char* argv[])
           if (qoi_tol>0 and qoi_id>0){
             auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
             if (qoi_block_size==1){
-              auto qoi_err = sperr::calc_qoi_maxerr(inputd , outputd, total_vals, qoi);
+              auto qoi_err = sperr::calc_qoi_maxerr(inputd , outputd.data(), total_vals, qoi);
               qoi_err_abs = qoi_err[0];
               qoi_err_rel = qoi_err[1];
             }
             else{
-              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputd , outputd, dims, qoi,qoi_block_size);
+              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputd , outputd.data(), dims, qoi,qoi_block_size);
               qoi_err_abs = qoi_err[0];
               qoi_err_rel = qoi_err[1];
             }
