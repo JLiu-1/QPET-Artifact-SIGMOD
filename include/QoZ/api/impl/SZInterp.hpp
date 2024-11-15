@@ -218,8 +218,9 @@ void SZ_decompress_Interp(QoZ::Config &conf, char *cmpData, size_t cmpSize, T *d
         if (offset_size!=0){
             //outlier_data.resize(confs[i].num);
             auto zstd = QoZ::Lossless_zstd();
-            offset_data = reinterpret_cast<T *> ( zstd.decompress(reinterpret_cast<QoZ::uchar *>(cmpData)+cmpSize-offset_size, offset_size) );
             cmpSize-=offset_size;
+            offset_data = reinterpret_cast<T *> ( zstd.decompress(reinterpret_cast<QoZ::uchar *>(cmpData)+cmpSize, offset_size) );
+            
         } 
 
 
