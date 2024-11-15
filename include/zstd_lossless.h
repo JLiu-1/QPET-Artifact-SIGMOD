@@ -40,7 +40,8 @@ class Lossless_zstd {
   }
   uint8_t* decode(){
     //std::cout<<"start decoding: "<<std::endl;
-    uint8_t *dataPos = new uint8_t[byte_size+10];
+    std::vector<uint8_t> byteData(byte_size+10);
+    auto dataPos = byteData.data();
     m_bit_buffer.write_bitstream(dataPos, byte_size*8); 
     //std::cout<<"written bitstream "<<std::endl;
     size_t dataLength = 0;
@@ -54,7 +55,7 @@ class Lossless_zstd {
 
     uint8_t* oriData = new uint8_t [dataLength];
     ZSTD_decompress(oriData, dataLength, dataPos, compressedSize);
-    delete[]dataPos;
+    //delete[]dataPos;
     return oriData;
   }
 
