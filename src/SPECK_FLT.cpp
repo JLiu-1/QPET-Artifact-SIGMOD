@@ -671,10 +671,13 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   }
  // std::cout<<"end outlier"<<std::endl;
   if(m_has_lossless){
+    std::cout<<"re1"<<std::endl;
     double* offsets = reinterpret_cast<double *> (zstd_encoder.decode()); 
     for(size_t i=0;i<m_dims[0] * m_dims[1] * m_dims[2] ;i++)
       m_vals_d[i] += offsets[i];
+    std::cout<<"re2"<<std::endl;
     delete []offsets;
+    std::cout<<"re3"<<std::endl;
   }
 
   // Step 4: Inverse Conditioning
