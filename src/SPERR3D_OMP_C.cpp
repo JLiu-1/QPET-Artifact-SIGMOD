@@ -226,12 +226,14 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             // reset variables for average of square
             auto test_compressor = std::make_unique<SPECK3D_FLT>();
             auto sampled_copy = sampled_data;
-            compressor->take_data(std::move(sampled_copy));
-            compressor->set_dims(sample_dims);
-            compressor->set_tolerance(cur_abs_eb);
+            test_compressor->take_data(std::move(sampled_copy));
+            test_compressor->set_dims(sample_dims);
+            test_compressor->set_tolerance(cur_abs_eb);
             vec8_type test_encoded_stream;
 
-            test_compressor->compress();
+            auto rtn = test_compressor->compress();
+            if(rtn!= RTNType::Good)
+              std::cout<<"Error"<<std::endl;
 
             test_encoded_stream.clear();
             test_encoded_stream.reserve(128);
