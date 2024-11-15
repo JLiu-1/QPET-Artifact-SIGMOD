@@ -693,8 +693,8 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
           T const * dec_data_z_pos = dec_data_y_pos;
           for(size_t k=0; k<num_block_3; k++){
               size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
-              if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
-                  continue;
+
+              bool compute_block = (size_1==1 or size_1 == block_size) and (size_2==1 or size_2 == block_size) and size_3 == block_size;
               T const * cur_data_pos = data_z_pos;
               T const * cur_dec_data_pos = dec_data_z_pos;
               size_t n_block_elements = size_1 * size_2 * size_3;
@@ -704,11 +704,16 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
                   for(size_t jj=0; jj<size_2; jj++){
                       for(size_t kk=0; kk<size_3; kk++){
                           auto ori_qoi_val = qoi->eval(*cur_data_pos);
-                          if(!std::isinf(ori_qoi_val) and !std::isnan(ori_qoi_val))
-                            ori_ave += ori_qoi_val;
+                          if(!std::isinf(ori_qoi_val) and !std::isnan(ori_qoi_val)){
+                            if(compute_block)
+                              ori_ave += ori_qoi_val;
+                            if (max_qoi < ori_qoi_val) max_qoi = ori_qoi_val;
+                            if (min_qoi > ori_qoi_val) min_qoi = ori_qoi_val;
+
+                          }
                           cur_data_pos ++;
                           auto dec_qoi_val = qoi->eval(*cur_dec_data_pos);
-                          if(!std::isinf(dec_qoi_val) and !std::isnan(dec_qoi_val))
+                          if(compute_block and !std::isinf(dec_qoi_val) and !std::isnan(dec_qoi_val))
                             dec_ave += dec_qoi_val;
                           cur_dec_data_pos ++;
                       }
@@ -718,23 +723,29 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
                   cur_data_pos += dim0_offset - size_2 * dim1_offset;
                   cur_dec_data_pos += dim0_offset - size_2 * dim1_offset;
               }
-              ori_ave /= n_block_elements;
-              dec_ave /= n_block_elements;
-
-              if(!std::isinf(ori_ave) and !std::isnan(ori_ave)) {
-
-                if (max_qoi < ori_ave) max_qoi = ori_ave;
-                if (min_qoi > ori_ave) min_qoi = ori_ave;
-              }
-              else{
+              if(compute_block){
+                ori_ave /= n_block_elements;
+                dec_ave /= n_block_elements;
+                if(std::isinf(ori_ave) or std::isnan(ori_ave))
                   ori_ave = 0.0;
-              }
-              if(std::isinf(dec_ave) or std::isnan(dec_ave))
-                  dec_ave = 0.0;
+                /*
+                if(!std::isinf(ori_ave) and !std::isnan(ori_ave)) {
 
-              double qoi_diff = std::abs( ori_ave - dec_ave );
-              if (qoi_diff > max_qoi_diff)
-                  max_qoi_diff = qoi_diff;
+                  if (max_qoi < ori_ave) max_qoi = ori_ave;
+                  if (min_qoi > ori_ave) min_qoi = ori_ave;
+                }
+                else{
+                    ori_ave = 0.0;
+                }
+                */
+                if(std::isinf(dec_ave) or std::isnan(dec_ave))
+                  dec_ave = 0.0;
+                
+                double qoi_diff = std::abs( ori_ave - dec_ave );
+                if (qoi_diff > max_qoi_diff)
+                    max_qoi_diff = qoi_diff;
+              }
+
 
 
         
