@@ -121,6 +121,8 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
     // Append outlier coder bitstream.
     if (m_has_outlier)
       m_out_coder.append_encoded_bitstream(buf);
+    if(m_has_lossless)
+      zstd_encoder.append_encoded_bitstream(buf);
   }
 }
 
@@ -519,10 +521,13 @@ FIXED_RATE_HIGH_PREC_LABEL:
     std::vector<double>offsets(total_vals,0);
     for (size_t i = 0; i < total_vals; i++) {
   
-      if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  )
+      if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  ){
+        m_has_lossless = true;
         offsets[i]=m_vals_orig[i]-m_vals_d[i];
+      }
     }
-    zstd_encoder.encode<double>(offsets);
+    if(m_has_lossless)
+      zstd_encoder.encode<double>(offsets);
 
   }
   
