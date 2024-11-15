@@ -179,7 +179,6 @@ auto chunk_volume(dims_type vol_dim, dims_type chunk_dim) -> std::vector<std::ar
 template <typename T>
 auto calc_mean_var(const T*, size_t len, size_t omp_nthreads = 0) -> std::array<T, 2>;
 
-};  // namespace sperr
 
 template <typename T>
 auto calc_qoi_maxerr(const T* ori, const T* dec, size_t len, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi) -> std::array<double, 2>;
