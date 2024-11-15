@@ -38,7 +38,7 @@ class Lossless_zstd {
 
   }
   uint8_t* decode(){
-    const uint8_t *dataPos = new uint8_t[byte_size];
+    uint8_t *dataPos = new uint8_t[byte_size];
     m_bit_buffer.write_bitstream(dataPos, byte_size); 
     size_t dataLength = 0;
     size_t compressedSize = byte_size;
@@ -47,15 +47,15 @@ class Lossless_zstd {
     compressedSize -= sizeof (dataLength);
 
 
-    uint8_t* oriData = new uint8_t* [dataLength];
+    uint8_t* oriData = new uint8_t [dataLength];
     ZSTD_decompress(oriData, dataLength, dataPos, compressedSize);
     return oriData;
   }
 
   // Input
-  void use_bitstream(const void* p, size_t len){
+  void use_bitstream(const void* pp, size_t len){
 
-    const auto* const p = static_cast<const uint8_t*>(p);
+    const auto* const p = static_cast<const uint8_t*>(pp);
     std::memcpy(&byte_size, p, sizeof(byte_size));
     m_bit_buffer.parse_bitstream(p +sizeof(byte_size), byte_size);
 
@@ -65,8 +65,8 @@ class Lossless_zstd {
   }
   // Output
   //auto encoded_bitstream_len() const -> size_t;
-  void append_encoded_bitstream(vec8_type& buf) const{
-    const auto app_size = this->encoded_bitstream_len();
+  void append_encoded_bitstream(vec8_type& buffer) const{
+    const auto app_size = encoded_bitstream_len();
     const auto orig_size = buffer.size();
     buffer.resize(orig_size + app_size);
     auto* const ptr = buffer.data() + orig_size;
