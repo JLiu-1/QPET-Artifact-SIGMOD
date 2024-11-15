@@ -135,7 +135,7 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
     //append lossless bitstream
     if(m_has_lossless){
       const auto orig_size = buf.size();
-      buffer.resize(orig_size + sizeof(uint8_t));
+      buf.resize(orig_size + sizeof(uint8_t));
       auto* const ptr = buf.data() + orig_size;
       uint8_t identifier = 1;
       memcpy(ptr,&identifier,sizeof(uint8_t));
@@ -145,7 +145,7 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
     // Append outlier coder bitstream.
     if (m_has_outlier){
       const auto orig_size = buf.size();
-      buffer.resize(orig_size + sizeof(uint8_t));
+      buf.resize(orig_size + sizeof(uint8_t));
       auto* const ptr = buf.data() + orig_size;
       uint8_t identifier = 0;
       memcpy(ptr,&identifier,sizeof(uint8_t));
