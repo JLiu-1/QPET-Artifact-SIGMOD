@@ -37,10 +37,12 @@ namespace QoZ {
             const uchar *dataPos = data;
             size_t dataLength = 0;
             read(dataLength, dataPos, compressedSize);
+             std::cout<<dataLength<<std::endl;
 
             uchar *oriData = new uchar[dataLength];
             ZSTD_decompress(oriData, dataLength, dataPos, compressedSize);
             compressedSize = dataLength;
+
             return oriData;
         }
 

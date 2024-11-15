@@ -604,15 +604,45 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     if(conf.qoiEBMode !=QoZ::EB_ABS){//rel
         double max_qoi = -std::numeric_limits<double>::max();
         double min_qoi = std::numeric_limits<double>::max();
-       
-        for(size_t i=0; i<conf.num; i++){
-            
-            double q = qoi->eval(data[i]);
-            if(std::isinf(q) or std::isnan(q))
-                continue;
+        if(conf.qoiRegionMode != 1){
+            for(size_t i=0; i<conf.num; i++){
+                
+                double q = qoi->eval(data[i]);
+                if(std::isinf(q) or std::isnan(q))
+                    continue;
 
-            if (max_qoi < q) max_qoi = q;
-            if (min_qoi > q) min_qoi = q;
+                if (max_qoi < q) max_qoi = q;
+                if (min_qoi > q) min_qoi = q;
+            }
+        }
+        else{
+            std::vector<double> qoi_vals(conf.num);
+            for(size_t i=0; i<conf.num; i++)
+                qoi_vals[i] = qoi->eval(data[i]);
+
+            size_t n1, n2, n3;
+            if (N==3){
+                n1 = conf.dims[0];
+                n2 = conf.dims[1];
+                n3 = conf.dims[2];
+            }
+            else if (N==2){
+                n1 = 1;
+                n2 = conf.dims[0];
+                n3 = conf.dims[1];
+            }
+            else{
+                n1 = 1;
+                n2 = 1;
+                n3 = conf.dims[0];
+            }
+            auto average = QoZ::compute_average<T>(qoi_vals.data(), n1, n2, n3, conf.qoiRegionSize);
+            auto minmax = std::minmax_element(average.begin(),average.end());
+            min_qoi = minmax.first;
+            max_qoi = minmax.second;
+
+
+
         }
 
         if (max_qoi == min_qoi){

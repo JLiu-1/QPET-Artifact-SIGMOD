@@ -4,7 +4,7 @@
 
 #include "Config.hpp"
 #include "QoZ/qoi/QoIInfo.hpp"
-
+#include <algorithm>
 namespace QoZ {
     template<class T>
     T data_range(const T *data, size_t num) {
@@ -204,15 +204,17 @@ namespace QoZ {
                 T const * data_z_pos = data_y_pos;
                 for(size_t k=0; k<num_block_3; k++){
                     size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
-                    if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
-                        continue;
+                    //if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
+                    //    continue;
                     T const * cur_data_pos = data_z_pos;
                     size_t n_block_elements = size_1 * size_2 * size_3;
                     double sum = 0;
                     for(size_t ii=0; ii<size_1; ii++){
                         for(size_t jj=0; jj<size_2; jj++){
                             for(size_t kk=0; kk<size_3; kk++){
-                                sum += *cur_data_pos;
+                                auto val = *cur_data_pos;
+                                if(!std::isnan(val) and !std::isinf(val))
+                                    sum += val;
                                 cur_data_pos ++;
                             }
                             cur_data_pos += dim1_offset - size_3;
@@ -220,6 +222,7 @@ namespace QoZ {
                         cur_data_pos += dim0_offset - size_2 * dim1_offset;
                     }
                     aggregated.push_back(sum / n_block_elements);
+                  
                     data_z_pos += size_3;
                 }
                 data_y_pos += dim1_offset * size_2;
@@ -228,7 +231,7 @@ namespace QoZ {
         }    
         return aggregated;
     }
-
+    /*
     template <class T>
     std::vector<T> compute_square_average(T const * data, uint32_t n1, uint32_t n2, uint32_t n3, int block_size){
         uint32_t dim0_offset = n2 * n3;
@@ -247,8 +250,8 @@ namespace QoZ {
                 T const * data_z_pos = data_y_pos;
                 for(size_t k=0; k<num_block_3; k++){
                     size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
-                    if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
-                        continue;
+                    //if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
+                    //    continue;
                     T const * cur_data_pos = data_z_pos;
                     size_t n_block_elements = size_1 * size_2 * size_3;
                     double sum = 0;
@@ -271,6 +274,7 @@ namespace QoZ {
         }    
         return aggregated;
     }
+    */
 
 
     template <class T>
@@ -362,7 +366,12 @@ namespace QoZ {
         else{
             auto average = compute_average(data, n1, n2, n3, block_size);
             auto average_dec = compute_average(dec_data, n1, n2, n3, block_size);
+            auto minmax = std::minmax_element(average.begin(),average.end());
+            value_range = minmax.second - minmax.first;
+            if (value_range == 0)
+                value_range = 1.0;
             auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
+            std::cout << "QoI average with block size " << block_size << ": Min = " << minmax.first << ", Max = " << minmax.second<<", Range = "<< value_range << std::endl;
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
 
             //auto square_average = compute_square_average(data, n1, n2, n3, block_size);
@@ -647,7 +656,8 @@ namespace QoZ {
                 T * ori_data_z_pos = ori_data_y_pos;
                 for(size_t k=0; k<num_block_3; k++){
                     size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
-                    if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size){
+                    //if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size){
+                    if(false){
                         T * cur_ori_data_pos = ori_data_z_pos;
                         for(size_t ii=0; ii<size_1; ii++){
                             for(size_t jj=0; jj<size_2; jj++){
@@ -672,10 +682,15 @@ namespace QoZ {
                             for(size_t jj=0; jj<size_2; jj++){
                                 for(size_t kk=0; kk<size_3; kk++){
                                     double q = qoi->eval(*cur_data_pos);
+                                    if(std::isinf(q) or std::isnan(q))
+                                        q = 0.0;
                                     ave += q;
                                     qoi_vals.push_back(q);
                                     cur_data_pos ++;
                                     double oq = qoi->eval(*cur_ori_data_pos);
+                                    if(std::isinf(oq) or std::isnan(oq))
+                                        oq = 0.0;
+                                    ori_ave += oq;
                                     ori_qoi_vals.push_back(oq);
                                     cur_ori_data_pos ++;
                                 }
@@ -698,12 +713,14 @@ namespace QoZ {
                             for(size_t ii=0; ii<size_1; ii++){
                                 for(size_t jj=0; jj<size_2; jj++){
                                     for(size_t kk=0; kk<size_3; kk++){
-                                        if(fixing){
+                                        auto qoi_err = (ori_qoi_vals[local_idx]-qoi_vals[local_idx]);
+                                        if(fixing and qoi_err!=0){
                                            
                                             T offset = *cur_ori_data_pos - *cur_data_pos;
+
                                             *cur_data_pos = *cur_ori_data_pos;
                                             *cur_ori_data_pos = offset;
-                                            err -= (ori_qoi_vals[local_idx]-qoi_vals[local_idx])/n_block_elements;
+                                            err -= qoi_err/n_block_elements;
                                             if (fabs(err)<=tol)
                                                 fixing=false;
 
