@@ -91,18 +91,32 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
   //    Also note the situation where only partial of the outlier coding bitstream is available.
   //    In that case, we simply discard the remaining bitstream.
   m_has_outlier = false;
-  if (pos < len) {
+  m_has_lossless = false;
+  while (pos < len) {
+
     const uint8_t* const out_p = ptr + pos;
-    remaining_len = len - pos;
-    if (remaining_len >= SPECK_INT<uint8_t>::header_size) {
-      auto suppose_len = m_out_coder.get_stream_full_len(out_p);
-      assert(suppose_len >= remaining_len);
-      if (remaining_len == suppose_len) {
-        auto rtn = m_out_coder.use_bitstream(out_p, suppose_len);
-        if (rtn != RTNType::Good)
-          return rtn;
-        m_has_outlier = true;
+
+    uint8_t identifier;
+    memcpy(&identifier,out_p,sizeof(uint8_t));
+    out_p += sizeof(uint8_t);
+    pos += sizeof(uint8_t);
+    if(identifier==0){
+      remaining_len = len - pos;
+      if (remaining_len >= SPECK_INT<uint8_t>::header_size) {
+        auto suppose_len = m_out_coder.get_stream_full_len(out_p);
+        assert(suppose_len >= remaining_len);
+        if (remaining_len == suppose_len) {
+          auto rtn = m_out_coder.use_bitstream(out_p, suppose_len);
+          if (rtn != RTNType::Good)
+            return rtn;
+          m_has_outlier = true;
+        }
       }
+      break;
+    }
+    else{//lossless
+      zstd_encoder.use_bitstream(out_p, pos);
+      m_has_lossless = true;
     }
   }
 
@@ -118,11 +132,26 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
     // Append SPECK_INT bitstream.
     std::visit([&buf](auto&& enc) { enc->append_encoded_bitstream(buf); }, m_encoder);
 
-    // Append outlier coder bitstream.
-    if (m_has_outlier)
-      m_out_coder.append_encoded_bitstream(buf);
-    if(m_has_lossless)
+    //append lossless bitstream
+    if(m_has_lossless){
+      const auto orig_size = buffer.size();
+      buffer.resize(orig_size + sizeof(uint8_t));
+      auto* const ptr = buffer.data() + orig_size;
+      uint8_t identifier = 1;
+      memcpy(ptr,&identifier,sizeof(uint8_t));
       zstd_encoder.append_encoded_bitstream(buf);
+    }
+
+    // Append outlier coder bitstream.
+    if (m_has_outlier){
+      const auto orig_size = buffer.size();
+      buffer.resize(orig_size + sizeof(uint8_t));
+      auto* const ptr = buffer.data() + orig_size;
+      uint8_t identifier = 0;
+      memcpy(ptr,&identifier,sizeof(uint8_t));
+      m_out_coder.append_encoded_bitstream(buf);
+    }
+    
   }
 }
 
@@ -630,6 +659,12 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     const auto& recovered = m_out_coder.view_outlier_list();
     for (auto out : recovered)
       m_vals_d[out.pos] += out.err;
+  }
+  if(m_has_lossless){
+    double* offsets =reinterpret_cast<double *>zstd_encoder.decode(); 
+    for(size_t i=0;i<m_dims[0] * m_dims[1] * m_dims[2] ;i++)
+      m_vals_d[i] += offsets[i];
+    delete []offsets;
   }
 
   // Step 4: Inverse Conditioning

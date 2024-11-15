@@ -294,6 +294,8 @@ void sperr::SPECK_INT<T>::append_encoded_bitstream(vec8_type& buffer) const
   auto* const ptr = buffer.data() + orig_size;
 
   // Step 2: fill header
+
+  
   size_t pos = 0;
   std::memcpy(ptr + pos, &m_num_bitplanes, sizeof(m_num_bitplanes));
   pos += sizeof(m_num_bitplanes);
