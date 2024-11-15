@@ -662,7 +662,7 @@ template auto sperr::calc_qoi_maxerr(const float* , const float* , size_t , std:
 
 
 template <typename T>
-auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_t,3> dims, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi, int block_size = 4) -> std::array<double, 2>{
+auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_t,3> dims, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi, int block_size) -> std::array<double, 2>{
   
   uint32_t n1 = dims[2];
   uint32_t n2 = dims[1];
