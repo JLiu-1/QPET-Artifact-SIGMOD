@@ -104,6 +104,10 @@ endif()
 #
 add_subdirectory( src )
 
+target_link_libraries(${PROJECT_NAME} PRIVATE symengine)
+target_link_libraries(${PROJECT_NAME} PRIVATE gmp)
+
+
 #
 # Build command line utilities
 #
@@ -122,7 +126,7 @@ if( BUILD_CLI_UTILITIES )
   )
   FetchContent_MakeAvailable(cli11)
 
-  add_subdirectory( utilities ${CMAKE_BINARY_DIR}/bin )
+  add subdirectory( utilities ${CMAKE_BINARY_DIR}/bin )
 endif()
 
 
@@ -164,8 +168,7 @@ if( BUILD_UNIT_TESTS )
 endif()
 
 
-target_link_libraries(${PROJECT_NAME} PRIVATE symengine)
-target_link_libraries(${PROJECT_NAME} PRIVATE gmp)
+
 
 #
 # Start installation using GNU installation rules
