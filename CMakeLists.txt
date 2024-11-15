@@ -103,7 +103,8 @@ endif()
 # Compile the SPERR library
 #
 add_subdirectory( src )
-
+target_link_libraries(${PROJECT_NAME} PRIVATE symengine)
+target_link_libraries(${PROJECT_NAME} PRIVATE gmp)
 
 
 
@@ -114,7 +115,7 @@ if( BUILD_CLI_UTILITIES )
   # Download and build CLI11
   #
   include(FetchContent)
-
+ 
 
   # Control internal options of CLI11
   #
@@ -126,7 +127,7 @@ if( BUILD_CLI_UTILITIES )
   )
   FetchContent_MakeAvailable(cli11)
 
-  add subdirectory( utilities ${CMAKE_BINARY_DIR}/bin )
+  add_subdirectory( utilities ${CMAKE_BINARY_DIR}/bin )
 endif()
 
 
