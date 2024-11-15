@@ -472,7 +472,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     return rtn;
 
   // CompMode::PWE only: perform outlier coding: find out all the outliers, and encode them!
-  if (m_mode == CompMode::PWE or qoi != nullptr) {
+  if (m_mode == CompMode::PWE) {
     //std::cout<<"perform outlier"<<std::endl;
     std::cout<<qoi->get_expression()<<" "<<qoi->get_global_eb()<<std::endl;
     m_midtread_inv_quantize();
@@ -485,9 +485,10 @@ FIXED_RATE_HIGH_PREC_LABEL:
     LOS.reserve(1.0 * total_vals);  // Reserve space to hold about 100% of total values.
     for (size_t i = 0; i < total_vals; i++) {
       auto diff = m_vals_orig[i] - m_vals_d[i];
-      if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality) )
+      if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  )
         LOS.emplace_back(i, diff);
     }
+    std::cout<<LOS.size()<<std::endl;
     if (LOS.empty())
       m_has_outlier = false;
     else {
@@ -498,9 +499,12 @@ FIXED_RATE_HIGH_PREC_LABEL:
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
+      m_out_coder.m_inverse_quantize();
+      LOS = m_out_coder.view_outlier_list();
+      std::cout<<LOS.size()<<std::endl;
     }
   }
-
+  //or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) )
   // Step 4: Integer SPECK encoding
   m_instantiate_encoder();
   if (m_mode == CompMode::Rate) {
