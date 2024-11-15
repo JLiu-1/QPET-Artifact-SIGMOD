@@ -5,7 +5,7 @@
 // This is the base class of 1D, 2D, and 3D integer SPECK implementations.
 //
 
-
+#include "sperr_helper.h"
 #include "Bitmask.h"
 #include "Bitstream.h"
 #include "zstd.h"
@@ -37,7 +37,20 @@ class Lossless_zstd {
 
 
   }
-  void decode();
+  uint8_t* decode(){
+    const uint8_t *dataPos = new uint8_t[byte_size];
+    m_bit_buffer.write_bitstream(dataPos, byte_size); 
+    size_t dataLength = 0;
+    size_t compressedSize = byte_size;
+    memcpy(&dataLength,dataPos,compressedSize);
+    dataPos += sizeof (dataLength);
+    compressedSize -= sizeof (dataLength);
+
+
+    uint8_t* oriData = new uint8_t* [dataLength];
+    ZSTD_decompress(oriData, dataLength, dataPos, compressedSize);
+    return oriData;
+  }
 
   // Input
   void use_bitstream(const void* p, size_t len){
@@ -73,7 +86,7 @@ class Lossless_zstd {
 
   size_t byte_size = 0;
   Bitstream m_bit_buffer;
-  compression_level = 3;
+  int compression_level = 3;
 };
 
 };  // namespace zstd
