@@ -92,7 +92,7 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
   //    In that case, we simply discard the remaining bitstream.
   m_has_outlier = false;
   m_has_lossless = false;
-  std::cout<<"111"<<std::endl;
+  ///std::cout<<"111"<<std::endl;
   while (pos < len) {
 
     const uint8_t* out_p = ptr + pos;
@@ -101,9 +101,9 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
     memcpy(&identifier,out_p,sizeof(uint8_t));
     out_p += sizeof(uint8_t);
     pos += sizeof(uint8_t);
-    std::cout<<"222"<<" "<<identifier<<std::endl;
+    //std::cout<<"222"<<" "<<identifier<<std::endl;
     if(identifier==0){
-      std::cout<<"333"<<std::endl;
+      //std::cout<<"333"<<std::endl;
       remaining_len = len - pos;
       if (remaining_len >= SPECK_INT<uint8_t>::header_size) {
         auto suppose_len = m_out_coder.get_stream_full_len(out_p);
@@ -116,16 +116,16 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
           m_has_outlier = true;
         }
       }
-      std::cout<<"444"<<std::endl;
+      //std::cout<<"444"<<std::endl;
       break;
     }
     else{//lossless
-      std::cout<<"555"<<std::endl;
+      //std::cout<<"555"<<std::endl;
       zstd_encoder.use_bitstream(out_p, pos);
       m_has_lossless = true;
     }
   }
-  std::cout<<"666"<<std::endl;
+  //std::cout<<"666"<<std::endl;
 
   return RTNType::Good;
 }
@@ -557,13 +557,16 @@ FIXED_RATE_HIGH_PREC_LABEL:
   }
   if(qoi!=nullptr){
     std::vector<double>offsets(total_vals,0);
+    size_t count=0;
     for (size_t i = 0; i < total_vals; i++) {
   
       if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  ){
         m_has_lossless = true;
         offsets[i]=m_vals_orig[i]-m_vals_d[i];
+        count++;
       }
     }
+    std::cout<<"lossless data count: "<<count<<std::endl;
     if(m_has_lossless)
       zstd_encoder.encode<double>(offsets);
 
@@ -671,13 +674,18 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   }
  // std::cout<<"end outlier"<<std::endl;
   if(m_has_lossless){
-    std::cout<<"re1"<<std::endl;
+    //std::cout<<"re1"<<std::endl;
     double* offsets = reinterpret_cast<double *> (zstd_encoder.decode()); 
-    for(size_t i=0;i<m_dims[0] * m_dims[1] * m_dims[2] ;i++)
+    count=0;
+    for(size_t i=0;i<m_dims[0] * m_dims[1] * m_dims[2] ;i++){
+      if(offsets[i]!=0)
+        count++;
       m_vals_d[i] += offsets[i];
-    std::cout<<"re2"<<std::endl;
+    }
+    //std::cout<<"re2"<<std::endl;
+    std::cout<<"lossless data count: "<<count<<std::endl;
     delete []offsets;
-    std::cout<<"re3"<<std::endl;
+    //std::cout<<"re3"<<std::endl;
   }
 
   // Step 4: Inverse Conditioning
