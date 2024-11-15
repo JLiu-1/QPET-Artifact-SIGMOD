@@ -638,8 +638,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
             auto average = QoZ::compute_average<T>(qoi_vals.data(), n1, n2, n3, conf.qoiRegionSize);
             auto minmax = std::minmax_element(average.begin(),average.end());
-            min_qoi = minmax.first;
-            max_qoi = minmax.second;
+            min_qoi = *minmax.first;
+            max_qoi = *minmax.second;
 
 
 
