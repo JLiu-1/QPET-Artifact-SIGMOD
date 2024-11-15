@@ -210,7 +210,9 @@ namespace QoZ {
                     for(int ii=0; ii<size_1; ii++){
                         for(int jj=0; jj<size_2; jj++){
                             for(int kk=0; kk<size_3; kk++){
-                                sum += *cur_data_pos;
+                                auto val = *cur_data_pos;
+                                if(!std::isnan(val) and !std::isinf(val))
+                                    sum += val;
                                 cur_data_pos ++;
                             }
                             cur_data_pos += dim1_offset - size_3;
@@ -226,7 +228,7 @@ namespace QoZ {
         }    
         return aggregated;
     }
-
+    /*
     template <class T>
     std::vector<T> compute_square_average(T const * data, uint32_t n1, uint32_t n2, uint32_t n3, int block_size){
         uint32_t dim0_offset = n2 * n3;
@@ -268,7 +270,7 @@ namespace QoZ {
             data_x_pos += dim0_offset * size_1;
         }    
         return aggregated;
-    }
+    }*/
 
     template<class T>
     T evaluate_L_inf(T const * data, T const * dec_data, uint32_t num_elements, bool normalized=true, bool verbose=false){
@@ -301,7 +303,12 @@ namespace QoZ {
         else{
             auto average = compute_average(data, n1, n2, n3, block_size);
             auto average_dec = compute_average(dec_data, n1, n2, n3, block_size);
+            auto minmax = std::minmax_element(average.begin(),average.end());
+            value_range = minmax.second - minmax.first;
+            if (value_range == 0)
+                value_range = 1.0;
             auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
+            std::cout << "QoI average with block size " << block_size << ": Min = " << minmax.first << ", Max = " << minmax.second<<", Range = "<< value_range << std::endl;
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
 
             //auto square_average = compute_square_average(data, n1, n2, n3, block_size);
