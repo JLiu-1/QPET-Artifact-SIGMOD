@@ -120,7 +120,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     assert(!chunk.empty());
     compressor->take_data(std::move(chunk));
     compressor->set_dims({chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]});
-    std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
+    //std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
     if(qoi_id>0 and qoi_tol>0){
       auto pwe = m_mode == CompMode::PWE ? m_quality : std::numeric_limits<double>::max();
       auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string );

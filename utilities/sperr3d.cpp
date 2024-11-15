@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
       assert(bpp != 0.0);
       encoder->set_bitrate(bpp);
     }
-    std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
+    //std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
     if (qoi_tol>0 and qoi_id>0){
         
         encoder->set_qoi_id(qoi_id);
