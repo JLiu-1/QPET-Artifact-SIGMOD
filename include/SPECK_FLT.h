@@ -1,6 +1,6 @@
 #ifndef SPECK_FLT_H
 #define SPECK_FLT_H
-
+#include "qoi/QoIInfo.hpp"
 //
 // This class serves as the base class of 1D, 2D, and 3D SPECK algorithm on floats.
 //
@@ -52,6 +52,9 @@ class SPECK_FLT {
   void set_tolerance(double tol);
   void set_bitrate(double bpp);
   void set_dims(dims_type);
+  void set_qoi(std::shared_ptr<concepts::QoIInterface<double> >);
+  //void set_qoi_tol(double);
+  std::shared_ptr<concepts::QoIInterface<double> > get_qoi();
   auto integer_len() const -> size_t;
 
 #ifdef EXPERIMENTING
@@ -80,6 +83,10 @@ class SPECK_FLT {
   CDF97 m_cdf;
   Conditioner m_conditioner;
   Outlier_Coder m_out_coder;
+  std::shared_ptr<concepts::QoIInterface<double> > qoi = nullptr;
+  double qoi_tol = 0.0;
+
+
 
   std::variant<std::vector<uint8_t>,
                std::vector<uint16_t>,

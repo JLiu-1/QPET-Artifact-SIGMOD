@@ -190,6 +190,21 @@ void sperr::SPECK_FLT::set_dims(dims_type dims)
   m_dims = dims;
 }
 
+void sperr::SPECK_FLT::set_qoi(std::shared_ptr<concepts::QoIInterface<double> > q)
+{
+  qoi = q;
+}
+
+std::shared_ptr<concepts::QoIInterface<double> > sperr::SPECK_FLT::get_qoi()
+{
+  return qoi;
+}
+/*
+void sperr::SPECK_FLT::set_qoi_tol(double q_tol)
+{
+  qoi_tol = q_tol;
+}
+*/
 auto sperr::SPECK_FLT::integer_len() const -> size_t
 {
   switch (m_uint_flag) {
@@ -457,7 +472,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     return rtn;
 
   // CompMode::PWE only: perform outlier coding: find out all the outliers, and encode them!
-  if (m_mode == CompMode::PWE) {
+  if (m_mode == CompMode::PWE or qoi != nullptr) {
     m_midtread_inv_quantize();
     rtn = m_cdf.take_data(std::move(m_vals_d), m_dims);
     if (rtn != RTNType::Good)
@@ -468,7 +483,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     LOS.reserve(0.04 * total_vals);  // Reserve space to hold about 4% of total values.
     for (size_t i = 0; i < total_vals; i++) {
       auto diff = m_vals_orig[i] - m_vals_d[i];
-      if (std::abs(diff) > m_quality)
+      if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality) or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) ) )
         LOS.emplace_back(i, diff);
     }
     if (LOS.empty())

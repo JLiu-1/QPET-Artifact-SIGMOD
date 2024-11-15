@@ -4,12 +4,12 @@
 #include "CLI/App.hpp"
 #include "CLI/Config.hpp"
 #include "CLI/Formatter.hpp"
-
+#include "qoi/QoIInfo.hpp"
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-
+#include <limits>
 // This functions takes in a filename, and a full resolution. It then creates a list of
 // filenames, each has the coarsened resolution appended.
 auto create_filenames(std::string name,
@@ -202,6 +202,18 @@ int main(int argc, char* argv[])
                      ->group("Compression settings");
 #endif
 
+  auto qoi_tol = 0.0;
+  auto* qoi_tol_ptr = app.add_option("--qoi_tol", qoi_tol, "QoI tolerance.")
+                      ->group("Compression settings");
+
+  int qoi_id = 0;
+  auto* qoi_id_ptr = app.add_option("--qoi_id", qoi_id, "QoI id.")
+                      ->group("Compression settings");
+
+  std::string qoi_string = "x^2";
+  auto* qoi_string_ptr = app.add_option("--qoi_string", qoi_string, "QoI string.")
+                      ->group("Compression settings");
+
   CLI11_PARSE(app, argc, argv);
 
   //
@@ -288,6 +300,13 @@ int main(int argc, char* argv[])
     else {
       assert(bpp != 0.0);
       encoder->set_bitrate(bpp);
+    }
+
+    if (and qoi_tol>0 and qoi_id>0){
+        
+        encoder->set_qoi_id(qoi_id);
+        encoder->set_qoi_string(qoi_string);
+        encoder->set_qoi_tol(qoi_tol);
     }
 
     auto rtn = sperr::RTNType::Good;

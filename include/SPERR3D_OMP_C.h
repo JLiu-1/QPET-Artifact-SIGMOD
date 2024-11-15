@@ -23,6 +23,9 @@ class SPERR3D_OMP_C {
   void set_psnr(double);
   void set_tolerance(double);
   void set_bitrate(double);
+  void set_qoi_id(int);
+  void set_qoi_string(std::string);
+  void set_qoi_tol(double);
 #ifdef EXPERIMENTING
   void set_direct_q(double);
 #endif
@@ -41,6 +44,10 @@ class SPERR3D_OMP_C {
   dims_type m_dims = {0, 0, 0};        // Dimension of the entire volume
   dims_type m_chunk_dims = {0, 0, 0};  // Preferred dimensions for a chunk
   std::vector<vec8_type> m_encoded_streams;
+  int qoi_id = 0;
+  std::string qoi_string = "x^2";
+  double qoi_tol = 0.0;
+
 
 #ifdef USE_OMP
   size_t m_num_threads = 1;

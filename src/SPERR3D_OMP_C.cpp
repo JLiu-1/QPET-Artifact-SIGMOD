@@ -58,6 +58,22 @@ void sperr::SPERR3D_OMP_C::set_direct_q(double q)
 }
 #endif
 
+void sperr::SPERR3D_OMP_C::set_qoi_id(int q_id)
+{
+  qoi_id = q_id;
+}
+
+void sperr::SPERR3D_OMP_C::set_qoi_string(std::string q_string)
+{
+  qoi_string = q_string;
+}
+
+void sperr::SPERR3D_OMP_C::set_qoi_tol(double q_tol)
+{
+  qoi_tol = q_tol;
+}
+
+
 template <typename T>
 auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 {
