@@ -473,6 +473,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
   // CompMode::PWE only: perform outlier coding: find out all the outliers, and encode them!
   if (m_mode == CompMode::PWE or qoi != nullptr) {
+    std::cout<<"perform outlier"<<std::endl;
+    std::cout<<qoi<<std::endl;
     m_midtread_inv_quantize();
     rtn = m_cdf.take_data(std::move(m_vals_d), m_dims);
     if (rtn != RTNType::Good)
