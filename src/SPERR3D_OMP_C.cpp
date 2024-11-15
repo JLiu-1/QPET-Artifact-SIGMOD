@@ -149,8 +149,8 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 
     // Save bitstream for each chunk in `m_encoded_stream`.
     m_encoded_streams[i].clear();
-    //m_encoded_streams[i].reserve(128);
-    m_encoded_streams[i].reserve(1280000);
+    m_encoded_streams[i].reserve(128);
+    //m_encoded_streams[i].reserve(1280000);
     compressor->append_encoded_bitstream(m_encoded_streams[i]);
   }
 
