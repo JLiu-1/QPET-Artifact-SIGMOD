@@ -182,7 +182,7 @@ namespace QoZ {
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
         
-        void get_qoi_tolerance() {return tolerance;}
+        double get_qoi_tolerance() {return tolerance;}
         
     private:
 
