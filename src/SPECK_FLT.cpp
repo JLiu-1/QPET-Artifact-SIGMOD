@@ -499,7 +499,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
-      m_out_coder.inverse_quantize();
+      m_out_coder.decode();
       LOS = m_out_coder.view_outlier_list();
       std::cout<<LOS.size()<<std::endl;
     }

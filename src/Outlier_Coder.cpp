@@ -207,6 +207,7 @@ void sperr::Outlier_Coder::m_quantize()
         }
       },
       m_vals_ui);
+   std::cout<<m_vals_ui.size()<<std::endl;
 }
 
 void sperr::Outlier_Coder::m_inverse_quantize()
@@ -214,6 +215,7 @@ void sperr::Outlier_Coder::m_inverse_quantize()
   m_LOS.clear();
 
   // First, bring all non-zero integer correctors to `m_LOS`.
+  std::cout<<m_vals_ui.size()<<std::endl;
   std::visit(
       [&los = m_LOS](auto&& vec) {
         for (size_t i = 0; i < vec.size(); i++)
