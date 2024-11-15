@@ -26,6 +26,8 @@ class SPERR3D_OMP_C {
   void set_qoi_id(int);
   void set_qoi_string(std::string);
   void set_qoi_tol(double);
+  void set_qoi_block_size(int);
+  void set_qoi_k(double);
 #ifdef EXPERIMENTING
   void set_direct_q(double);
 #endif
@@ -47,6 +49,8 @@ class SPERR3D_OMP_C {
   int qoi_id = 0;
   std::string qoi_string = "x^2";
   double qoi_tol = 0.0;
+  int qoi_block_size = 1;
+  double qoi_k = 1.732;
 
 
 #ifdef USE_OMP
@@ -77,6 +81,8 @@ class SPERR3D_OMP_C {
   //    this function returns an empty vector.
   template <typename T>
   auto m_gather_chunk(const T* vol, dims_type vol_dim, std::array<size_t, 6> chunk) -> vecd_type;
+
+  auto m_sample_center(vecd_type chunk,std::array<size_t, 3> chunk_dim, std::array<size_t,3>sample_dim) -> vecd_type;
 };
 
 }  // End of namespace sperr

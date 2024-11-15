@@ -3,6 +3,7 @@
 #include <algorithm>  // std::all_of()
 #include <cassert>
 #include <cstring>
+#include <cmath>
 #include <numeric>  // std::accumulate()
 #include <iostream>
 #ifdef USE_OMP
@@ -71,6 +72,17 @@ void sperr::SPERR3D_OMP_C::set_qoi_string(std::string q_string)
 void sperr::SPERR3D_OMP_C::set_qoi_tol(double q_tol)
 {
   qoi_tol = q_tol;
+
+}
+
+void sperr::SPERR3D_OMP_C::set_qoi_block_size(double q_bs)
+{
+  qoi_block_size = q_bs;
+}
+
+void sperr::SPERR3D_OMP_C::set_qoi_k(double q_k)
+{
+  qoi_k = q_k;
 }
 
 
@@ -118,15 +130,160 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     // Gather data for this chunk, Setup compressor parameters, and compress!
     auto chunk = m_gather_chunk<T>(buf, m_dims, chunk_idx[i]);
     assert(!chunk.empty());
+
+    if(qoi_id>0 and qoi_tol>0){//qoi tuning
+      auto pwe = m_mode == CompMode::PWE ? m_quality : std::numeric_limits<double>::max();
+      m_mode == CompMode::PWE;
+      
+      std::array<size_t,3> chunk_dims = {chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]};
+      size_t chunk_ele_num = chunk_idx[i][1]*chunk_idx[i][3]*chunk_idx[i][5];
+      double sample_rate = 0.01;
+      double length_sample_rate = pow(sample_rate,1.0/3.0);
+      std::array<size_t,3> sample_dims = {chunk_idx[i][1]*length_sample_rate, chunk_idx[i][3]*length_sample_rate, chunk_idx[i][5]*length_sample_rate};
+      size_t sample_num = sample_dims[0]*sample_dims[1]*sample_dims[2];
+
+      auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
+
+      if(qoi_block_size > 1){//regional 
+        //adjust qoieb
+        double rate = 1.0;
+      
+
+       
+        //conf.regionalQoIeb=conf.qoiEB;//store original regional eb
+        double num_blocks = 1;
+        double num_elements = 1;
+        for(int i=0; i<m_dims.size(); i++){
+            num_elements *= qoi_block_size;
+            num_blocks *= (m_dims - 1) / qoi_block_size + 1;
+        }
+
+        double q = 0.999999;
+        rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q,qoi_k);
+        //std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
+        
+        rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
+        
+        //std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
+        qoi_tol *= rate;
+        //qoi->set_qoi_tolerance(qoi_tol);
+      } 
+      auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string);
+
+      std::vector<double> ebs (chunk_ele_num);
+    // use quantile to determine abs bound
+  
+
+
+        
+
+        for (size_t i = 0; i < chunk_ele_num; i++){
+            ebs[i] = qoi->interpret_eb(chunk[i]);
+        }
+        
+        //double max_quantile_rate = 0.2;
+        double quantile_rate = 0.2  ;//conf.quantile;//quantile
+        //std::cout<<quantile<<std::endl;
+        size_t k = std::ceil(quantile_rate * chunk_ele_num);
+        k = std::max((size_t)1, std::min(chunk_ele_num, k)); 
+
+
+        double best_abs_ebs;
+
+      
+        std::vector<size_t> quantiles;
+      
+       for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01})
+           quantiles.push_back((size_t)(i*k));
+       int quantile_num = quantiles.size();
+
+            
+
+            
+            //std::sort(ebs.begin(),ebs.begin()+k+1);
+
+  
+        size_t best_quantile = 0;
+
+
+        std::nth_element(ebs.begin(),ebs.begin()+quantiles[0], ebs.end());
+
+        size_t last_quantile = quantiles[0]+1;
+
+        double best_br = 9999;
+        best_abs_eb = pwe;
+                        
+        int idx = 0;
+        for(auto quantile:quantiles)
+        {   
+            if(idx!=0)
+                std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
+
+            
+            auto cur_abs_eb = ebs[quantile];
+            qoi->set_global_eb(cur_abs_eb);
+            // reset variables for average of square
+            test_compressor = std::make_unique<SPECK3D_FLT>();
+            auto sampled_copy = sampled_data;
+            compressor->take_data(std::move(sampled_copy));
+            compressor->set_dims(sample_dims);
+            compressor->set_tolerance(cur_abs_eb);
+            std::vector<vec8_type> test_encoded_stream;
+
+            test_compressor->compress();
+
+            test_encoded_stream.clear();
+            test_encoded_stream.reserve(128);
+            //m_encoded_streams[i].reserve(1280000);
+            compressor->append_encoded_bitstream(test_encoded_stream);
+            
+            double cur_br = test_encoded_stream.size()*8.0/(double)sample_num;       
+            std::cout << "current_eb = " << cur_abs_eb << ", current_br = " << cur_br << std::endl;
+            if(cur_br < best_br * 1.02){//todo: optimize
+                best_br = cur_br;
+                best_abs_eb = testConf.absErrorBound;
+                best_quantile = quantile;
+            }
+            /*else if(cur_br>1.1*best_br and testConf.early_termination){
+                break;
+            }*/
+
+            last_quantile = quantile+1;
+            idx++;
+            
+        }
+        std::cout<<"Selected quantile: "<<(double)best_quantile/(double)chunk_ele_num<<std::endl;
+        std::cout << "Best abs eb:  " << best_abs_eb << std::endl; 
+        qoi->set_global_eb(best_abs_eb); 
+
+        compressor->set_qoi(qoi);
+
+        m_quality = best_abs_eb;
+
+
+    }
+
+
+
+
+
+
+
+      //compressor->set_qoi(qoi);
+      //compressor->set_qoi_tol(qoi_tol);
+    
+
+
     compressor->take_data(std::move(chunk));
     compressor->set_dims({chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]});
     //std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
+    /*
     if(qoi_id>0 and qoi_tol>0){
       auto pwe = m_mode == CompMode::PWE ? m_quality : std::numeric_limits<double>::max();
       auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string );
       compressor->set_qoi(qoi);
       //compressor->set_qoi_tol(qoi_tol);
-    }
+    }*/
     //std::cout<<chunk_idx[i][1]<<" "<<chunk_idx[i][3]<<" "<<chunk_idx[i][5]<<std::endl;//its reversed (fastest first)
     switch (m_mode) {
       case CompMode::PSNR:
@@ -290,3 +447,50 @@ template auto sperr::SPERR3D_OMP_C::m_gather_chunk(const float*,
 template auto sperr::SPERR3D_OMP_C::m_gather_chunk(const double*,
                                                    dims_type,
                                                    std::array<size_t, 6>) -> vecd_type;
+
+
+
+template <typename T>
+auto sperr::SPERR3D_OMP_C::m_sample_center(vecd_type chunk,std::array<size_t, 3> chunk_dims,std::array<size_t,3>sample_dims) -> vecd_type
+{
+  std::array<size_t,3>starts= {(chunk_dims[0]-sample_dims[0])/2,(chunk_dims[1]-sample_dims[1])/2,(chunk_dims[2]-sample_dims[2])/2};
+  //std::array<size_t,3>ends= {(chunk_dim[0]+sample_dim[0])/2,(chunk_dim[1]+sample_dim[1])/2,(chunk_dim[2]+sample_dim[2])/2};
+  vecd_type sampled_data;
+  size_t idx = 0;
+  size_t y_offset = chunk_dim[0];
+  size_t z_offset = y_offset * chunk_dim[1];
+  for (size_t z = starts[2]; z < starts[2]+sample_dims[2]; z++) {
+    const size_t plane_offset = z * z_offset;
+    for (size_t y = starts[1]; y < starts[1]+sample_dims[1]; y++) {
+      const auto start_idx = plane_offset + y * y_offset + starts[0];
+      sampled_data.insert(sampled_data.end(), chunk.begin()+start_idx, chunk.begin()+start_idx+sample_dims[0]);
+    }
+  }
+
+}
+
+double estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 2.0){//n: element_per_block N: num_blocks q: confidence
+    //no var information
+    //if gaussian, just multiply k 
+   
+    /*
+    if (q>=0.95 and N >= 1000){
+        return sqrt( -n / ( 2 * ( log(1-q) - log(2*N) ) ) );
+    }
+    else{
+        return sqrt( -n / ( 2 * ( log(1- pow(q,1.0/N) ) - log(2) ) ) );
+    }
+    */
+
+    double p;
+    if (q>=0.95 and N >= 1000){
+        p = (1-q)/N;
+    }
+    else{
+        p = 1- pow(q,1.0/N);
+    }
+
+
+    return k*sqrt(0.5*n/log(2.0/p));
+    
+}

@@ -214,6 +214,14 @@ int main(int argc, char* argv[])
   auto* qoi_string_ptr = app.add_option("--qoi_string", qoi_string, "QoI string.")
                       ->group("Compression settings");
 
+  int qoi_block_size = 1;
+  auto* qoi_tol_ptr = app.add_option("--qoi_bs", qoi_block_soze, "QoI avg_block_size.")
+                      ->group("Compression settings");
+
+  auto qoi_k = 1.732;
+  auto* qoi_tol_ptr = app.add_option("--qoi_k", qoi_k, "QoI k.")
+                      ->group("Compression settings");
+
   CLI11_PARSE(app, argc, argv);
 
   //
@@ -307,6 +315,8 @@ int main(int argc, char* argv[])
         encoder->set_qoi_id(qoi_id);
         encoder->set_qoi_string(qoi_string);
         encoder->set_qoi_tol(qoi_tol);
+        encoder->set_qoi_block_size(qoi_block_size);
+        encoder->set_qoi_k(qoi_k);
     }
 
     auto rtn = sperr::RTNType::Good;
