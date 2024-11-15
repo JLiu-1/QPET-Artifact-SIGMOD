@@ -72,6 +72,7 @@ class SPECK_FLT {
  protected:
   UINTType m_uint_flag = UINTType::UINT64;
   bool m_has_outlier = false;           // encoding (PWE mode) and decoding
+  bool m_has_lossless = false;           // encoding (PWE mode) and decoding
   CompMode m_mode = CompMode::Unknown;  // encoding only
   double m_q = 0.0;                     // encoding and decoding
   double m_quality = 0.0;               // encoding only, represent either PSNR, PWE, or BPP.
