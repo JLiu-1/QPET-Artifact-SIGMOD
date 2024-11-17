@@ -1041,10 +1041,14 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
                 
                 
-            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)confs[0].num<<" best bitrate: "<<best_br<<std::endl;
+            
             best_abs_ebs[j]=best_abs_eb;
             
         }
+
+        std::cout<<" best overall bitrate: "<<best_overall_br<<std::endl;
+
+        
         if((confs[0].qoiRegionMode == 0 or (confs[0].qoiRegionMode == 1 and confs[0].qoiRegionSize >= 3)) and not (confs[0].use_global_eb and confs[1].use_global_eb and confs[2].use_global_eb) ){//global tuning
             double cur_overall_br = 0.0;
             if(N==2 or N==3){
