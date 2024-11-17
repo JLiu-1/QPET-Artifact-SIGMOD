@@ -856,6 +856,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             
             //std::sort(ebs.begin(),ebs.begin()+k+1);
 
+            testConf.absErrorBound = confs[j].absErrorBound;
+
             if(testConf.QoZ>0){
                 if (testConf.maxStep==0){
                     std::array<size_t,4> anchor_strides={256,64,32,16};
@@ -1039,7 +1041,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
                 
                 
-            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)confs[0].num<<" best overall bitrate: "<<best_overall_br<<std::endl;
+            std::cout<<"Selected quantile: "<<(double)best_quantile/(double)confs[0].num<<" best bitrate: "<<best_br<<std::endl;
             best_abs_ebs[j]=best_abs_eb;
             
         }
@@ -1120,6 +1122,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     //double fr = fixrate[idx];
                    
                 }
+                //std::cout<<cur_overall_br<<std::endl;
 
                 std::array<std::vector<T>,3>offsets;
 
@@ -1162,7 +1165,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
 
             std::cout << "Global test, current_br = " << cur_overall_br << std::endl;
-            if(cur_overall_br < best_overall_br * 1.02){//todo: optimize
+            if(cur_overall_br < best_overall_br * 0.98){//todo: optimize
                 best_overall_br = cur_overall_br;
                 for(auto j:{0,1,2})
                     confs[j].use_global_eb=true;
