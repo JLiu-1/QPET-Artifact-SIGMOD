@@ -212,7 +212,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             
             outSizes[i]+=offset_size;
             std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
-            delete []lossless_data;
+            //delete []lossless_data;
             lossless_data = NULL;
 
             memcpy(cmpData[i]+outSizes[i],&offset_size,sizeof(size_t));
