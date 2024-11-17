@@ -169,6 +169,8 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
                 //QoZ::Timer timer;
 
                 //timer.start();
+
+                std::cout<<reinterpret_cast<size_t>(cmpData[i])<<std::endl;
                 cmpData[i] = (char *) sz.compress(confs[i], data[i], outSizes[i]);
                 //confs[i].qoi = 0;
                  //double incall_time = timer.stop();
