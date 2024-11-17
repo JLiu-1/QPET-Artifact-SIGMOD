@@ -18,7 +18,7 @@ namespace QoZ {
         Lossless_zstd(int comp_level) : compression_level(comp_level) {};
 
         uchar *compress(uchar *data, size_t dataLength, size_t &outSize) {
-            size_t estimatedCompressedSize = (dataLength < 100 ? 200 : size_t(dataLength * 1.2)) + QoZ::Config::size_est();
+            size_t estimatedCompressedSize = (dataLength < 100 ? 200 : size_t(dataLength * 2.0)) + QoZ::Config::size_est();
             uchar *compressBytes = new uchar[estimatedCompressedSize];
             uchar *compressBytesPos = compressBytes;
             write(dataLength, compressBytesPos);
