@@ -1048,7 +1048,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
         std::cout<<" best overall bitrate: "<<best_overall_br<<std::endl;
 
-        
+
         if((confs[0].qoiRegionMode == 0 or (confs[0].qoiRegionMode == 1 and confs[0].qoiRegionSize >= 3)) and not (confs[0].use_global_eb and confs[1].use_global_eb and confs[2].use_global_eb) ){//global tuning
             double cur_overall_br = 0.0;
             if(N==2 or N==3){
@@ -1169,7 +1169,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
 
             std::cout << "Global test, current_br = " << cur_overall_br << std::endl;
-            if(cur_overall_br < best_overall_br * 0.98){//todo: optimize
+            if(cur_overall_br < best_overall_br * 1.02){//todo: optimize
                 best_overall_br = cur_overall_br;
                 for(auto j:{0,1,2})
                     confs[j].use_global_eb=true;
