@@ -1080,6 +1080,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                     
                 }
+
+                 std::cout<<cur_overall_br<<std::endl;
                 std::array<std::vector<T>,3>offsets;
                 for(size_t i=0;i<sampled_blocks[0].size();i++){
                     for(size_t j=0;j<testConf.num;j++){
@@ -1136,7 +1138,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     //double fr = fixrate[idx];
                    
                 }
-                std::cout<<cur_overall_br<<std::endl;
+               
 
                 std::array<std::vector<T>,3>offsets;
 
