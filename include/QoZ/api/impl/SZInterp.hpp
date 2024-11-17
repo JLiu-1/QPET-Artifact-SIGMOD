@@ -158,7 +158,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
             //std::cout<<offset_size<<std::endl;
             //ori_data.clear();
             //std::cout<<"001"<<std::endl;
-
+            size_t newSize = outSize + offset_size + QoZ::Config::size_est()  + 100;
             char * newcmpData = new char[newSize];
             memcpy(newcmpData,cmpData,outSize);
             delete [] cmpData;
