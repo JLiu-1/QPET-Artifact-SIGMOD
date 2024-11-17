@@ -169,10 +169,12 @@ void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Co
         printf("compression ratio = %.2f \n", conf.num * 1.0 * sizeof(T) / outSizes[i]);
         printf("compressed data file = %s\n", outputFilePath);
        
-
+        std::cout<<"1"<<std::endl;
         
         delete[] data[i];
+        std::cout<<"2"<<std::endl;
         delete[] bytes[i];
+        std::cout<<"3"<<std::endl;
     }
     printf("compression time = %f\n", compress_time);
     printf("Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (outSizes[0]+outSizes[1]+outSizes[2]));

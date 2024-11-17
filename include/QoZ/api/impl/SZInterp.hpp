@@ -1169,7 +1169,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
 
             std::cout << "Global test, current_br = " << cur_overall_br << std::endl;
-            if(cur_overall_br < best_overall_br * 1.02){//todo: optimize
+            if(cur_overall_br < best_overall_br * 1.05){//todo: optimize
                 best_overall_br = cur_overall_br;
                 for(auto j:{0,1,2})
                     confs[j].use_global_eb=true;
