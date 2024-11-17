@@ -172,7 +172,7 @@ void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Co
         //std::cout<<"1"<<std::endl;
         
         delete[] data[i];
-       // std::cout<<"2"<<std::endl;
+        std::cout<<bytes[i]<<std::endl;
         delete[] bytes[i];
         //std::cout<<"3"<<std::endl;
     }

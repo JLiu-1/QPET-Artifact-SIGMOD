@@ -173,6 +173,8 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
                 //confs[i].qoi = 0;
                  //double incall_time = timer.stop();
                 //std::cout << "incall time = " << incall_time << "s" << std::endl;
+
+                std::cout<<cmpData[i]<<std::endl;
             
             
         }
@@ -211,13 +213,17 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             memcpy(cmpData[i]+outSizes[i],lossless_data,offset_size);
             
             outSizes[i]+=offset_size;
-            std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
-            //delete []lossless_data;
+            //std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
+            delete []lossless_data;
             lossless_data = NULL;
 
             memcpy(cmpData[i]+outSizes[i],&offset_size,sizeof(size_t));
-            std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
+            //
             outSizes[i]+=sizeof(size_t);
+
+            std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
+
+
 
             
         }
