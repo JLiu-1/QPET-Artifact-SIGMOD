@@ -212,18 +212,27 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
                                                          confs[i].num*sizeof(T),
                                                          offset_size);
             ori_data[i].clear();
-            memcpy(cmpData[i]+outSizes[i],lossless_data,offset_size);
+            size_t newSize = outSizes[i] + offset_size + QoZ::Config::size_est() * 2 + 200;
+            QoZ::uchar * newcmpData = new QoZ::uchar[newSize];
+            memcpy(newcmpData,cmpData[i],outSizes[i]);
+            delete [] cmpData[i];
+            memcpy(newcmpData+outSizes[i],lossless_data,offset_size);
             
             outSizes[i]+=offset_size;
             //std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
             delete []lossless_data;
-            lossless_data = NULL;
-
-            memcpy(cmpData[i]+outSizes[i],&offset_size,sizeof(size_t));
+            //lossless_data = NULL;
+            memcpy(newcmpData+outSizes[i],&offset_size,sizeof(size_t));
             //
             outSizes[i]+=sizeof(size_t);
 
-            std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
+            cmpData[i] = newcmpData;
+
+
+
+
+
+          //  std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
 
 
 
