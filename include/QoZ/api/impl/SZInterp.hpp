@@ -185,7 +185,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         auto qoi = QoZ::GetQOI<T, N>(confs);//todo: avoid duplicated initialization.
         confs[0].qoi = conf_ori_qoi;
     
-
+        
         for(size_t i=0;i<confs[0].num;i++){
 
             if (qoi->check_compliance(ori_data[0][i],ori_data[1][i],ori_data[2][i],data[0][i],data[1][i],data[2][i])){
@@ -209,8 +209,10 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
                                                          offset_size);
             ori_data[i].clear();
             memcpy(cmpData[i]+outSizes[i],lossless_data,offset_size);
+            std::cout<<offset_size<<std::endl;
             outSizes[i]+=offset_size;
             delete []lossless_data;
+            lossless_data = NULL;
 
             memcpy(cmpData[i]+outSizes[i],&offset_size,sizeof(size_t));
             outSizes[i]+=sizeof(size_t);
