@@ -170,13 +170,13 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
 
                 //timer.start();
 
-                std::cout<<reinterpret_cast<size_t>(cmpData[i])<<std::endl;
+                //std::cout<<reinterpret_cast<size_t>(cmpData[i])<<std::endl;
                 cmpData[i] = (char *) sz.compress(confs[i], data[i], outSizes[i]);
                 //confs[i].qoi = 0;
                  //double incall_time = timer.stop();
                 //std::cout << "incall time = " << incall_time << "s" << std::endl;
 
-                std::cout<<reinterpret_cast<size_t>(cmpData[i])<<std::endl;
+                //std::cout<<reinterpret_cast<size_t>(cmpData[i])<<std::endl;
             
             
         }
@@ -223,7 +223,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             //
             outSizes[i]+=sizeof(size_t);
 
-            std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
+            //std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
 
 
 
@@ -1136,7 +1136,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                     //double fr = fixrate[idx];
                    
                 }
-                //std::cout<<cur_overall_br<<std::endl;
+                std::cout<<cur_overall_br<<std::endl;
 
                 std::array<std::vector<T>,3>offsets;
 
@@ -1179,7 +1179,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
 
             std::cout << "Global test, current_br = " << cur_overall_br << std::endl;
-            if(cur_overall_br < best_overall_br * 1.02){//todo: optimize
+            if(cur_overall_br < best_overall_br * 0.97){//todo: optimize
                 best_overall_br = cur_overall_br;
                 for(auto j:{0,1,2})
                     confs[j].use_global_eb=true;
