@@ -188,7 +188,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
         confs[0].qoi = ori_qoi;
         auto qoi = QoZ::GetQOI<T, N>(confs);//todo: avoid duplicated initialization.
         confs[0].qoi = conf_ori_qoi;
-    
+        
         
         for(size_t i=0;i<confs[0].num;i++){
 
@@ -859,7 +859,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             double best_abs_eb;
 
             ebs=std::vector<double>(confs[j].ebs.begin(),confs[j].ebs.end());
-            std::cout<<j<<" "<<confs[j].ebs.front()<<" "<<confs[j].ebs.back()<<std::endl;
+            //std::cout<<j<<" "<<confs[j].ebs.front()<<" "<<confs[j].ebs.back()<<std::endl;
 
        
             std::vector<size_t> quantiles;

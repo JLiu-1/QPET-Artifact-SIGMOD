@@ -146,6 +146,8 @@ namespace QoZ {
                 T est_1 = square_sum!=0 ? estimate_base/sqrt(square_sum): global_ebs[i];
                 T est_2 = (sum!=0) ? tolerance/(sum) : global_ebs[i];
                 T eb = std::max(est_1,est_2);
+                if (std::isnan(eb) or std::isinf(eb))
+                    eb = global_ebs[i];
                 res[i]=std::min(eb,global_ebs[i]);
             }
 
