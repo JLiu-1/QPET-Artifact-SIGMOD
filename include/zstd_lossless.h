@@ -26,6 +26,7 @@ class Lossless_zstd {
     size_t estimatedCompressedSize = (dataLength < 100 ? 200 : size_t(dataLength * 1.2));
     uint8_t *compressBytes = new uint8_t[estimatedCompressedSize];
     uint8_t *compressBytesPos = compressBytes;
+    std::cout<<dataLength<<std::endl;
     memcpy(compressBytesPos,&dataLength,sizeof(dataLength));
     compressBytesPos+=sizeof(dataLength);
 
