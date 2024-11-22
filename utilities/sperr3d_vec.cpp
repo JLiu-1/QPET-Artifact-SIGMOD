@@ -107,18 +107,19 @@ int main(int argc, char* argv[])
       ->check(CLI::ExistingFile);
 
   auto input_file2 = std::string();
-  app.add_option("--i2", input_file1,
+  app.add_option("--i2", input_file2,
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
       ->check(CLI::ExistingFile);
 
   auto input_file3 = std::string();
-  app.add_option("--i3", input_file1,
+  app.add_option("--i3", input_file3,
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
       ->check(CLI::ExistingFile);
 
   auto input_file = input_file1;
+  std::cout<<input_file<<std::endl;
 
   //
   // Execution settings
