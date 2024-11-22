@@ -67,7 +67,7 @@ class SPERR3D_VEC_OMP_C {
   // This single instance of compressor doesn't need to be allocated on the heap;
   // rather, it's just to keep consistency with the USE_OMP case.
   std::array< std::unique_ptr<SPECK3D_FLT>,3> m_compressor;#endif
-
+#endif
   // The eventual header size would be this magic number + num_chunks * 4
   const size_t m_header_magic_nchunks = 20;
   const size_t m_header_magic_1chunk = 14;
