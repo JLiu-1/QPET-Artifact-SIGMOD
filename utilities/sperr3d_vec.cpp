@@ -107,8 +107,7 @@ int main(int argc, char* argv[])
       ->group("Inputs");
 
 
-  std::cout<<input_file1<<std::endl;
-
+  
   auto input_file2 = std::string();
   app.add_option("--i2", input_file2,
                  "A data volume to be compressed, or\n"
@@ -122,8 +121,7 @@ int main(int argc, char* argv[])
                  "a bitstream to be decompressed.")
       ->group("Inputs");
 
-  auto input_file = input_file1;
-  std::cout<<input_file<<std::endl;
+  
 
   //
   // Execution settings
@@ -242,6 +240,12 @@ int main(int argc, char* argv[])
                       ->group("Compression settings");
 
   CLI11_PARSE(app, argc, argv);
+
+  std::cout<<input_file1<<std::endl;
+
+  auto input_file = input_file1;
+  std::cout<<input_file<<std::endl;
+
 
   //
   // A little extra sanity check.
