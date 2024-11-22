@@ -477,6 +477,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     return RTNType::CompModeUnknown;
 
   m_has_outlier = false;
+  m_has_lossless= false;
 
   // Step 1: data goes through the conditioner
   //    Believe it or not, there are constant fields passed in for compression!
