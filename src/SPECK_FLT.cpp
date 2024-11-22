@@ -193,6 +193,7 @@ void sperr::SPECK_FLT::set_psnr(double psnr)
 
   m_q = 0.0;  // The real m_q needs to be calculated later.
   m_has_outlier = false;
+  m_has_lossless = false;
 }
 
 void sperr::SPECK_FLT::set_tolerance(double tol)
@@ -203,6 +204,7 @@ void sperr::SPECK_FLT::set_tolerance(double tol)
 
   m_q = 0.0;  // The real m_q needs to be calculated later.
   m_has_outlier = false;
+  m_has_lossless = false;
 }
 
 void sperr::SPECK_FLT::set_bitrate(double bpp)
@@ -213,6 +215,7 @@ void sperr::SPECK_FLT::set_bitrate(double bpp)
 
   m_q = 0.0;  // The real m_q needs to be calculated later.
   m_has_outlier = false;
+  m_has_lossless = false;
 }
 
 #ifdef EXPERIMENTING
@@ -224,6 +227,7 @@ void sperr::SPECK_FLT::set_direct_q(double q)
 
   m_q = 0.0;  // The real m_q needs to be calculated later.
   m_has_outlier = false;
+  m_has_lossless = false;
 }
 #endif
 
@@ -469,6 +473,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     return RTNType::CompModeUnknown;
 
   m_has_outlier = false;
+  m_has_lossless = false;
 
   // Step 1: data goes through the conditioner
   //    Believe it or not, there are constant fields passed in for compression!
