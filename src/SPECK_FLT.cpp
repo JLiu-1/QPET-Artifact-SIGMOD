@@ -33,6 +33,7 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
   std::visit([](auto&& vec) { vec.clear(); }, m_vals_ui);
   m_q = 0.0;
   m_has_outlier = false;
+  m_has_lossless = false;
 
   const auto* const ptr = static_cast<const uint8_t*>(p);
 
@@ -531,8 +532,10 @@ FIXED_RATE_HIGH_PREC_LABEL:
     LOS.reserve(0.04 * total_vals);  // Reserve space to hold about 100% of total values.
     for (size_t i = 0; i < total_vals; i++) {
       auto diff = m_vals_orig[i] - m_vals_d[i];
-      if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  )
+      if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  ){
         LOS.emplace_back(i, diff);
+        m_vals_d[i] = m_vals_orig[i];
+      }
     }
     //std::cout<<LOS.size()<<std::endl;
     //auto LOS_backup=LOS;
@@ -543,8 +546,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
       m_out_coder.set_length(total_vals);
       m_out_coder.set_tolerance(m_quality);
       m_out_coder.use_outlier_list(std::move(LOS));
-      if(qoi!=nullptr)
-        m_out_coder.set_qoi(true);
+      //if(qoi!=nullptr)
+      //  m_out_coder.set_qoi(true);
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
@@ -553,13 +556,13 @@ FIXED_RATE_HIGH_PREC_LABEL:
       //std::cout<<new_LOS.size()<<std::endl;
 
     }
-
+    /*
     if(qoi!=nullptr){
       auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
       for(auto &los:decoded_LOS)
         m_vals_d[los.pos]+=los.err;
-    }
+    }*/
   }
   if(qoi!=nullptr){
     if(qoi_block_size==1){//pointwise
