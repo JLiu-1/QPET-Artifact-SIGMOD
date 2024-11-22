@@ -419,7 +419,7 @@ int main(int argc, char* argv[])
         for(auto i:{0,1,2}){
           const double print_bpp = stream.size() * 8.0 / total_vals;
           double rmse, linfy, print_psnr, min, max, sigma;
-          double qoi_err_abs, qoi_err_rel;
+          
           if (ftype == 32) {
             const float* inputf = reinterpret_cast<const float*>(input[i].data());
             auto outputf = sperr::vecf_type(total_vals);
@@ -453,7 +453,7 @@ int main(int argc, char* argv[])
         }
         
         if (qoi_tol>0 and qoi_id>0){
-
+          double qoi_err_abs, qoi_err_rel;
           
           auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
           //if (qoi_block_size==1){
