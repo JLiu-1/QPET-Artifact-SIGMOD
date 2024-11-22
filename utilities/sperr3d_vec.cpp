@@ -33,7 +33,7 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
                       sperr::dims_type cdims,
                       const std::string& lowres_f64,
                       const std::string& lowres_f32,
-                      const int j=0) -> int
+                      ) -> int
 {
   // If specified, output the low-res decompressed slices in double precision.
   if (!lowres_f64.empty()) {
@@ -41,9 +41,9 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
     assert(hierarchy.size() == filenames.size());
     for (size_t i = 0; i < filenames.size(); i++) {
       const auto& level = hierarchy[i];
-      auto rtn = sperr::write_n_bytes(filenames[i]+std::to_string(j), level.size() * sizeof(double), level.data());
+      auto rtn = sperr::write_n_bytes(filenames[i], level.size() * sizeof(double), level.data());
       if (rtn != sperr::RTNType::Good) {
-        std::cout << "Writing decompressed hierarchy failed: " << filenames[i]+std::to_string(j) << std::endl;
+        std::cout << "Writing decompressed hierarchy failed: " << filenames[i] << std::endl;
         return __LINE__;
       }
     }
@@ -57,9 +57,9 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
     for (size_t i = 0; i < filenames.size(); i++) {
       const auto& level = hierarchy[i];
       std::copy(level.begin(), level.end(), buf.begin());
-      auto rtn = sperr::write_n_bytes(filenames[i]+std::to_string(j), level.size() * sizeof(float), buf.data());
+      auto rtn = sperr::write_n_bytes(filenames[i], level.size() * sizeof(float), buf.data());
       if (rtn != sperr::RTNType::Good) {
-        std::cout << "Writing decompressed hierarchy failed: " << filenames[i]+std::to_string(j) << std::endl;
+        std::cout << "Writing decompressed hierarchy failed: " << filenames[i] << std::endl;
         return __LINE__;
       }
     }
@@ -72,13 +72,13 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
 auto output_buffer(const sperr::vecd_type& buf,
                    const std::string& name_f64,
                    const std::string& name_f32,
-                   const int i=0) -> int
+                   ) -> int
 {
   // If specified, output the decompressed slice in double precision.
   if (!name_f64.empty()) {
-    auto rtn = sperr::write_n_bytes(name_f64+std::to_string(i), buf.size() * sizeof(double), buf.data());
+    auto rtn = sperr::write_n_bytes(name_f64, buf.size() * sizeof(double), buf.data());
     if (rtn != sperr::RTNType::Good) {
-      std::cout << "Writing decompressed data failed: " << name_f64+std::to_string(i) << std::endl;
+      std::cout << "Writing decompressed data failed: " << name_f64 << std::endl;
       return __LINE__;
     }
   }
@@ -87,9 +87,9 @@ auto output_buffer(const sperr::vecd_type& buf,
   if (!name_f32.empty()) {
     auto outputf = sperr::vecf_type(buf.size());
     std::copy(buf.cbegin(), buf.cend(), outputf.begin());
-    auto rtn = sperr::write_n_bytes(name_f32+std::to_string(i), outputf.size() * sizeof(float), outputf.data());
+    auto rtn = sperr::write_n_bytes(name_f32, outputf.size() * sizeof(float), outputf.data());
     if (rtn != sperr::RTNType::Good) {
-      std::cout << "Writing decompressed data failed: " << name_f32+std::to_string(i) << std::endl;
+      std::cout << "Writing decompressed data failed: " << name_f32 << std::endl;
       return __LINE__;
     }
   }
