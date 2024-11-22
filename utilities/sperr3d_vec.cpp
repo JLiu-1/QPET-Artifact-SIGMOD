@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
   CLI::App app("3D SPERR compression and decompression\n");
 
   // Input specification
-  auto input_files = std::vector<std::string>;
+  auto input_files = std::vector<std::string>();
   app.add_option("--input", input_files,
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
@@ -161,25 +161,25 @@ int main(int argc, char* argv[])
   //
   // Output settings
   //
-  auto bitstream = std::vector<std::string>;
+  auto bitstream = std::vector<std::string>();
   app.add_option("--bitstream", bitstream, "Output compressed bitstream.")
       ->needs(cptr)
       ->group("Output settings");
 
-  auto decomp_f32 = std::vector<std::string>;
+  auto decomp_f32 = std::vector<std::string>();
   app.add_option("--decomp_f", decomp_f32, "Output decompressed volume in f32 precision.")
       ->group("Output settings");
 
-  auto decomp_f64 = std::vector<std::string>;
+  auto decomp_f64 = std::vector<std::string>();
   app.add_option("--decomp_d", decomp_f64, "Output decompressed volume in f64 precision.")
       ->group("Output settings");
 
-  auto decomp_lowres_f32 = std::vector<std::string>;
+  auto decomp_lowres_f32 = std::vector<std::string>();
   app.add_option("--decomp_lowres_f", decomp_lowres_f32,
                  "Output lower resolutions of the decompressed volume in f32 precision.")
       ->group("Output settings");
 
-  auto decomp_lowres_f64 = std::vector<std::string>;
+  auto decomp_lowres_f64 = std::vector<std::string>();
   app.add_option("--decomp_lowres_d", decomp_lowres_f64,
                  "Output lower resolutions of the decompressed volume in f64 precision.")
       ->group("Output settings");
