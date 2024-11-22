@@ -269,13 +269,15 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
               offsets[i].resize(sample_num,0);
             }
             std::array<const vecd_type *,3>sampled_ori = {&test_compressor[0]->view_orig_data(),&test_compressor[1]->view_orig_data(),&test_compressor[2]->view_orig_data()}; 
-
+            std::array<double,3>test_means = {test_compressor[0]->get_mean(),test_compressor[1]->get_mean(),test_compressor[2]->get_mean()};
             std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
+            
+
             bool outlier = false;
             for(size_t i = 0; i < sample_num ; i++){
               //std::cout<<sampled_data[0][i]<<" "<<(*sampled_dec[0])[i]<<std::endl;
-              if(!m_qoi->check_compliance((*sampled_ori[0])[i],(*sampled_ori[1])[i],(*sampled_ori[2])[i],
-                                                   (*sampled_dec[0])[i],(*sampled_dec[1])[i],(*sampled_dec[2])[i]) ){
+              if(!m_qoi->check_compliance((*sampled_ori[0])[i]+test_means[0],(*sampled_ori[1])[i]+test_means[1],(*sampled_ori[2])[i]+test_means[2],
+                                                   (*sampled_dec[0])[i]+test_means[0],(*sampled_dec[1])[i]+test_means[1],(*sampled_dec[2])[i])+test_means[2] ){
                 outlier = true;
                 for(auto j:{0,1,2})
                   offsets[j][i] = (*sampled_ori[j])[i] - (*sampled_dec[j])[i];
@@ -375,6 +377,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
     if(qoi_id>0 and qoi_tol>0){
       std::array<const vecd_type *,3>orig_data = {&compressor[0]->view_orig_data(),&compressor[1]->view_orig_data(),&compressor[2]->view_orig_data()};
       std::array<const vecd_type *,3>dec_data = {&compressor[0]->view_decoded_data(),&compressor[1]->view_decoded_data(),&compressor[2]->view_decoded_data()}; 
+      std::array<double,3>means = {compressor[0]->get_mean(),compressor[1]->get_mean(),compressor[2]->get_mean()};
       std::array< vecd_type,3> offsets;
       for(auto j:{0,1,2}){
         offsets[j].resize(chunk_ele_num,0);
@@ -383,8 +386,8 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       //std::cout<<chunk_ele_num<<std::endl;
       std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
       for(size_t k = 0; k < chunk_ele_num ; k++){
-        if(!m_qoi->check_compliance((*orig_data[0])[k],(*orig_data[1])[k],(*orig_data[2])[k],
-                                             (*dec_data[0])[k],(*dec_data[1])[k],(*dec_data[2])[k]) ){
+        if(!m_qoi->check_compliance((*orig_data[0])[k]+means[0],(*orig_data[1])[k]+means[1],(*orig_data[2])[k]+means[2],
+                                             (*dec_data[0])[k]+means[0],(*dec_data[1])[k]+means[1],(*dec_data[2])[k])+means[2] ){
           outlier = true;
           for(auto j:{0,1,2})
             offsets[j][k] = (*orig_data[j])[k] - (*dec_data[j])[k];

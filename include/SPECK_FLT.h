@@ -50,6 +50,8 @@ class SPECK_FLT {
 
 
   auto view_orig_data() const -> const vecd_type&;
+
+  auto get_mean() const -> double;
   //auto view_vals_d() const -> const vecd_type&;
 
   //

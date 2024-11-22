@@ -22,10 +22,12 @@ class Conditioner {
   // Save a double to the last 8 bytes of a condi_type.
   void save_q(condi_type& header, double q) const;
   auto retrieve_q(condi_type header) const -> double;
+  auto get_mean() const -> double;
 
  private:
   const size_t m_constant_field_idx = 7;
   const size_t m_default_num_strides = 2048;
+  double m_mean = 0.0;
 
   // Calculation is carried out by strides, which should be a divisor of the input data size.
   size_t m_num_strides = m_default_num_strides;

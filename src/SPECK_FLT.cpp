@@ -189,6 +189,11 @@ auto sperr::SPECK_FLT::view_hierarchy() const -> const std::vector<vecd_type>&
   return m_hierarchy;
 }
 
+auto sperr::SPECK_FLT::get_mean() const -> double
+{
+  return m_conditioner.get_mean();
+}
+
 void sperr::SPECK_FLT::set_psnr(double psnr)
 {
   assert(psnr > 0.0);
