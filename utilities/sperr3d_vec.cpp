@@ -103,14 +103,14 @@ int main(int argc, char* argv[])
   CLI::App app("3D SPERR compression and decompression\n");
 
   // Input specification
-  auto input_file1 = std::string();
-  app.add_option("--i1", input_file1,
+  auto input_files = std::vector<std::string>;
+  app.add_option("--input", input_files,
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
       ->check(CLI::ExistingFile);
 
 
-  
+  /*
   auto input_file2 = std::string();
   app.add_option("--i2", input_file2,
                  "A data volume to be compressed, or\n"
@@ -123,6 +123,7 @@ int main(int argc, char* argv[])
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
       ->check(CLI::ExistingFile);
+      */
 
   
 
@@ -160,25 +161,25 @@ int main(int argc, char* argv[])
   //
   // Output settings
   //
-  auto bitstream = std::string();
+  auto bitstream = std::vector<std::string>;
   app.add_option("--bitstream", bitstream, "Output compressed bitstream.")
       ->needs(cptr)
       ->group("Output settings");
 
-  auto decomp_f32 = std::string();
+  auto decomp_f32 = std::vector<std::string>;
   app.add_option("--decomp_f", decomp_f32, "Output decompressed volume in f32 precision.")
       ->group("Output settings");
 
-  auto decomp_f64 = std::string();
+  auto decomp_f64 = std::vector<std::string>;
   app.add_option("--decomp_d", decomp_f64, "Output decompressed volume in f64 precision.")
       ->group("Output settings");
 
-  auto decomp_lowres_f32 = std::string();
+  auto decomp_lowres_f32 = std::vector<std::string>;
   app.add_option("--decomp_lowres_f", decomp_lowres_f32,
                  "Output lower resolutions of the decompressed volume in f32 precision.")
       ->group("Output settings");
 
-  auto decomp_lowres_f64 = std::string();
+  auto decomp_lowres_f64 = std::vector<std::string>;
   app.add_option("--decomp_lowres_d", decomp_lowres_f64,
                  "Output lower resolutions of the decompressed volume in f64 precision.")
       ->group("Output settings");
@@ -197,16 +198,16 @@ int main(int argc, char* argv[])
                  "(Volume dims don't need to be divisible by these chunk dims.)")
       ->group("Compression settings");
 
-  auto pwe = 0.0;
+  std::vector<double> pwe;
   auto* pwe_ptr = app.add_option("--pwe", pwe, "Maximum point-wise error (PWE) tolerance.")
                       ->group("Compression settings");
 
-  auto psnr = 0.0;
+  std::vector<double> psnr;
   auto* psnr_ptr = app.add_option("--psnr", psnr, "Target PSNR to achieve.")
                        ->excludes(pwe_ptr)
                        ->group("Compression settings");
 
-  auto bpp = 0.0;
+  std::vector<double> bpp;
   auto* bpp_ptr = app.add_option("--bpp", bpp, "Target bit-per-pixel (bpp) to achieve.")
                       ->check(CLI::Range(0.0, 64.0))
                       ->excludes(pwe_ptr)
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
                       ->group("Compression settings");
 
 #ifdef EXPERIMENTING
-  auto direct_q = 0.0;
+  std::vector<double> direct_q;
   auto* dq_ptr = app.add_option("--dq", direct_q, "Directly provide the quantization step size q.")
                      ->excludes(bpp_ptr)
                      ->excludes(pwe_ptr)
@@ -249,7 +250,7 @@ int main(int argc, char* argv[])
   //
   // A little extra sanity check.
   //
-  if (input_file1.empty() or input_file2.empty() or input_file3.empty()) {
+  if (input_files.size()<3) {
     std::cout << "What's the input file?" << std::endl;
     return __LINE__;
   }
@@ -266,15 +267,16 @@ int main(int argc, char* argv[])
     return __LINE__;
   }
 #ifndef EXPERIMENTING
-  if (cflag && pwe == 0.0 && psnr == 0.0 && bpp == 0.0) {
+  if (cflag && pwe.empty() && psnr.empty() && bpp.empty()) {
     std::cout << "What's the compression quality (--psnr, --pwe, --bpp) ?" << std::endl;
     return __LINE__;
   }
 #endif
-  if (cflag && (pwe < 0.0 || psnr < 0.0)) {
+  /*
+  if (cflag && (std::min(pwe) < 0.0 || std::min(psnr) < 0.0)) {
     std::cout << "Compression quality (--psnr, --pwe) must be positive!" << std::endl;
     return __LINE__;
-  }
+  }*/
   if (dflag && decomp_f32.empty() && decomp_f64.empty() && decomp_lowres_f32.empty() &&
       decomp_lowres_f64.empty()) {
     std::cout << "SPERR needs an output destination when decoding!" << std::endl;
@@ -286,7 +288,7 @@ int main(int argc, char* argv[])
     if (name.empty())
       name = decomp_lowres_f32;
     assert(!name.empty());
-    auto filenames = create_filenames(name, dims, chunks);
+    auto filenames = create_filenames(name[0], dims, chunks);
     if (filenames.empty()) {
       std::printf(
           " Warning: the combo of volume dimension (%lu, %lu, %lu) and chunk dimension"
@@ -308,7 +310,7 @@ int main(int argc, char* argv[])
   //
   // Really starting the real work!
   //
-  std::array<sperr::vec8_type,3> input = {sperr::read_whole_file<uint8_t>(input_file1), sperr::read_whole_file<uint8_t>(input_file2), sperr::read_whole_file<uint8_t>(input_file3)};
+  std::array<sperr::vec8_type,3> input = {sperr::read_whole_file<uint8_t>(input_files[0]), sperr::read_whole_file<uint8_t>(input_files[1]), sperr::read_whole_file<uint8_t>(input_files[2])};
   //auto input1 = sperr::read_whole_file<uint8_t>(input_file1); 
   //auto input2 = sperr::read_whole_file<uint8_t>(input_file2); 
   //auto input3 = sperr::read_whole_file<uint8_t>(input_file3); 
@@ -324,16 +326,16 @@ int main(int argc, char* argv[])
     auto encoder = std::make_unique<sperr::SPERR3D_VEC_OMP_C>();
     encoder->set_dims_and_chunks(dims, chunks);
     encoder->set_num_threads(omp_num_threads);
-    if (pwe != 0.0)
+    if (pwe.size()==3)
       encoder->set_tolerance(pwe);
-    else if (psnr != 0.0)
+    else if (psnr.size()==3)
       encoder->set_psnr(psnr);
 #ifdef EXPERIMENTING
-    else if (direct_q != 0)
+    else if (direct_q.size()==3)
       encoder->set_direct_q(direct_q);
 #endif
     else {
-      assert(bpp != 0.0);
+      assert(bpp.size()==3);
       encoder->set_bitrate(bpp);
     }
     //std::cout<<"p2"<<std::endl;
@@ -371,10 +373,10 @@ int main(int argc, char* argv[])
     // Output the compressed bitstream (maybe).
     if (!bitstream.empty()) {
       for(auto i:{0,1,2}){
-        auto bs_i = bitstream + std::to_string(i+1); 
-        rtn = sperr::write_n_bytes(bs_i, stream[i].size(), stream[i].data());
+        //auto bs_i = bitstream + std::to_string(i+1); 
+        rtn = sperr::write_n_bytes(bitstream[i], stream[i].size(), stream[i].data());
         if (rtn != sperr::RTNType::Good) {
-          std::cout << "Writing compressed bitstream failed: " << bs_i << std::endl;
+          std::cout << "Writing compressed bitstream failed: " << bitstream[i] << std::endl;
           return __LINE__ % 256;
         }
       }
@@ -386,6 +388,15 @@ int main(int argc, char* argv[])
     //
     const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
     if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() || multi_res) {
+      if (decomp_lowres_f64.size()<3)
+        decomp_lowres_f64.resize(3,"");
+      if (decomp_lowres_f32.size()<3)
+        decomp_lowres_f32.resize(3,"");
+      if (decomp_f64.size()<3)
+        decomp_f64.resize(3,"");
+      if (decomp_f32.size()<3)
+        decomp_f32.resize(3,"");
+
     //if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() ) {
       std::array<sperr::vecd_type,3> outputd;
       for(auto i:{0,1,2}){
@@ -408,16 +419,18 @@ int main(int argc, char* argv[])
         //std::cout<<"p5.2"<<std::endl;
 
         // Output the hierarchy (maybe), and then destroy it.
-        auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
+        
+        auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64[i], decomp_lowres_f32[i]);
         if (ret)
           return __LINE__ % 256;
         hierarchy.clear();
         hierarchy.shrink_to_fit();
         //std::cout<<"p5.3"<<std::endl;
         // Output the decompressed volume (maybe).
-        ret = output_buffer(outputd[i], decomp_f64, decomp_f32,i+1);
+        ret = output_buffer(outputd[i], decomp_f64[i], decomp_f32[i]);
         if (ret)
           return __LINE__ % 256;
+        
       }
 
       // Calculate statistics.
@@ -499,11 +512,19 @@ int main(int argc, char* argv[])
   //
   else {
     assert(dflag);
+    const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
+    if (decomp_lowres_f64.size()<3)
+        decomp_lowres_f64.resize(3,"");
+    if (decomp_lowres_f32.size()<3)
+      decomp_lowres_f32.resize(3,"");
+    if (decomp_f64.size()<3)
+      decomp_f64.resize(3,"");
+    if (decomp_f32.size()<3)
+      decomp_f32.resize(3,"");
     for(auto i:{0,1,2}){
       auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
       decoder->set_num_threads(omp_num_threads);
       decoder->use_bitstream(input[i].data(), input[i].size());
-      const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
       auto rtn = decoder->decompress(input[i].data(), multi_res);
       if (rtn != sperr::RTNType::Good) {
         std::cout << "Decompression failed!" << std::endl;
@@ -517,14 +538,14 @@ int main(int argc, char* argv[])
       decoder.reset();  // Free up memory!
 
       // Output the hierarchy (maybe), and then destroy it.
-      auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64, decomp_lowres_f32);
+      auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64[i], decomp_lowres_f32[i]);
       if (ret)
         return __LINE__ % 256;
       hierarchy.clear();
       hierarchy.shrink_to_fit();
 
       // Output the decompressed volume (maybe).
-      ret = output_buffer(outputd, decomp_f64, decomp_f32);
+      ret = output_buffer(outputd, decomp_f64[i], decomp_f32[i]);
       if (ret)
         return __LINE__ % 256;
     }

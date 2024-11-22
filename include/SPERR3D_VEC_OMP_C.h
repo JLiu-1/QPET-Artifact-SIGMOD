@@ -20,16 +20,16 @@ class SPERR3D_VEC_OMP_C {
   //    divisible by chunk dimensions, the actual chunk dimension will change.
   void set_dims_and_chunks(dims_type vol_dims, dims_type chunk_dims);
 
-  void set_psnr(double);
-  void set_tolerance(double);
-  void set_bitrate(double);
+  void set_psnr(std::vector<double>);
+  void set_tolerance(std::vector<double>);
+  void set_bitrate(std::vector<double>);
   void set_qoi_id(int);
   void set_qoi_string(std::string);
   void set_qoi_tol(double);
   void set_qoi_block_size(int);
   void set_qoi_k(double);
 #ifdef EXPERIMENTING
-  void set_direct_q(double);
+  void set_direct_q(std::vector<double>);
 #endif
 
   // Apply compression on a volume pointed to by `buf`.
@@ -42,8 +42,8 @@ class SPERR3D_VEC_OMP_C {
  private:
   bool m_orig_is_float = true;  // The original input precision is saved in header.
   CompMode m_mode = CompMode::Unknown;
-  double m_quality = 0.0;
-  std::array<double,3> m_quality_v = {0.0,0.0,0.0};
+  std::array<double,3> m_quality = {0.0,0.0,0.0};
+  //std::array<double,3> m_quality_v = {0.0,0.0,0.0};
   dims_type m_dims = {0, 0, 0};        // Dimension of the entire volume
   dims_type m_chunk_dims = {0, 0, 0};  // Preferred dimensions for a chunk
   std::array<std::vector<vec8_type>,3> m_encoded_streams;

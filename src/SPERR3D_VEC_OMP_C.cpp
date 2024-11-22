@@ -29,33 +29,37 @@ void sperr::SPERR3D_VEC_OMP_C::set_dims_and_chunks(dims_type vol_dims, dims_type
     m_chunk_dims[i] = std::min(std::max(size_t{1}, chunk_dims[i]), vol_dims[i]);
 }
 
-void sperr::SPERR3D_VEC_OMP_C::set_psnr(double psnr)
+void sperr::SPERR3D_VEC_OMP_C::set_psnr(std::vector<double> psnr)
 {
-  assert(psnr > 0.0);
+  
   m_mode = CompMode::PSNR;
-  m_quality = psnr;
+  for(auto i:{0,1,2})
+    m_quality[i] = psnr[i];
 }
 
-void sperr::SPERR3D_VEC_OMP_C::set_tolerance(double pwe)
+void sperr::SPERR3D_VEC_OMP_C::set_tolerance(std::vector<double> pwe)
 {
   assert(pwe > 0.0);
   m_mode = CompMode::PWE;
-  m_quality = pwe;
+  for(auto i:{0,1,2})
+    m_quality[i] = pwe[i];
 }
 
-void sperr::SPERR3D_VEC_OMP_C::set_bitrate(double bpp)
+void sperr::SPERR3D_VEC_OMP_C::set_bitrate(std::vector<double> bpp)
 {
   assert(bpp > 0.0);
   m_mode = CompMode::Rate;
-  m_quality = bpp;
+  for(auto i:{0,1,2})
+    m_quality[i] = bpp[i];
 }
 
 #ifdef EXPERIMENTING
-void sperr::SPERR3D_VEC_OMP_C::set_direct_q(double q)
+void sperr::SPERR3D_VEC_OMP_C::set_direct_q(std::vector<double> q)
 {
   assert(q > 0.0);
   m_mode = CompMode::DirectQ;
-  m_quality = q;
+  for(auto i:{0,1,2})
+    m_quality[i] = q[i];
 }
 #endif
 
@@ -137,7 +141,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 
     if(qoi_id>0 and qoi_tol>0){//qoi tuning
       std::cout<<"Tuning eb with qoi"<<std::endl;
-      auto pwe = m_mode == CompMode::PWE ? m_quality : std::numeric_limits<double>::max();
+      auto pwe = m_mode == CompMode::PWE ? m_quality : std::array<double,3>{std::numeric_limits<double>::max(),std::numeric_limits<double>::max(),std::numeric_limits<double>::max()};
       m_mode == CompMode::PWE;
       
       std::array<size_t,3> chunk_dims = {chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]};
@@ -208,7 +212,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 
 
 
-       std::array<double,3> best_abs_eb={pwe,pwe,pwe};
+       std::array<double,3> best_abs_eb=pwe;
 
       
         
@@ -316,14 +320,12 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 
         //compressor->set_qoi(qoi);
 
-        m_quality_v = best_abs_eb;
+        m_quality = best_abs_eb;
         
 
 
     }
-    else{
-      m_quality_v = {m_quality,m_quality,m_quality};
-    }
+    
 
 
 
@@ -351,17 +353,17 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       compressor[j]->set_dims({chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]});
       switch (m_mode) {
         case CompMode::PSNR:
-          compressor[j]->set_psnr(m_quality_v[j]);
+          compressor[j]->set_psnr(m_quality[j]);
           break;
         case CompMode::PWE:
-          compressor[j]->set_tolerance(m_quality_v[j]);
+          compressor[j]->set_tolerance(m_quality[j]);
           break;
         case CompMode::Rate:
-          compressor[j]->set_bitrate(m_quality_v[j]);
+          compressor[j]->set_bitrate(m_quality[j]);
           break;
   #ifdef EXPERIMENTING
         case CompMode::DirectQ:
-          compressor[j]->set_direct_q(m_quality_v[j]);
+          compressor[j]->set_direct_q(m_quality[j]);
           break;
   #endif
         default:;  // So the compiler doesn't complain about missing cases.

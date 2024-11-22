@@ -50,7 +50,7 @@ namespace QoZ {
     class QoI_FXYZ : public concepts::QoIInterface<T> {
 
     public:
-        QoI_FXYZ(double qoiEB, double absErrorBound, std::string qoi_string = "x^2+y^2+z^2")  {
+        QoI_FXYZ(double qoiEB, std::array<double,3> absErrorBound, std::string qoi_string = "x^2+y^2+z^2")  {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T>::id = 1;
@@ -59,10 +59,10 @@ namespace QoZ {
             tolerance = qoiEB;
             func_string = qoi_string;
             //confidence = confs[0].confidence;
-            global_eb = absErrorBound;
+            //global_eb = absErrorBound;
             //k = confs[0].error_std_rate>0.0?confs[0].error_std_rate:k ;
             for(auto i:{0,1,2})
-                global_ebs[i]=absErrorBound;
+                global_ebs[i]=absErrorBound[i];
 
            // std::cout<<"init 1 "<< std::endl;
             
@@ -87,6 +87,8 @@ namespace QoZ {
             //ddf = diff(df,x);
             dfdy = f.diff(y);
             dfdz = f.diff(z);
+
+
             std::cout<<"f: "<< f<<std::endl;
             std::cout<<"dfdx: "<< dfdx<<std::endl;
             std::cout<<"dfdy: "<< dfdy<<std::endl;

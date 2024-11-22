@@ -10,7 +10,7 @@
 namespace QoZ {
 
     template<class T >
-    std::shared_ptr<concepts::QoIInterface<T>> GetQOI(int idx, double qoiEB, double absErrorBound, std::string qoi_string = "x^2+y^2+z^2"){
+    std::shared_ptr<concepts::QoIInterface<T>> GetQOI(int idx, double qoiEB, std::array<double,3> absErrorBound, std::string qoi_string = "x^2+y^2+z^2"){
         switch(idx){
            
             case 1:
