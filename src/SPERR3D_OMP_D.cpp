@@ -100,9 +100,9 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
     m_decompressor = std::make_unique<SPECK3D_FLT>();
 #endif
   std::cout<<"d4"<<std::endl;
-
-#pragma omp parallel for num_threads(m_num_threads)
   std::cout<<num_chunks<<std::endl;
+#pragma omp parallel for num_threads(m_num_threads)
+  
   for (size_t chunkI = 0; chunkI < num_chunks; chunkI++) {
     std::cout<<chunkI<<std::endl;
 #ifdef USE_OMP
@@ -123,7 +123,7 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
     const auto& small_vol = decompressor->view_decoded_data();
     std::cout<<"4.3"<<std::endl;
     m_scatter_chunk(m_vol_buf, m_dims, small_vol, chunks[chunkI]);
-    
+
     std::cout<<"d5"<<std::endl;
 
     // Also assemble the full hierarchy.
