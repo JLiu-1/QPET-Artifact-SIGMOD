@@ -320,6 +320,7 @@ int main(int argc, char* argv[])
       std::cout << "Input file size wrong!" << std::endl;
       return __LINE__ % 256;
     }
+    std::cout<<"p1"<<std::endl;
     auto encoder = std::make_unique<sperr::SPERR3D_VEC_OMP_C>();
     encoder->set_dims_and_chunks(dims, chunks);
     encoder->set_num_threads(omp_num_threads);
@@ -335,6 +336,7 @@ int main(int argc, char* argv[])
       assert(bpp != 0.0);
       encoder->set_bitrate(bpp);
     }
+    std::cout<<"p2"<<std::endl;
     //std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
     if (qoi_tol>0 and qoi_id>0){
         
@@ -354,7 +356,7 @@ int main(int argc, char* argv[])
       std::cout << "Compression failed!" << std::endl;
       return __LINE__ % 256;
     }
-
+    std::cout<<"p3"<<std::endl;
     // If not calculating stats, we can free up some memory now!
     if (!print_stats) {
       for(auto i:{0,1,2}){
@@ -377,6 +379,7 @@ int main(int argc, char* argv[])
         }
       }
     }
+    std::cout<<"p4"<<std::endl;
 
     //
     // Need to do a decompression in the following cases.
@@ -386,6 +389,7 @@ int main(int argc, char* argv[])
     //if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() ) {
       std::array<sperr::vecd_type,3> outputd;
       for(auto i:{0,1,2}){
+        std::cout<<"p5"<<std::endl;
         auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
         decoder->set_num_threads(omp_num_threads);
 
@@ -417,6 +421,7 @@ int main(int argc, char* argv[])
       // Calculate statistics.
       if (print_stats) {
         for(auto i:{0,1,2}){
+          std::cout<<"p6"<<std::endl;
           const double print_bpp = stream.size() * 8.0 / total_vals;
           double rmse, linfy, print_psnr, min, max, sigma;
           
