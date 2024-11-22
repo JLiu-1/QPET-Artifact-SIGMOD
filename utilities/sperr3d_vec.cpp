@@ -1,5 +1,5 @@
-#include "SPERR3D_OMP_C.h"
-#include "SPERR3D_OMP_D.h"
+#include "SPERR3D_VEC_OMP_C.h"
+#include "SPERR3D_VEC_OMP_D.h"
 
 #include "CLI/App.hpp"
 #include "CLI/Config.hpp"
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
   app.add_option("--i1", input_file1,
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
-      ->group("Inputs");
+      ->check(CLI::ExistingFile);
 
 
   
@@ -112,14 +112,14 @@ int main(int argc, char* argv[])
   app.add_option("--i2", input_file2,
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
-      ->group("Inputs");
+      ->check(CLI::ExistingFile);
 
 
   auto input_file3 = std::string();
   app.add_option("--i3", input_file3,
                  "A data volume to be compressed, or\n"
                  "a bitstream to be decompressed.")
-      ->group("Inputs");
+      ->check(CLI::ExistingFile);
 
   
 
@@ -241,16 +241,12 @@ int main(int argc, char* argv[])
 
   CLI11_PARSE(app, argc, argv);
 
-  std::cout<<input_file1<<std::endl;
-
-  auto input_file = input_file1;
-  std::cout<<input_file<<std::endl;
 
 
   //
   // A little extra sanity check.
   //
-  if (input_file.empty()) {
+  if (input_file1.empty() or input_file2.empty() or input_file3.empty()) {
     std::cout << "What's the input file?" << std::endl;
     return __LINE__;
   }
@@ -309,7 +305,9 @@ int main(int argc, char* argv[])
   //
   // Really starting the real work!
   //
-  auto input = sperr::read_whole_file<uint8_t>(input_file);
+  auto inputs = {sperr::read_whole_file<uint8_t>(input_file1),sperr::read_whole_file<uint8_t>(input_file2),sperr::read_whole_file<uint8_t>(input_file3)};
+  auto input = inputs[0]; 
+
   if (cflag) {
     const auto total_vals = dims[0] * dims[1] * dims[2];
     if ((ftype == 32 && (total_vals * 4 != input.size())) ||
@@ -317,7 +315,7 @@ int main(int argc, char* argv[])
       std::cout << "Input file size wrong!" << std::endl;
       return __LINE__ % 256;
     }
-    auto encoder = std::make_unique<sperr::SPERR3D_OMP_C>();
+    auto encoder = std::make_unique<sperr::SPERR3D_VEC_OMP_C>();
     encoder->set_dims_and_chunks(dims, chunks);
     encoder->set_num_threads(omp_num_threads);
     if (pwe != 0.0)
