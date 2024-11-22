@@ -239,10 +239,10 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             }
 
             
-            auto cur_abs_eb = {ebs[0][quantile],ebs[1][quantile],ebs[2][quantile]};
+            std::array<double,3> cur_abs_eb = {ebs[0][quantile],ebs[1][quantile],ebs[2][quantile]};
             //qoi->set_global_eb(cur_abs_eb);
             // reset variables for average of square
-            auto test_compressor = {std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>()};
+            std::array<std::unique_ptr<SPECK3D_FLT>,3> test_compressor = {std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>()};
             auto sampled_copy = sampled_data;
             for(auto i:{0,1,2}){
               test_compressor[i]->take_data(std::move(sampled_copy[i]));
@@ -292,7 +292,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             
             double cur_br = 0;
             for(auto i:{0,1,2})
-              cur_br += = test_encoded_stream.size()*8.0/(double)(3*sample_num);       
+              cur_br += test_encoded_stream.size()*8.0/(double)(3*sample_num);       
             std::cout << "current_eb = " << cur_abs_eb[0] <<" "<< cur_abs_eb[1]<<" "<< cur_abs_eb[2] << ", current_br = " << cur_br << std::endl;
             if(cur_br < best_br * 1.02){//todo: optimize
                 best_br = cur_br;
