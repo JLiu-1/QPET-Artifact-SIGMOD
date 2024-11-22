@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
         if (qoi_tol>0 and qoi_id>0){
           double qoi_err_abs, qoi_err_rel;
           
-          auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
+          auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, std::array<double,3>{0.0,0.0,0.0}, qoi_string);
           //if (qoi_block_size==1){
             if (ftype == 64) {
               const std::array<const double*,3> inputd = {reinterpret_cast<const double*>(input[0].data()),reinterpret_cast<const double*>(input[1].data()),reinterpret_cast<const double*>(input[2].data())};
