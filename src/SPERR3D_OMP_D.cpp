@@ -54,7 +54,6 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
     return RTNType::Error;
   if (static_cast<const uint8_t*>(p) != m_bitstream_ptr)
     return RTNType::Error;
-  std::cout<<"d1"<<std::endl;
   auto eq0 = [](auto v) { return v == 0; };
   if (std::any_of(m_dims.cbegin(), m_dims.cend(), eq0) ||
       std::any_of(m_chunk_dims.cbegin(), m_chunk_dims.cend(), eq0))
@@ -67,7 +66,6 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
 
   // Allocate a buffer to store the entire volume
   m_vol_buf.resize(total_vals);
-  std::cout<<"d2"<<std::endl;
 
   // A few variables to support multi-resolution decoding.
   const auto vol_res = sperr::coarsened_resolutions(m_dims, m_chunk_dims);
@@ -85,7 +83,6 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
       hierarchy_chunks[h] = sperr::chunk_volume(res, chunk_res[h]);
     }
   }
-  std::cout<<"d3"<<std::endl;
   // Create number of decompressor instances equal to the number of threads
   auto chunk_rtn = std::vector<RTNType>(num_chunks * 2, RTNType::Good);
 
@@ -99,12 +96,9 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
   if (m_decompressor == nullptr)
     m_decompressor = std::make_unique<SPECK3D_FLT>();
 #endif
-  std::cout<<"d4"<<std::endl;
-  std::cout<<num_chunks<<std::endl;
 #pragma omp parallel for num_threads(m_num_threads)
   
   for (size_t chunkI = 0; chunkI < num_chunks; chunkI++) {
-    std::cout<<chunkI<<std::endl;
 #ifdef USE_OMP
     auto& decompressor = m_decompressors[omp_get_thread_num()];
 #else
@@ -113,18 +107,13 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
 #endif
 
     // Setup decompressor parameters, and decompress!
-    std::cout<<chunks[chunkI][1]<<" "<<chunks[chunkI][3]<<" "<<chunks[chunkI][5]<<std::endl;
     decompressor->set_dims({chunks[chunkI][1], chunks[chunkI][3], chunks[chunkI][5]});
     chunk_rtn[chunkI * 2] = decompressor->use_bitstream(m_bitstream_ptr + m_offsets[chunkI * 2],
                                                         m_offsets[chunkI * 2 + 1]);
-    std::cout<<"4.1"<<std::endl;
     chunk_rtn[chunkI * 2 + 1] = decompressor->decompress(multi_res);
-    std::cout<<"4.2"<<std::endl;
     const auto& small_vol = decompressor->view_decoded_data();
-    std::cout<<"4.3"<<std::endl;
     m_scatter_chunk(m_vol_buf, m_dims, small_vol, chunks[chunkI]);
 
-    std::cout<<"d5"<<std::endl;
 
     // Also assemble the full hierarchy.
     if (multi_res) {
@@ -144,7 +133,6 @@ auto sperr::SPERR3D_OMP_D::decompress(const void* p, bool multi_res) -> RTNType
     return *fail;
   else
     return RTNType::Good;
-  std::cout<<"d6"<<std::endl;
 }
 
 auto sperr::SPERR3D_OMP_D::release_decoded_data() -> sperr::vecd_type&&
