@@ -127,7 +127,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 #ifdef USE_OMP
     std::array<std::unique_ptr<SPECK3D_FLT>,3>& compressor = {m_compressors[0][omp_get_thread_num()],m_compressors[1][omp_get_thread_num()],m_compressors[2][omp_get_thread_num()]};
 #else
-    std::unique_ptr<SPECK3D_FLT>& compressor = m_compressor;
+    std::array<std::unique_ptr<SPECK3D_FLT>,3>& compressor = m_compressor;
 #endif
 
     // Gather data for this chunk, Setup compressor parameters, and compress!
