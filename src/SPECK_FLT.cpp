@@ -636,16 +636,18 @@ void sperr::SPECK_FLT::zstd_encode(const std::vector<double>& offsets){
 auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
 {
   m_vals_d.clear();
+  std::cout<<"fd1"<<std::endl;
   // m_hierarchy.clear(); // Intentionally not clearing, reusing already-allocated memory.
   std::visit([](auto&& vec) { vec.clear(); }, m_vals_ui);
   m_sign_array.resize(0);
-
+  std::cout<<"fd2"<<std::endl;
   // `m_condi_bitstream` might be indicating a constant field, so let's see if that's
   // the case, and if it is, we don't need to go through wavelet and speck stuff anymore.
   if (m_conditioner.is_constant(m_condi_bitstream[0])) {
     auto rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
     return rtn;
   }
+  std::cout<<"fd3"<<std::endl;
 
   // Step 1: Integer SPECK decode.
   // Note: the decoder has already parsed the bitstream in function `use_bitstream()`.
@@ -654,7 +656,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   std::visit([](auto&& decoder) { decoder->decode(); }, m_decoder);
   std::visit([&vec = m_vals_ui](auto&& dec) { vec = dec->release_coeffs(); }, m_decoder);
   m_sign_array = std::visit([](auto&& dec) { return dec->release_signs(); }, m_decoder);
-
+  std::cout<<"fd4"<<std::endl;
   // Step 2: Inverse quantization
   m_midtread_inv_quantize();
 
@@ -664,7 +666,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     return rtn;
   m_inverse_wavelet_xform(multi_res);
   m_vals_d = m_cdf.release_data();
-
+  std::cout<<"fd5"<<std::endl;
   // Side step: outlier correction, if needed
   if (m_has_outlier) {
     m_out_coder.set_length(m_dims[0] * m_dims[1] * m_dims[2]);
@@ -677,6 +679,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     for (auto out : recovered)
       m_vals_d[out.pos] += out.err;
   }
+  std::cout<<"fd6"<<std::endl;
  // std::cout<<"end outlier"<<std::endl;
   if(m_has_lossless){
     //std::cout<<"re1"<<std::endl;
@@ -693,12 +696,13 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     delete []offsets;
     //std::cout<<"re3"<<std::endl;
   }
+  std::cout<<"fd7"<<std::endl;
 
   // Step 4: Inverse Conditioning
   rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
   if (rtn != RTNType::Good)
     return rtn;
-
+  std::cout<<"fd8 "<<multi_res<<std::endl;
   if (multi_res) {
     auto resolutions = sperr::coarsened_resolutions(m_dims);
     if (m_hierarchy.size() != resolutions.size())
