@@ -76,7 +76,7 @@ auto output_buffer(const sperr::vecd_type& buf,
 {
   // If specified, output the decompressed slice in double precision.
   if (!name_f64.empty()) {
-    auto rtn = sperr::write_n_bytes(name_f64, buf.size() * sizeof(double), buf.data());
+    auto rtn = sperr::write_n_bytes(name_f64+std::to_string(i), buf.size() * sizeof(double), buf.data());
     if (rtn != sperr::RTNType::Good) {
       std::cout << "Writing decompressed data failed: " << name_f64+std::to_string(i) << std::endl;
       return __LINE__;
@@ -87,7 +87,7 @@ auto output_buffer(const sperr::vecd_type& buf,
   if (!name_f32.empty()) {
     auto outputf = sperr::vecf_type(buf.size());
     std::copy(buf.cbegin(), buf.cend(), outputf.begin());
-    auto rtn = sperr::write_n_bytes(name_f32, outputf.size() * sizeof(float), outputf.data());
+    auto rtn = sperr::write_n_bytes(name_f32+std::to_string(i), outputf.size() * sizeof(float), outputf.data());
     if (rtn != sperr::RTNType::Good) {
       std::cout << "Writing decompressed data failed: " << name_f32+std::to_string(i) << std::endl;
       return __LINE__;
