@@ -308,7 +308,7 @@ int main(int argc, char* argv[])
   //
   // Really starting the real work!
   //
-  std::array<vec8_type,3> input = {sperr::read_whole_file<uint8_t>(input_file1), sperr::read_whole_file<uint8_t>(input_file2), sperr::read_whole_file<uint8_t>(input_file3)};
+  std::array<sperr::vec8_type,3> input = {sperr::read_whole_file<uint8_t>(input_file1), sperr::read_whole_file<uint8_t>(input_file2), sperr::read_whole_file<uint8_t>(input_file3)};
   //auto input1 = sperr::read_whole_file<uint8_t>(input_file1); 
   //auto input2 = sperr::read_whole_file<uint8_t>(input_file2); 
   //auto input3 = sperr::read_whole_file<uint8_t>(input_file3); 
@@ -357,12 +357,10 @@ int main(int argc, char* argv[])
 
     // If not calculating stats, we can free up some memory now!
     if (!print_stats) {
-      input1.clear();
-      input1.shrink_to_fit();
-      input2.clear();
-      input2.shrink_to_fit();
-      input3.clear();
-      input3.shrink_to_fit();
+      for(auto i:{0,1,2}){
+        input[i].clear();
+        input[i].shrink_to_fit();
+      }
     }
 
     auto stream = encoder->get_encoded_bitstream();
@@ -383,10 +381,10 @@ int main(int argc, char* argv[])
     //
     // Need to do a decompression in the following cases.
     //
-    //const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
+    const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
     if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() || multi_res) {
     //if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() ) {
-      std::array<vecd_type,3> outputd;
+      std::array<sperr::vecd_type,3> outputd;
       for(auto i:{0,1,2}){
         auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
         decoder->set_num_threads(omp_num_threads);
@@ -404,11 +402,11 @@ int main(int argc, char* argv[])
         decoder.reset();
 
         // Output the hierarchy (maybe), and then destroy it.
-        //auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
-        //if (ret)
-        //  return __LINE__ % 256;
-       // hierarchy.clear();
-        //hierarchy.shrink_to_fit();
+        auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
+        if (ret)
+          return __LINE__ % 256;
+        hierarchy.clear();
+        hierarchy.shrink_to_fit();
 
         // Output the decompressed volume (maybe).
         ret = output_buffer(outputd[i], decomp_f64, decomp_f32,i+1);
