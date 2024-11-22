@@ -95,6 +95,7 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
   m_has_lossless = false;
   ///std::cout<<"111"<<std::endl;
   while (pos < len) {
+    std::cout<<pos<<" "<<len<<std::endl;
 
     const uint8_t* out_p = ptr + pos;
 
@@ -121,9 +122,10 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
       break;
     }
     else{//lossless
-      //std::cout<<"555"<<std::endl;
+      std::cout<<"555"<<std::endl;
       zstd_encoder.use_bitstream(out_p, pos);
       m_has_lossless = true;
+      std::cout<<pos<<" "<<len<<std::endl;
     }
   }
   //std::cout<<"666"<<std::endl;
@@ -142,6 +144,7 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
     //std::cout<<"111"<<std::endl;
     //append lossless bitstream
     if(m_has_lossless){
+      std::cout<<"appending lossless"<<std::endl;
       const auto orig_size = buf.size();
       buf.resize(orig_size + sizeof(uint8_t));
       auto* const ptr = buf.data() + orig_size;
