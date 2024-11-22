@@ -114,20 +114,20 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
     m_compressors[i].resize(m_num_threads);
     for (auto& p : m_compressors[i]) {
       if (p == nullptr)
-        p = std::make_unique<SPECK3D_FLT>();
+        p = std::make_shared<SPECK3D_FLT>();
     }
   #else
     if (m_compressor[i] == nullptr)
-      m_compressor[i] = std::make_unique<SPECK3D_FLT>();
+      m_compressor[i] = std::make_shared<SPECK3D_FLT>();
   #endif
   }
 
 #pragma omp parallel for num_threads(m_num_threads)
   for (size_t i = 0; i < num_chunks; i++) {
 #ifdef USE_OMP
-    std::array<std::unique_ptr<SPECK3D_FLT>,3>& compressor = {std::move(m_compressors[0][omp_get_thread_num()]),std::move(m_compressors[1][omp_get_thread_num()]),std::move(m_compressors[2][omp_get_thread_num()])};
+    std::array<std::shared_ptr<SPECK3D_FLT>,3>& compressor = {m_compressors[0][omp_get_thread_num()],m_compressors[1][omp_get_thread_num()],m_compressors[2][omp_get_thread_num()]};
 #else
-    std::array<std::unique_ptr<SPECK3D_FLT>,3>& compressor = std::move(m_compressor);
+    std::array<std::shared_ptr<SPECK3D_FLT>,3>& compressor = m_compressor;
 #endif
 
     // Gather data for this chunk, Setup compressor parameters, and compress!
