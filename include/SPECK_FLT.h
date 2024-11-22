@@ -77,7 +77,7 @@ class SPECK_FLT {
   //
   auto compress() -> RTNType;
   auto decompress(bool multi_res = false) -> RTNType;
-  void zstd_compress(const std::vector<double>& offsets);
+  void zstd_encode(const std::vector<double>& offsets);
 
  protected:
   UINTType m_uint_flag = UINTType::UINT64;
