@@ -37,7 +37,7 @@ class SPERR3D_OMP_C {
   auto compress(const T* buf, size_t buf_len) -> RTNType;
 
   // Output: produce a vector containing the encoded bitstream.
-  auto get_encoded_bitstream() const -> std::array<vec8_type,3>;
+  auto get_encoded_bitstream() const -> vec8_type;
 
  private:
   bool m_orig_is_float = true;  // The original input precision is saved in header.
