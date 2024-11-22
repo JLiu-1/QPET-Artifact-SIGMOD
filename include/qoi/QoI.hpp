@@ -5,14 +5,14 @@
  * Created by Xin Liang on 12/06/2021.
  */
 
-#include "QoZ/utils/Iterator.hpp"
-
+#include<vector>
+#include<string>
 namespace QoZ {
 
 
     namespace concepts {
 
-        template<class T, uint N>
+        template<class T>
         class QoIInterface {
         public:
 
