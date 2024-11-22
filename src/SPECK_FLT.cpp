@@ -33,6 +33,7 @@ auto sperr::SPECK_FLT::use_bitstream(const void* p, size_t len) -> RTNType
   std::visit([](auto&& vec) { vec.clear(); }, m_vals_ui);
   m_q = 0.0;
   m_has_outlier = false;
+  m_has_lossless = false;
 
   const auto* const ptr = static_cast<const uint8_t*>(p);
 
@@ -682,7 +683,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   std::cout<<"fd6"<<std::endl;
  // std::cout<<"end outlier"<<std::endl;
   if(m_has_lossless){
-    //std::cout<<"re1"<<std::endl;
+    std::cout<<"re1"<<std::endl;
     double* offsets = reinterpret_cast<double *> (zstd_encoder.decode()); 
     //size_t count=0;
     //std::cout<<m_dims[0] * m_dims[1] * m_dims[2]<<std::endl;
@@ -691,10 +692,10 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
         //count++;
       m_vals_d[i] += offsets[i];
     }
-    //std::cout<<"re2"<<std::endl;
+    std::cout<<"re2"<<std::endl;
     //std::cout<<"lossless data count: "<<count<<std::endl;
     delete []offsets;
-    //std::cout<<"re3"<<std::endl;
+    /td::cout<<"re3"<<std::endl;
   }
   std::cout<<"fd7"<<std::endl;
 
