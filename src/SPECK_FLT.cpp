@@ -568,27 +568,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         m_vals_d[los.pos]+=los.err;
     }*/
   }
-  if(qoi!=nullptr){
-    if(qoi_block_size==1){//pointwise
-      std::vector<double>offsets(total_vals,0);
-     // size_t count=0;
-      for (size_t i = 0; i < total_vals; i++) {
-    
-        if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  ){
-          m_has_lossless = true;
-          offsets[i]=m_vals_orig[i]-m_vals_d[i];
-          //count++;
-        }
-      }
-      //std::cout<<"lossless data count: "<<count<<std::endl;
-      if(m_has_lossless)
-        zstd_encoder.encode<double>(offsets);
-    }
-    else{
-      block_qoi_outlier_correction();
-    }
-
-  }
+  
   
 
   //or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) )
@@ -734,7 +714,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
 
   return RTNType::Good;
 }
-
+/*
 void sperr::SPECK_FLT::block_qoi_outlier_correction(){
 
   std::vector<double>offsets(m_vals_d.size(),0);
@@ -868,3 +848,4 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
 
 
 }
+*/

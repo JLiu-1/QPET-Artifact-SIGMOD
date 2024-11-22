@@ -66,7 +66,7 @@ class SPECK_FLT {
   std::shared_ptr<QoZ::concepts::QoIInterface<double> > get_qoi();
   auto integer_len() const -> size_t;
 
-  void block_qoi_outlier_correction();
+  //void block_qoi_outlier_correction();
 
 #ifdef EXPERIMENTING
   void set_direct_q(double q);
