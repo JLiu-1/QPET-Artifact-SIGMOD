@@ -398,7 +398,7 @@ int main(int argc, char* argv[])
 
         // Save the decompressed data, and then deconstruct the decoder to free up some memory!
         outputd[i] = decoder->release_decoded_data();
-        //auto hierarchy = decoder->release_hierarchy();
+        auto hierarchy = decoder->release_hierarchy();
         decoder.reset();
 
         // Output the hierarchy (maybe), and then destroy it.
@@ -446,17 +446,18 @@ int main(int argc, char* argv[])
             sigma = std::sqrt(mean_var[1]);
             
           }
+          std::printf("Data file %d:\n", i+1);
+          std::printf("Input range = (%.2e, %.2e), L-Infty = %.2e\n", min, max, linfy);
+          std::printf("Bitrate = %.6f, PSNR = %.2fdB, Accuracy Gain = %.2f\n", print_bpp, print_psnr,
+                      std::log2(sigma / rmse) - print_bpp);
         }
-        std::printf("Data file %d:\n", i+1);
-        std::printf("Input range = (%.2e, %.2e), L-Infty = %.2e\n", min, max, linfy);
-        std::printf("Bitrate = %.6f, PSNR = %.2fdB, Accuracy Gain = %.2f\n", print_bpp, print_psnr,
-                    std::log2(sigma / rmse) - print_bpp);
+        
         if (qoi_tol>0 and qoi_id>0){
 
           
           auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
           //if (qoi_block_size==1){
-            const std::array<const double*,3> inputd = {reinterpret_cast<const double*>(input[0].data()),reinterpret_cast<const double*>(input[1].data())，reinterpret_cast<const double*>(input[2].data())};
+            const std::array<const double*,3> inputd = {reinterpret_cast<const double*>(input[0].data()),reinterpret_cast<const double*>(input[1].data()),reinterpret_cast<const double*>(input[2].data())};
             auto qoi_err = sperr::calc_qoi_maxerr_vec(inputd, outputd, total_vals, qoi);
             qoi_err_abs = qoi_err[0];
             qoi_err_rel = qoi_err[1];
