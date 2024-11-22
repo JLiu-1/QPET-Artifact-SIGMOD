@@ -106,6 +106,9 @@ int main(int argc, char* argv[])
                  "a bitstream to be decompressed.")
       ->check(CLI::ExistingFile);
 
+
+  std::cout<<input_file1<<std::endl;
+
   auto input_file2 = std::string();
   app.add_option("--i2", input_file2,
                  "A data volume to be compressed, or\n"
