@@ -281,6 +281,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
                   offsets[j][i] = (*sampled_ori[j])[i] - (*sampled_dec[j])[i];
               }
             }
+            std::cout<<outlier<<std::endl;
 
             if(outlier){
               for(auto i:{0,1,2})
@@ -386,7 +387,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             offsets[j][k] = (*orig_data[j])[k] - (*dec_data[j])[k];
         }
       }
-
+      std::cout<<outlier<<std::endl;
       if(outlier){
         for(auto j:{0,1,2})
           compressor[j]->zstd_encode(offsets[j]);
