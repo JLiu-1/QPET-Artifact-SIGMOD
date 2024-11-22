@@ -125,9 +125,9 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 #pragma omp parallel for num_threads(m_num_threads)
   for (size_t i = 0; i < num_chunks; i++) {
 #ifdef USE_OMP
-    std::array<std::shared_ptr<SPECK3D_FLT>,3>& compressor = {m_compressors[0][omp_get_thread_num()],m_compressors[1][omp_get_thread_num()],m_compressors[2][omp_get_thread_num()]};
+    std::array<std::shared_ptr<SPECK3D_FLT>,3> compressor = {m_compressors[0][omp_get_thread_num()],m_compressors[1][omp_get_thread_num()],m_compressors[2][omp_get_thread_num()]};
 #else
-    std::array<std::shared_ptr<SPECK3D_FLT>,3>& compressor = m_compressor;
+    std::array<std::shared_ptr<SPECK3D_FLT>,3> compressor = m_compressor;
 #endif
 
     // Gather data for this chunk, Setup compressor parameters, and compress!
@@ -208,7 +208,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 
 
 
-       std::array<double,3> best_abs_eb;
+       std::array<double,3> best_abs_eb={pwe,pwe,pwe};
 
       
         
@@ -229,7 +229,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
         size_t last_quantile = quantiles[0]+1;
 
         double best_br = 9999;
-        best_abs_eb = pwe;
+        //best_abs_eb = pwe;
                         
         int idx = 0;
         for(auto quantile:quantiles)
@@ -248,7 +248,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             for(auto i:{0,1,2}){
               test_compressor[i]->take_data(std::move(sampled_copy[i]));
               test_compressor[i]->set_dims(sample_dims);
-              test_compressor[i]->set_tolerance(cur_abs_eb);
+              test_compressor[i]->set_tolerance(cur_abs_eb[i]);
             }
             //test_compressor->set_qoi(qoi);
 
@@ -272,7 +272,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
                                                    (*sampled_dec[0])[i],(*sampled_dec[1])[i],(*sampled_dec[2])[i]) ){
                 outlier = true;
                 for(auto j:{0,1,2})
-                  offsets[j][i] = (*sampled_data[j])[i] - (*sampled_dec[j])[i];
+                  offsets[j][i] = sampled_data[j][i] - (*sampled_dec[j])[i];
               }
             }
 
