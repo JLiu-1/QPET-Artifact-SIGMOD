@@ -236,6 +236,7 @@ namespace QoZ {
         }
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
+        double get_qoi_tolerance() {return tolerance;}
 
         //void pre_compute(const T * data){}
         

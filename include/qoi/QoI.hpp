@@ -52,6 +52,8 @@ namespace QoZ {
 
             virtual void set_qoi_tolerance(double tol) = 0;
 
+            virtual void get_qoi_tolerance() = 0;
+
             virtual std::string get_expression() const = 0;
 
             virtual void set_dims(const std::vector<size_t>& new_dims) = 0;
