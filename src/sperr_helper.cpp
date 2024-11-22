@@ -620,7 +620,7 @@ auto sperr::calc_mean_var(const T* arr, size_t len, size_t omp_nthreads) -> std:
 template auto sperr::calc_mean_var(const float*, size_t, size_t) -> std::array<float, 2>;
 template auto sperr::calc_mean_var(const double*, size_t, size_t) -> std::array<double, 2>;
 
-
+/*
 template <typename T>
 auto sperr::calc_qoi_maxerr(const T* ori, const T* dec, size_t len, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi) -> std::array<double, 2>{
 
@@ -768,7 +768,7 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
 
 template auto sperr::calc_qoi_maxerr_blocked(const double* , const double*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<double, 2>;
 template auto sperr::calc_qoi_maxerr_blocked(const float* , const float*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<double, 2>;
-
+*/
 auto sperr::calc_qoi_maxerr_vec(std::array<const double*,3> ori, const std::array<vecd_type,3> &dec, size_t len, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi) -> std::array<double, 2>{
 
    double max_qoi_diff = 0;
