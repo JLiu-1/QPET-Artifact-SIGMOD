@@ -198,7 +198,7 @@ endif()
 # Install utilities
 #
 if( BUILD_CLI_UTILITIES )
-  install( TARGETS show_version sperr3d sperr2d sperr3d_trunc
+  install( TARGETS show_version sperr3d_vec sperr2d sperr3d_trunc
            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} )
 endif()
 
