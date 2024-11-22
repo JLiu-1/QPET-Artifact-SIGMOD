@@ -7,7 +7,7 @@
 #ifndef SPERR3D_VEC_OMP_C_H
 #define SPERR3D_VEC_OMP_C_H
 
-#include "SPECK3D_VEC_FLT.h"
+#include "SPECK3D_FLT.h"
 
 namespace sperr {
 

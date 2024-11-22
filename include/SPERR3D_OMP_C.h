@@ -45,7 +45,7 @@ class SPERR3D_OMP_C {
   double m_quality = 0.0;
   dims_type m_dims = {0, 0, 0};        // Dimension of the entire volume
   dims_type m_chunk_dims = {0, 0, 0};  // Preferred dimensions for a chunk
-  std::array< std::vector<vec8_type>,3> m_encoded_streams;
+  std::vector<vec8_type> m_encoded_streams;
   int qoi_id = 0;
   std::string qoi_string = "x^2";
   double qoi_tol = 0.0;
