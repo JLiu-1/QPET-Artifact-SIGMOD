@@ -464,10 +464,18 @@ int main(int argc, char* argv[])
           
           auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
           //if (qoi_block_size==1){
-            const std::array<const double*,3> inputd = {reinterpret_cast<const double*>(input[0].data()),reinterpret_cast<const double*>(input[1].data()),reinterpret_cast<const double*>(input[2].data())};
-            auto qoi_err = sperr::calc_qoi_maxerr_vec(inputd, outputd, total_vals, qoi);
-            qoi_err_abs = qoi_err[0];
-            qoi_err_rel = qoi_err[1];
+            if (ftype == 64) {
+              const std::array<const double*,3> inputd = {reinterpret_cast<const double*>(input[0].data()),reinterpret_cast<const double*>(input[1].data()),reinterpret_cast<const double*>(input[2].data())};
+              auto qoi_err = sperr::calc_qoi_maxerr_vec(inputd, outputd, total_vals, qoi);
+              qoi_err_abs = qoi_err[0];
+              qoi_err_rel = qoi_err[1];
+            }
+            else{
+              const std::array<const float*,3> inputf = {reinterpret_cast<const float*>(input[0].data()),reinterpret_cast<const float*>(input[1].data()),reinterpret_cast<const float*>(input[2].data())};
+              auto qoi_err = sperr::calc_qoi_maxerr_vec(inputf, outputd, total_vals, qoi);
+              qoi_err_abs = qoi_err[0];
+              qoi_err_rel = qoi_err[1];
+            }
           //}
           /*
           else{
