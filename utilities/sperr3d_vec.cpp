@@ -1,4 +1,4 @@
-#include "SPERR3D_OMP_C.h"
+#include "SPERR3D_VEC_OMP_C.h"
 #include "SPERR3D_OMP_D.h"
 
 #include "CLI/App.hpp"
@@ -27,11 +27,13 @@ auto create_filenames(std::string name,
 }
 
 // This function is used to output coarsened levels of the resolution hierarchy.
+
 auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
                       sperr::dims_type vdims,
                       sperr::dims_type cdims,
                       const std::string& lowres_f64,
-                      const std::string& lowres_f32) -> int
+                      const std::string& lowres_f32,
+                      const int j=0) -> int
 {
   // If specified, output the low-res decompressed slices in double precision.
   if (!lowres_f64.empty()) {
@@ -39,9 +41,9 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
     assert(hierarchy.size() == filenames.size());
     for (size_t i = 0; i < filenames.size(); i++) {
       const auto& level = hierarchy[i];
-      auto rtn = sperr::write_n_bytes(filenames[i], level.size() * sizeof(double), level.data());
+      auto rtn = sperr::write_n_bytes(filenames[i]+std::to_string(j), level.size() * sizeof(double), level.data());
       if (rtn != sperr::RTNType::Good) {
-        std::cout << "Writing decompressed hierarchy failed: " << filenames[i] << std::endl;
+        std::cout << "Writing decompressed hierarchy failed: " << filenames[i]+std::to_string(j) << std::endl;
         return __LINE__;
       }
     }
@@ -55,9 +57,9 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
     for (size_t i = 0; i < filenames.size(); i++) {
       const auto& level = hierarchy[i];
       std::copy(level.begin(), level.end(), buf.begin());
-      auto rtn = sperr::write_n_bytes(filenames[i], level.size() * sizeof(float), buf.data());
+      auto rtn = sperr::write_n_bytes(filenames[i]+std::to_string(j), level.size() * sizeof(float), buf.data());
       if (rtn != sperr::RTNType::Good) {
-        std::cout << "Writing decompressed hierarchy failed: " << filenames[i] << std::endl;
+        std::cout << "Writing decompressed hierarchy failed: " << filenames[i]+std::to_string(j) << std::endl;
         return __LINE__;
       }
     }
@@ -69,13 +71,14 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
 // This function is used to output the decompressed volume at its native resolution.
 auto output_buffer(const sperr::vecd_type& buf,
                    const std::string& name_f64,
-                   const std::string& name_f32) -> int
+                   const std::string& name_f32,
+                   const int i=0) -> int
 {
   // If specified, output the decompressed slice in double precision.
   if (!name_f64.empty()) {
     auto rtn = sperr::write_n_bytes(name_f64, buf.size() * sizeof(double), buf.data());
     if (rtn != sperr::RTNType::Good) {
-      std::cout << "Writing decompressed data failed: " << name_f64 << std::endl;
+      std::cout << "Writing decompressed data failed: " << name_f64+std::to_string(i) << std::endl;
       return __LINE__;
     }
   }
@@ -86,7 +89,7 @@ auto output_buffer(const sperr::vecd_type& buf,
     std::copy(buf.cbegin(), buf.cend(), outputf.begin());
     auto rtn = sperr::write_n_bytes(name_f32, outputf.size() * sizeof(float), outputf.data());
     if (rtn != sperr::RTNType::Good) {
-      std::cout << "Writing decompressed data failed: " << name_f32 << std::endl;
+      std::cout << "Writing decompressed data failed: " << name_f32+std::to_string(i) << std::endl;
       return __LINE__;
     }
   }
@@ -227,7 +230,7 @@ int main(int argc, char* argv[])
   auto* qoi_id_ptr = app.add_option("--qoi_id", qoi_id, "QoI id.")
                       ->group("Compression settings");
 
-  std::string qoi_string = "x^2";
+  std::string qoi_string = "x^2 + y^2 + z^2";
   auto* qoi_string_ptr = app.add_option("--qoi_string", qoi_string, "QoI string.")
                       ->group("Compression settings");
 
@@ -235,7 +238,7 @@ int main(int argc, char* argv[])
   auto* qoi_bs_ptr = app.add_option("--qoi_bs", qoi_block_size, "QoI avg_block_size.")
                       ->group("Compression settings");
 
-  auto qoi_k = 1.732;
+  auto qoi_k = 2;
   auto* qoi_k_ptr = app.add_option("--qoi_k", qoi_k, "QoI k.")
                       ->group("Compression settings");
 
@@ -305,8 +308,10 @@ int main(int argc, char* argv[])
   //
   // Really starting the real work!
   //
-  auto inputs = {sperr::read_whole_file<uint8_t>(input_file1),sperr::read_whole_file<uint8_t>(input_file2),sperr::read_whole_file<uint8_t>(input_file3)};
-  auto input = inputs[0]; 
+  std::array<vec8_type,3> input = {sperr::read_whole_file<uint8_t>(input_file1), sperr::read_whole_file<uint8_t>(input_file2), sperr::read_whole_file<uint8_t>(input_file3)};
+  //auto input1 = sperr::read_whole_file<uint8_t>(input_file1); 
+  //auto input2 = sperr::read_whole_file<uint8_t>(input_file2); 
+  //auto input3 = sperr::read_whole_file<uint8_t>(input_file3); 
 
   if (cflag) {
     const auto total_vals = dims[0] * dims[1] * dims[2];
@@ -315,7 +320,7 @@ int main(int argc, char* argv[])
       std::cout << "Input file size wrong!" << std::endl;
       return __LINE__ % 256;
     }
-    auto encoder = std::make_unique<sperr::SPERR3D_OMP_C>();
+    auto encoder = std::make_unique<sperr::SPERR3D_VEC_OMP_C>();
     encoder->set_dims_and_chunks(dims, chunks);
     encoder->set_num_threads(omp_num_threads);
     if (pwe != 0.0)
@@ -342,9 +347,9 @@ int main(int argc, char* argv[])
 
     auto rtn = sperr::RTNType::Good;
     if (ftype == 32)
-      rtn = encoder->compress(reinterpret_cast<const float*>(input.data()), total_vals);
+      rtn = encoder->compress(reinterpret_cast<const float*>(input[0].data()),reinterpret_cast<const float*>(input[1].data()),reinterpret_cast<const float*>(input[2].data()), total_vals);
     else
-      rtn = encoder->compress(reinterpret_cast<const double*>(input.data()), total_vals);
+      rtn = encoder->compress(reinterpret_cast<const double*>(input[0].data()),reinterpret_cast<const double*>(input[1].data()),reinterpret_cast<const double*>(input[2].data()), total_vals);
     if (rtn != sperr::RTNType::Good) {
       std::cout << "Compression failed!" << std::endl;
       return __LINE__ % 256;
@@ -352,8 +357,12 @@ int main(int argc, char* argv[])
 
     // If not calculating stats, we can free up some memory now!
     if (!print_stats) {
-      input.clear();
-      input.shrink_to_fit();
+      input1.clear();
+      input1.shrink_to_fit();
+      input2.clear();
+      input2.shrink_to_fit();
+      input3.clear();
+      input3.shrink_to_fit();
     }
 
     auto stream = encoder->get_encoded_bitstream();
@@ -361,103 +370,110 @@ int main(int argc, char* argv[])
 
     // Output the compressed bitstream (maybe).
     if (!bitstream.empty()) {
-      rtn = sperr::write_n_bytes(bitstream, stream.size(), stream.data());
-      if (rtn != sperr::RTNType::Good) {
-        std::cout << "Writing compressed bitstream failed: " << bitstream << std::endl;
-        return __LINE__ % 256;
+      for(auto i:{0,1,2}){
+        auto bs_i = bitstream + std::to_string(i+1); 
+        rtn = sperr::write_n_bytes(bs_i, stream[i].size(), stream[i].data());
+        if (rtn != sperr::RTNType::Good) {
+          std::cout << "Writing compressed bitstream failed: " << bs_i << std::endl;
+          return __LINE__ % 256;
+        }
       }
     }
 
     //
     // Need to do a decompression in the following cases.
     //
-    const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
+    //const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
     if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() || multi_res) {
-      auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
-      decoder->set_num_threads(omp_num_threads);
-      decoder->use_bitstream(stream.data(), stream.size());
-      rtn = decoder->decompress(stream.data(), multi_res);
-      if (rtn != sperr::RTNType::Good) {
-        std::cout << "Decompression failed!" << std::endl;
-        return __LINE__ % 256;
+    //if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() ) {
+      std::array<vecd_type,3> outputd;
+      for(auto i:{0,1,2}){
+        auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
+        decoder->set_num_threads(omp_num_threads);
+
+        decoder->use_bitstream(stream[i].data(), stream[i].size());
+        rtn = decoder->decompress(stream[i].data(), multi_res);
+        if (rtn != sperr::RTNType::Good) {
+          std::cout << "Decompression failed!" << std::endl;
+          return __LINE__ % 256;
+        }
+
+        // Save the decompressed data, and then deconstruct the decoder to free up some memory!
+        outputd[i] = decoder->release_decoded_data();
+        //auto hierarchy = decoder->release_hierarchy();
+        decoder.reset();
+
+        // Output the hierarchy (maybe), and then destroy it.
+        //auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
+        //if (ret)
+        //  return __LINE__ % 256;
+       // hierarchy.clear();
+        //hierarchy.shrink_to_fit();
+
+        // Output the decompressed volume (maybe).
+        ret = output_buffer(outputd[i], decomp_f64, decomp_f32,i+1);
+        if (ret)
+          return __LINE__ % 256;
       }
-
-      // Save the decompressed data, and then deconstruct the decoder to free up some memory!
-      auto outputd = decoder->release_decoded_data();
-      auto hierarchy = decoder->release_hierarchy();
-      decoder.reset();
-
-      // Output the hierarchy (maybe), and then destroy it.
-      auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
-      if (ret)
-        return __LINE__ % 256;
-      hierarchy.clear();
-      hierarchy.shrink_to_fit();
-
-      // Output the decompressed volume (maybe).
-      ret = output_buffer(outputd, decomp_f64, decomp_f32);
-      if (ret)
-        return __LINE__ % 256;
 
       // Calculate statistics.
       if (print_stats) {
-        const double print_bpp = stream.size() * 8.0 / total_vals;
-        double rmse, linfy, print_psnr, min, max, sigma;
-        double qoi_err_abs, qoi_err_rel;
-        if (ftype == 32) {
-          const float* inputf = reinterpret_cast<const float*>(input.data());
-          auto outputf = sperr::vecf_type(total_vals);
-          std::copy(outputd.cbegin(), outputd.cend(), outputf.begin());
-          auto stats = sperr::calc_stats(inputf, outputf.data(), total_vals, omp_num_threads);
-          rmse = stats[0];
-          linfy = stats[1];
-          print_psnr = stats[2];
-          min = stats[3];
-          max = stats[4];
-          auto mean_var = sperr::calc_mean_var(inputf, total_vals, omp_num_threads);
-          sigma = std::sqrt(mean_var[1]);
-          if (qoi_tol>0 and qoi_id>0){
-            auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
-            if (qoi_block_size==1){
-              auto qoi_err = sperr::calc_qoi_maxerr(inputf , outputf.data(), total_vals, qoi);
-              qoi_err_abs = qoi_err[0];
-              qoi_err_rel = qoi_err[1];
-            }
-            else{
-              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputf , outputf.data(), dims, qoi,qoi_block_size);
-              qoi_err_abs = qoi_err[0];
-              qoi_err_rel = qoi_err[1];
-            }
+        for(auto i:{0,1,2}){
+          const double print_bpp = stream.size() * 8.0 / total_vals;
+          double rmse, linfy, print_psnr, min, max, sigma;
+          double qoi_err_abs, qoi_err_rel;
+          if (ftype == 32) {
+            const float* inputf = reinterpret_cast<const float*>(input[i].data());
+            auto outputf = sperr::vecf_type(total_vals);
+            std::copy(outputd[i].cbegin(), outputd[i].cend(), outputf.begin());
+            auto stats = sperr::calc_stats(inputf, outputf.data(), total_vals, omp_num_threads);
+            rmse = stats[0];
+            linfy = stats[1];
+            print_psnr = stats[2];
+            min = stats[3];
+            max = stats[4];
+            auto mean_var = sperr::calc_mean_var(inputf, total_vals, omp_num_threads);
+            sigma = std::sqrt(mean_var[1]);
+            
+          }
+          else {
+            const double* inputd = reinterpret_cast<const double*>(input[i].data());
+            auto stats = sperr::calc_stats(inputd, outputd[i].data(), total_vals, omp_num_threads);
+            rmse = stats[0];
+            linfy = stats[1];
+            print_psnr = stats[2];
+            min = stats[3];
+            max = stats[4];
+            auto mean_var = sperr::calc_mean_var(inputd, total_vals, omp_num_threads);
+            sigma = std::sqrt(mean_var[1]);
+            
           }
         }
-        else {
-          const double* inputd = reinterpret_cast<const double*>(input.data());
-          auto stats = sperr::calc_stats(inputd, outputd.data(), total_vals, omp_num_threads);
-          rmse = stats[0];
-          linfy = stats[1];
-          print_psnr = stats[2];
-          min = stats[3];
-          max = stats[4];
-          auto mean_var = sperr::calc_mean_var(inputd, total_vals, omp_num_threads);
-          sigma = std::sqrt(mean_var[1]);
-          if (qoi_tol>0 and qoi_id>0){
-            auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
-            if (qoi_block_size==1){
-              auto qoi_err = sperr::calc_qoi_maxerr(inputd , outputd.data(), total_vals, qoi);
-              qoi_err_abs = qoi_err[0];
-              qoi_err_rel = qoi_err[1];
-            }
-            else{
-              auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputd , outputd.data(), dims, qoi,qoi_block_size);
-              qoi_err_abs = qoi_err[0];
-              qoi_err_rel = qoi_err[1];
-            }
-          }
-        }
+        std::printf("Data file %d:\n", i+1);
         std::printf("Input range = (%.2e, %.2e), L-Infty = %.2e\n", min, max, linfy);
         std::printf("Bitrate = %.6f, PSNR = %.2fdB, Accuracy Gain = %.2f\n", print_bpp, print_psnr,
                     std::log2(sigma / rmse) - print_bpp);
         if (qoi_tol>0 and qoi_id>0){
+
+          
+          auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
+          //if (qoi_block_size==1){
+            const std::array<const double*,3> inputd = {reinterpret_cast<const double*>(input[0].data()),reinterpret_cast<const double*>(input[1].data())，reinterpret_cast<const double*>(input[2].data())};
+            auto qoi_err = sperr::calc_qoi_maxerr_vec(inputd, outputd, total_vals, qoi);
+            qoi_err_abs = qoi_err[0];
+            qoi_err_rel = qoi_err[1];
+          //}
+          /*
+          else{
+            auto qoi_err = sperr::calc_qoi_maxerr_blocked(inputd , outputd.data(), dims, qoi,qoi_block_size);
+            qoi_err_abs = qoi_err[0];
+            qoi_err_rel = qoi_err[1];
+          }
+          */
+          
+
+
+
           std::printf("QoI error info:\n");
           std::printf("Max qoi error = %.6G, relative qoi error = %.6G\n", qoi_err_abs, qoi_err_rel);
         }
@@ -469,33 +485,35 @@ int main(int argc, char* argv[])
   //
   else {
     assert(dflag);
-    auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
-    decoder->set_num_threads(omp_num_threads);
-    decoder->use_bitstream(input.data(), input.size());
-    const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
-    auto rtn = decoder->decompress(input.data(), multi_res);
-    if (rtn != sperr::RTNType::Good) {
-      std::cout << "Decompression failed!" << std::endl;
-      return __LINE__ % 256;
+    for(auto i:{0,1,2}){
+      auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
+      decoder->set_num_threads(omp_num_threads);
+      decoder->use_bitstream(input[i].data(), input[i].size());
+      const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
+      auto rtn = decoder->decompress(input[i].data(), multi_res);
+      if (rtn != sperr::RTNType::Good) {
+        std::cout << "Decompression failed!" << std::endl;
+        return __LINE__ % 256;
+      }
+
+      auto hierarchy = decoder->release_hierarchy();
+      auto outputd = decoder->release_decoded_data();
+      auto vdims = decoder->get_dims();
+      auto cdims = decoder->get_chunk_dims();
+      decoder.reset();  // Free up memory!
+
+      // Output the hierarchy (maybe), and then destroy it.
+      //auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64, decomp_lowres_f32);
+      //if (ret)
+      //  return __LINE__ % 256;
+      //hierarchy.clear();
+      //hierarchy.shrink_to_fit();
+
+      // Output the decompressed volume (maybe).
+      ret = output_buffer(outputd, decomp_f64, decomp_f32);
+      if (ret)
+        return __LINE__ % 256;
     }
-
-    auto hierarchy = decoder->release_hierarchy();
-    auto outputd = decoder->release_decoded_data();
-    auto vdims = decoder->get_dims();
-    auto cdims = decoder->get_chunk_dims();
-    decoder.reset();  // Free up memory!
-
-    // Output the hierarchy (maybe), and then destroy it.
-    auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64, decomp_lowres_f32);
-    if (ret)
-      return __LINE__ % 256;
-    hierarchy.clear();
-    hierarchy.shrink_to_fit();
-
-    // Output the decompressed volume (maybe).
-    ret = output_buffer(outputd, decomp_f64, decomp_f32);
-    if (ret)
-      return __LINE__ % 256;
   }
 
   return 0;

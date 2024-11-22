@@ -1,5 +1,5 @@
-#ifndef SPECK_FLT_H
-#define SPECK_FLT_H
+#ifndef SPECK_VEC_FLT_H
+#define SPECK_VEC_FLT_H
 
 //
 // This class serves as the base class of 1D, 2D, and 3D SPECK algorithm on floats.
@@ -16,84 +16,77 @@
 
 namespace sperr {
 
-class SPECK_FLT {
+class SPECK_VEC_FLT {
  public:
   //
   // Virtual Destructor
   //
-  virtual ~SPECK_FLT() = default;
+  virtual ~SPECK_VEC_FLT() = default;
 
   //
   // Input
   //
   // Accept incoming data: copy from a raw memory block.
   // Note: `len` is the number of values.
-  template <typename T>
-  void copy_data(const T* p, size_t len);
+  //template <typename T>
+  //void copy_data(const T* p1,const T* p2,const T* p3, size_t len);
 
   // Accept incoming data: take ownership of a memory block
-  void take_data(std::vector<double>&&);
+  void take_data(std::array<std::vector<double>,3>&&);
 
   // Use an encoded bitstream
   // Note: `len` is the number of bytes.
-  virtual auto use_bitstream(const void* p, size_t len) -> RTNType;
-
+ // virtual auto use_bitstream(const void* p1, size_t len1,const void* p2, size_t len2,const void* p3, size_t len3) -> RTNType;
 
   //
   // Output
   //
-  void append_encoded_bitstream(vec8_type& buf) const;
-  auto view_decoded_data() const -> const vecd_type&;
-  auto view_hierarchy() const -> const std::vector<vecd_type>&;
-  auto release_decoded_data() -> vecd_type&&;
-  auto release_hierarchy() -> std::vector<vecd_type>&&;
-
-
-  auto view_orig_data() const -> const vecd_type&;
-  //auto view_vals_d() const -> const vecd_type&;
+  void append_encoded_bitstream(std::array<vec8_type,3>& buf) const;
+  //auto view_decoded_data() const -> const std::array<vecd_type,3>&;
+  //auto view_hierarchy() const -> const std::array<std::vector<vecd_type>,3>&;
+  //auto release_decoded_data() -> std::array<vecd_type,3>&&;
+  //auto release_hierarchy() -> std::array<std::vector<vecd_type>,3>&&;
 
   //
   // General configuration and info.
   //
-  void set_psnr(double psnr);
-  void set_tolerance(double tol);
-  void set_bitrate(double bpp);
+  void set_psnr(std::vector<double,3> psnr);
+  void set_tolerance(std::vector<double,3> tol);
+  void set_bitrate(std::vector<double,3> bpp);
   void set_dims(dims_type);
   void set_qoi(std::shared_ptr<QoZ::concepts::QoIInterface<double> >);
   void set_qoi_tol(double);
   void set_qoi_block_size(int);
-  //void set_qoi_tol(double);
   std::shared_ptr<QoZ::concepts::QoIInterface<double> > get_qoi();
-  auto integer_len() const -> size_t;
+  auto integer_len() const -> size_t;//??
 
   void block_qoi_outlier_correction();
 
 #ifdef EXPERIMENTING
-  void set_direct_q(double q);
+  //void set_direct_q(double q);
 #endif
 
   //
   // Actions
   //
   auto compress() -> RTNType;
-  auto decompress(bool multi_res = false) -> RTNType;
-  void zstd_compress(const std::vector<double>& offsets);
+  //auto decompress(bool multi_res = false) -> RTNType;
 
  protected:
-  UINTType m_uint_flag = UINTType::UINT64;
-  bool m_has_outlier = false;           // encoding (PWE mode) and decoding
-  bool m_has_lossless = false;           // encoding (PWE mode) and decoding
+  std::vector<UINTType,3> m_uint_flag = UINTType::UINT64;
+  //std::vector<bool,3> m_has_outlier = {false,false,false};           // encoding (PWE mode) and decoding
+  //std::vector<bool,3> m_has_lossless = {false,false,false};           // encoding (PWE mode) and decoding
   CompMode m_mode = CompMode::Unknown;  // encoding only
-  double m_q = 0.0;                     // encoding and decoding
-  double m_quality = 0.0;               // encoding only, represent either PSNR, PWE, or BPP.
-  vecd_type m_vals_orig;                // encoding only (PWE mode)
+  std::vector<double,3> m_q = {0.0,0.0,0.0};                     // encoding and decoding
+  std::vector<double,3> m_quality = {0.0,0.0,0.0};               // encoding only, represent either PSNR, PWE, or BPP.
+  std::array<vecd_type,3> m_vals_orig;                // encoding only (PWE mode)
   dims_type m_dims = {0, 0, 0};
-  vecd_type m_vals_d;
-  condi_type m_condi_bitstream;
-  Bitmask m_sign_array;
-  std::vector<vecd_type> m_hierarchy;  // multi-resolution decoding
+  std::array<vecd_type,3> m_vals_d;
+  std::array<condi_type,3> m_condi_bitstream;
+  std::array<Bitmask,3> m_sign_array;
+  std::array<std::vector<vecd_type>,3> m_hierarchy;  // multi-resolution decoding
 
-  CDF97 m_cdf;
+  std::array<CDF97,3> m_cdf;
   Conditioner m_conditioner;
   Outlier_Coder m_out_coder;
   std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi = nullptr;
@@ -103,10 +96,10 @@ class SPECK_FLT {
 
 
 
-  std::variant<std::vector<uint8_t>,
+  std::array<std::variant<std::vector<uint8_t>,
                std::vector<uint16_t>,
                std::vector<uint32_t>,
-               std::vector<uint64_t>>
+               std::vector<uint64_t>>,3 >
       m_vals_ui;
 
   std::variant<std::unique_ptr<SPECK_INT<uint8_t>>,
@@ -130,11 +123,11 @@ class SPECK_FLT {
   // This base class provides two midtread quantization implementations.
   //    Quantization reads from `m_vals_d`, and writes to `m_vals_ui` and `m_sign_array`.
   //    Inverse quantization reads from `m_vals_ui` and `m_sign_array`, and writes to `m_vals_d`.
-  auto m_midtread_quantize() -> RTNType;
-  void m_midtread_inv_quantize();
+  auto m_midtread_quantize(int i) -> RTNType;
+  void m_midtread_inv_quantize(int i);
 
   // Estimate MSE assuming midtread quantization strategy.
-  auto m_estimate_mse_midtread(double q) const -> double;
+  auto m_estimate_mse_midtread(double q, int i) const -> double;
 
   // The meaning of inputs `param` and `high_prec` differ depending on the compression mode:
   //    - PWE:  no input is used; they can be anything;

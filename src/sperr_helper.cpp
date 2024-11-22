@@ -768,3 +768,41 @@ auto sperr::calc_qoi_maxerr_blocked(const T* ori, const T* dec, std::array<size_
 
 template auto sperr::calc_qoi_maxerr_blocked(const double* , const double*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<double, 2>;
 template auto sperr::calc_qoi_maxerr_blocked(const float* , const float*, std::array<size_t,3>, std::shared_ptr<QoZ::concepts::QoIInterface<double> > , int ) -> std::array<double, 2>;
+
+auto sperr::calc_qoi_maxerr_vec(std::array<const double*,3> ori, const std::array<vecd_type,3> &dec, size_t len, std::shared_ptr<QoZ::concepts::QoIInterface<double> > qoi) -> std::array<double, 2>{
+
+   double max_qoi_diff = 0;
+
+  double max_qoi = -std::numeric_limits<double>::max();
+  double min_qoi = std::numeric_limits<double>::max();
+
+
+  for(size_t i=0; i<len; i++){
+
+      auto cur_ori_qoi = qoi->eval(ori[0][i],ori[1][i],ori[2][i]);
+      auto cur_qoi = qoi->eval(dec[0][i],dec[1][i],dec[2][i]);
+
+      if(!std::isinf(cur_ori_qoi) and !std::isnan(cur_ori_qoi)) {
+
+          if (max_qoi < cur_ori_qoi) max_qoi = cur_ori_qoi;
+          if (min_qoi > cur_ori_qoi) min_qoi = cur_ori_qoi;
+      }
+      else{
+          cur_ori_qoi = 0.0;
+      }
+      if(std::isinf(cur_qoi) or std::isnan(cur_qoi))
+          cur_qoi = 0.0;
+
+      double qoi_diff = std::abs( cur_ori_qoi - cur_qoi );
+      if (qoi_diff > max_qoi_diff)
+          max_qoi_diff = qoi_diff;
+  }
+
+  if (max_qoi == min_qoi){
+      max_qoi = 1.0;
+      min_qoi = 0.0;
+  }
+  return {max_qoi_diff,max_qoi_diff/(max_qoi-min_qoi)};
+
+}
+

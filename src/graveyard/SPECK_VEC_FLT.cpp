@@ -1,4 +1,4 @@
-#include "SPECK_FLT.h"
+#include "SPECK_VEC_FLT.h"
 
 
 #include <algorithm>
@@ -10,15 +10,18 @@
 #include <numeric>
 
 template <typename T>
-void sperr::SPECK_FLT::copy_data(const T* p, size_t len)
+void sperr::SPECK_VEC_FLT::copy_data(const T* p1,const T* p2,const T* p3, size_t len)
 {
   static_assert(std::is_floating_point<T>::value, "!! Only floating point values are supported !!");
+  std::array<const T*,3>p = {p1,p2,p3};
+  for(auto i:{0,1,2}){
 
-  m_vals_d.resize(len);
-  std::copy(p, p + len, m_vals_d.begin());
+    m_vals_d[i].resize(len);
+    std::copy(p[i], p[i] + len, m_vals_d[i].begin());
+  }
 }
-template void sperr::SPECK_FLT::copy_data(const double*, size_t);
-template void sperr::SPECK_FLT::copy_data(const float*, size_t);
+template void sperr::SPECK_FLT::copy_data(const double*,const double*,const double*, size_t);
+template void sperr::SPECK_FLT::copy_data(const float*,const float*,const float*, size_t);
 
 void sperr::SPECK_FLT::take_data(sperr::vecd_type&& buf)
 {
@@ -162,11 +165,6 @@ void sperr::SPECK_FLT::append_encoded_bitstream(vec8_type& buf) const
      //std::cout<<"333"<<std::endl;
     
   }
-}
-
-auto sperr::SPECK_FLT::view_orig_data() const -> const vecd_type&
-{
-  return m_vals_orig;
 }
 
 auto sperr::SPECK_FLT::view_decoded_data() const -> const vecd_type&
@@ -536,10 +534,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
     LOS.reserve(0.04 * total_vals);  // Reserve space to hold about 100% of total values.
     for (size_t i = 0; i < total_vals; i++) {
       auto diff = m_vals_orig[i] - m_vals_d[i];
-      if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  ){
+      if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  )
         LOS.emplace_back(i, diff);
-        m_vals_d[i] = m_vals_orig[i];
-      }
     }
     //std::cout<<LOS.size()<<std::endl;
     //auto LOS_backup=LOS;
@@ -550,8 +546,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
       m_out_coder.set_length(total_vals);
       m_out_coder.set_tolerance(m_quality);
       m_out_coder.use_outlier_list(std::move(LOS));
-      //if(qoi!=nullptr)
-      //  m_out_coder.set_qoi(true);
+      if(qoi!=nullptr)
+        m_out_coder.set_qoi(true);
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
@@ -560,13 +556,13 @@ FIXED_RATE_HIGH_PREC_LABEL:
       //std::cout<<new_LOS.size()<<std::endl;
 
     }
-    /*
+
     if(qoi!=nullptr){
       auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
       for(auto &los:decoded_LOS)
         m_vals_d[los.pos]+=los.err;
-    }*/
+    }
   }
   if(qoi!=nullptr){
     if(qoi_block_size==1){//pointwise
@@ -646,12 +642,6 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
   return RTNType::Good;
 }
-
-void sperr::SPECK_FLT::zstd_encode(const std::vector<double>& offsets){
-  m_has_lossless = true;
-  zstd_encoder.encode<double>(offsets);
-}
-
 
 auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
 {

@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(SPERR VERSION 0.8.2 LANGUAGES CXX DESCRIPTION "Lossy Scientific Compression with SPERR")
+project(SPERR VERSION 0.8.2.1 LANGUAGES CXX DESCRIPTION "Lossy Scientific Compression with SPERR")
 
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD "20" CACHE STRING "Choose the C++ Standard to use." FORCE)
@@ -198,8 +198,7 @@ endif()
 # Install utilities
 #
 if( BUILD_CLI_UTILITIES )
-  install( TARGETS show_version sperr3d_vec sperr2d sperr3d_trunc
-           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} )
+  install( TARGETS show_version sperr3d_vec sperr2d RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} )
 endif()
 
 # Add a pkg-config file, also copy over SperrConfig.h
