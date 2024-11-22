@@ -466,7 +466,7 @@ int main(int argc, char* argv[])
             sigma = std::sqrt(mean_var[1]);
             
           }
-          std::printf("Data file %d:\n", i+1);
+          std::printf("Data file : %s\n", %input_files[i]);
           std::printf("Input range = (%.2e, %.2e), L-Infty = %.2e\n", min, max, linfy);
           std::printf("Bitrate = %.6f, PSNR = %.2fdB, Accuracy Gain = %.2f\n", print_bpp, print_psnr,
                       std::log2(sigma / rmse) - print_bpp);
