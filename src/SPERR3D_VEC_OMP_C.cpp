@@ -376,7 +376,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       bool outlier = false;
       for(size_t k = 0; k < chunk_ele_num ; k++){
         if(!m_qoi->check_compliance((*orig_data[0])[k],(*orig_data[1])[k],(*orig_data[2])[k],
-                                             (dec_data[0])[k],(dec_data[1])[k],(dec_data[2])[k]) ){
+                                             (*dec_data[0])[k],(*dec_data[1])[k],(*dec_data[2])[k]) ){
           outlier = true;
           for(auto j:{0,1,2})
             offsets[j][k] = (*orig_data[j])[k] - (*dec_data[j])[k];
