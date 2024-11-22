@@ -683,7 +683,6 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   std::cout<<"fd6"<<std::endl;
  // std::cout<<"end outlier"<<std::endl;
   if(m_has_lossless){
-    std::cout<<"re1"<<std::endl;
     double* offsets = reinterpret_cast<double *> (zstd_encoder.decode()); 
     //size_t count=0;
     //std::cout<<m_dims[0] * m_dims[1] * m_dims[2]<<std::endl;
@@ -692,10 +691,8 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
         //count++;
       m_vals_d[i] += offsets[i];
     }
-    std::cout<<"re2"<<std::endl;
     //std::cout<<"lossless data count: "<<count<<std::endl;
     delete []offsets;
-    /td::cout<<"re3"<<std::endl;
   }
   std::cout<<"fd7"<<std::endl;
 
