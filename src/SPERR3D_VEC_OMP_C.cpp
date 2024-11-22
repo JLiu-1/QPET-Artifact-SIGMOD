@@ -264,7 +264,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
               offsets[i].resize(sample_num,0);
             }
 
-            std::array<const vecd_type &,3>sampled_dec = {test_compressor[0].view_decoded_data(),test_compressor[1].view_decoded_data(),test_compressor[2].view_decoded_data()}; 
+            std::array<const vecd_type &,3>sampled_dec = {test_compressor[0]->view_decoded_data(),test_compressor[1]->view_decoded_data(),test_compressor[2]->view_decoded_data()}; 
             bool outlier = false;
             for(size_t i = 0; i < sample_num ; i++){
               if(!qoi->check_compliance(sampled_data[0][i],sampled_data[1][i],sampled_data[2][i],
@@ -366,8 +366,8 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       chunk_rtn[i] = compressor[j]->compress();
     }
     if(qoi_id>0 and qoi_tol>0){
-      std::array<const vecd_type &,3>orig_data = {compressor[0].view_orig_data(),compressor[1].view_orig_data(),compressor[2].view_orig_data()};
-      std::array<const vecd_type &,3>dec_data = {compressor[0].view_decoded_data(),compressor[1].view_decoded_data(),compressor[2].view_decoded_data()}; 
+      std::array<const vecd_type &,3>orig_data = {compressor[0]->view_orig_data(),compressor[1]->view_orig_data(),compressor[2]->view_orig_data()};
+      std::array<const vecd_type &,3>dec_data = {compressor[0]->view_decoded_data(),compressor[1]->view_decoded_data(),compressor[2]->view_decoded_data()}; 
       std::array< vecd_type,3> offsets;
       for(auto j:{0,1,2}){
         offsets[j].resize(chunk_ele_num,0);
