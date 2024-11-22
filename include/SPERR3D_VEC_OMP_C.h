@@ -54,6 +54,8 @@ class SPERR3D_VEC_OMP_C {
   int qoi_block_size = 1;
   double qoi_k = 2;
 
+  std::shared_ptr<QoZ::concepts::QoIInterface<double> > m_qoi = nullptr;
+
 
 #ifdef USE_OMP
   size_t m_num_threads = 1;

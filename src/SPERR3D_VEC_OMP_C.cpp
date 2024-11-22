@@ -176,7 +176,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
         //qoi->set_qoi_tolerance(qoi_tol);
       } 
       */
-      auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string);
+      m_qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string);
 
       std::array<std::vector<double>,3> ebs;
       for(auto i:{0,1,2})
@@ -188,7 +188,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
         
 
         for (size_t i = 0; i < chunk_ele_num; i++){
-          auto cur_ebs = qoi->interpret_eb(chunk[0][i],chunk[1][i],chunk[2][i]);
+          auto cur_ebs = m_qoi->interpret_eb(chunk[0][i],chunk[1][i],chunk[2][i]);
           for(auto j:{0,1,2})
             ebs[j][i]=cur_ebs[j];
         }
@@ -268,7 +268,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
             bool outlier = false;
             for(size_t i = 0; i < sample_num ; i++){
-              if(!qoi->check_compliance(sampled_data[0][i],sampled_data[1][i],sampled_data[2][i],
+              if(!m_qoi->check_compliance(sampled_data[0][i],sampled_data[1][i],sampled_data[2][i],
                                                    (*sampled_dec[0])[i],(*sampled_dec[1])[i],(*sampled_dec[2])[i]) ){
                 outlier = true;
                 for(auto j:{0,1,2})
@@ -375,7 +375,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       }
       bool outlier = false;
       for(size_t k = 0; k < chunk_ele_num ; k++){
-        if(!qoi->check_compliance((*orig_data[0])[k],(*orig_data[1])[k],(*orig_data[2])[k],
+        if(!m_qoi->check_compliance((*orig_data[0])[k],(*orig_data[1])[k],(*orig_data[2])[k],
                                              (dec_data[0])[k],(dec_data[1])[k],(dec_data[2])[k]) ){
           outlier = true;
           for(auto j:{0,1,2})
