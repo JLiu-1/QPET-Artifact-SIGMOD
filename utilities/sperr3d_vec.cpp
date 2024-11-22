@@ -315,8 +315,8 @@ int main(int argc, char* argv[])
 
   if (cflag) {
     const auto total_vals = dims[0] * dims[1] * dims[2];
-    if ((ftype == 32 && (total_vals * 4 != input.size())) ||
-        (ftype == 64 && (total_vals * 8 != input.size()))) {
+    if ((ftype == 32 && (total_vals * 4 != input[0].size())) ||
+        (ftype == 64 && (total_vals * 8 != input[0].size()))) {
       std::cout << "Input file size wrong!" << std::endl;
       return __LINE__ % 256;
     }
