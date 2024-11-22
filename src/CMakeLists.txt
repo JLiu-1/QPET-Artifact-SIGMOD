@@ -19,6 +19,7 @@ add_library( SPERR
              SPECK2D_FLT.cpp
              SPECK1D_FLT.cpp
              SPERR3D_OMP_C.cpp
+             SPERR3D_VEC_OMP_C.cpp
              SPERR3D_OMP_D.cpp
              SPERR3D_Stream_Tools.cpp
              Outlier_Coder.cpp
