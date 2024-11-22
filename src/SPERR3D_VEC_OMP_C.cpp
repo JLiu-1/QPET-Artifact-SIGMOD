@@ -132,6 +132,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 
     // Gather data for this chunk, Setup compressor parameters, and compress!
     std::array<vecd_type,3> chunk = {m_gather_chunk<T>(buf1, m_dims, chunk_idx[i]),m_gather_chunk<T>(buf2, m_dims, chunk_idx[i]),m_gather_chunk<T>(buf3, m_dims, chunk_idx[i])};
+    size_t chunk_ele_num = chunk_idx[i][1]*chunk_idx[i][3]*chunk_idx[i][5];
     assert(!chunk.empty() and !chunk[0].empty());
 
     if(qoi_id>0 and qoi_tol>0){//qoi tuning
@@ -140,7 +141,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       m_mode == CompMode::PWE;
       
       std::array<size_t,3> chunk_dims = {chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]};
-      size_t chunk_ele_num = chunk_idx[i][1]*chunk_idx[i][3]*chunk_idx[i][5];
+      
       double sample_rate = 0.01;
       double length_sample_rate = pow(sample_rate,1.0/3.0);
       std::array<size_t,3> sample_dims = {(size_t)(chunk_idx[i][1]*length_sample_rate), (size_t)(chunk_idx[i][3]*length_sample_rate), (size_t)(chunk_idx[i][5]*length_sample_rate)};
