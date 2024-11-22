@@ -125,9 +125,9 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 #pragma omp parallel for num_threads(m_num_threads)
   for (size_t i = 0; i < num_chunks; i++) {
 #ifdef USE_OMP
-    auto& compressor = {m_compressors[0][omp_get_thread_num()],m_compressors[1][omp_get_thread_num()],m_compressors[2][omp_get_thread_num()]};
+    std::array<std::unique_ptr<SPECK3D_FLT>,3>& compressor = {m_compressors[0][omp_get_thread_num()],m_compressors[1][omp_get_thread_num()],m_compressors[2][omp_get_thread_num()]};
 #else
-    auto& compressor = m_compressor;
+    std::unique_ptr<SPECK3D_FLT>& compressor = m_compressor;
 #endif
 
     // Gather data for this chunk, Setup compressor parameters, and compress!
@@ -308,7 +308,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             
         }
         std::cout<<"Selected quantile: "<<(double)best_quantile/(double)chunk_ele_num<<std::endl;
-        std::cout << "Best abs eb:  " << best_abs_eb[0] <<" "<< best_abs_eb[1]<<" "<< best_abs_eb[2] << << std::endl; 
+        std::cout << "Best abs eb:  " << best_abs_eb[0] <<" "<< best_abs_eb[1]<<" "<< best_abs_eb[2] << std::endl; 
         //qoi->set_global_eb(best_abs_eb); 
 
         //compressor->set_qoi(qoi);
