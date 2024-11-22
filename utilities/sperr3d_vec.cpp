@@ -32,7 +32,7 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
                       sperr::dims_type vdims,
                       sperr::dims_type cdims,
                       const std::string& lowres_f64,
-                      const std::string& lowres_f32,
+                      const std::string& lowres_f32
                       ) -> int
 {
   // If specified, output the low-res decompressed slices in double precision.
@@ -71,7 +71,7 @@ auto output_hierarchy(const std::vector<std::vector<double>>& hierarchy,
 // This function is used to output the decompressed volume at its native resolution.
 auto output_buffer(const sperr::vecd_type& buf,
                    const std::string& name_f64,
-                   const std::string& name_f32,
+                   const std::string& name_f32
                    ) -> int
 {
   // If specified, output the decompressed slice in double precision.
