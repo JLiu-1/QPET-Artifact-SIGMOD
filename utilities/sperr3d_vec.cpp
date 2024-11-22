@@ -392,7 +392,7 @@ int main(int argc, char* argv[])
         std::cout<<"p5"<<std::endl;
         auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
         decoder->set_num_threads(omp_num_threads);
-
+        std::cout<<stream[i].size()<<std::endl;
         decoder->use_bitstream(stream[i].data(), stream[i].size());
         std::cout<<"p5.1"<<std::endl;
         rtn = decoder->decompress(stream[i].data(), multi_res);
