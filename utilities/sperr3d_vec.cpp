@@ -394,6 +394,7 @@ int main(int argc, char* argv[])
         decoder->set_num_threads(omp_num_threads);
 
         decoder->use_bitstream(stream[i].data(), stream[i].size());
+        std::cout<<"p5.1"<<std::endl;
         rtn = decoder->decompress(stream[i].data(), multi_res);
         if (rtn != sperr::RTNType::Good) {
           std::cout << "Decompression failed!" << std::endl;
@@ -404,6 +405,7 @@ int main(int argc, char* argv[])
         outputd[i] = decoder->release_decoded_data();
         auto hierarchy = decoder->release_hierarchy();
         decoder.reset();
+        std::cout<<"p5.2"<<std::endl;
 
         // Output the hierarchy (maybe), and then destroy it.
         auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
@@ -411,7 +413,7 @@ int main(int argc, char* argv[])
           return __LINE__ % 256;
         hierarchy.clear();
         hierarchy.shrink_to_fit();
-
+        std::cout<<"p5.3"<<std::endl;
         // Output the decompressed volume (maybe).
         ret = output_buffer(outputd[i], decomp_f64, decomp_f32,i+1);
         if (ret)
