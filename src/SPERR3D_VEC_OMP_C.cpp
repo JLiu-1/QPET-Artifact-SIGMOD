@@ -268,6 +268,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
             bool outlier = false;
             for(size_t i = 0; i < sample_num ; i++){
+              std::cout<<sampled_data[0][i]<<" "<<(*sampled_dec[0])[i]<<std::endl;
               if(!m_qoi->check_compliance(sampled_data[0][i],sampled_data[1][i],sampled_data[2][i],
                                                    (*sampled_dec[0])[i],(*sampled_dec[1])[i],(*sampled_dec[2])[i]) ){
                 outlier = true;
