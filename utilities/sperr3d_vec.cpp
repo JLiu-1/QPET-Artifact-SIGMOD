@@ -502,11 +502,11 @@ int main(int argc, char* argv[])
       decoder.reset();  // Free up memory!
 
       // Output the hierarchy (maybe), and then destroy it.
-      //auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64, decomp_lowres_f32);
-      //if (ret)
-      //  return __LINE__ % 256;
-      //hierarchy.clear();
-      //hierarchy.shrink_to_fit();
+      auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64, decomp_lowres_f32);
+      if (ret)
+        return __LINE__ % 256;
+      hierarchy.clear();
+      hierarchy.shrink_to_fit();
 
       // Output the decompressed volume (maybe).
       ret = output_buffer(outputd, decomp_f64, decomp_f32);
