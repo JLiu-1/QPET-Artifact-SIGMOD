@@ -270,6 +270,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             }
             std::array<const vecd_type *,3>sampled_ori = {&test_compressor[0]->view_orig_data(),&test_compressor[1]->view_orig_data(),&test_compressor[2]->view_orig_data()}; 
             std::array<double,3>test_means = {test_compressor[0]->get_mean(),test_compressor[1]->get_mean(),test_compressor[2]->get_mean()};
+            std::cout<<test_means[0]<<" "<<test_means[1]<<" "<<test_means[2]<<std::endl;
             std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
             
 
