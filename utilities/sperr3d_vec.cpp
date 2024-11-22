@@ -422,7 +422,7 @@ int main(int argc, char* argv[])
       if (print_stats) {
         for(auto i:{0,1,2}){
           std::cout<<"p6"<<std::endl;
-          const double print_bpp = stream.size() * 8.0 / total_vals;
+          const double print_bpp = stream[i].size() * 8.0 / total_vals;
           double rmse, linfy, print_psnr, min, max, sigma;
           
           if (ftype == 32) {
