@@ -62,12 +62,11 @@ class SPERR3D_OMP_C {
   //    a little difficult to work with a container (std::vector<>), so we ask the
   //    container to store pointers (which are trivially constructible) instead.
   //
-  std::vector<std::unique_ptr<SPECK3D_VEC_FLT>> m_compressors;
+  std::array< std::vector<std::unique_ptr<SPECK3D_FLT>>,3> m_compressors;
 #else
   // This single instance of compressor doesn't need to be allocated on the heap;
   // rather, it's just to keep consistency with the USE_OMP case.
-  std::unique_ptr<SPECK3D_VEC_FLT> m_compressor;
-#endif
+  std::array< std::unique_ptr<SPECK3D_FLT>,3> m_compressor;#endif
 
   // The eventual header size would be this magic number + num_chunks * 4
   const size_t m_header_magic_nchunks = 20;
