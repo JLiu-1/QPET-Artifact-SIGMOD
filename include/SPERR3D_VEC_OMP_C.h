@@ -77,7 +77,7 @@ class SPERR3D_VEC_OMP_C {
   //
   // Private methods
   //
-  auto m_generate_header() const -> vec8_type;
+  auto m_generate_header(int i) const -> vec8_type;
 
   // Gather a chunk from a bigger volume.
   // If the requested chunk lives outside of the volume, whole or part,

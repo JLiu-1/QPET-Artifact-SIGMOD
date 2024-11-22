@@ -417,7 +417,7 @@ auto sperr::SPERR3D_VEC_OMP_C::get_encoded_bitstream() const -> std::array<vec8_
 {
   std::array<vec8_type,3> bitstream;
   for(auto i:{0,1,2}){
-    auto header = m_generate_header();
+    auto header = m_generate_header(i);
     assert(!header.empty());
     auto header_size = header.size();
     auto stream_size = std::accumulate(m_encoded_streams[i].cbegin(), m_encoded_streams[i].cend(), 0lu,
@@ -435,7 +435,7 @@ auto sperr::SPERR3D_VEC_OMP_C::get_encoded_bitstream() const -> std::array<vec8_
   return bitstream;
 }
 
-auto sperr::SPERR3D_VEC_OMP_C::m_generate_header() const -> sperr::vec8_type
+auto sperr::SPERR3D_VEC_OMP_C::m_generate_header(int i) const -> sperr::vec8_type
 {
   auto header = sperr::vec8_type();
 
@@ -449,7 +449,7 @@ auto sperr::SPERR3D_VEC_OMP_C::m_generate_header() const -> sperr::vec8_type
   auto chunk_idx = sperr::chunk_volume(m_dims, m_chunk_dims);
   const auto num_chunks = chunk_idx.size();
   assert(num_chunks != 0);
-  if (num_chunks != m_encoded_streams.size())
+  if (num_chunks != m_encoded_streams[i].size())
     return header;
   auto header_size = size_t{0};
   if (num_chunks > 1)
@@ -497,7 +497,7 @@ auto sperr::SPERR3D_VEC_OMP_C::m_generate_header() const -> sperr::vec8_type
   }
 
   // Length of bitstream for each chunk.
-  for (const auto& stream : m_encoded_streams) {
+  for (const auto& stream : m_encoded_streams[i]) {
     assert(stream.size() <= uint64_t{std::numeric_limits<uint32_t>::max()});
     uint32_t len = stream.size();
     std::memcpy(&header[pos], &len, sizeof(len));
