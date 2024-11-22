@@ -1,5 +1,5 @@
-#include "SPERR3D_VEC_OMP_C.h"
-#include "SPERR3D_VEC_OMP_D.h"
+#include "SPERR3D_OMP_C.h"
+#include "SPERR3D_OMP_D.h"
 
 #include "CLI/App.hpp"
 #include "CLI/Config.hpp"
@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
       std::cout << "Input file size wrong!" << std::endl;
       return __LINE__ % 256;
     }
-    auto encoder = std::make_unique<sperr::SPERR3D_VEC_OMP_C>();
+    auto encoder = std::make_unique<sperr::SPERR3D_OMP_C>();
     encoder->set_dims_and_chunks(dims, chunks);
     encoder->set_num_threads(omp_num_threads);
     if (pwe != 0.0)
