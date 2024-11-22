@@ -570,12 +570,14 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }*/
   }
   if(qoi!=nullptr){
+
     if(qoi_block_size==1){//pointwise
+      auto mean = m_conditioner.get_mean();
       std::vector<double>offsets(total_vals,0);
      // size_t count=0;
       for (size_t i = 0; i < total_vals; i++) {
     
-        if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i])  ){
+        if ( !qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)  ){
           m_has_lossless = true;
           offsets[i]=m_vals_orig[i]-m_vals_d[i];
           //count++;
@@ -734,7 +736,7 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
 
   std::vector<double>offsets(m_vals_d.size(),0);
  // size_t count=0;
-  
+  auto mean = m_conditioner.get_mean();
    
   size_t n1 = m_dims[2], n2 = m_dims[1], n3 = m_dims[0];
   int block_size = qoi_block_size;
@@ -772,8 +774,8 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
               for(size_t ii=0; ii<size_1; ii++){
                   for(size_t jj=0; jj<size_2; jj++){
                       for(size_t kk=0; kk<size_3; kk++){
-                          double q = qoi->eval(*cur_data_pos);
-                          double oq = qoi->eval(*cur_ori_data_pos);
+                          double q = qoi->eval(*cur_data_pos+mean);
+                          double oq = qoi->eval(*cur_ori_data_pos+mean);
                           bool compliance = true;
                           if ((std::isnan(oq) or std::isinf(oq)))
                             compliance = (*cur_data_pos == *cur_ori_data_pos);
