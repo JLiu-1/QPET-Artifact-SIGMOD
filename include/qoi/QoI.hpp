@@ -52,7 +52,7 @@ namespace QoZ {
 
             virtual void set_qoi_tolerance(double tol) = 0;
 
-            virtual void get_qoi_tolerance() = 0;
+            virtual double get_qoi_tolerance() = 0;
 
             virtual std::string get_expression() const = 0;
 
