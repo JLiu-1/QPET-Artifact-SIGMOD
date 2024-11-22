@@ -7,6 +7,10 @@
 
 #include "Conditioner.h"
 
+auto sperr::Conditioner::get_mean() const -> double{
+  return m_mean;
+}
+
 auto sperr::Conditioner::condition(vecd_type& buf, dims_type dims) -> condi_type
 {
   // The order of performing condition operations:
@@ -59,6 +63,7 @@ auto sperr::Conditioner::condition(vecd_type& buf, dims_type dims) -> condi_type
   pos += sizeof(mean);
   while (pos < header.size())
     header[pos++] = 0;
+  m_mean = mean;
 
   return header;
 }
