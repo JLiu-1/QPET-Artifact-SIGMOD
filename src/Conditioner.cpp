@@ -11,6 +11,10 @@ auto sperr::Conditioner::get_mean() const -> double{
   return m_mean;
 }
 
+void sperr::Conditioner::set_high_prec(bool hp){
+  m_high_prec = hp;
+}
+
 auto sperr::Conditioner::condition(vecd_type& buf, dims_type dims) -> condi_type
 {
   // The order of performing condition operations:
@@ -50,7 +54,7 @@ auto sperr::Conditioner::condition(vecd_type& buf, dims_type dims) -> condi_type
   // Operation 2
   //
   m_adjust_strides(buf.size());
-  const auto mean = m_calc_mean(buf);
+  const auto mean = m_high_prec? 0.0 : m_calc_mean(buf);
   std::for_each(buf.begin(), buf.end(), [mean](auto& v) { v -= mean; });
 
   // Assemble a header of the following info order:

@@ -72,7 +72,7 @@ class SPECK_FLT {
   //
   // Actions
   //
-  auto compress() -> RTNType;
+  auto compress(bool high_prec = false) -> RTNType;
   auto decompress(bool multi_res = false) -> RTNType;
 
  protected:

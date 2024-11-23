@@ -17,6 +17,8 @@ class Conditioner {
   auto condition(vecd_type& buf, dims_type) -> condi_type;
   auto inverse_condition(vecd_type& buf, dims_type, condi_type header) -> RTNType;
 
+  void set_high_prec(bool);
+
   auto is_constant(uint8_t) const -> bool;
 
   // Save a double to the last 8 bytes of a condi_type.
@@ -24,10 +26,14 @@ class Conditioner {
   auto retrieve_q(condi_type header) const -> double;
   auto get_mean() const -> double;
 
+
+
  private:
   const size_t m_constant_field_idx = 7;
   const size_t m_default_num_strides = 2048;
   double m_mean = 0.0;
+
+  bool m_high_prec = false;
 
   // Calculation is carried out by strides, which should be a divisor of the input data size.
   size_t m_num_strides = m_default_num_strides;

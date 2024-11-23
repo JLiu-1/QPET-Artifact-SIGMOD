@@ -237,7 +237,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             test_compressor->set_qoi(qoi);
             vec8_type test_encoded_stream;
 
-            auto rtn = test_compressor->compress();
+            auto rtn = test_compressor->compress(true);
             if(rtn!= RTNType::Good)
               std::cout<<"Error"<<std::endl;
 
@@ -314,7 +314,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 #endif
       default:;  // So the compiler doesn't complain about missing cases.
     }
-    chunk_rtn[i] = compressor->compress();
+    chunk_rtn[i] = compressor->compress(true);
 
     // Save bitstream for each chunk in `m_encoded_stream`.
     m_encoded_streams[i].clear();

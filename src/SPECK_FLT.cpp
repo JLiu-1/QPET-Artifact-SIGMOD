@@ -468,7 +468,7 @@ void sperr::SPECK_FLT::m_midtread_inv_quantize()
       m_vals_ui);
 }
 
-auto sperr::SPECK_FLT::compress() -> RTNType
+auto sperr::SPECK_FLT::compress(bool high_prec) -> RTNType
 {
   const auto total_vals = size_t(m_dims[0]) * m_dims[1] * m_dims[2];
   if (m_vals_d.empty() || m_vals_d.size() != total_vals)
@@ -479,6 +479,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
 
   m_has_outlier = false;
   m_has_lossless = false;
+  m_conditioner.set_high_prec(high_prec);
 
   // Collect information for different compression modes.
   auto param_q = 0.0;  // assist estimating `m_q`.
