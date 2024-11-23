@@ -292,7 +292,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
               for(auto i:{0,1,2})
                 test_compressor[i]->zstd_encode(offsets[i]);
             }
-            std::cout<<outlier_num<<std::endl;
+            std::cout<<outlier_num<<" "<<sample_num<<std::endl;
 
             //todo here
 
