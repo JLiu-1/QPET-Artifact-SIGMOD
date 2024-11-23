@@ -189,7 +189,7 @@ auto sperr::SPECK_FLT::view_hierarchy() const -> const std::vector<vecd_type>&
   return m_hierarchy;
 }
 
-auto sperr::SPECK_FLT::get_mean() const -> double
+auto sperr::SPECK_FLT::() const -> double
 {
   return m_conditioner.get_mean();
 }
@@ -548,7 +548,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       auto diff = m_vals_orig[i] - m_vals_d[i];
       if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  ){
         LOS.emplace_back(i, diff);
-        m_vals_d[i] = m_vals_orig[i];
+        //m_vals_d[i] = m_vals_orig[i];
       }
     }
     //std::cout<<LOS.size()<<std::endl;
@@ -570,13 +570,13 @@ FIXED_RATE_HIGH_PREC_LABEL:
       //std::cout<<new_LOS.size()<<std::endl;
 
     }
-    /*
+    
     if(qoi!=nullptr){
       auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
       for(auto &los:decoded_LOS)
         m_vals_d[los.pos]+=los.err;
-    }*/
+    }
   }
   
   
