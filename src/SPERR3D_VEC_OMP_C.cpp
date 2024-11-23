@@ -270,13 +270,13 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             }
             std::array<const vecd_type *,3>sampled_ori = {&test_compressor[0]->view_orig_data(),&test_compressor[1]->view_orig_data(),&test_compressor[2]->view_orig_data()}; 
             std::array<double,3>test_means = {test_compressor[0]->get_mean(),test_compressor[1]->get_mean(),test_compressor[2]->get_mean()};
-            std::cout<<test_means[0]<<" "<<test_means[1]<<" "<<test_means[2]<<std::endl;
+            //std::cout<<test_means[0]<<" "<<test_means[1]<<" "<<test_means[2]<<std::endl;
             std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
             
 
             bool outlier = false;
             size_t outlier_num = 0;
-            std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
+            //std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
             for(size_t i = 0; i < sample_num ; i++){
               //std::cout<<sampled_data[0][i]<<" "<<(*sampled_dec[0])[i]<<std::endl;
               if(!m_qoi->check_compliance((*sampled_ori[0])[i]+test_means[0],(*sampled_ori[1])[i]+test_means[1],(*sampled_ori[2])[i]+test_means[2],
@@ -292,7 +292,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
               for(auto i:{0,1,2})
                 test_compressor[i]->zstd_encode(offsets[i]);
             }
-            std::cout<<outlier_num<<" "<<sample_num<<std::endl;
+            //std::cout<<outlier_num<<" "<<sample_num<<std::endl;
 
             //todo here
 
@@ -389,7 +389,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       }
       bool outlier = false;
       //std::cout<<chunk_ele_num<<std::endl;
-      std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
+      //std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
       for(size_t k = 0; k < chunk_ele_num ; k++){
         if(!m_qoi->check_compliance((*orig_data[0])[k]+means[0],(*orig_data[1])[k]+means[1],(*orig_data[2])[k]+means[2],
                                              (*dec_data[0])[k]+means[0],(*dec_data[1])[k]+means[1],(*dec_data[2])[k]+means[2]) ){
