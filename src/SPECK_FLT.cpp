@@ -479,7 +479,7 @@ auto sperr::SPECK_FLT::compress(bool hp) -> RTNType
 
   m_has_outlier = false;
   m_has_lossless = false;
-  m_conditioner.set_high_prec(hp);
+  
 
   // Collect information for different compression modes.
   auto param_q = 0.0;  // assist estimating `m_q`.
@@ -496,11 +496,11 @@ auto sperr::SPECK_FLT::compress(bool hp) -> RTNType
     }
     default:;  // So the compiler doesn't complain about missing switch cases.
   }
-  std::cout<<m_vals_orig[683778]<<" "<<m_vals_orig[1414752]<<" "<<m_vals_orig[3007077]<<std::endl;
-
+CMP_START:
   // Step 1: data goes through the conditioner
   //    Believe it or not, there are constant fields passed in for compression!
   //    Let's detect that case and skip the rest of the compression routine if it occurs.
+  m_conditioner.set_high_prec(hp);
   m_condi_bitstream = m_conditioner.condition(m_vals_d, m_dims);
   if (qoi == nullptr and m_conditioner.is_constant(m_condi_bitstream[0])){
     //std::cout<<"constant!"<<std::endl;
@@ -508,10 +508,7 @@ auto sperr::SPECK_FLT::compress(bool hp) -> RTNType
   }
   auto mean = m_conditioner.get_mean();
 
-  std::cout<<m_vals_d[683778]<<" "<<m_vals_d[1414752]<<" "<<m_vals_d[3007077]<<std::endl;
-  std::cout<<m_vals_d[683778]+mean<<" "<<m_vals_d[1414752]+mean<<" "<<m_vals_d[3007077]+mean<<std::endl;
-  
-  
+
 
   // Step 2: wavelet transform
   m_cdf.take_data(std::move(m_vals_d), m_dims);
@@ -602,21 +599,16 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
           m_has_lossless = true;
           offsets[i]=m_vals_orig[i]-(m_vals_d[i]+mean);
-          double oldtest;
-          if(i==683778 or i == 1414752){
-            oldtest = m_vals_d[i];
-            std::cout<<m_vals_orig[i]<<" "<<m_vals_d[i]<<" "<<(m_vals_d[i]+mean)<<" "<<offsets[i]<<" ";
-          }
-          m_vals_d[i]+=offsets[i];
-          if(i==683778 or i == 1414752){
-            std::cout<<m_vals_d[i]+mean<<" "<<m_vals_d[i]<<std::endl;
-            std::cout<<m_vals_d[i]-oldtest<<std::endl;
-          }
 
+          if ( m_vals_orig[i]!=(m_vals_d[i]+mean+offsets[i]) ){
+            std::cout<<"switch to high prec mode"<<std::endl;
+            hp = true;
+            m_vals_d = m_vals_orig;
+            goto CMP_START;
           //count++;
+          }
         }
-        if(!qoi->check_compliance(m_vals_orig[i],m_vals_d[i]+mean))
-          std::cout<<i<<std::endl;
+
 
         /*
         if(i==683778 or i == 1414752 or i == 3007077 ){

@@ -314,7 +314,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 #endif
       default:;  // So the compiler doesn't complain about missing cases.
     }
-    chunk_rtn[i] = compressor->compress(true);
+    chunk_rtn[i] = compressor->compress();
 
     // Save bitstream for each chunk in `m_encoded_stream`.
     m_encoded_streams[i].clear();
