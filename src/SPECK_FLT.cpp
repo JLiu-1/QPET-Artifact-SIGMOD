@@ -539,7 +539,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       auto diff = m_vals_orig[i] - m_vals_d[i];
       if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  ){
         LOS.emplace_back(i, diff);
-        m_vals_d[i] = m_vals_orig[i];
+        //m_vals_d[i] = m_vals_orig[i];
       }
     }
     //std::cout<<LOS.size()<<std::endl;
@@ -551,8 +551,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
       m_out_coder.set_length(total_vals);
       m_out_coder.set_tolerance(m_quality);
       m_out_coder.use_outlier_list(std::move(LOS));
-      //if(qoi!=nullptr)
-      //  m_out_coder.set_qoi(true);
+      if(qoi!=nullptr)
+        m_out_coder.set_qoi(true);
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
@@ -561,13 +561,13 @@ FIXED_RATE_HIGH_PREC_LABEL:
       //std::cout<<new_LOS.size()<<std::endl;
 
     }
-    /*
+    
     if(qoi!=nullptr){
       auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
       for(auto &los:decoded_LOS)
         m_vals_d[los.pos]+=los.err;
-    }*/
+    }
   }
   if(qoi!=nullptr){
 
@@ -579,6 +579,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       for (size_t i = 0; i < total_vals; i++) {
     
         if ( !qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)  ){
+
           m_has_lossless = true;
           offsets[i]=m_vals_orig[i]-m_vals_d[i];
           //count++;
@@ -593,6 +594,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
 
   }
+  //test check
+  auto get_mean
   
 
   //or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) )

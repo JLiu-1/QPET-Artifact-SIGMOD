@@ -43,12 +43,12 @@ void sperr::Outlier_Coder::inverse_quantize()
   m_inverse_quantize();
 }
 
-/*
+
 void sperr::Outlier_Coder::set_qoi(bool q)
 {
   qoi = q;
 }
-*/
+
 void sperr::Outlier_Coder::append_encoded_bitstream(vec8_type& buf) const
 {
   // Just append the bitstream produced by `m_encoder` is fine.
@@ -118,8 +118,8 @@ auto sperr::Outlier_Coder::encode() -> RTNType
   // Step 2: quantize the outliers.
   m_quantize();
 
-  //if(qoi)
-  //  m_inverse_quantize_2();
+  if(qoi)
+    m_inverse_quantize_2();
 
 
   // Step 3: integer SPECK encoding.
@@ -252,7 +252,7 @@ void sperr::Outlier_Coder::m_inverse_quantize()
                    return los;
                  });
 }
-/*
+
 void sperr::Outlier_Coder::m_inverse_quantize_2()
 {
   m_LOS_decoded.clear();
@@ -282,4 +282,3 @@ void sperr::Outlier_Coder::m_inverse_quantize_2()
                    return los;
                  });
 }
-*/

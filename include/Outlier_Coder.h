@@ -43,11 +43,11 @@ class Outlier_Coder {
   auto encode() -> RTNType;
   auto decode() -> RTNType;
   void inverse_quantize();
-  //void set_qoi(bool);
+  void set_qoi(bool);
  private:
   size_t m_total_len = 0;
   double m_tol = 0.0;
-  //bool qoi = false;
+  bool qoi = false;
   Bitmask m_sign_array;
   std::vector<Outlier> m_LOS;
   std::vector<Outlier> m_LOS_decoded;
@@ -73,7 +73,7 @@ class Outlier_Coder {
   void m_instantiate_uvec_coders(UINTType);
   void m_quantize();
   void m_inverse_quantize();
-  //void m_inverse_quantize_2();
+  void m_inverse_quantize_2();
 };
 
 }  // namespace sperr
