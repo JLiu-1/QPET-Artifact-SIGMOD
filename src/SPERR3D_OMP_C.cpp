@@ -256,6 +256,9 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 
             last_quantile = quantile+1;
             idx++;
+
+            if(!test_compressor->has_lossless())
+              break;
             
         }
         std::cout<<"Selected quantile: "<<(double)best_quantile/(double)chunk_ele_num<<std::endl;

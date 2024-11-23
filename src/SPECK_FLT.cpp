@@ -231,6 +231,11 @@ void sperr::SPECK_FLT::set_direct_q(double q)
 }
 #endif
 
+auto sperr::SPECK_FLT::has_lossless()-> bool
+{
+  return m_has_lossless;
+}
+
 void sperr::SPECK_FLT::set_dims(dims_type dims)
 {
   m_dims = dims;

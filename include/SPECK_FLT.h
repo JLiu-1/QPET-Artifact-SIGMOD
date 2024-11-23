@@ -63,6 +63,8 @@ class SPECK_FLT {
 
   void block_qoi_outlier_correction();
 
+  auto has_lossless() const -> bool;
+
 #ifdef EXPERIMENTING
   void set_direct_q(double q);
 #endif
