@@ -209,7 +209,7 @@ namespace QoZ {
             //std::cout<<"dec: "<<q_dec<<std::endl;
             if (std::isnan(q_dec) or std::isinf(q_dec))
                 return false;
-            s//td::cout<<(fabs(q_ori - q_dec)<= tolerance)<<"\n----"<<std::endl;
+            //std::cout<<(fabs(q_ori - q_dec)<= tolerance)<<"\n----"<<std::endl;
             return (fabs(q_ori - q_dec) <= tolerance);
         }
         //void update_tolerance(T data, T dec_data){}
