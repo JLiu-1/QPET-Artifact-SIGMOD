@@ -90,7 +90,7 @@ template <typename T>
 auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 {
   static_assert(std::is_floating_point<T>::value, "!! Only floating point values are supported !!");
-  std::cout<<buf[683778]<<" "<<buf[1414752]<<" "<<buf[3007077]<<std<<endl;
+  std::cout<<buf[683778]<<" "<<buf[1414752]<<" "<<buf[3007077]<<std::endl;
   if constexpr (std::is_same<T, float>::value)
     m_orig_is_float = true;
   else
@@ -130,7 +130,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 
     // Gather data for this chunk, Setup compressor parameters, and compress!
     auto chunk = m_gather_chunk<T>(buf, m_dims, chunk_idx[i]);
-    std::cout<<chunk[683778]<<" "<<chunk[1414752]<<" "<<chunk[3007077]<<std<<endl;
+    std::cout<<chunk[683778]<<" "<<chunk[1414752]<<" "<<chunk[3007077]<<std::endl;
     assert(!chunk.empty());
 
     if(qoi_id>0 and qoi_tol>0){//qoi tuning
