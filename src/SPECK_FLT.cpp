@@ -578,7 +578,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
     if(qoi_block_size==1){//pointwise
       auto mean = m_conditioner.get_mean();
-      std::cout<<mean<<std::endl;
+      //std::cout<<mean<<std::endl;
       std::vector<double>offsets(total_vals,0);
      // size_t count=0;
       for (size_t i = 0; i < total_vals; i++) {
