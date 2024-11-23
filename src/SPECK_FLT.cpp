@@ -605,7 +605,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
             std::cout<<m_vals_orig[i]<<" "<<(m_vals_d[i]+mean)<<" "<<offsets[i]<<" ";
           m_vals_d[i]+=offsets[i];
           if(i==683778 or i == 1414752)
-            std::cout<<m_vals_d[i]<<std::endl;
+            std::cout<<m_vals_d[i]+mean<<std::endl;
 
           //count++;
         }
