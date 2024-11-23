@@ -479,7 +479,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
 
   m_has_outlier = false;
   m_has_lossless = false;
-  
+
   // Collect information for different compression modes.
   auto param_q = 0.0;  // assist estimating `m_q`.
   switch (m_mode) {
@@ -495,7 +495,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     }
     default:;  // So the compiler doesn't complain about missing switch cases.
   }
-
+  std::cout<<m_vals_orig[683778]<<" "<<m_vals_orig[1414752]<<" "<<m_vals_orig[3007077]<<std::endl;
 
   // Step 1: data goes through the conditioner
   //    Believe it or not, there are constant fields passed in for compression!
@@ -505,6 +505,10 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     //std::cout<<"constant!"<<std::endl;
     return RTNType::Good;
   }
+  auto mean = m_conditioner.get_mean();
+
+  std::cout<<m_vals_d[683778]<<" "<<m_vals_d[1414752]<<" "<<m_vals_d[3007077]<<std::endl;
+  std::cout<<m_vals_d[683778]+mean<<" "<<m_vals_d[1414752]+mean<<" "<<m_vals_d[3007077]+mean<<std::endl;
   
   
 
@@ -533,7 +537,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
   if (rtn != RTNType::Good)
     return rtn;
 
-  auto mean = m_conditioner.get_mean();
+  
 
   // CompMode::PWE only: perform outlier coding: find out all the outliers, and encode them!
   if (m_mode == CompMode::PWE) {
@@ -585,17 +589,24 @@ FIXED_RATE_HIGH_PREC_LABEL:
   if(qoi!=nullptr){
 
     if(qoi_block_size==1){//pointwise
-      auto mean = m_conditioner.get_mean();
+      //auto mean = m_conditioner.get_mean();
       //std::cout<<mean<<std::endl;
       std::vector<double>offsets(total_vals,0);
      // size_t count=0;
       for (size_t i = 0; i < total_vals; i++) {
+
+
     
         if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]+mean)  ){
 
           m_has_lossless = true;
           offsets[i]=m_vals_orig[i]-(m_vals_d[i]+mean);
           //count++;
+        }
+        if(i==683778 or i == 1414752 or i == 3007077 ){
+          std::cout<<i<<std::endl;
+          std::cout<<m_vals_orig[i]<<" "<<m_vals_d[i]+mean<<" "<<qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)<<std::endl;
+          std::cout<<m_vals_orig[i]<<" "<<m_vals_d[i]+mean+offsets[i]<<std::endl;
         }
       }
       //std::cout<<"lossless data count: "<<count<<std::endl;
