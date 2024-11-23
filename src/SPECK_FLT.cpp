@@ -484,8 +484,8 @@ auto sperr::SPECK_FLT::compress() -> RTNType
   //    Believe it or not, there are constant fields passed in for compression!
   //    Let's detect that case and skip the rest of the compression routine if it occurs.
   m_condi_bitstream = m_conditioner.condition(m_vals_d, m_dims);
-  if (m_conditioner.is_constant(m_condi_bitstream[0])){
-    std::cout<<"constant!"<<std::endl;
+  if (qoi == nullptr and m_conditioner.is_constant(m_condi_bitstream[0])){
+    //std::cout<<"constant!"<<std::endl;
     return RTNType::Good;
   }
 
