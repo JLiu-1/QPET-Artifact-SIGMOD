@@ -224,6 +224,8 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 
             
             auto cur_abs_eb = ebs[quantile];
+            if(cur_abs_eb<=1e-15)
+              break;
             qoi->set_global_eb(cur_abs_eb);
             // reset variables for average of square
             auto test_compressor = std::make_unique<SPECK3D_FLT>();
