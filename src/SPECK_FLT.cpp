@@ -490,7 +490,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     return RTNType::Good;
   }
   std::cout<<m_vals_d[683778]<<" "<<m_vals_d[1414752]<<" "<<m_vals_d[3007077]<<" "<<m_conditioner.get_mean()<<std::endl;
-  std::cout<<m_vals_d[683778]+m_conditioner.get_mean()<<" "<<m_vals_d[1414752]+m_conditioner.get_mean()<<" "<<m_vals_d[3007077]+m_conditioner.get_mean()<<" "<<<<std::endl;
+  std::cout<<m_vals_d[683778]+m_conditioner.get_mean()<<" "<<m_vals_d[1414752]+m_conditioner.get_mean()<<" "<<m_vals_d[3007077]+m_conditioner.get_mean()<<" "<<std::endl;
   // Collect information for different compression modes.
   auto param_q = 0.0;  // assist estimating `m_q`.
   switch (m_mode) {
