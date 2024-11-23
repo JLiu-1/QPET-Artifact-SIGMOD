@@ -279,7 +279,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             //std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
             for(size_t i = 0; i < sample_num ; i++){
               //std::cout<<sampled_data[0][i]<<" "<<(*sampled_dec[0])[i]<<std::endl;
-              if(!m_qoi->check_compliance((*sampled_ori[0])[i]+test_means[0],(*sampled_ori[1])[i]+test_means[1],(*sampled_ori[2])[i]+test_means[2],
+              if(!m_qoi->check_compliance((*sampled_ori[0])[i],(*sampled_ori[1])[i],(*sampled_ori[2])[i],
                                                    (*sampled_dec[0])[i]+test_means[0],(*sampled_dec[1])[i]+test_means[1],(*sampled_dec[2])[i]+test_means[2]) ){
                 outlier = true;
                 outlier_num++;
@@ -391,7 +391,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       //std::cout<<chunk_ele_num<<std::endl;
       //std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
       for(size_t k = 0; k < chunk_ele_num ; k++){
-        if(!m_qoi->check_compliance((*orig_data[0])[k]+means[0],(*orig_data[1])[k]+means[1],(*orig_data[2])[k]+means[2],
+        if(!m_qoi->check_compliance((*orig_data[0])[k],(*orig_data[1])[k],(*orig_data[2])[k],
                                              (*dec_data[0])[k]+means[0],(*dec_data[1])[k]+means[1],(*dec_data[2])[k]+means[2]) ){
           outlier = true;
           for(auto j:{0,1,2})

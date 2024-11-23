@@ -484,13 +484,6 @@ auto sperr::SPECK_FLT::compress() -> RTNType
   m_has_outlier = false;
   m_has_lossless= false;
 
-  // Step 1: data goes through the conditioner
-  //    Believe it or not, there are constant fields passed in for compression!
-  //    Let's detect that case and skip the rest of the compression routine if it occurs.
-  m_condi_bitstream = m_conditioner.condition(m_vals_d, m_dims);
-  if (m_conditioner.is_constant(m_condi_bitstream[0]))
-    return RTNType::Good;
-
   // Collect information for different compression modes.
   auto param_q = 0.0;  // assist estimating `m_q`.
   switch (m_mode) {
@@ -506,6 +499,18 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     }
     default:;  // So the compiler doesn't complain about missing switch cases.
   }
+
+
+  // Step 1: data goes through the conditioner
+  //    Believe it or not, there are constant fields passed in for compression!
+  //    Let's detect that case and skip the rest of the compression routine if it occurs.
+  m_condi_bitstream = m_conditioner.condition(m_vals_d, m_dims);
+  if (m_conditioner.is_constant(m_condi_bitstream[0]))
+    return RTNType::Good;
+
+
+
+  
 
   // Step 2: wavelet transform
   m_cdf.take_data(std::move(m_vals_d), m_dims);
@@ -534,6 +539,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
   // CompMode::PWE only: perform outlier coding: find out all the outliers, and encode them!
   if (m_mode == CompMode::PWE) {
+    auto mean = m_conditioner.get_mean();
     //std::cout<<"perform outlier"<<std::endl;
     //std::cout<<qoi->get_expression()<<" "<<qoi->get_global_eb()<<std::endl;
     m_midtread_inv_quantize();
@@ -545,7 +551,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     auto LOS = std::vector<Outlier>();
     LOS.reserve(0.04 * total_vals);  // Reserve space to hold about 100% of total values.
     for (size_t i = 0; i < total_vals; i++) {
-      auto diff = m_vals_orig[i] - m_vals_d[i];
+      auto diff = m_vals_orig[i] - (m_vals_d[i]+mean);
       if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  ){
         LOS.emplace_back(i, diff);
         //m_vals_d[i] = m_vals_orig[i];
@@ -667,12 +673,31 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   // Step 2: Inverse quantization
   m_midtread_inv_quantize();
 
+
   // Step 3: Inverse wavelet transform
   auto rtn = m_cdf.take_data(std::move(m_vals_d), m_dims);
   if (rtn != RTNType::Good)
     return rtn;
   m_inverse_wavelet_xform(multi_res);
   m_vals_d = m_cdf.release_data();
+
+  // Step 4: Inverse Conditioning
+  rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
+  if (rtn != RTNType::Good)
+    return rtn;
+  if (multi_res) {
+    auto resolutions = sperr::coarsened_resolutions(m_dims);
+    if (m_hierarchy.size() != resolutions.size())
+      return RTNType::Error;
+    for (size_t h = 0; h < m_hierarchy.size(); h++) {
+      const auto& res = resolutions[h];
+      if (m_hierarchy[h].size() != res[0] * res[1] * res[2])
+        return RTNType::Error;
+      else
+        m_conditioner.inverse_condition(m_hierarchy[h], res, m_condi_bitstream);
+    }
+  }
+  
   // Side step: outlier correction, if needed
   if (m_has_outlier) {
     m_out_coder.set_length(m_dims[0] * m_dims[1] * m_dims[2]);
@@ -699,22 +724,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     delete []offsets;
   }
 
-  // Step 4: Inverse Conditioning
-  rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
-  if (rtn != RTNType::Good)
-    return rtn;
-  if (multi_res) {
-    auto resolutions = sperr::coarsened_resolutions(m_dims);
-    if (m_hierarchy.size() != resolutions.size())
-      return RTNType::Error;
-    for (size_t h = 0; h < m_hierarchy.size(); h++) {
-      const auto& res = resolutions[h];
-      if (m_hierarchy[h].size() != res[0] * res[1] * res[2])
-        return RTNType::Error;
-      else
-        m_conditioner.inverse_condition(m_hierarchy[h], res, m_condi_bitstream);
-    }
-  }
+  
 
   return RTNType::Good;
 }
