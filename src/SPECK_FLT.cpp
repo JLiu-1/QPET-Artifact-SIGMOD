@@ -599,14 +599,14 @@ FIXED_RATE_HIGH_PREC_LABEL:
 
           m_has_lossless = true;
           offsets[i]=m_vals_orig[i]-(m_vals_d[i]+mean);
-
+          /*
           if ( m_vals_orig[i]!=(m_vals_d[i]+offsets[i])+mean ){
             std::cout<<"switch to high prec mode"<<std::endl;
             hp = true;
             m_vals_d = m_vals_orig;
             goto CMP_START;
           //count++;
-          }
+          }*/
         }
 
 
@@ -717,6 +717,24 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   m_inverse_wavelet_xform(multi_res);
   m_vals_d = m_cdf.release_data();
 
+  // Step 4: Inverse Conditioning
+  rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
+  if (rtn != RTNType::Good)
+    return rtn;
+
+  if (multi_res) {
+    auto resolutions = sperr::coarsened_resolutions(m_dims);
+    if (m_hierarchy.size() != resolutions.size())
+      return RTNType::Error;
+    for (size_t h = 0; h < m_hierarchy.size(); h++) {
+      const auto& res = resolutions[h];
+      if (m_hierarchy[h].size() != res[0] * res[1] * res[2])
+        return RTNType::Error;
+      else
+        m_conditioner.inverse_condition(m_hierarchy[h], res, m_condi_bitstream);
+    }
+  }
+
   // Side step: outlier correction, if needed
   if (m_has_outlier) {
     m_out_coder.set_length(m_dims[0] * m_dims[1] * m_dims[2]);
@@ -746,23 +764,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     //std::cout<<"re3"<<std::endl;
   }
 
-  // Step 4: Inverse Conditioning
-  rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
-  if (rtn != RTNType::Good)
-    return rtn;
-
-  if (multi_res) {
-    auto resolutions = sperr::coarsened_resolutions(m_dims);
-    if (m_hierarchy.size() != resolutions.size())
-      return RTNType::Error;
-    for (size_t h = 0; h < m_hierarchy.size(); h++) {
-      const auto& res = resolutions[h];
-      if (m_hierarchy[h].size() != res[0] * res[1] * res[2])
-        return RTNType::Error;
-      else
-        m_conditioner.inverse_condition(m_hierarchy[h], res, m_condi_bitstream);
-    }
-  }
+  
 
   return RTNType::Good;
 }
