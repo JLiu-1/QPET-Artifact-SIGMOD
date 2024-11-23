@@ -252,7 +252,7 @@ void sperr::SPECK_FLT::set_qoi(std::shared_ptr<QoZ::concepts::QoIInterface<doubl
 
 std::shared_ptr<QoZ::concepts::QoIInterface<double> > sperr::SPECK_FLT::get_qoi()
 {
-  return qoi;
+  return m_qoi;
 }
 
 void sperr::SPECK_FLT::set_qoi_tol(double q_tol)
