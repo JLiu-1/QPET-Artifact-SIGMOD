@@ -189,7 +189,7 @@ auto sperr::SPECK_FLT::view_hierarchy() const -> const std::vector<vecd_type>&
   return m_hierarchy;
 }
 
-auto sperr::SPECK_FLT::() const -> double
+auto sperr::SPECK_FLT::get_mean() const -> double
 {
   return m_conditioner.get_mean();
 }
