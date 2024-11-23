@@ -206,10 +206,10 @@ namespace QoZ {
             if (std::isnan(q_ori) or std::isinf(q_ori))
                 return x == dec_x and y == dec_y and z == dec_z;
             auto q_dec = eval(dec_x,dec_y,dec_z);
-            std::cout<<"dec: "<<q_dec<<"\n----"<<std::endl;
+            std::cout<<"dec: "<<q_dec<<std::endl;
             if (std::isnan(q_dec) or std::isinf(q_dec))
                 return false;
-            
+            std::cout<<fabs(q_ori - q_dec)<<"\n----"<<std::endl;
             return (fabs(q_ori - q_dec) <= tolerance);
         }
         //void update_tolerance(T data, T dec_data){}
