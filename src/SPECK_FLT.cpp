@@ -585,6 +585,10 @@ FIXED_RATE_HIGH_PREC_LABEL:
       std::vector<double>offsets(total_vals,0);
      // size_t count=0;
       for (size_t i = 0; i < total_vals; i++) {
+        if(i==683778 or i == 1414752 or i == 3007077 ){
+          std::cout<<i<<std::endl;
+          std::cout<<m_vals_orig[i]+mean<<" "<<m_vals_d[i]+mean<<" "<<qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)<<std::endl;
+        }
     
         if ( !qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)  ){
 
