@@ -280,7 +280,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             for(size_t i = 0; i < sample_num ; i++){
               //std::cout<<sampled_data[0][i]<<" "<<(*sampled_dec[0])[i]<<std::endl;
               if(!m_qoi->check_compliance((*sampled_ori[0])[i]+test_means[0],(*sampled_ori[1])[i]+test_means[1],(*sampled_ori[2])[i]+test_means[2],
-                                                   (*sampled_dec[0])[i]+test_means[0],(*sampled_dec[1])[i]+test_means[1],(*sampled_dec[2])[i])+test_means[2] ){
+                                                   (*sampled_dec[0])[i]+test_means[0],(*sampled_dec[1])[i]+test_means[1],(*sampled_dec[2])[i]+test_means[2]) ){
                 outlier = true;
                 outlier_num++;
                 for(auto j:{0,1,2})
