@@ -392,7 +392,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
       for(size_t k = 0; k < chunk_ele_num ; k++){
         if(!m_qoi->check_compliance((*orig_data[0])[k]+means[0],(*orig_data[1])[k]+means[1],(*orig_data[2])[k]+means[2],
-                                             (*dec_data[0])[k]+means[0],(*dec_data[1])[k]+means[1],(*dec_data[2])[k])+means[2] ){
+                                             (*dec_data[0])[k]+means[0],(*dec_data[1])[k]+means[1],(*dec_data[2])[k]+means[2]) ){
           outlier = true;
           for(auto j:{0,1,2})
             offsets[j][k] = (*orig_data[j])[k] - (*dec_data[j])[k];
