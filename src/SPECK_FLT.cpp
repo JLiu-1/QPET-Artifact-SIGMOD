@@ -231,7 +231,7 @@ void sperr::SPECK_FLT::set_direct_q(double q)
 }
 #endif
 
-auto sperr::SPECK_FLT::has_lossless()-> bool
+auto sperr::SPECK_FLT::has_lossless() const-> bool
 {
   return m_has_lossless;
 }
