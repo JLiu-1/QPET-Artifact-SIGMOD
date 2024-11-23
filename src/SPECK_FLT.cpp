@@ -479,7 +479,9 @@ auto sperr::SPECK_FLT::compress() -> RTNType
 
   m_has_outlier = false;
   m_has_lossless = false;
-
+  
+  // Collect information for different compression modes.
+  auto param_q = 0.0;  // assist estimating `m_q`.
   switch (m_mode) {
     case CompMode::PWE:
       m_vals_orig.resize(total_vals);
@@ -503,8 +505,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     //std::cout<<"constant!"<<std::endl;
     return RTNType::Good;
   }
-  // Collect information for different compression modes.
-  auto param_q = 0.0;  // assist estimating `m_q`.
+  
   
 
   // Step 2: wavelet transform
