@@ -594,8 +594,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
 
   }
-  //test check
-  auto get_mean
+  
   
 
   //or (qoi!=nullptr and !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]) )
