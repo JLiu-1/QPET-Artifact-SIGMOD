@@ -202,14 +202,14 @@ namespace QoZ {
         */
         bool check_compliance(T x, T y, T z, T dec_x, T dec_y, T dec_z) const{
             auto q_ori = eval(x,y,z);
-            std::cout<<"----\nori:"<<q_ori<<std::endl;
+            //std::cout<<"----\nori:"<<q_ori<<std::endl;
             if (std::isnan(q_ori) or std::isinf(q_ori))
                 return x == dec_x and y == dec_y and z == dec_z;
             auto q_dec = eval(dec_x,dec_y,dec_z);
-            std::cout<<"dec: "<<q_dec<<std::endl;
+            //std::cout<<"dec: "<<q_dec<<std::endl;
             if (std::isnan(q_dec) or std::isinf(q_dec))
                 return false;
-            std::cout<<(fabs(q_ori - q_dec)<= tolerance)<<"\n----"<<std::endl;
+            s//td::cout<<(fabs(q_ori - q_dec)<= tolerance)<<"\n----"<<std::endl;
             return (fabs(q_ori - q_dec) <= tolerance);
         }
         //void update_tolerance(T data, T dec_data){}
