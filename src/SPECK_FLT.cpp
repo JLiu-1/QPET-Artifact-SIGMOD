@@ -602,10 +602,10 @@ FIXED_RATE_HIGH_PREC_LABEL:
           m_has_lossless = true;
           offsets[i]=m_vals_orig[i]-(m_vals_d[i]+mean);
           if(i==683778 or i == 1414752)
-            std::cout<<m_vals_orig[i]<<" "<<(m_vals_d[i]+mean)<<" "<<offsets[i]<<" ";
+            std::cout<<m_vals_orig[i]<<" "<<m_vals_d[i]<<" "<<(m_vals_d[i]+mean)<<" "<<offsets[i]<<" ";
           m_vals_d[i]+=offsets[i];
           if(i==683778 or i == 1414752)
-            std::cout<<m_vals_d[i]+mean<<std::endl;
+            std::cout<<m_vals_d[i]+mean<<" "<<m_vals_d[i]<<std::endl;
 
           //count++;
         }
