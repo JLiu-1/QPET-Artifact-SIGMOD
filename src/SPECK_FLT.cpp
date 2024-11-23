@@ -470,7 +470,6 @@ void sperr::SPECK_FLT::m_midtread_inv_quantize()
 
 auto sperr::SPECK_FLT::compress() -> RTNType
 {
-  std::cout<<m_vals_d[683778]<<" "<<m_vals_d[1414752]<<" "<<m_vals_d[3007077]<<std::endl;
   const auto total_vals = size_t(m_dims[0]) * m_dims[1] * m_dims[2];
   if (m_vals_d.empty() || m_vals_d.size() != total_vals)
     return RTNType::Error;
@@ -481,18 +480,6 @@ auto sperr::SPECK_FLT::compress() -> RTNType
   m_has_outlier = false;
   m_has_lossless = false;
 
-  // Step 1: data goes through the conditioner
-  //    Believe it or not, there are constant fields passed in for compression!
-  //    Let's detect that case and skip the rest of the compression routine if it occurs.
-  m_condi_bitstream = m_conditioner.condition(m_vals_d, m_dims);
-  if (qoi == nullptr and m_conditioner.is_constant(m_condi_bitstream[0])){
-    //std::cout<<"constant!"<<std::endl;
-    return RTNType::Good;
-  }
-  std::cout<<m_vals_d[683778]<<" "<<m_vals_d[1414752]<<" "<<m_vals_d[3007077]<<" "<<m_conditioner.get_mean()<<std::endl;
-  std::cout<<m_vals_d[683778]+m_conditioner.get_mean()<<" "<<m_vals_d[1414752]+m_conditioner.get_mean()<<" "<<m_vals_d[3007077]+m_conditioner.get_mean()<<" "<<std::endl;
-  // Collect information for different compression modes.
-  auto param_q = 0.0;  // assist estimating `m_q`.
   switch (m_mode) {
     case CompMode::PWE:
       m_vals_orig.resize(total_vals);
@@ -506,6 +493,19 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     }
     default:;  // So the compiler doesn't complain about missing switch cases.
   }
+
+
+  // Step 1: data goes through the conditioner
+  //    Believe it or not, there are constant fields passed in for compression!
+  //    Let's detect that case and skip the rest of the compression routine if it occurs.
+  m_condi_bitstream = m_conditioner.condition(m_vals_d, m_dims);
+  if (qoi == nullptr and m_conditioner.is_constant(m_condi_bitstream[0])){
+    //std::cout<<"constant!"<<std::endl;
+    return RTNType::Good;
+  }
+  // Collect information for different compression modes.
+  auto param_q = 0.0;  // assist estimating `m_q`.
+  
 
   // Step 2: wavelet transform
   m_cdf.take_data(std::move(m_vals_d), m_dims);
@@ -532,6 +532,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
   if (rtn != RTNType::Good)
     return rtn;
 
+  auto mean = m_conditioner.get_mean();
+
   // CompMode::PWE only: perform outlier coding: find out all the outliers, and encode them!
   if (m_mode == CompMode::PWE) {
     //std::cout<<"perform outlier"<<std::endl;
@@ -545,7 +547,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     auto LOS = std::vector<Outlier>();
     LOS.reserve(0.04 * total_vals);  // Reserve space to hold about 100% of total values.
     for (size_t i = 0; i < total_vals; i++) {
-      auto diff = m_vals_orig[i] - m_vals_d[i];
+      auto diff = m_vals_orig[i] - (m_vals_d[i] + mean);
       if ( (m_mode == CompMode::PWE and std::abs(diff) > m_quality)  ){
         LOS.emplace_back(i, diff);
         //m_vals_d[i] = m_vals_orig[i];
@@ -587,15 +589,11 @@ FIXED_RATE_HIGH_PREC_LABEL:
       std::vector<double>offsets(total_vals,0);
      // size_t count=0;
       for (size_t i = 0; i < total_vals; i++) {
-        if(i==683778 or i == 1414752 or i == 3007077 ){
-          std::cout<<i<<std::endl;
-          std::cout<<m_vals_orig[i]+mean<<" "<<m_vals_d[i]+mean<<" "<<qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)<<std::endl;
-        }
     
-        if ( !qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)  ){
+        if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]+mean)  ){
 
           m_has_lossless = true;
-          offsets[i]=m_vals_orig[i]-m_vals_d[i];
+          offsets[i]=m_vals_orig[i]-(m_vals_d[i]+mean);
           //count++;
         }
       }
