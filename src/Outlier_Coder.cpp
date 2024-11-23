@@ -118,7 +118,7 @@ auto sperr::Outlier_Coder::encode() -> RTNType
   // Step 2: quantize the outliers.
   m_quantize();
 
-  if(qoi)
+  //if(qoi)
     m_inverse_quantize_2();
 
 
