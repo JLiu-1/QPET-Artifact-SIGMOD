@@ -605,7 +605,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         }
         if(i==683778 or i == 1414752 or i == 3007077 ){
           std::cout<<i<<std::endl;
-          std::cout<<m_vals_orig[i]<<" "<<m_vals_d[i]+mean<<" "<<qoi->check_compliance(m_vals_orig[i]+mean,m_vals_d[i]+mean)<<std::endl;
+          std::cout<<m_vals_orig[i]<<" "<<m_vals_d[i]+mean<<" "<<qoi->check_compliance(m_vals_orig[i],m_vals_d[i]+mean)<<std::endl;
           std::cout<<m_vals_orig[i]<<" "<<offsets[i]<<" "<<m_vals_d[i]+mean+offsets[i]<<std::endl;
         }
       }
