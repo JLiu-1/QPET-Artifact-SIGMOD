@@ -247,7 +247,7 @@ void sperr::SPECK_FLT::set_dims(dims_type dims)
 
 void sperr::SPECK_FLT::set_qoi(std::shared_ptr<QoZ::concepts::QoIInterface<double> > q)
 {
-  qoi = q;
+  m_qoi = q;
 }
 
 std::shared_ptr<QoZ::concepts::QoIInterface<double> > sperr::SPECK_FLT::get_qoi()
@@ -568,12 +568,12 @@ FIXED_RATE_HIGH_PREC_LABEL:
       
       //auto new_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<new_LOS.size()<<std::endl;
-      //if(qoi!=nullptr){
-      auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
-      //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
-      for(auto &los:decoded_LOS)
-        m_vals_d[los.pos]+=los.err;
-     // }
+      //if(m_qoi!=nullptr){
+        auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
+        //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
+        for(auto &los:decoded_LOS)
+          m_vals_d[los.pos]+=los.err;
+      //}
 
     }
     
