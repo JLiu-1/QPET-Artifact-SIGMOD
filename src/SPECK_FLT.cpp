@@ -470,6 +470,7 @@ void sperr::SPECK_FLT::m_midtread_inv_quantize()
 
 auto sperr::SPECK_FLT::compress() -> RTNType
 {
+  std::cout<<m_vals_d[683778]<<" "<<m_vals_d[1414752]<<" "<<m_vals_d[3007077]<<std::endl;
   const auto total_vals = size_t(m_dims[0]) * m_dims[1] * m_dims[2];
   if (m_vals_d.empty() || m_vals_d.size() != total_vals)
     return RTNType::Error;
@@ -488,6 +489,7 @@ auto sperr::SPECK_FLT::compress() -> RTNType
     //std::cout<<"constant!"<<std::endl;
     return RTNType::Good;
   }
+  std::cout<<m_vals_d[683778]<<" "<<m_vals_d[1414752]<<" "<<m_vals_d[3007077]<<" "<<m_conditioner.get_mean()<<std::endl;
 
   // Collect information for different compression modes.
   auto param_q = 0.0;  // assist estimating `m_q`.
