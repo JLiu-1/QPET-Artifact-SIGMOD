@@ -604,7 +604,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
           m_vals_d[i]+=offsets[i];
           //count++;
         }
-        if(!qoi->check_compliance(m_vals_orig[i],m_vals_d[i]+mean+offsets[i]))
+        if(!qoi->check_compliance(m_vals_orig[i],m_vals_d[i]+mean))
           std::cout<<i<<std::endl;
 
         /*
