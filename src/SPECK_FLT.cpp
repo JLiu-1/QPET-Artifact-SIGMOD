@@ -564,15 +564,16 @@ FIXED_RATE_HIGH_PREC_LABEL:
       
       //auto new_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<new_LOS.size()<<std::endl;
-
-    }
-    
-    if(qoi!=nullptr){
+      if(qoi!=nullptr){
       auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
       for(auto &los:decoded_LOS)
         m_vals_d[los.pos]+=los.err;
+      }
+
     }
+    
+    
   }
   if(qoi!=nullptr){
 
