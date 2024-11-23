@@ -284,7 +284,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
                 outlier = true;
                 outlier_num++;
                 for(auto j:{0,1,2})
-                  offsets[j][i] = (*sampled_ori[j])[i] - (*sampled_dec[j])[i];
+                  offsets[j][i] = (*sampled_ori[j])[i] - ( (*sampled_dec[j])[i] + means[j] );
               }
             }
 
@@ -395,7 +395,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
                                              (*dec_data[0])[k]+means[0],(*dec_data[1])[k]+means[1],(*dec_data[2])[k]+means[2]) ){
           outlier = true;
           for(auto j:{0,1,2})
-            offsets[j][k] = (*orig_data[j])[k] - (*dec_data[j])[k];
+            offsets[j][k] = (*orig_data[j])[k] - ( (*dec_data[j])[k] + means[j]);
         }
       }
       if(outlier){
