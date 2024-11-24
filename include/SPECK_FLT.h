@@ -75,7 +75,7 @@ class SPECK_FLT {
   auto compress(bool high_prec = false) -> RTNType;
   auto decompress(bool multi_res = false) -> RTNType;
 
-  auto block_qoi_outlier_correction() -> RTNType;
+  auto block_qoi_outlier_correction(bool hp = false) -> RTNType;
 
  protected:
   UINTType m_uint_flag = UINTType::UINT64;
