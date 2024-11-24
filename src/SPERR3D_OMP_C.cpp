@@ -161,8 +161,8 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             num_blocks *= (m_dims[i] - 1) / qoi_block_size + 1;
         }
 
-        double q = 0.999999;
-        rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q,qoi_k);
+        double q = 0.999;
+        rate = estimate_rate_Hoeffdin(num_elements,1,q,qoi_k);
         //std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
         
         rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
@@ -480,7 +480,7 @@ auto sperr::SPERR3D_OMP_C::m_sample_center(vecd_type chunk,std::array<size_t, 3>
 
 }
 
-double sperr::SPERR3D_OMP_C::estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 2.0){//n: element_per_block N: num_blocks q: confidence
+double sperr::SPERR3D_OMP_C::estimate_rate_Hoeffdin(size_t n, size_t N, double q, double k = 3.0){//n: element_per_block N: num_blocks q: confidence
     //no var information
     //if gaussian, just multiply k 
    

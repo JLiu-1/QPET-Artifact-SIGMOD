@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
   auto* qoi_bs_ptr = app.add_option("--qoi_bs", qoi_block_size, "QoI avg_block_size.")
                       ->group("Compression settings");
 
-  auto qoi_k = 1.732;
+  auto qoi_k = 3.0;
   auto* qoi_k_ptr = app.add_option("--qoi_k", qoi_k, "QoI k.")
                       ->group("Compression settings");
 
