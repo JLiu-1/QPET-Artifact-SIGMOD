@@ -222,6 +222,10 @@ int main(int argc, char* argv[])
   auto* qoi_k_ptr = app.add_option("--qoi_k", qoi_k, "QoI k.")
                       ->group("Compression settings");
 
+  auto high_prec_flag = bool{false};
+  auto* hpptr = app.add_flag("--high_prec", high_prec_flag, "High precision mode.")
+                   ->group("Execution settings");
+
   CLI11_PARSE(app, argc, argv);
 
   //
@@ -297,6 +301,10 @@ int main(int argc, char* argv[])
     auto encoder = std::make_unique<sperr::SPERR3D_OMP_C>();
     encoder->set_dims_and_chunks(dims, chunks);
     encoder->set_num_threads(omp_num_threads);
+    if(high_prec_flag){
+      std::cout<<"Use high precision mode."<<std::endl;
+      encoder->set_high_prec(true);
+    }
     if (pwe != 0.0)
       encoder->set_tolerance(pwe);
     else if (psnr != 0.0)

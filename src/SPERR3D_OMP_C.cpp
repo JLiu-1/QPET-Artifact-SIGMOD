@@ -85,6 +85,12 @@ void sperr::SPERR3D_OMP_C::set_qoi_k(double q_k)
   qoi_k = q_k;
 }
 
+void sperr::SPERR3D_OMP_C::set_high_prec(double hp)
+{
+  m_high_prec = hp;
+
+}
+
 
 template <typename T>
 auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
@@ -236,7 +242,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             test_compressor->set_qoi(qoi);
             vec8_type test_encoded_stream;
 
-            auto rtn = test_compressor->compress(true);
+            auto rtn = test_compressor->compress(m_high_prec);
             if(rtn!= RTNType::Good)
               std::cout<<"Error"<<std::endl;
 
@@ -313,7 +319,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 #endif
       default:;  // So the compiler doesn't complain about missing cases.
     }
-    chunk_rtn[i] = compressor->compress();
+    chunk_rtn[i] = compressor->compress(m_high_prec);
 
     // Save bitstream for each chunk in `m_encoded_stream`.
     m_encoded_streams[i].clear();
