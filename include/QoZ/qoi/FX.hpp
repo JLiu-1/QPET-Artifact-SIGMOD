@@ -86,7 +86,10 @@ namespace QoZ {
             deri_1 = convert_expression_to_function(df, x);
             deri_2 = convert_expression_to_function(ddf, x);
 
-            std::cout<<
+            std::cout<<"x: "<<1<<" f(x): "<<func(1)<<std:endl;
+            std::cout<<"x: "<<2<<" f(x): "<<func(2)<<std:endl;
+            std::cout<<"x: "<<0.5<<" f(x): "<<func(0.5)<<std:endl;
+            std::cout<<"x: "<<0<<" f(x): "<<func(0)<<std:endl;
 
             if (isolated)
                 singularities.insert(threshold);
