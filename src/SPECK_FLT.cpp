@@ -834,7 +834,7 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction() -> RTNType{
                             compliance = (std::abs(q - oq) <= pw_qoi_tol);
                           if(!compliance){
                             offsets[cur_data_pos-data] = cur_ori_val-cur_val;
-                            if (offsets[cur_data_pos-data]+cur_val != cur_ori_val){
+                            if (offsets[cur_data_pos-data]+cur_val != cur_ori_val and mean != 0.0){
                               return RTNType::Error;
                             }
                             *cur_data_pos += offsets[cur_data_pos-data];
@@ -875,7 +875,7 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction() -> RTNType{
                                   auto cur_val = *cur_data_pos+mean;
                                   auto cur_ori_val = *cur_ori_data_pos;
                                   offsets[cur_data_pos-data] = cur_ori_val - cur_val;
-                                  if (offsets[cur_data_pos-data]+cur_val != cur_ori_val){
+                                  if (offsets[cur_data_pos-data]+cur_val != cur_ori_val and mean != 0.0){
                                     return RTNType::Error;
                                   }
                                   //*cur_data_pos = *cur_ori_data_pos;
