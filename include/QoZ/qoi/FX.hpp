@@ -65,7 +65,7 @@ namespace QoZ {
             Expression ddf;
             x = symbol("x");
     
-            f = Expression(ff);
+            f = parse(ff);
 
             singularities = find_singularities(f,x);
             //std::cout << "Singularities:" << std::endl;
