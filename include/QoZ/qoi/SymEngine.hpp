@@ -18,6 +18,7 @@ using SymEngine::Symbol;
 using SymEngine::symbol;
 using SymEngine::parse;
 using SymEngine::diff;
+using SymEngine::Constant;
 using SymEngine::RealDouble;
 using SymEngine::Integer;
 using SymEngine::evalf;
@@ -28,7 +29,8 @@ using SymEngine::Basic;
 using SymEngine::real_double;
 using SymEngine::eval_double;
 
-
+using SymEngine::E;
+using SymEngine::eq;
 using SymEngine::solve;
 using SymEngine::rcp_static_cast;
 using SymEngine::Mul;
@@ -50,6 +52,12 @@ std::function<double(double)> convert_expression_to_function(const Basic &expr, 
             double constant_value = eval_double(expr);
             return [constant_value](double) { return constant_value; };
         }
+        // E
+        else if (is_a<constant>(expr) and eq(*expr,*E)) {
+            double e = std::exp(1);
+            return [e](double) { return e; };
+        }
+
         // +
         else if (is_a<SymEngine::Add>(expr)) {
             auto args = expr.get_args();
