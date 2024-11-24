@@ -625,7 +625,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
     else{
       auto rtn = block_qoi_outlier_correction();
-      if(rtn != RTNType::Good){
+      if(rtn != RTNType::Good and !hp){
         std::cout<<"switch to high prec mode"<<std::endl;
         hp = true;
         m_vals_d = m_vals_orig;
