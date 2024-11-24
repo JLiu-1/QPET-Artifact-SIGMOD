@@ -593,14 +593,16 @@ FIXED_RATE_HIGH_PREC_LABEL:
      // size_t count=0;
       for (size_t i = 0; i < total_vals; i++) {
 
+        auto val_d = m_vals_d[i]+mean;
+
 
     
-        if ( !qoi->check_compliance(m_vals_orig[i],m_vals_d[i]+mean)  ){
+        if ( !qoi->check_compliance(m_vals_orig[i],val_d)  ){
 
           m_has_lossless = true;
-          offsets[i]=m_vals_orig[i]-(m_vals_d[i]+mean);
+          offsets[i]=m_vals_orig[i]-val_d;
           
-          if ( m_vals_orig[i]!=(m_vals_d[i]+mean)+offsets[i] and !hp ){
+          if ( m_vals_orig[i]!=val_d+offsets[i] and !hp ){
             std::cout<<"switch to high prec mode"<<std::endl;
             hp = true;
             m_vals_d = m_vals_orig;
