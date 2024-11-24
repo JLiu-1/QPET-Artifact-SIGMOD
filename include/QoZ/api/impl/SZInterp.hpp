@@ -759,7 +759,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 num_blocks *= (conf.dims[i] - 1) / conf.qoiRegionSize + 1;
             }
 
-            double q = 0.999;
+            double q = conf.confidence;
             if(conf.tol_estimation==0)
                 rate = estimate_rate_Hoeffdin(num_elements,1,q, conf.error_std_rate);
             else

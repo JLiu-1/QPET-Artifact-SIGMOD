@@ -267,6 +267,7 @@ namespace QoZ {
             qoiLogBase = cfg.GetReal("QoISettings", "qoiLogBase", qoiLogBase);
             qoiEBBase = cfg.GetReal("QoISettings", "qoiEBBase", qoiEBBase);
             qoiEBLogBase = cfg.GetReal("QoISettings", "qoiEBLogBase", qoiEBLogBase);
+            confidence = cfg.GetReal("QoISettings", "confidence", confidence);
 
             qoiQuantbinCnt = cfg.GetInteger("QoISettings", "qoiQuantbinCnt", qoiQuantbinCnt);
             qoiRegionSize = cfg.GetInteger("QoISettings", "qoiRegionSize", qoiRegionSize);
@@ -571,7 +572,8 @@ namespace QoZ {
         //bool regionalQoI = false;
         std::vector<double> ebs;
         double regionalQoIeb = 0.0;
-        double error_std_rate = 3;
+        double error_std_rate = 3.0;
+        double confidence = 0.999;
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
         bool early_termination = false;
 
