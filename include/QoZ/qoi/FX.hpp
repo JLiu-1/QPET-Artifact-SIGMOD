@@ -78,18 +78,18 @@ namespace QoZ {
             // std::cout<<"init 3 "<< std::endl;
             //ddf = diff(df,x);
             ddf = df.diff(x);
-            std::cout<<"f: "<< f<<std::endl;
-            std::cout<<"df: "<< df<<std::endl;
-            std::cout<<"ddf: "<< ddf<<std::endl;
+            //std::cout<<"f: "<< f<<std::endl;
+            //std::cout<<"df: "<< df<<std::endl;
+            //std::cout<<"ddf: "<< ddf<<std::endl;
   
             func = convert_expression_to_function(f, x);
             deri_1 = convert_expression_to_function(df, x);
             deri_2 = convert_expression_to_function(ddf, x);
 
-            std::cout<<"x: "<<1<<" f(x): "<<func(1)<<std::endl;
-            std::cout<<"x: "<<2<<" f(x): "<<func(2)<<std::endl;
-            std::cout<<"x: "<<0.5<<" f(x): "<<func(0.5)<<std::endl;
-            std::cout<<"x: "<<0<<" f(x): "<<func(0)<<std::endl;
+            //std::cout<<"x: "<<1<<" f(x): "<<func(1)<<std::endl;
+            //std::cout<<"x: "<<2<<" f(x): "<<func(2)<<std::endl;
+            //std::cout<<"x: "<<0.5<<" f(x): "<<func(0.5)<<std::endl;
+            //std::cout<<"x: "<<0<<" f(x): "<<func(0)<<std::endl;
 
             if (isolated)
                 singularities.insert(threshold);
