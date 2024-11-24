@@ -53,7 +53,7 @@ std::function<double(double)> convert_expression_to_function(const Basic &expr, 
             return [constant_value](double) { return constant_value; };
         }
         // E
-        else if ( eq(*expr,*E)) {
+        else if ( eq(expr,E)) {
             double e = std::exp(1);
             return [e](double) { return e; };
         }
