@@ -560,9 +560,9 @@ namespace QoZ {
         //bool regionalQoI = false;
         std::vector<double> ebs;
         double regionalQoIeb;
-        double error_std_rate = 2.0;
+        double error_std_rate = 3.0;
         int tol_estimation = 0; //0:Hoeffdin  1: Bernstein
-        double confidence = 0.999999;
+        double confidence = 0.999;
 
 
         bool early_termination = false;
