@@ -827,14 +827,17 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction() -> RTNType{
                           double oq = qoi->eval(cur_ori_val);
                           bool compliance = true;
                           if ((std::isnan(oq) or std::isinf(oq)))
-                            compliance = (*cur_data_pos == *cur_ori_data_pos);
+                            compliance = (cur_ori_val == cur_val);
                           else if (std::isnan(q) or std::isinf(q))
                             compliance = false;
                           else
                             compliance = (std::abs(q - oq) <= pw_qoi_tol);
                           if(!compliance){
-                            offsets[cur_data_pos-data] = *cur_ori_data_pos-*cur_data_pos;
-                            *cur_data_pos = *cur_ori_data_pos;
+                            offsets[cur_data_pos-data] = cur_ori_val-cur_val;
+                            if (offsets[cur_data_pos-data]+cur_val != cur_ori_val){
+                              return RTNType::Error;
+                            }
+                            *cur_data_pos += offsets[cur_data_pos-data];
                             q = oq;
                           }
                           if(std::isinf(q) or std::isnan(q))
@@ -875,7 +878,7 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction() -> RTNType{
                                   if (offsets[cur_data_pos-data]+cur_val != cur_ori_val){
                                     return RTNType::Error;
                                   }
-                                  *cur_data_pos = *cur_ori_data_pos;
+                                  //*cur_data_pos = *cur_ori_data_pos;
                                   err -= qoi_err/n_block_elements;
                                   if (fabs(err)<=qoi_tol)
                                       fixing=false;
