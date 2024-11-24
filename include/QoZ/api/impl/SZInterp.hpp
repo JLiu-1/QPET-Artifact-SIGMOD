@@ -759,11 +759,11 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 num_blocks *= (conf.dims[i] - 1) / conf.qoiRegionSize + 1;
             }
 
-            double q = 0.999999;
+            double q = 0.999;
             if(conf.tol_estimation==0)
-                rate = estimate_rate_Hoeffdin(num_elements,num_blocks,q, conf.error_std_rate);
+                rate = estimate_rate_Hoeffdin(num_elements,1,q, conf.error_std_rate);
             else
-                rate = estimate_rate_Bernstein(num_elements,num_blocks,q, conf.error_std_rate);
+                rate = estimate_rate_Bernstein(num_elements,1,q, conf.error_std_rate);
             std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
             
             rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
