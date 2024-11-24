@@ -85,7 +85,7 @@ void sperr::SPERR3D_OMP_C::set_qoi_k(double q_k)
   qoi_k = q_k;
 }
 
-void sperr::SPERR3D_OMP_C::set_high_prec(double hp)
+void sperr::SPERR3D_OMP_C::set_high_prec(bool hp)
 {
   m_high_prec = hp;
 
