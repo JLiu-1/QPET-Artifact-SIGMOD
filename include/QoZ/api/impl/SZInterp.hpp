@@ -114,7 +114,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
     }
 
     std::vector<T> ori_data;
-    bool global_correction = conf.qoi > 0 and conf.qoiRegionMode==1 and N<=3;
+    bool global_correction = conf.qoi > 0 and conf.qoiRegionMode==1;
     if(global_correction){
         ori_data = std::vector<T>(data,data+conf.num);
     }
