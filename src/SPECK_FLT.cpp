@@ -624,7 +624,14 @@ FIXED_RATE_HIGH_PREC_LABEL:
         zstd_encoder.encode<double>(offsets);
     }
     else{
-      block_qoi_outlier_correction();
+      auto rtn = block_qoi_outlier_correction();
+      if(rtn != RTNType::Good){
+        std::cout<<"switch to high prec mode"<<std::endl;
+        hp = true;
+        m_vals_d = m_vals_orig;
+        goto CMP_START;
+
+      }
     }
 
   }
@@ -771,7 +778,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   return RTNType::Good;
 }
 
-void sperr::SPECK_FLT::block_qoi_outlier_correction(){
+auto sperr::SPECK_FLT::block_qoi_outlier_correction() -> RTNType{
 
   std::vector<double>offsets(m_vals_d.size(),0);
  // size_t count=0;
@@ -813,8 +820,11 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
               for(size_t ii=0; ii<size_1; ii++){
                   for(size_t jj=0; jj<size_2; jj++){
                       for(size_t kk=0; kk<size_3; kk++){
-                          double q = qoi->eval(*cur_data_pos+mean);
-                          double oq = qoi->eval(*cur_ori_data_pos+mean);
+
+                          auto cur_val = *cur_data_pos+mean;
+                          auto cur_ori_val = *cur_ori_data_pos;
+                          double q = qoi->eval(cur_val);
+                          double oq = qoi->eval(cur_ori_val);
                           bool compliance = true;
                           if ((std::isnan(oq) or std::isinf(oq)))
                             compliance = (*cur_data_pos == *cur_ori_data_pos);
@@ -859,8 +869,12 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
                           for(size_t kk=0; kk<size_3; kk++){
                               auto qoi_err = (ori_qoi_vals[local_idx]-qoi_vals[local_idx]);
                               if(fixing and qoi_err!=0 ){
-                                 
-                                  offsets[cur_data_pos-data] = *cur_ori_data_pos - *cur_data_pos;
+                                  auto cur_val = *cur_data_pos+mean;
+                                  auto cur_ori_val = *cur_ori_data_pos;
+                                  offsets[cur_data_pos-data] = cur_ori_val - cur_val;
+                                  if (offsets[cur_data_pos-data]+cur_val != cur_ori_val){
+                                    return RTNType::Error;
+                                  }
                                   *cur_data_pos = *cur_ori_data_pos;
                                   err -= qoi_err/n_block_elements;
                                   if (fabs(err)<=qoi_tol)
@@ -901,6 +915,8 @@ void sperr::SPECK_FLT::block_qoi_outlier_correction(){
 
   if(m_has_lossless)
     zstd_encoder.encode<double>(offsets);
+
+  return RTNType::Good;
 
 
 }

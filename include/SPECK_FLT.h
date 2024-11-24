@@ -61,7 +61,7 @@ class SPECK_FLT {
   std::shared_ptr<QoZ::concepts::QoIInterface<double> > get_qoi();
   auto integer_len() const -> size_t;
 
-  void block_qoi_outlier_correction();
+  
 
   auto has_lossless() const -> bool;
 
@@ -74,6 +74,8 @@ class SPECK_FLT {
   //
   auto compress(bool high_prec = false) -> RTNType;
   auto decompress(bool multi_res = false) -> RTNType;
+
+  auto block_qoi_outlier_correction() -> RTNType;
 
  protected:
   UINTType m_uint_flag = UINTType::UINT64;
