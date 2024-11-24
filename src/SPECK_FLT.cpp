@@ -600,7 +600,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
           m_has_lossless = true;
           offsets[i]=m_vals_orig[i]-(m_vals_d[i]+mean);
           
-          if ( m_vals_orig[i]!=(m_vals_d[i]+mean)+offsets[i] ){
+          if ( m_vals_orig[i]!=(m_vals_d[i]+mean)+offsets[i] and !hp ){
             std::cout<<"switch to high prec mode"<<std::endl;
             hp = true;
             m_vals_d = m_vals_orig;
