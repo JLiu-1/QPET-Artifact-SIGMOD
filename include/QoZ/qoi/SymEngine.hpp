@@ -241,7 +241,6 @@ std::function<double(double, double, double)> convert_expression_to_function(con
         return singularities;
     }*/
 
-}
 /*
 template<class T>
 inline double evaluate(const Expression & func, T val) {
