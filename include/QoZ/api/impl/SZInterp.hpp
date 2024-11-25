@@ -645,15 +645,15 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
             auto ori_block = sampled_blocks[k];
 
             if(N==3){
-                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), sampled_blocks[k].data(), testConfig.dims[0], testConfig.dims[1], testConfig.dims[2], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), cur_block.data(), testConfig.dims[0], testConfig.dims[1], testConfig.dims[2], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
 
             }
             else if (N==2){
-                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), sampled_blocks[k].data(), 1, testConfig.dims[0], testConfig.dims[1], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), cur_block.data(), 1, testConfig.dims[0], testConfig.dims[1], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
 
             }
             else{//N==1
-                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), sampled_blocks[k].data(), 1, 1, testConfig.dims[0], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), cur_block.data(), 1, 1, testConfig.dims[0], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
 
             }  
 
