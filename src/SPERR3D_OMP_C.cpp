@@ -202,7 +202,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
       
         std::vector<size_t> quantiles;
       
-       for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01,0.005,0.001})
+       for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01})
            quantiles.push_back((size_t)(i*k));
        int quantile_num = quantiles.size();
 
