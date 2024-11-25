@@ -1806,6 +1806,8 @@ double Tuning(QoZ::Config &conf, T *data){
 
         QoI_tuning<T,N>(conf, data);
     }
+    auto conf_qoi = conf.qoi;
+    conf.qoi = 0;
     /*
     else{
         // compute isovalues for comparison
@@ -2597,6 +2599,7 @@ double Tuning(QoZ::Config &conf, T *data){
         conf.num=global_num;  
 
     }
+    conf.qoi = conf_qoi;
     else if(useInterp and conf.QoZ){
         std::pair<double,double> ab=setABwithRelBound(rel_bound,2);
         conf.alpha=ab.first;
