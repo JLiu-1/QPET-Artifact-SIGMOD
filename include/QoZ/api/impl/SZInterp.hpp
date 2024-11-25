@@ -1806,8 +1806,8 @@ double Tuning(QoZ::Config &conf, T *data){
 
         QoI_tuning<T,N>(conf, data);
     }
-    auto conf_qoi = conf.qoi;
-    conf.qoi = 0;
+    //auto conf_qoi = conf.qoi;
+    //conf.qoi = 0;
     /*
     else{
         // compute isovalues for comparison
@@ -2614,7 +2614,7 @@ double Tuning(QoZ::Config &conf, T *data){
     else{
          conf.cmprAlgo=QoZ::ALGO_LORENZO_REG;
     } 
-    conf.qoi = conf_qoi;
+    //conf.qoi = conf_qoi;
     for(int i=0;i<sampled_blocks.size();i++){
         std::vector< T >().swap(sampled_blocks[i]);              
     }
