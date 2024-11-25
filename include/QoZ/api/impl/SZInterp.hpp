@@ -442,6 +442,13 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     size_t idx=0;   
     QoZ::concepts::CompressorInterface<T> *sz;
     size_t totalOutSize=0;
+    std::vector<T> final_offsets;  
+    auto qoi = nullptr;
+    if(testConfig.qoi > 0 and testConfig.qoiRegionMode == 1){
+
+        qoi = QoZ::GetQOI<T, N>(testConfig);
+
+    } 
     if(algo == QoZ::ALGO_LORENZO_REG){
         auto quantizer = QoZ::LinearQuantizer<T>(testConfig.absErrorBound, testConfig.quantbinCnt / 2);
         if (useFast &&N == 3 && !testConfig.regression2) {
@@ -539,7 +546,31 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
         }
         else if (tuningTarget==QoZ::TUNING_TARGET_AC){
             flattened_cur_blocks.insert(flattened_cur_blocks.end(),cur_block.begin(),cur_block.end());
-        }   
+        } 
+
+        if(testConfig.qoi > 0 and testConfig.qoiRegionMode == 1){   
+
+        
+
+
+            auto ori_block = sampled_blocks[k];
+
+            if(N==3){
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), cur_block.data(), testConfig.dims[0], testConfig.dims[1], testConfig.dims[2], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+
+            }
+            else if (N==2){
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), cur_block.data(), 1, testConfig.dims[0], testConfig.dims[1], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+
+            }
+            else{//N==1
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), cur_block.data(), 1, 1, testConfig.dims[0], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+
+            }  
+
+            final_offsets.insert(final_offsets.end(),ori_block.begin(),ori_block.end());
+            
+        }  
 
         
 
@@ -561,6 +592,30 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     
     auto cmprData=sz->encoding_lossless(totalOutSize,q_bins);             
     delete[]cmprData;
+
+    if(testConfig.qoi > 0 and testConfig.qoiRegionMode == 1){   
+
+        
+
+        auto zstd = QoZ::Lossless_zstd();
+
+        size_t offset_size;
+
+
+        QoZ::uchar *lossless_data = zstd.compress(reinterpret_cast< QoZ::uchar *>(final_offsets.data()),
+                                                     final_offsets.size()*sizeof(T),
+                                                     offset_size);
+
+            
+
+        
+        delete []lossless_data;
+        //lossless_data = NULL;
+        
+        totalOutSize+=offset_size;
+
+       
+    }
 
     
     
