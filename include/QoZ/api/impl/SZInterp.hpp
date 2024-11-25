@@ -443,10 +443,9 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     QoZ::concepts::CompressorInterface<T> *sz;
     size_t totalOutSize=0;
     std::vector<T> final_offsets;  
-    auto qoi = nullptr;
+    std::shared_ptr<concepts::QoIInterface<T, N>> qoi = nullptr;
     if(testConfig.qoi > 0 and testConfig.qoiRegionMode == 1){
 
-        std::cout<<"testing qoi"<<std::endl;
 
         qoi = QoZ::GetQOI<T, N>(testConfig);
 
@@ -552,7 +551,6 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
 
         if(testConfig.qoi > 0 and testConfig.qoiRegionMode == 1){   
 
-            std::cout<<"testing qoi"<<std::endl;
 
         
 
@@ -599,7 +597,6 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
 
     if(testConfig.qoi > 0 and testConfig.qoiRegionMode == 1){   
 
-        std::cout<<"testing qoi"<<std::endl;
 
         auto zstd = QoZ::Lossless_zstd();
 
