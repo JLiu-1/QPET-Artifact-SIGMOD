@@ -443,7 +443,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     QoZ::concepts::CompressorInterface<T> *sz;
     size_t totalOutSize=0;
     std::vector<T> final_offsets;  
-    std::shared_ptr<concepts::QoIInterface<T, N>> qoi = nullptr;
+    std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
     if(testConfig.qoi > 0 and testConfig.qoiRegionMode == 1){
 
 
