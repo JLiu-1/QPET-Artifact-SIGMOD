@@ -1077,7 +1077,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 }
 
 
-                if (1){
+                if (conf.qoiRegionMode!=1 or conf.qoiRegionSize<=3){
                 //test full-global mode
                    
                     testConf.absErrorBound = best_abs_eb;
@@ -1222,12 +1222,12 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                 double smaller_ebs_ratio = (double)(count)/(double)(conf.num);
 
-                if( 1 and (smaller_ebs_ratio <= 1.0/1024.0 or min_abs_eb >= 0.95 * best_abs_eb ) ){//may fix
+                if( conf.qoiRegionMode!=1 or conf.qoiRegionSize<=3 and (smaller_ebs_ratio <= 1.0/1024.0 or min_abs_eb >= 0.95 * best_abs_eb ) ){//may fix
                     conf.use_global_eb = true;
                     //conf.qoiPtr = qoi;
                 }
 
-                else if (1){//untested
+                else if (conf.qoiRegionMode!=1 or conf.qoiRegionSize<=3){//untested
                 //test full-global mode
                    
                     testConf.absErrorBound = best_abs_eb;
