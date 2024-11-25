@@ -465,7 +465,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
         std::cout<<"algo type error!"<<std::endl;
         return std::pair<double,double>(0,0);
     }
-                           
+          
     for (int k=0;k<num_sampled_blocks;k++){
         size_t sampleOutSize;
         std::vector<T> cur_block(testConfig.num);
@@ -539,7 +539,10 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
         }
         else if (tuningTarget==QoZ::TUNING_TARGET_AC){
             flattened_cur_blocks.insert(flattened_cur_blocks.end(),cur_block.begin(),cur_block.end());
-        }                      
+        }   
+
+        
+
     }
     if(algo==QoZ::ALGO_INTERP ){
         q_bin_counts=testConfig.quant_bin_counts;
@@ -558,7 +561,8 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     
     auto cmprData=sz->encoding_lossless(totalOutSize,q_bins);             
     delete[]cmprData;
-  
+
+    
     
     bitrate=8*double(totalOutSize)/ele_num;
     
@@ -613,7 +617,7 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
             
     auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
                     quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
-                             
+    std::vector<T> final_offsets;                               
     for (int k=0;k<num_sampled_blocks;k++){
         size_t sampleOutSize;
         std::vector<T> cur_block(testConfig.num);
@@ -632,6 +636,32 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
         
         block_q_bins.push_back(testConfig.quant_bins);
         block_q_bins_eb.push_back(testConfig.quant_bins_eb);
+
+        if(testConfig.qoiRegionMode == 1){   
+
+        
+
+
+            auto ori_block = sampled_blocks[k];
+
+            if(N==3){
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), data, testConfig.dims[0], testConfig.dims[1], testConfig.dims[2], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+
+            }
+            else if (N==2){
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), data, 1, testConfig.dims[0], testConfig.dims[1], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+
+            }
+            else{//N==1
+                QoZ::compute_qoi_average_and_correct<T,N>(ori_block.data(), data, 1, 1, testConfig.dims[0], testConfig.qoiRegionSize, qoi, testConfig.regionalQoIeb);
+
+            }  
+
+            final_offsets.insert(final_offsets.end(),ori_block.begin(),ori_block.end());
+            
+        }
+
+
         
 
 
@@ -660,6 +690,31 @@ double CompressTest_QoI(const QoZ::Config &conf,const std::vector< std::vector<T
     
     auto cmprData=sz.encoding_lossless(totalOutSize,q_bins_eb);             
     delete[]cmprData;
+
+    if(testConfig.qoiRegionMode == 1){   
+
+        
+
+        auto zstd = QoZ::Lossless_zstd();
+
+        size_t offset_size;
+
+
+        QoZ::uchar *lossless_data = zstd.compress(reinterpret_cast< QoZ::uchar *>(final_offsets.data()),
+                                                     final_offsets.size()*sizeof(T),
+                                                     offset_size);
+
+            
+
+        
+        delete []lossless_data;
+        //lossless_data = NULL;
+        
+        totalOutSize+=offset_size;
+
+       
+    }
+  
   
     
     bitrate=8*double(totalOutSize)/ele_num;
@@ -923,7 +978,11 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     qoi->set_global_eb(testConf.absErrorBound);
                     // reset variables for average of square
                     
-                    double cur_br = CompressTest_QoI<T,N>(testConf,sampled_blocks,qoi);        
+                    double cur_br = CompressTest_QoI<T,N>(testConf,sampled_blocks,qoi);
+
+
+
+
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                     if(cur_br < best_br * 1.02){//todo: optimize
                         best_br = cur_br;
