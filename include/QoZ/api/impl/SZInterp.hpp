@@ -2599,7 +2599,7 @@ double Tuning(QoZ::Config &conf, T *data){
         conf.num=global_num;  
 
     }
-    conf.qoi = conf_qoi;
+
     else if(useInterp and conf.QoZ){
         std::pair<double,double> ab=setABwithRelBound(rel_bound,2);
         conf.alpha=ab.first;
@@ -2614,7 +2614,7 @@ double Tuning(QoZ::Config &conf, T *data){
     else{
          conf.cmprAlgo=QoZ::ALGO_LORENZO_REG;
     } 
-        
+    conf.qoi = conf_qoi;
     for(int i=0;i<sampled_blocks.size();i++){
         std::vector< T >().swap(sampled_blocks[i]);              
     }
