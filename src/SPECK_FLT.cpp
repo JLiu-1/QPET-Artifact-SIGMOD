@@ -835,6 +835,7 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
                           else
                             compliance = (std::abs(q - oq) <= pw_qoi_tol);
                           if(!compliance){
+                            m_has_lossless = true;
                             offsets[cur_data_pos-data] = cur_ori_val-cur_val;
                             if (hp and offsets[cur_data_pos-data]+cur_val != cur_ori_val and mean != 0.0){
                               return RTNType::Error;
@@ -874,6 +875,7 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
                           for(size_t kk=0; kk<size_3; kk++){
                               auto qoi_err = (ori_qoi_vals[local_idx]-qoi_vals[local_idx]);
                               if(fixing and qoi_err!=0 ){
+                                  m_has_lossless = true;
                                   auto cur_val = *cur_data_pos+mean;
                                   auto cur_ori_val = *cur_ori_data_pos;
                                   offsets[cur_data_pos-data] = cur_ori_val - cur_val;
