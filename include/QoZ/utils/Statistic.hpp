@@ -3,6 +3,7 @@
 #define SZ_STATISTIC_HPP
 
 #include "Config.hpp"
+#include "Timer.hpp"
 #include "QoZ/qoi/QoIInfo.hpp"
 #include <algorithm>
 namespace QoZ {
@@ -578,7 +579,7 @@ namespace QoZ {
         double max_qoi = -std::numeric_limits<double>::max();
         double min_qoi = std::numeric_limits<double>::max();
 
-
+        QoZ::Timer timer(true);
         for(size_t i=0; i<num_elements; i++){
 
             auto cur_ori_qoi = qoi->eval(ori_data[i]);
@@ -607,6 +608,8 @@ namespace QoZ {
 
 
         }
+        timer.stop("QoI validation time");
+
 
         if (max_qoi == min_qoi){
             max_qoi = 1.0;
@@ -621,13 +624,17 @@ namespace QoZ {
         if (blockSize>1){
             
             printf("Regional qoi average:\n");
+            timer.start();
             if(dims.size() == 2) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, 1, dims[0], dims[1], blockSize);
             else if(dims.size() == 3) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, dims[0], dims[1], dims[2], blockSize);
+            timer.stop("RegionalQoI validation time");
         }
 
         if (dims.size() == 3){
+            timer.start();
             printf("QoI Lapacian: %.6G\n",compute_3d_laplacian_max_err<double>(ori_data.data(), data.data(), dims[0], dims[1], dims[2]));
             printf("QoI Gradient Length: %.6G\n",compute_3d_gradient_length_max_err<double>(ori_data.data(), data.data(), dims[0], dims[1], dims[2]));
+            timer.stop("Lap+grad validation time");
         }
 
 
