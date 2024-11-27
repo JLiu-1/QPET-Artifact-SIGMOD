@@ -575,11 +575,20 @@ FIXED_RATE_HIGH_PREC_LABEL:
       
       //auto new_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<new_LOS.size()<<std::endl;
-      if(qoi!=nullptr){
-      auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
-      //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
-      for(auto &los:decoded_LOS)
-        m_vals_d[los.pos]+=los.err;
+      if(qoi!=nullptr or use_high_prec){
+        auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
+        //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
+        for(auto &los:decoded_LOS){
+          if (use_high_prec and std::abs( (m_vals_d[los.pos]+mean)+loss.err - m_vals_orig[los.pos] ) > m_quality and !hp ){
+            std::cout<<"switch to high prec mode"<<std::endl;
+            hp = true;
+            m_vals_d = m_vals_orig;
+            goto CMP_START;
+          } 
+          m_vals_d[los.pos]+=los.err;
+
+        }
+
       }
 
     }
@@ -835,7 +844,6 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
                           else
                             compliance = (std::abs(q - oq) <= pw_qoi_tol);
                           if(!compliance){
-                            m_has_lossless = true;
                             offsets[cur_data_pos-data] = cur_ori_val-cur_val;
                             if (hp and offsets[cur_data_pos-data]+cur_val != cur_ori_val and mean != 0.0){
                               return RTNType::Error;
@@ -875,7 +883,6 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
                           for(size_t kk=0; kk<size_3; kk++){
                               auto qoi_err = (ori_qoi_vals[local_idx]-qoi_vals[local_idx]);
                               if(fixing and qoi_err!=0 ){
-                                  m_has_lossless = true;
                                   auto cur_val = *cur_data_pos+mean;
                                   auto cur_ori_val = *cur_ori_data_pos;
                                   offsets[cur_data_pos-data] = cur_ori_val - cur_val;
@@ -920,8 +927,9 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
     }
   }
 
-  if(m_has_lossless)
+  if(m_has_lossless){
     zstd_encoder.encode<double>(offsets);
+  }
 
   return RTNType::Good;
 
