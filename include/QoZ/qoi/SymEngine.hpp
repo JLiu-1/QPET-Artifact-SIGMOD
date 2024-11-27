@@ -39,7 +39,7 @@ using SymEngine::Log;
 using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
-
+/*
 //template<class T>
 std::function<double(double)> convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
         //std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
@@ -171,7 +171,7 @@ std::function<double(double)> convert_expression_to_function(const Basic &expr, 
         throw std::runtime_error("Unsupported expression type");
     }
 
-
+*/
 typedef double (*UnivarFunc)(double);
 
 double constant_function(double constant_value, double) {
@@ -202,7 +202,7 @@ double pow_function(UnivarFunc base, UnivarFunc exponent, double x_value) {
     return std::pow(base(x_value), exponent(x_value));
 }
 
-UnivarFunc convert_expression_to_function_2(const Basic& expr, const RCP<const Symbol>& x) {
+UnivarFunc convert_expression_to_function(const Basic& expr, const RCP<const Symbol>& x) {
     if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*x)) {
         return identity_function;
     }
