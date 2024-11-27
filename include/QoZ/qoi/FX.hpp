@@ -146,11 +146,11 @@ namespace QoZ {
             //    return false;
             
             double q_ori = eval(data);
-            //if (std::isnan(q_ori) or std::isinf(q_ori))
-            //    return data == dec_data;
+            if (std::isnan(q_ori) or std::isinf(q_ori))
+                return data == dec_data;
             double q_dec = eval(dec_data);
-            //if (std::isnan(q_dec) or std::isinf(q_dec))
-            //    return false;
+            if (std::isnan(q_dec) or std::isinf(q_dec))
+                return false;
 
             return (fabs(q_ori - q_dec) <= tolerance);
         }
@@ -195,9 +195,9 @@ namespace QoZ {
         RCP<const Symbol>  x;
         double tolerance;
         T global_eb;
-        std::function<double(double)> func;
-        std::function<double(double)> deri_1;
-        std::function<double(double)> deri_2;
+        UnivarFunc func;
+        UnivarFunc deri_1;
+        UnivarFunc deri_2;
         std::set<double>singularities;
         std::string func_string;
 
