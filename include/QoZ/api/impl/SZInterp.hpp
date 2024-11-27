@@ -893,7 +893,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     qoi->set_qoi_tolerance(conf.qoiEB);
     
     QoZ::Config testConf = conf;
-    conf.ebs = new double[conf.num];
+    conf.ebs.resize(conf.num);
     // use quantile to determine abs bound
     {
 
