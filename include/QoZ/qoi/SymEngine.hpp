@@ -93,16 +93,6 @@ auto convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &
                 return result;
             };
         }
-        // /
-        /*
-        else if (SymEngine::is_a<SymEngine::div>(expr)) {
-            auto args = expr.get_args();
-            auto left = convert_expression_to_function(Expression(args[0]), x);
-            auto right = convert_expression_to_function(Expression(args[1]), x);
-            return [left, right](T x_value) {
-                return left(x_value) / right(x_value);
-            };
-        }*/
         // pow
         else if (is_a<SymEngine::Pow>(expr)) {
             auto args = expr.get_args();
@@ -180,6 +170,117 @@ auto convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &
 
         throw std::runtime_error("Unsupported expression type");
     }
+
+
+typedef double (*UnivarFunc)(double);
+
+UnivarFunc convert_expression_to_function_2(const Basic &expr, const RCP<const Symbol> &x) {
+    if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*x)) {
+        return [](double x_value) -> double { return x_value; };
+    }
+    else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
+        double constant_value = eval_double(expr);
+        return [constant_value](double) -> double { return constant_value; };
+    }
+    else if (eq(expr, *E)) {
+        double e = std::exp(1);
+        return [e](double) -> double { return e; };
+    }
+    else if (is_a<SymEngine::Add>(expr)) {
+        auto args = expr.get_args();
+        std::vector<FunctionPtr> fs;
+        for (size_t i = 0; i < args.size(); ++i) {
+            fs.push_back(convert_expression_to_function(Expression(args[i]), x));
+        }
+        return [fs](double x_value) -> double {
+            double result = 0;
+            for (auto &fnc : fs) {
+                result += fnc(x_value);
+            }
+            return result;
+        };
+    }
+    else if (is_a<SymEngine::Mul>(expr)) {
+        auto args = expr.get_args();
+        std::vector<FunctionPtr> fs;
+        for (size_t i = 0; i < args.size(); ++i) {
+            fs.push_back(convert_expression_to_function(Expression(args[i]), x));
+        }
+        return [fs](double x_value) -> double {
+            double result = 1.0;
+            for (auto &fnc : fs) {
+                result *= fnc(x_value);
+            }
+            return result;
+        };
+    }
+    else if (is_a<SymEngine::Pow>(expr)) {
+        auto args = expr.get_args();
+        auto base = convert_expression_to_function(Expression(args[0]), x);
+        auto exponent = convert_expression_to_function(Expression(args[1]), x);
+        return [base, exponent](double x_value) -> double {
+            return std::pow(base(x_value), exponent(x_value));
+        };
+    }
+    else if (is_a<SymEngine::Sin>(expr)) {
+        auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+        return [arg](double x_value) -> double {
+            return std::sin(arg(x_value));
+        };
+    }
+    else if (is_a<SymEngine::Cos>(expr)) {
+        auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+        return [arg](double x_value) -> double {
+            return std::cos(arg(x_value));
+        };
+    }
+    else if (is_a<SymEngine::Tan>(expr)) {
+        auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+        return [arg](double x_value) -> double {
+            return std::tan(arg(x_value));
+        };
+    }
+    else if (is_a<SymEngine::Sinh>(expr)) {
+        auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+        return [arg](double x_value) -> double {
+            return std::sinh(arg(x_value));
+        };
+    }
+    else if (is_a<SymEngine::Cosh>(expr)) {
+        auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+        return [arg](double x_value) -> double {
+            return std::cosh(arg(x_value));
+        };
+    }
+    else if (is_a<SymEngine::Tanh>(expr)) {
+        auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+        return [arg](double x_value) -> double {
+            return std::tanh(arg(x_value));
+        };
+    }
+    else if (is_a<SymEngine::Sign>(expr)) {
+        auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+        return [arg](double x_value) -> double {
+            return (x_value > 0) - (0 > x_value);
+        };
+    }
+    else if (is_a<SymEngine::Log>(expr)) {
+        auto args = expr.get_args();
+        auto arg = convert_expression_to_function(Expression(args[0]), x);
+        if (args.size() == 2) {
+            auto base = convert_expression_to_function(Expression(args[1]), x);
+            return [arg, base](double x_value) -> double {
+                return std::log(arg(x_value)) / std::log(base(x_value));
+            };
+        } else {
+            return [arg](double x_value) -> double {
+                return std::log(arg(x_value));
+            };
+        }
+    }
+    throw std::runtime_error("Unsupported expression type");
+}
+
 
 //template<class T>
 std::set<double> find_singularities(const Expression& expr, const RCP<const Symbol> &x) {
