@@ -7421,7 +7421,7 @@ namespace QoZ {
        // double anchor_threshold=0.0;//temp for "adaptive anchor stride";
 
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
-        std::vector<double> ebs;
+        std::vector<double> &ebs;
 
         int qoi_id;
 

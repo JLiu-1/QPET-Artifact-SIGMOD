@@ -1358,7 +1358,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         }
         */
-
+        ebs.clear();
+        ebs.shrink_to_fit();
         qoi->set_global_eb(best_abs_eb);
 
         
