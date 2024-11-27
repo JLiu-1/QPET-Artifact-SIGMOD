@@ -41,7 +41,7 @@ using SymEngine::is_a;
 using SymEngine::FiniteSet;
 
 //template<class T>
-auto convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
+std::function<double(double)> convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
         //std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
         // x
         if (is_a<const SymEngine::Symbol>(expr)) {
