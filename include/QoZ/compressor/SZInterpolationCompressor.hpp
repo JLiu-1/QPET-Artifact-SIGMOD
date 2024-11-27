@@ -232,8 +232,8 @@ namespace QoZ {
                 check_qoi = false;
             }
 
-            if(check_qoi)
-                std::cout<<"checking qoi"<<std::endl;
+            //if(check_qoi)
+             //   std::cout<<"checking qoi"<<std::endl;
 
             
             
