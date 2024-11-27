@@ -157,6 +157,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
              //double incall_time = timer.stop();
             //std::cout << "incall time = " << incall_time << "s" << std::endl;
 
+
         }
         else{
            
@@ -180,6 +181,9 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             
             
         }
+        confs[i].ebs.clear();
+        confs[i].ebs.shrink_to_fit();
+
         
     }
     
@@ -717,14 +721,14 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
     std::cout<<"ABS QoI eb: " << confs[0].qoiEB << std::endl;
     qoi->set_qoi_tolerance(confs[0].qoiEB);
 
-
+    std::array< std::vector<double>,3> ori_ebs;
     for(auto i:{0,1,2})
-        confs[i].ebs = std::vector<double>(confs[i].num);
+        ori_ebs[i].resize(confs[i].num);
 
     for (size_t i = 0; i < confs[0].num; i++){
         std::array<T,3>cur_ebs = qoi->interpret_eb(data[0][i],data[1][i],data[2][i]);
         for(auto j:{0,1,2})
-           confs[j].ebs[i]=cur_ebs[j];
+           ori_ebs[j][i]=cur_ebs[j];
     }
 
     //for(auto j:{0,1,2})
@@ -765,7 +769,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 testConf.sampleBlockSize = (N<=2?64:32);
             }
 
-            ebs = std::vector<double>(confs[0].ebs.begin(),confs[0].ebs.end());
+            ebs = std::vector<double>(ori_ebs[0].begin(),ori_ebs[0].end());
 
 
             
@@ -858,7 +862,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
             double best_abs_eb;
 
-            ebs=std::vector<double>(confs[j].ebs.begin(),confs[j].ebs.end());
+            ebs=std::vector<double>(ori_ebs[j].begin(),ori_ebs[j].end());
             //std::cout<<j<<" "<<confs[j].ebs.front()<<" "<<confs[j].ebs.back()<<std::endl;
 
        
@@ -959,6 +963,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                 if( (confs[j].qoiRegionMode == 0 or (confs[j].qoiRegionMode == 1 and confs[j].qoiRegionSize >= 3)) and  min_abs_eb >= 0.95 * best_abs_eb ){//may fix
                     confs[j].use_global_eb = true;
+                    ori_ebs[j].clear();
+                    ori_ebs[j].shrink_to_fit();
                     //conf.qoiPtr = qoi;
                 }
 
@@ -1052,6 +1058,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                 if( (confs[j].qoiRegionMode == 0 or (confs[j].qoiRegionMode == 1 and confs[j].qoiRegionSize >= 3)) and min_abs_eb >= 0.95 * best_abs_eb ){//may fix
                     confs[j].use_global_eb = true;
+                    ori_ebs[j].clear();
+                    ori_ebs[j].shrink_to_fit();
                     //conf.qoiPtr = qoi;
                 }
                 best_overall_br+=8*sizeof(T)/(3*best_ratio);
@@ -1192,15 +1200,18 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             std::cout << "Global test, current_br = " << cur_overall_br << std::endl;
             if(cur_overall_br < best_overall_br * 0.97){//todo: optimize
                 best_overall_br = cur_overall_br;
-                for(auto j:{0,1,2})
+                for(auto j:{0,1,2}){
                     confs[j].use_global_eb=true;
+                    ori_ebs[j].clear();
+                    ori_ebs[j].shrink_to_fit();
+                }
 
             }
         }
     }
     else{
         for(auto j:{0,1,2}){
-            ebs =std::vector<double>(confs[j].ebs.begin(),confs[j].ebs.end());
+            ebs =std::vector<double>(ori_ebs[j].begin(),ori_ebs[j].end());
             std::nth_element(ebs.begin(),ebs.begin()+k, ebs.end());
             best_abs_ebs[j] = ebs[k];
             
@@ -1215,23 +1226,17 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
     for(auto j:{0,1,2}){
         std::cout<<"File "<<j+1<<":"<<std::endl;
+        std::cout << "Best abs eb : " << best_abs_ebs[j] << std::endl; 
+        confs[j].absErrorBound = best_abs_ebs[j];
         if(confs[j].use_global_eb)
             std::cout<<"Use global eb."<<std::endl; 
 
-        
-        std::cout << "Best abs eb : " << best_abs_ebs[j] << std::endl; 
-        //std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
-        confs[j].absErrorBound = best_abs_ebs[j];
-        //qoi->set_global_eb(best_abs_eb);
-       // conf.setDims(dims.begin(), dims.end());
-        // reset dimensions and variables for average of square
-        //if(conf.qoi == 3){
-         //   qoi->set_dims(dims);
-        //    qoi->init();
-        //}
-        for (size_t i = 0; i < confs[j].num; i++){
-            if(confs[j].ebs[i] > best_abs_ebs[j])
-                confs[j].ebs[i] = best_abs_ebs[j];
+        else{
+            for (size_t i = 0; i < confs[j].num; i++){
+                if(ori_ebs[j][i] > best_abs_ebs[j])
+                    ori_ebs[j][i] = best_abs_ebs[j];
+            }
+            confs[j].ebs=std::move(ori_ebs[j]);
         }
 
         confs[j].qoiEBBase = confs[j].absErrorBound / 1030;
@@ -2373,8 +2378,11 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
     QoZ::Timer timer(true);
     if (confs[0].qoi>0)
         QoI_tuning<T,N>(confs,data);
-    for(auto i:{0,1,2})
+    for(auto i:{0,1,2}){
+        auto ebs = std::move(confs[i].ebs);
         Tuning<T,N>(confs[i],data[i]);
+        confs[i].ebs = std::move(ebs);
+    }
     
     //std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
 
