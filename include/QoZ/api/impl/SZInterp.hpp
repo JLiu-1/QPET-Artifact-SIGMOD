@@ -2376,6 +2376,7 @@ double Tuning(QoZ::Config &conf, T *data){
             
         if(conf.verbose)
             std::cout<<"B-M tuning started."<<std::endl;
+        QoZ::Timer bmt_timer(true);
        
         if (conf.autoTuningRate!=conf.predictorTuningRate){//} and (conf.predictorTuningRate!=0 or conf.autoTuningRate!=conf.waveletTuningRate)){
               
@@ -2572,7 +2573,7 @@ double Tuning(QoZ::Config &conf, T *data){
             timer.start();
         }
         */
-        
+        bmt_timer.stop(B-M step);
         if(conf.tuningTarget==QoZ::TUNING_TARGET_AC){
             bestm=1-bestm;
         }
@@ -2586,6 +2587,8 @@ double Tuning(QoZ::Config &conf, T *data){
         else if (conf.tuningTarget==QoZ::TUNING_TARGET_AC ){
             metric_name="AutoCorrelation";
         }
+
+
         if(conf.verbose){
             printf("Autotuning finished.\n");
             if (useInterp)
