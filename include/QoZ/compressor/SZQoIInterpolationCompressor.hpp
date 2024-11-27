@@ -254,7 +254,7 @@ namespace QoZ {
 
             quant_inds = std::vector<int>(num_elements * 2);//eb + data
             if(tuning==0)
-                ebs = conf.ebs;
+                ebs = conf.ebs.data();
             size_t interp_compressed_size = 0;
             double eb = qoi->get_global_eb();
             //std::cout<<"setting eb "<<eb<<std::endl;
@@ -7421,7 +7421,7 @@ namespace QoZ {
        // double anchor_threshold=0.0;//temp for "adaptive anchor stride";
 
         std::shared_ptr<concepts::QoIInterface<T, N>> qoi;
-        const std::vector<double> &ebs;
+        double *ebs;
 
         int qoi_id;
 
