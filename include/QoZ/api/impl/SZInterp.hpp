@@ -932,7 +932,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         double best_abs_eb;
 
-        std::vector<double>ebs(conf.ebs,conf.ebs+conf.num);
+        std::vector<double>ebs(conf.ebs.begin(),conf.ebs.end());
 
 
         if(conf.quantile>0){
