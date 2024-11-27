@@ -893,7 +893,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     qoi->set_qoi_tolerance(conf.qoiEB);
     
     QoZ::Config testConf = conf;
-    conf.ebs = std::vector<double>(conf.num);
+    conf.ebs = new double[conf.num];
     // use quantile to determine abs bound
     {
 
@@ -932,7 +932,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         double best_abs_eb;
 
-        std::vector<double>ebs(conf.ebs.begin(),conf.ebs.end());
+        std::vector<double>ebs(conf.ebs,conf.ebs+conf.num);
 
 
         if(conf.quantile>0){
@@ -1806,6 +1806,7 @@ double Tuning(QoZ::Config &conf, T *data){
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
 
         QoI_tuning<T,N>(conf, data);
+
     }
     //auto conf_qoi = conf.qoi;
     //conf.qoi = 0;
@@ -1827,7 +1828,7 @@ double Tuning(QoZ::Config &conf, T *data){
     }*/
 
 
-
+    auto ebs = std::move(conf.ebs);
 
     if (conf.predictorTuningRate>0 and conf.predictorTuningRate<1){
         if (conf.verbose)
@@ -2622,7 +2623,8 @@ double Tuning(QoZ::Config &conf, T *data){
     for(int i=0;i<sampled_blocks.size();i++){
         std::vector< T >().swap(sampled_blocks[i]);              
     }
-    std::vector< std::vector<T> >().swap(sampled_blocks);     
+    std::vector< std::vector<T> >().swap(sampled_blocks);
+    conf.ebs = ebs;     
     return best_lorenzo_ratio;    
 }
 
