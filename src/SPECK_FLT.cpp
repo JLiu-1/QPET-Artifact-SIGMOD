@@ -480,7 +480,8 @@ auto sperr::SPECK_FLT::compress(bool use_high_prec) -> RTNType
   m_has_outlier = false;
   m_has_lossless = false;
 
-  bool hp = (use_high_prec and (m_mode == CompMode::PWE and m_quality<=1e-10));
+  //bool hp = (use_high_prec and (m_mode == CompMode::PWE and m_quality<=1e-10));
+  bool hp = false;
   
 
   // Collect information for different compression modes.
@@ -578,8 +579,11 @@ FIXED_RATE_HIGH_PREC_LABEL:
       if(qoi!=nullptr or use_high_prec){
         auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
         //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
+
+        for (auto &x:m_vals_d)
+          x += mean;
         for(auto &los:decoded_LOS){
-          if (use_high_prec and std::abs( (m_vals_d[los.pos]+mean)+los.err - m_vals_orig[los.pos] ) > m_quality and !hp ){
+          if (use_high_prec and std::abs( (m_vals_d[los.pos]+los.err) - m_vals_orig[los.pos] ) > m_quality and !hp ){
             std::cout<<"switch to high prec mode"<<std::endl;
             hp = true;
             m_vals_d = m_vals_orig;
@@ -604,7 +608,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
      // size_t count=0;
       for (size_t i = 0; i < total_vals; i++) {
 
-        auto val_d = m_vals_d[i]+mean;
+        auto val_d = m_vals_d[i];
 
 
     
@@ -789,7 +793,7 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   return RTNType::Good;
 }
 
-auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
+auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool use_high_prec) -> RTNType{
 
   std::vector<double>offsets(m_vals_d.size(),0);
  // size_t count=0;
@@ -845,7 +849,7 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
                             compliance = (std::abs(q - oq) <= pw_qoi_tol);
                           if(!compliance){
                             offsets[cur_data_pos-data] = cur_ori_val-cur_val;
-                            if (hp and offsets[cur_data_pos-data]+cur_val != cur_ori_val and mean != 0.0){
+                            if (use_high_prec and  mean != 0.0 and offsets[cur_data_pos-data]+cur_val != cur_ori_val and mean != 0.0){
                               return RTNType::Error;
                             }
                             *cur_data_pos += offsets[cur_data_pos-data];
@@ -883,10 +887,10 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool hp) -> RTNType{
                           for(size_t kk=0; kk<size_3; kk++){
                               auto qoi_err = (ori_qoi_vals[local_idx]-qoi_vals[local_idx]);
                               if(fixing and qoi_err!=0 ){
-                                  auto cur_val = *cur_data_pos+mean;
+                                  auto cur_val = *cur_data_pos;
                                   auto cur_ori_val = *cur_ori_data_pos;
                                   offsets[cur_data_pos-data] = cur_ori_val - cur_val;
-                                  if (hp and offsets[cur_data_pos-data]+cur_val != cur_ori_val and mean != 0.0){
+                                  if (use_high_prec and  mean != 0.0 and offsets[cur_data_pos-data]+cur_val != cur_ori_val){
                                     return RTNType::Error;
                                   }
                                   //*cur_data_pos = *cur_ori_data_pos;
