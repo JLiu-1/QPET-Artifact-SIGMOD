@@ -58,11 +58,11 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
     }
     if(conf.qoi > 0){
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
-        auto quantizer = SZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
-        auto quantizer_eb = SZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
-        auto qoi = SZ::GetQOI<T, N>(conf);
-        auto sz = SZ::SZQoIInterpolationCompressor<T, N, SZ::VariableEBLinearQuantizer<T, T>, SZ::EBLogQuantizer<T>, SZ::QoIEncoder<int>, SZ::Lossless_zstd>(
-                quantizer, quantizer_eb, qoi, SZ::QoIEncoder<int>(), SZ::Lossless_zstd());
+        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
+        auto qoi = QoZ::GetQOI<T, N>(conf);
+        auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
+                quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
         // use sampling to determine abs bound
         {
             auto dims = conf.dims;
@@ -70,7 +70,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
 
             size_t sampling_num, sampling_block;
             std::vector<size_t> sample_dims(N);
-            std::vector<T> samples = SZ::sampling<T, N>(data, conf.dims, sampling_num, sample_dims, sampling_block);
+            std::vector<T> samples = QoZ::sampling<T, N>(data, conf.dims, sampling_num, sample_dims, sampling_block);
             conf.setDims(sample_dims.begin(), sample_dims.end());
 
             T * sampling_data = (T *) malloc(sampling_num * sizeof(T));
