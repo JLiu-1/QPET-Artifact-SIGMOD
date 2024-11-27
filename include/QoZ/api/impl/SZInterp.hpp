@@ -128,6 +128,9 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
 
         char *cmpData = (char *) sz.compress(conf, data, outSize);
 
+        conf.ebs.clear();
+        conf.ebs.shrink_to_fit();
+
          //double incall_time = timer.stop();
         //std::cout << "incall time = " << incall_time << "s" << std::endl;
         size_t offset_size=0;
@@ -1366,12 +1369,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         //std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
 
         
-        if(conf.use_global_eb)
-            std::cout<<"Use global eb."<<std::endl; 
-
+        
         
         std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
-        std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
+        //std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
         conf.absErrorBound = best_abs_eb;
         //qoi->set_global_eb(best_abs_eb);
        // conf.setDims(dims.begin(), dims.end());
@@ -1380,9 +1381,16 @@ void QoI_tuning(QoZ::Config &conf, T *data){
          //   qoi->set_dims(dims);
         //    qoi->init();
         //}
-        for (size_t i = 0; i < conf.num; i++){
-            if(conf.ebs[i]>best_abs_eb)
-                conf.ebs[i] = best_abs_eb;
+        if(conf.use_global_eb){
+            std::cout<<"Use global eb."<<std::endl; 
+            conf.ebs.clear();
+            conf.ebs.shrink_to_fit();
+        }
+        else{
+            for (size_t i = 0; i < conf.num; i++){
+                if(conf.ebs[i]>best_abs_eb)
+                    conf.ebs[i] = best_abs_eb;
+            }
         }
 
         conf.qoiEBBase = conf.absErrorBound / 1030;
@@ -2682,6 +2690,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
     } 
 
     else {
+        auto ebs = std::move(conf.ebs);
         QoZ::Config lorenzo_config = conf;
         size_t sampling_num, sampling_block;        
         std::vector<size_t> sample_dims(N);
@@ -2745,6 +2754,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
      
         
         conf = lorenzo_config;
+        conf.ebs = ebs;
         double tuning_time = timer.stop();
         if(conf.verbose){
             std::cout << "Tuning time = " << tuning_time << "s" << std::endl;
