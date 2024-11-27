@@ -6,6 +6,7 @@
 #include "FX.hpp"
 #include "FX_abs.hpp"
 #include "FX_P.hpp"
+#include "XCubic.hpp"
 #include <vector>
 
 namespace QoZ {
@@ -19,6 +20,8 @@ namespace QoZ {
                 return std::make_shared<QoZ::QoI_FX_P<T>>(qoiEB, absErrorBound, qoi_string, qoi_string_2, threshold, isolated);
             case 3:
                 return std::make_shared<QoZ::QoI_FX_ABS<T>>(qoiEB, absErrorBound, qoi_string, isolated, threshold);
+            case 3:
+                return std::make_shared<QoZ::QoI_FX_ABS<T>>(qoiEB, absErrorBound);
         }
         return NULL;
     }
