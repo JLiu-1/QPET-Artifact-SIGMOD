@@ -273,7 +273,7 @@ UnivarFunc convert_expression_to_function(const Basic& expr, const RCP<const Sym
     else if (is_a<SymEngine::Sign>(expr)) {
         auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
         static UnivarFunc stored_arg = arg;
-        return [](double x_value) { return (x_value > 0) - (0 > x_value); };
+        return [](double x_value) { return (stored_arg(x_value) > 0) - (0 > stored_arg(x_value)); };
     }
     else if (is_a<SymEngine::Log>(expr)) {
         auto args = expr.get_args();
