@@ -608,7 +608,7 @@ namespace QoZ {
 
 
         }
-        timer.stop("QoI validation time");
+        timer.stop("QoI validation");
 
 
         if (max_qoi == min_qoi){
@@ -627,14 +627,14 @@ namespace QoZ {
             timer.start();
             if(dims.size() == 2) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, 1, dims[0], dims[1], blockSize);
             else if(dims.size() == 3) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, dims[0], dims[1], dims[2], blockSize);
-            timer.stop("RegionalQoI validation time");
+            timer.stop("RegionalQoI validation");
         }
 
         if (dims.size() == 3){
             timer.start();
             printf("QoI Lapacian: %.6G\n",compute_3d_laplacian_max_err<double>(ori_data.data(), data.data(), dims[0], dims[1], dims[2]));
             printf("QoI Gradient Length: %.6G\n",compute_3d_gradient_length_max_err<double>(ori_data.data(), data.data(), dims[0], dims[1], dims[2]));
-            timer.stop("Lap+grad validation time");
+            timer.stop("Lap+grad validation");
         }
 
 

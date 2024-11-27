@@ -201,12 +201,12 @@ namespace QoZ {
         double threshold;
         bool isolated;
         std::set<double>singularities;
-        std::function<double(double)> f1;
-        std::function<double(double)> f2;
-        std::function<double(double)> df1;
-        std::function<double(double)> ddf1;
-        std::function<double(double)> df2;
-        std::function<double(double)> ddf2;
+        UnivarFunc f1;
+        UnivarFunc f2;
+        UnivarFunc df1;
+        UnivarFunc ddf1;
+        UnivarFunc df2;
+        UnivarFunc ddf2;
 
         std::string f1_string, f2_string;
      
