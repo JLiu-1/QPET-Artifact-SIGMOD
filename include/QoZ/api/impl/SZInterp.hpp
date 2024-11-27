@@ -896,7 +896,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     qoi->set_qoi_tolerance(conf.qoiEB);
     
     QoZ::Config testConf = conf;
-    conf.ebs.resize(conf.num);
+    auto ori_ebs = std::vector<double>(conf.num);
     // use quantile to determine abs bound
     {
 
@@ -912,18 +912,18 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             
             //conf.qoiEB = 1e10;//pass check_compliance, to revise
             for (size_t i = 0; i < conf.num; i++){
-                conf.ebs[i] = qoi->interpret_eb(data+i,i);
-                if (min_abs_eb>conf.ebs[i])
-                    min_abs_eb = conf.ebs[i];
+                ori_ebs[i] = qoi->interpret_eb(data+i,i);
+                if (min_abs_eb>ori_ebs[i])
+                    min_abs_eb = ori_ebs[i];
 
             }
             //conf.qoi = 14; //back to pointwise
         }
         else{
             for (size_t i = 0; i < conf.num; i++){
-                conf.ebs[i] = qoi->interpret_eb(data[i]);
-                    if (min_abs_eb>conf.ebs[i])
-                        min_abs_eb = conf.ebs[i];
+                ori_ebs[i] = qoi->interpret_eb(data[i]);
+                    if (min_abs_eb>ori_ebs[i])
+                        min_abs_eb = ori_ebs[i];
             }
         }
         //double max_quantile_rate = 0.2;
@@ -935,7 +935,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         double best_abs_eb;
 
-        std::vector<double>ebs(conf.ebs.begin(),conf.ebs.end());
+        std::vector<double>ebs(ori_ebs.begin(),ori_ebs.end());
 
 
         if(conf.quantile>0){
@@ -1219,7 +1219,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                 size_t count = 0;
                 for (size_t i = 0; i < conf.num; i++){
-                    if(conf.ebs[i] < best_abs_eb)
+                    if(ori_ebs[i] < best_abs_eb)
                         count++;
                 }
 
@@ -1383,14 +1383,15 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         //}
         if(conf.use_global_eb){
             std::cout<<"Use global eb."<<std::endl; 
-            conf.ebs.clear();
-            conf.ebs.shrink_to_fit();
+            ori_ebs.clear();
+            ori_ebs.shrink_to_fit();
         }
         else{
             for (size_t i = 0; i < conf.num; i++){
-                if(conf.ebs[i]>best_abs_eb)
-                    conf.ebs[i] = best_abs_eb;
+                if(ori_ebs[i]>best_abs_eb)
+                    ori_ebs[i] = best_abs_eb;
             }
+            conf.ebs = std::move(ori_ebs);
         }
 
         conf.qoiEBBase = conf.absErrorBound / 1030;
