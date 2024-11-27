@@ -579,7 +579,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
         //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
         for(auto &los:decoded_LOS){
-          if (use_high_prec and std::abs( (m_vals_d[los.pos]+mean)+loss.err - m_vals_orig[los.pos] ) > m_quality and !hp ){
+          if (use_high_prec and std::abs( (m_vals_d[los.pos]+mean)+los.err - m_vals_orig[los.pos] ) > m_quality and !hp ){
             std::cout<<"switch to high prec mode"<<std::endl;
             hp = true;
             m_vals_d = m_vals_orig;
