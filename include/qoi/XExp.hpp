@@ -99,7 +99,7 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val*val; 
+            return pow(base,val); 
 
         } 
 
