@@ -58,12 +58,11 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
     }
     if(conf.qoi > 0){
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
-        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
-        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
-        auto qoi = QoZ::GetQOI<T, N>(conf);
-        auto sz = QoZ::SZQoIInterpolationCompressor<T, N, QoZ::VariableEBLinearQuantizer<T, T>, QoZ::EBLogQuantizer<T>, QoZ::QoIEncoder<int>, QoZ::Lossless_zstd>(
-                quantizer, quantizer_eb, qoi, QoZ::QoIEncoder<int>(), QoZ::Lossless_zstd());
-        double max_abs_eb = 0;
+        auto quantizer = SZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = SZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
+        auto qoi = SZ::GetQOI<T, N>(conf);
+        auto sz = SZ::SZQoIInterpolationCompressor<T, N, SZ::VariableEBLinearQuantizer<T, T>, SZ::EBLogQuantizer<T>, SZ::QoIEncoder<int>, SZ::Lossless_zstd>(
+                quantizer, quantizer_eb, qoi, SZ::QoIEncoder<int>(), SZ::Lossless_zstd());
         // use sampling to determine abs bound
         {
             auto dims = conf.dims;
@@ -71,7 +70,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
 
             size_t sampling_num, sampling_block;
             std::vector<size_t> sample_dims(N);
-            std::vector<T> samples = QoZ::sampling<T, N>(data, conf.dims, sampling_num, sample_dims, sampling_block);
+            std::vector<T> samples = SZ::sampling<T, N>(data, conf.dims, sampling_num, sample_dims, sampling_block);
             conf.setDims(sample_dims.begin(), sample_dims.end());
 
             T * sampling_data = (T *) malloc(sampling_num * sizeof(T));
@@ -89,19 +88,13 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
                 std::cout << "current_eb = " << conf.absErrorBound << ", current_ratio = " << ratio << std::endl;
-                max_abs_eb = fabs(sampling_data[0] - samples[0]);
-                for(size_t i=1; i<sampling_num; i++){
-                    max_abs_eb = std::max(max_abs_eb, fabs(sampling_data[i] - samples[i]));
-                }
             }
             double prev_ratio = 1;
             double current_ratio = ratio;
-            double best_abs_eb = std::min(conf.absErrorBound, max_abs_eb);
+            double best_abs_eb = conf.absErrorBound;
             double best_ratio = current_ratio;
             // check smaller bounds
-            int max_iter = 100; 
-            int iter = 0;
-            while(iter++ < max_iter){
+            while(true){
                 auto prev_eb = conf.absErrorBound;
                 prev_ratio = current_ratio;
                 conf.absErrorBound /= 2;
