@@ -2573,7 +2573,7 @@ double Tuning(QoZ::Config &conf, T *data){
             timer.start();
         }
         */
-        bmt_timer.stop(B-M step);
+        bmt_timer.stop("B-M step");
         if(conf.tuningTarget==QoZ::TUNING_TARGET_AC){
             bestm=1-bestm;
         }
