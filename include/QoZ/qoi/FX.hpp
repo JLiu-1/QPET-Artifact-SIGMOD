@@ -146,11 +146,11 @@ namespace QoZ {
             //    return false;
             
             double q_ori = eval(data);
-            if (std::isnan(q_ori) or std::isinf(q_ori))
-                return data == dec_data;
+            //if (std::isnan(q_ori) or std::isinf(q_ori))
+            //    return data == dec_data;
             double q_dec = eval(dec_data);
-            if (std::isnan(q_dec) or std::isinf(q_dec))
-                return false;
+            //if (std::isnan(q_dec) or std::isinf(q_dec))
+            //    return false;
 
             return (fabs(q_ori - q_dec) <= tolerance);
         }
