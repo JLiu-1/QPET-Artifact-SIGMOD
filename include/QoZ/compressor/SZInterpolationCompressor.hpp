@@ -224,9 +224,16 @@ namespace QoZ {
 
             if(conf.qoi>0 and conf.use_global_eb){
                 check_qoi = true;
+                
                 if (qoi == nullptr or qoi->id != conf.qoi)
                     qoi = QoZ::GetQOI<T, N>(conf);
             }
+            else{
+                check_qoi = false;
+            }
+
+            if(check_qoi)
+                std::cout<<"checking qoi"<<std::endl;
 
             
             
