@@ -2793,7 +2793,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             } 
 
             conf.setDims(conf.dims.begin(), conf.dims.end());
-        }
 //          
 
         }
