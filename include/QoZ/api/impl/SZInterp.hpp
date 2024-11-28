@@ -2768,7 +2768,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
         conf.ebs = ebs;
-        if(conf.qoi>0){
+        if(conf.qoi>0 and !conf.use_global_eb){
 
             auto cmprData = SZ_compress_LorenzoReg<T, N>(conf, sampling_data.data(), sampleOutSize);
             delete[]cmprData;
