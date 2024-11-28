@@ -195,9 +195,9 @@ namespace QoZ {
         RCP<const Symbol>  x;
         double tolerance;
         T global_eb;
-        UnivarFunc func;
-        UnivarFunc deri_1;
-        UnivarFunc deri_2;
+        std::function<double(double)> func;
+        std::function<double(double)> deri_1;
+        std::function<double(double)> deri_2;
         std::set<double>singularities;
         std::string func_string;
 
