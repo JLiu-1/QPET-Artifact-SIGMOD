@@ -56,7 +56,8 @@ namespace QoZ {
                 tolerance(tolerance),
                 global_eb(global_eb), isolated (isolated), threshold (threshold), func_string(ff) {
             // TODO: adjust type for int data
-            //printf("global_eb = %.4f\n", (double) global_eb);
+            printf("global_eb = %.4f\n", (double) global_eb);
+            printf("qoi tol = %.4f\n", (double) tolerance);
             concepts::QoIInterface<T, N>::id = 14;
            // std::cout<<"init 1 "<< std::endl;
             
