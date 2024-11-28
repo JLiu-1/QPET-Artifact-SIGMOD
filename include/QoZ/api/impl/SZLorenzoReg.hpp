@@ -118,7 +118,7 @@ make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concep
 }
 
 template<class T, QoZ::uint N>
-char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
+char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize, booltuning=false) {
 
     assert(N == conf.N);
     assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
@@ -153,7 +153,8 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         auto sz = make_lorenzo_regression_compressor<T, N>(conf, quantizer, QoZ::HuffmanEncoder<int>(), QoZ::Lossless_zstd());
         //std::cout<<"lor1"<<std::endl;
         cmpData = (char *) sz->compress(conf, data, outSize);
-        conf.qoi = 99;
+        if(conf.qoi>0 and !tuning)
+            conf.qoi = 99;
     }
     
     return cmpData;
