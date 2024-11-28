@@ -31,7 +31,7 @@ namespace QoZ {
                 ebs(std::move(conf.ebs)),
                 qoi_id (conf.qoi){
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
-            std::cout<<"init a qoi lz"<<std::endl;
+            //std::cout<<"init a qoi lz"<<std::endl;
         }
 
         std::vector<int> compress(T *data) {
