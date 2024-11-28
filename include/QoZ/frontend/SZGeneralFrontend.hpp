@@ -84,7 +84,8 @@ namespace QoZ {
                             *element = ori;
                             if(quant_inds[quant_count] != 0){
                                 // avoid push multiple elements
-                                quant_inds[quant_count] = quantizer.quantize_and_overwrite(*element, 0, T(0.0));                            
+                                quant_inds[quant_count] = 0;
+                                quantizer.insert_unpred(ori);                            
                             }
                         }
                     }
