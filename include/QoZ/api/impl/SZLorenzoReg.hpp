@@ -126,7 +126,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
 
     char *cmpData;
 
-    if(conf.qoi > 0){
+    if(conf.qoi > 0 and !conf.use_global_eb){
         //std::cout << "absErrorBound = " << conf.absErrorBound << std::endl;
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
@@ -154,6 +154,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         //std::cout<<"lor1"<<std::endl;
         cmpData = (char *) sz->compress(conf, data, outSize);
     }
+    conf.qoi = 0;
     return cmpData;
 }
 

@@ -2537,9 +2537,11 @@ double Tuning(QoZ::Config &conf, T *data){
 
         //add lorenzo
         conf.absErrorBound=oriabseb;
-        if(conf.testLorenzo){    
+        if(conf.testLorenzo){
 
 
+
+            auto oqoi = conf.qoi;
             std::pair<double,double> results=CompressTest<T,N>(conf, sampled_blocks,QoZ::ALGO_LORENZO_REG,(QoZ::TUNING_TARGET)conf.tuningTarget,false,profiling_coeff,orig_means,
                     orig_sigma2s,orig_ranges,flattened_sampled_data);
 
@@ -2582,7 +2584,8 @@ double Tuning(QoZ::Config &conf, T *data){
                     bestbeta=-1;
                     useInterp=false;
                 }
-            }          
+            }   
+            conf.qoi = oqoi;       
         }
         conf.absErrorBound=oriabseb;
         /*
@@ -2765,6 +2768,25 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
         conf.ebs = ebs;
+        if(conf.qoi>0){
+
+            auto cmprData = SZ_compress_LorenzoReg<T, N>(conf, sampling_data.data(), sampleOutSize);
+            delete[]cmprData;
+            best_lorenzo_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
+            conf.use_global_eb = true;
+            auto cmprData = SZ_compress_LorenzoReg<T, N>(conf, sampling_data.data(), sampleOutSize);
+            delete[]cmprData;
+            ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
+//            printf("Lorenzo, quant_bin=8192, ratio = %.2f\n", ratio);
+            if (ratio > best_lorenzo_ratio * 1.02) {
+                best_lorenzo_ratio = ratio;
+            }
+            else{
+                conf.use_global_eb = false;
+            } 
+//          
+
+        }
         double tuning_time = timer.stop();
         if(conf.verbose){
             std::cout << "Tuning time = " << tuning_time << "s" << std::endl;
