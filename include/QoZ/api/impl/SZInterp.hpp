@@ -2782,7 +2782,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
 
             auto eb = conf.absErrorBound;
 
-            for(auto cur_eb:{0.75*eb,0.5*eb，0.25*eb}){
+            for(auto cur_eb:{0.75*eb,0.5*eb,0.25*eb}){
                 tempdata = sampling_data;
                 auto last_eb = conf.absErrorBound;
                 conf.absErrorBound = cur_eb;
