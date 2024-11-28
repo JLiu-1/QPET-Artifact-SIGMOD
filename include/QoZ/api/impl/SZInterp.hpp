@@ -2319,7 +2319,8 @@ double Tuning(QoZ::Config &conf, T *data){
         }
 
         else{
-            if(!(conf.qoi>0 and conf.qoiRegionMode==1 and qoiRegionSize>1)){
+            double ratio;
+            if(!(conf.qoi>0 and conf.qoiRegionMode==1 and conf.qoiRegionSize>1)){
                 QoZ::Config lorenzo_config = conf;
                 lorenzo_config.cmprAlgo = QoZ::ALGO_LORENZO_REG;
                 lorenzo_config.setDims(sample_dims.begin(), sample_dims.end());
@@ -2335,7 +2336,7 @@ double Tuning(QoZ::Config &conf, T *data){
                 auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, cur_sampling_data.data(), sampleOutSize);
                     
                 delete[]cmprData;
-                double ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
+                ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
                 if(conf.verbose)
                     printf("Lorenzo ratio = %.4f\n", ratio);
 
