@@ -511,6 +511,7 @@ CMP_START:
     return RTNType::Good;
   }
   auto mean = m_conditioner.get_mean();
+  std::cout<<mean<<std::endl;
 
 
 
@@ -580,12 +581,15 @@ FIXED_RATE_HIGH_PREC_LABEL:
       if(qoi!=nullptr or use_high_prec){
         auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
         //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
-
+        std::cout<<m_vals_d[87571254]<<std::endl;
         for (auto &x:m_vals_d)
           x += mean;
+        std::cout<<m_vals_d[87571254]<<std::endl;
         for(auto &los:decoded_LOS){
            m_vals_d[los.pos]+=los.err;
+
         }
+        std::cout<<m_vals_d[87571254]<<std::endl;
 
         if (use_high_prec and !hp ){
 
@@ -618,7 +622,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         auto val_d = m_vals_d[i];
 
 
-    
+        std::cout<<m_vals_d[87571254]<<std::endl;
         if ( !qoi->check_compliance(m_vals_orig[i],val_d)  ){
 
           m_has_lossless = true;
@@ -632,6 +636,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
           //count++;
           }
         }
+        std::cout<<m_vals_d[87571254]<<std::endl;
 
 
         /*
