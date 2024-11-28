@@ -35,7 +35,7 @@ namespace QoZ {
 
                     qoi = QoZ::GetQOI<T, N>(conf);
                     std::cout<<"qoi created"<<std::endl;
-                    std::cout<<qoi->eval(2.0)<<std::endl;
+                    std::cout<<conf.qoi<<std::endl;
                     std::cout<<"qoi tested"<<std::endl;
                 }
             }
