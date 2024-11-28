@@ -481,8 +481,8 @@ auto sperr::SPECK_FLT::compress(bool use_high_prec) -> RTNType
   m_has_lossless = false;
 
   //bool hp = (use_high_prec and (m_mode == CompMode::PWE and m_quality<=1e-10));
-  //bool hp = false;
-  bool hp = true;
+  bool hp = false;
+  //bool hp = true;
   
 
   // Collect information for different compression modes.
