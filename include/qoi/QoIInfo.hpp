@@ -8,6 +8,7 @@
 #include "FX_P.hpp"
 #include "XCubic.hpp"
 #include "XExp.hpp"
+#include "XSquare.hpp"
 #include <vector>
 
 namespace QoZ {
@@ -25,6 +26,8 @@ namespace QoZ {
                 return std::make_shared<QoZ::QoI_X_Cubic<T>>(qoiEB, absErrorBound);
             case 5:
                 return std::make_shared<QoZ::QoI_X_Exp<T>>(qoiEB, absErrorBound);
+            case 6:
+                return std::make_shared<QoZ::QoI_X_Square<T>>(qoiEB, absErrorBound);
         }
         return NULL;
     }

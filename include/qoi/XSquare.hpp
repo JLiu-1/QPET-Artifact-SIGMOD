@@ -2,8 +2,8 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_X_CUBIC_HPP
-#define SZ_QOI_X_CUBIC_HPP
+#ifndef SZ_QOI_X_SQUARE_HPP
+#define SZ_QOI_X_SQUARE_HPP
 
 #include <algorithm>
 #include <cmath>
@@ -47,15 +47,15 @@ using SymEngine::FiniteSet;
 
 namespace QoZ {
     template<class T>
-    class QoI_X_Cubic : public concepts::QoIInterface<T> {
+    class QoI_X_Square : public concepts::QoIInterface<T> {
 
     public:
-        QoI_X_Cubic(double tolerance, T global_eb) : 
+        QoI_X_Square(double tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T>::id = 4;
+            concepts::QoIInterface<T>::id = 6;
            // std::cout<<"init 1 "<< std::endl;
             
         }
@@ -63,7 +63,7 @@ namespace QoZ {
         T interpret_eb(T data) const {
             
 
-            T eb = data >= 0 ? std::cbrt(data*data*data+tolerance)-data : data - std::cbrt(data*data*data-tolerance);
+            T eb = - fabs(data) + sqrt(data * data + tolerance);
             return std::min(eb, global_eb);
         }
 
@@ -75,7 +75,7 @@ namespace QoZ {
             //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
             //    return false;
             
-            return (fabs(data*data*data - dec_data*dec_data*dec_data) <= tolerance);
+            return (fabs(data*data- dec_data*dec_data) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -96,12 +96,12 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val*val; 
+            return val*val; 
 
         } 
 
         std::string get_expression() const{
-            return "x^3";
+            return "x^2";
         }
 
         void pre_compute(const T * data){}
