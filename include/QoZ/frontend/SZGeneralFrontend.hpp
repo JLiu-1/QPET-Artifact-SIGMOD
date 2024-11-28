@@ -76,17 +76,19 @@ namespace QoZ {
                     quant_inds[quant_count] = quantizer.quantize_and_overwrite(
                             *element, predictor_withfallback->predict(element));
 
-
+                    std::cout<<"p1"<<std::endl;
                     if(check_qoi ){
                         // std::cout << "not compliant" << std::endl;
                         // save as unpredictable
                         if(!qoi->check_compliance(ori,*element)){
+                            std::cout<<"p2"<<std::endl;
                             *element = ori;
                             if(quant_inds[quant_count] != 0){
                                 // avoid push multiple elements
                                 quant_inds[quant_count] = 0;
                                 quantizer.insert_unpred(ori);                            
                             }
+                            std::cout<<"p3"<<std::endl;
                         }
                     }
                     quant_count++;
