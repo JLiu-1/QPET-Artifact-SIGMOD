@@ -115,7 +115,7 @@ namespace QoZ {
     }
 
     template<typename Type>
-    void verify(Type *ori_data, Type *data, size_t num_elements, double &psnr, double &nrmse) {
+    void verify(Type *ori_data, Type *data, size_t num_elements, double &psnr, double &nrmse, bool verbose = true) {
         size_t i = 0;
         double Max = ori_data[0];
         double Min = ori_data[0];
@@ -167,15 +167,16 @@ namespace QoZ {
 
         double normErr = sqrt(sum);
         double normErr_norm = normErr / sqrt(l2sum);
-
-        printf("Min=%.20G, Max=%.20G, range=%.20G\n", Min, Max, range);
-        printf("Max absolute error = %.2G\n", diffMax);
-        printf("Max relative error = %.2G\n", diffMax / (Max - Min));
-        printf("Max pw relative error = %.2G\n", maxpw_relerr);
-        printf("PSNR = %f, NRMSE= %.10G\n", psnr, nrmse);
-        printf("normError = %f, normErr_norm = %f\n", normErr, normErr_norm);
-        printf("acEff=%f\n", acEff);
-//        printf("errAutoCorr=%.10f\n", autocorrelation1DLag1<double>(diff, num_elements, diff_sum / num_elements));
+        if(verbose){
+            printf("Min=%.20G, Max=%.20G, range=%.20G\n", Min, Max, range);
+            printf("Max absolute error = %.2G\n", diffMax);
+            printf("Max relative error = %.2G\n", diffMax / (Max - Min));
+            printf("Max pw relative error = %.2G\n", maxpw_relerr);
+            printf("PSNR = %f, NRMSE= %.10G\n", psnr, nrmse);
+            printf("normError = %f, normErr_norm = %f\n", normErr, normErr_norm);
+            printf("acEff=%f\n", acEff);
+    //        printf("errAutoCorr=%.10f\n", autocorrelation1DLag1<double>(diff, num_elements, diff_sum / num_elements));
+        }
         free(diff);
     }
 
@@ -620,6 +621,14 @@ namespace QoZ {
         std::cout<<"QoI function: "<<qoi->get_expression()<<std::endl;
         printf("Max qoi = %.6G, min qoi = %.6G, qoi range = %.6G\n", max_qoi, min_qoi, (max_qoi - min_qoi));
         printf("Max qoi error = %.6G, relative qoi error = %.6G\n", max_qoi_diff, max_qoi_diff / (max_qoi - min_qoi));
+
+        double q_psnr, q_nrmse;
+
+        verify(ori_data, data, num_elements, psnr, nrmse,false);
+
+        printf("QoI PSNR = %.6G, QoI NRMSE = %.6G\n", q_psnr, q_nrmse);
+
+
        
         if (blockSize>1){
             
