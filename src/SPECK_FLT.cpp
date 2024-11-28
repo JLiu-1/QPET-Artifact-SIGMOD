@@ -511,9 +511,6 @@ CMP_START:
     return RTNType::Good;
   }
   auto mean = m_conditioner.get_mean();
-  std::cout<<mean<<std::endl;
-  if(total_vals>87571254)
-    std::cout<<m_vals_orig[87571254]<<std::endl;
 
 
 
@@ -565,8 +562,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
     //std::cout<<LOS.size()<<std::endl;
     //auto LOS_backup=LOS;
-    if(total_vals>87571254)
-    std::cout<<"p1"<<m_vals_d[87571254]<<std::endl;
+
     if (LOS.empty())
       m_has_outlier = false;
     else {
@@ -579,40 +575,41 @@ FIXED_RATE_HIGH_PREC_LABEL:
       rtn = m_out_coder.encode();
       if (rtn != RTNType::Good)
         return rtn;
-      
+
+    }
       //auto new_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<new_LOS.size()<<std::endl;
-      if(qoi!=nullptr or use_high_prec){
+    if(qoi!=nullptr or use_high_prec){
+     for (auto &x:m_vals_d)
+      x += mean;
+      if(m_has_outlier){
         auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
-        //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
-        
-        for (auto &x:m_vals_d)
-          x += mean;
-        if(total_vals>87571254)
-    std::cout<<"p2"<<m_vals_d[87571254]<<std::endl;
+      //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
+      
+     
+      
         for(auto &los:decoded_LOS){
            m_vals_d[los.pos]+=los.err;
 
         }
-        if(total_vals>87571254)
-    std::cout<<"p3"<<m_vals_d[87571254]<<std::endl;
+      }
+     
+      if (use_high_prec and !hp ){
 
-        if (use_high_prec and !hp ){
+        for (size_t i = 0; i < total_vals; i++){
 
-          for (size_t i = 0; i < total_vals; i++){
-
-            if(std::abs( m_vals_d[i] - m_vals_orig[i] ) > m_quality ){
-              std::cout<<"switch to high prec mode"<<std::endl;
-              hp = true;
-              m_vals_d = m_vals_orig;
-              goto CMP_START;
-            }
-          } 
-        }
-
+          if(std::abs( m_vals_d[i] - m_vals_orig[i] ) > m_quality ){
+            std::cout<<"switch to high prec mode"<<std::endl;
+            hp = true;
+            m_vals_d = m_vals_orig;
+            goto CMP_START;
+          }
+        } 
       }
 
     }
+
+    
     
     
   }
@@ -623,8 +620,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       //std::cout<<mean<<std::endl;
       std::vector<double>offsets(total_vals,0);
      // size_t count=0;
-      if(total_vals>87571254)
-    std::cout<<"p4"<<m_vals_d[87571254]<<std::endl;
+  
       for (size_t i = 0; i < total_vals; i++) {
 
         auto val_d = m_vals_d[i];
@@ -654,8 +650,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
           std::cout<<m_vals_orig[i]<<" "<<offsets[i]<<" "<<m_vals_d[i]+mean+offsets[i]<<std::endl;
         }*/
       }
-      if(total_vals>87571254)
-    std::cout<<"p5"<<m_vals_d[87571254]<<std::endl;
+   
       //std::cout<<"lossless data count: "<<count<<std::endl;
       if(m_has_lossless)
         zstd_encoder.encode<double>(offsets);
@@ -764,7 +759,6 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   m_vals_d = m_cdf.release_data();
 
   //if(total_vals>87571254)
-    std::cout<<"p1"<<m_vals_d[87571254]<<std::endl;
 
   // Step 4: Inverse Conditioning
   rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
@@ -772,7 +766,6 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     return rtn;
 
   //if(total_vals>87571254)
-    std::cout<<"p2"<<m_vals_d[87571254]<<std::endl;
 
   if (multi_res) {
     auto resolutions = sperr::coarsened_resolutions(m_dims);
@@ -801,7 +794,6 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   }
 
   //if(total_vals>87571254)
-    std::cout<<"p3"<<m_vals_d[87571254]<<std::endl;
  // std::cout<<"end outlier"<<std::endl;
   if(m_has_lossless){
     //std::cout<<"re1"<<std::endl;
@@ -820,7 +812,6 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   }
 
   //if(total_vals>87571254)
-    std::cout<<"p4"<<m_vals_d[87571254]<<std::endl;
 
   
 
