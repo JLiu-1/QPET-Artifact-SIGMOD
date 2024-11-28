@@ -89,10 +89,10 @@ namespace QoZ {
             //ddf = diff(df,x);
             dfdy = f.diff(y);
             dfdz = f.diff(z);
-            std::cout<<"f: "<< f<<std::endl;
-            std::cout<<"dfdx: "<< dfdx<<std::endl;
-            std::cout<<"dfdy: "<< dfdy<<std::endl;
-            std::cout<<"dfdz: "<< dfdz<<std::endl;
+            //std::cout<<"f: "<< f<<std::endl;
+            //std::cout<<"dfdx: "<< dfdx<<std::endl;
+           // std::cout<<"dfdy: "<< dfdy<<std::endl;
+           // std::cout<<"dfdz: "<< dfdz<<std::endl;
   
             func = convert_expression_to_function(f, x,y,z);
             dx = convert_expression_to_function(dfdx, x,y,z);
