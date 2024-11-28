@@ -851,6 +851,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
         for(auto j:{0,1,2}){
 
+            std::cout<<"File "<<i+1<<":"<<std::endl;
+
             auto tmp_abs_eb = confs[j].absErrorBound;
             auto min_abs_eb = confs[j].absErrorBound;
             //QoZ::Config testConf = confs[i];
