@@ -2791,7 +2791,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 //std::cout<<"p1"<<std::endl;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
     //            printf("Lorenzo, quant_bin=8192, ratio = %.2f\n", ratio);
-                if (ratio > best_lorenzo_ratio * 1.02) {
+                if (ratio > best_lorenzo_ratio * 0.98) {
                     best_lorenzo_ratio = ratio;
                     conf.absErrorBound = cur_eb;
                 }
