@@ -2713,7 +2713,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             
         sampling_data = QoZ::sampling<T, N>(data, conf.dims, sampling_num, sample_dims, sampling_block);    
         lorenzo_config.cmprAlgo = QoZ::ALGO_LORENZO_REG;
-        auto ori_qoi = lorenzo_config.qoi;
+        auto ori_qoi = conf.qoi;
         lorenzo_config.lorenzo = true;
         lorenzo_config.lorenzo2 = true;
         lorenzo_config.regression = false;
