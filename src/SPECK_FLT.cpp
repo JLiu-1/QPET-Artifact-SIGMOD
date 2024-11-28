@@ -565,6 +565,8 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
     //std::cout<<LOS.size()<<std::endl;
     //auto LOS_backup=LOS;
+    if(total_vals>87571254)
+    std::cout<<"p1"<<m_vals_d[87571254]<<std::endl;
     if (LOS.empty())
       m_has_outlier = false;
     else {
@@ -583,8 +585,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       if(qoi!=nullptr or use_high_prec){
         auto decoded_LOS = m_out_coder.view_outlier_list_decoded();
         //std::cout<<"outlier num: "<<decoded_LOS.size()<<std::endl;
-        if(total_vals>87571254)
-    std::cout<<"p1"<<m_vals_d[87571254]<<std::endl;
+        
         for (auto &x:m_vals_d)
           x += mean;
         if(total_vals>87571254)
