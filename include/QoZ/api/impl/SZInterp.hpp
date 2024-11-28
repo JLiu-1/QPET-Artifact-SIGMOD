@@ -2779,7 +2779,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             std::cout<<"p1"<<std::endl;
             best_lorenzo_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
             conf.use_global_eb = true;
-            auto tempdata = sampling_data;
+            tempdata = sampling_data;
             cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize);
             delete[]cmprData;
             std::cout<<"p1"<<std::endl;
