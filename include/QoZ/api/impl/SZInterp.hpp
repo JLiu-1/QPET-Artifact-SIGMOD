@@ -2727,7 +2727,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         //lorenzo_config.quantbinCnt = 65536 * 2;
                     
             if(conf.autoTuningRate>0 or conf.predictorTuningRate>0){
-                auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, sampling_data.data(), sampleOutSize);
+                auto tempdata = sampling_data;
+                auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, tempdata.data(), sampleOutSize);
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
                 //printf("Lorenzo ratio = %.2f\n", ratio);
@@ -2736,9 +2737,10 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
           
             //further tune lorenzo
             if (N == 3 ) {
+                auto tempdata = sampling_data;
                 lorenzo_config.quantbinCnt = QoZ::optimize_quant_invl_3d<T>(data, conf.dims[0], conf.dims[1], conf.dims[2], conf.absErrorBound);
                 lorenzo_config.pred_dim = 2;
-                auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, sampling_data.data(), sampleOutSize);
+                auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, tempdata.data(), sampleOutSize);
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
                 //printf("Lorenzo, pred_dim=2, ratio = %.4f\n", ratio);
@@ -2749,9 +2751,10 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 }
             }
             if (conf.relErrorBound < 1.01e-6 && best_lorenzo_ratio > 5 && lorenzo_config.quantbinCnt != 16384) {
+                auto tempdata = sampling_data;
                 auto quant_num = lorenzo_config.quantbinCnt;
                 lorenzo_config.quantbinCnt = 16384;
-                auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, sampling_data.data(), sampleOutSize);
+                auto cmprData = SZ_compress_LorenzoReg<T, N>(lorenzo_config, tempdata.data(), sampleOutSize);
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
     //            printf("Lorenzo, quant_bin=8192, ratio = %.2f\n", ratio);
@@ -2768,14 +2771,16 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
         conf.ebs = ebs;
-        if(conf.qoi>0 and !conf.use_global_eb){
-
-            auto cmprData = SZ_compress_LorenzoReg<T, N>(conf, sampling_data.data(), sampleOutSize);
+        if(conf.qoi>0 and !conf.use_global_eb and sampling_num != conf.num){
+            conf.setDims(sample_dims.begin(), sample_dims.end());
+            auto tempdata = sampling_data;
+            auto cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize);
             delete[]cmprData;
             std::cout<<"p1"<<std::endl;
             best_lorenzo_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
             conf.use_global_eb = true;
-            cmprData = SZ_compress_LorenzoReg<T, N>(conf, sampling_data.data(), sampleOutSize);
+            auto tempdata = sampling_data;
+            cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize);
             delete[]cmprData;
             std::cout<<"p1"<<std::endl;
             ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
@@ -2786,6 +2791,9 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             else{
                 conf.use_global_eb = false;
             } 
+
+            conf.setDims(conf.dims.begin(), conf.dims.end());
+        }
 //          
 
         }
