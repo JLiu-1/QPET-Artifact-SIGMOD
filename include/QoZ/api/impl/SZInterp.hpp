@@ -2772,6 +2772,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf.qoi = ori_qoi;
         conf.ebs = ebs;
         if(conf.qoi>0 and !conf.use_global_eb and sampling_num != conf.num){
+            auto old_dims=conf.dims;
             conf.setDims(sample_dims.begin(), sample_dims.end());
             auto tempdata = sampling_data;
             auto cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize);
@@ -2792,7 +2793,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 conf.use_global_eb = false;
             } 
 
-            conf.setDims(conf.dims.begin(), conf.dims.end());
+            conf.setDims(old_dims.begin(), old_dims.end());
 //          
 
         }
