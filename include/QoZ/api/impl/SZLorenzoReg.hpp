@@ -144,7 +144,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
 
     auto quantizer = QoZ::LinearQuantizer<T>(conf.absErrorBound, conf.quantbinCnt / 2);
 
-    if (N == 3 and !conf.regression2 ) {
+    if (N == 3 and !conf.regression2 and conf.qoi==0) {
         // use fast version for 3D
         auto sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_fast_frontend<T, N>(conf, quantizer), QoZ::HuffmanEncoder<int>(),
                                                        QoZ::Lossless_zstd());
@@ -154,7 +154,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         //std::cout<<"lor1"<<std::endl;
         cmpData = (char *) sz->compress(conf, data, outSize);
     }
-    conf.qoi = 0;
+    conf.qoi = 99;
     return cmpData;
 }
 
@@ -165,7 +165,7 @@ void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t 
     assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
     QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
 
-    if(conf.qoi > 0){
+    if(conf.qoi > 0 and conf.qoi != 99){
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
         auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2);
@@ -179,7 +179,7 @@ void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t 
     QoZ::LinearQuantizer<T> quantizer;
   
         
-    if (N == 3 and !conf.regression2) {
+    if (N == 3 and !conf.regression2 and conf.qoi !=99) {
         // use fast version for 3D
         auto sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_fast_frontend<T, N>(conf, quantizer),
                                                        QoZ::HuffmanEncoder<int>(), QoZ::Lossless_zstd());
