@@ -762,10 +762,16 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
   m_inverse_wavelet_xform(multi_res);
   m_vals_d = m_cdf.release_data();
 
+  if(total_vals>87571254)
+    std::cout<<"p1"<<m_vals_d[87571254]<<std::endl;
+
   // Step 4: Inverse Conditioning
   rtn = m_conditioner.inverse_condition(m_vals_d, m_dims, m_condi_bitstream);
   if (rtn != RTNType::Good)
     return rtn;
+
+  if(total_vals>87571254)
+    std::cout<<"p2"<<m_vals_d[87571254]<<std::endl;
 
   if (multi_res) {
     auto resolutions = sperr::coarsened_resolutions(m_dims);
@@ -792,6 +798,9 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     for (auto out : recovered)
       m_vals_d[out.pos] += out.err;
   }
+
+  if(total_vals>87571254)
+    std::cout<<"p3"<<m_vals_d[87571254]<<std::endl;
  // std::cout<<"end outlier"<<std::endl;
   if(m_has_lossless){
     //std::cout<<"re1"<<std::endl;
@@ -808,6 +817,9 @@ auto sperr::SPECK_FLT::decompress(bool multi_res) -> RTNType
     delete []offsets;
     //std::cout<<"re3"<<std::endl;
   }
+
+  if(total_vals>87571254)
+    std::cout<<"p4"<<m_vals_d[87571254]<<std::endl;
 
   
 
