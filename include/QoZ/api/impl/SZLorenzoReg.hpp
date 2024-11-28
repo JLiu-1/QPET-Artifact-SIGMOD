@@ -118,7 +118,7 @@ make_qoi_lorenzo_compressor(const QoZ::Config &conf, std::shared_ptr<QoZ::concep
 }
 
 template<class T, QoZ::uint N>
-char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize, booltuning=false) {
+char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize, bool tuning=false) {
 
     assert(N == conf.N);
     assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
