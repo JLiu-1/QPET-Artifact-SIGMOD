@@ -28,15 +28,10 @@ namespace QoZ {
                 num_elements(conf.num) {
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
             if(conf.qoi>0 and conf.use_global_eb){
-                check_qoi = true;
-                std::cout<<"checking"<<std::endl;
-                
+                check_qoi = true;                
                 if (qoi == nullptr or qoi->id != conf.qoi){
 
                     qoi = QoZ::GetQOI<T, N>(conf);
-                    std::cout<<"qoi created"<<std::endl;
-                    std::cout<<conf.qoi<<std::endl;
-                    std::cout<<"qoi tested"<<std::endl;
                 }
             }
             else{
@@ -86,7 +81,7 @@ namespace QoZ {
                         // std::cout << "not compliant" << std::endl;
                         // save as unpredictable
                         if(!qoi->check_compliance(ori,*element)){
-                            //std::cout<<"p2"<<std::endl;
+                            std::cout<<ori<<" "<<*element<<std::endl;
                             *element = ori;
                             if(quant_inds[quant_count] != 0){
                                 // avoid push multiple elements
