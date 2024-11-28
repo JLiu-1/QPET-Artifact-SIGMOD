@@ -135,6 +135,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         if(conf.qoi == 3){
             conf.blockSize = conf.qoiRegionSize;
         }
+        //std::cout<<"1"<<std::e
         auto sz = make_qoi_lorenzo_compressor(conf, qoi, quantizer, quantizer_eb);
         cmpData = (char *) sz->compress(conf, data, outSize);
         return cmpData;
