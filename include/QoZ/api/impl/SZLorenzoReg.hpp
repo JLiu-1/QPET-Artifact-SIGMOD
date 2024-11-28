@@ -153,8 +153,9 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize) {
         auto sz = make_lorenzo_regression_compressor<T, N>(conf, quantizer, QoZ::HuffmanEncoder<int>(), QoZ::Lossless_zstd());
         //std::cout<<"lor1"<<std::endl;
         cmpData = (char *) sz->compress(conf, data, outSize);
+        conf.qoi = 99;
     }
-    conf.qoi = 99;
+    
     return cmpData;
 }
 
