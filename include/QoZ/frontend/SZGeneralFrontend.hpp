@@ -29,6 +29,7 @@ namespace QoZ {
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
             if(conf.qoi>0 and conf.use_global_eb){
                 check_qoi = true;
+                std::cout<<"checking"<<std::endl;
                 
                 if (qoi == nullptr or qoi->id != conf.qoi)
                     qoi = QoZ::GetQOI<T, N>(conf);
