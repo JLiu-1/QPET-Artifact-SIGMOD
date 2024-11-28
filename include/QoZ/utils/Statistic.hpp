@@ -624,7 +624,7 @@ namespace QoZ {
 
         double q_psnr, q_nrmse;
 
-        verify<double>(ori_data.data(), data.data(), num_elements, psnr, nrmse,false);
+        verify<double>(ori_data.data(), data.data(), num_elements, q_psnr, q_nrmse,false);
 
         printf("QoI PSNR = %.6G, QoI NRMSE = %.6G\n", q_psnr, q_nrmse);
 
