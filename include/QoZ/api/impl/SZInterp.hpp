@@ -2774,7 +2774,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             delete[]cmprData;
             best_lorenzo_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
             conf.use_global_eb = true;
-            auto cmprData = SZ_compress_LorenzoReg<T, N>(conf, sampling_data.data(), sampleOutSize);
+            cmprData = SZ_compress_LorenzoReg<T, N>(conf, sampling_data.data(), sampleOutSize);
             delete[]cmprData;
             ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
 //            printf("Lorenzo, quant_bin=8192, ratio = %.2f\n", ratio);

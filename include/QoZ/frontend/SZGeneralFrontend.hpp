@@ -80,7 +80,6 @@ namespace QoZ {
                         // std::cout << "not compliant" << std::endl;
                         // save as unpredictable
                         if(!qoi->check_compliance(ori,*element)){
-                            eb = 0;
                             *element = ori;
                             if(quant_inds[quant_count] != 0){
                                 // avoid push multiple elements
