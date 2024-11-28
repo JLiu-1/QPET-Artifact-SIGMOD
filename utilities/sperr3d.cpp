@@ -5,6 +5,7 @@
 #include "CLI/Config.hpp"
 #include "CLI/Formatter.hpp"
 #include "qoi/QoIInfo.hpp"
+#include "Timer.h"
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -292,6 +293,7 @@ int main(int argc, char* argv[])
   //
   auto input = sperr::read_whole_file<uint8_t>(input_file);
   if (cflag) {
+    Timer timer(true);
     const auto total_vals = dims[0] * dims[1] * dims[2];
     if ((ftype == 32 && (total_vals * 4 != input.size())) ||
         (ftype == 64 && (total_vals * 8 != input.size()))) {
@@ -332,6 +334,7 @@ int main(int argc, char* argv[])
       rtn = encoder->compress(reinterpret_cast<const float*>(input.data()), total_vals);
     else
       rtn = encoder->compress(reinterpret_cast<const double*>(input.data()), total_vals);
+    
     if (rtn != sperr::RTNType::Good) {
       std::cout << "Compression failed!" << std::endl;
       return __LINE__ % 256;
@@ -345,7 +348,7 @@ int main(int argc, char* argv[])
 
     auto stream = encoder->get_encoded_bitstream();
     encoder.reset();  // Free up some more memory.
-
+    timer.stop("Compression");
     // Output the compressed bitstream (maybe).
     if (!bitstream.empty()) {
       rtn = sperr::write_n_bytes(bitstream, stream.size(), stream.data());
@@ -360,10 +363,12 @@ int main(int argc, char* argv[])
     //
     const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
     if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() || multi_res) {
+      Timer timer(true);
       auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
       decoder->set_num_threads(omp_num_threads);
       decoder->use_bitstream(stream.data(), stream.size());
       rtn = decoder->decompress(stream.data(), multi_res);
+      
       if (rtn != sperr::RTNType::Good) {
         std::cout << "Decompression failed!" << std::endl;
         return __LINE__ % 256;
@@ -373,6 +378,7 @@ int main(int argc, char* argv[])
       auto outputd = decoder->release_decoded_data();
       auto hierarchy = decoder->release_hierarchy();
       decoder.reset();
+      timer.stop("Decompression");
 
       // Output the hierarchy (maybe), and then destroy it.
       auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
@@ -457,11 +463,13 @@ int main(int argc, char* argv[])
   //
   else {
     assert(dflag);
+    Timer timer(true);
     auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
     decoder->set_num_threads(omp_num_threads);
     decoder->use_bitstream(input.data(), input.size());
     const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
     auto rtn = decoder->decompress(input.data(), multi_res);
+
     if (rtn != sperr::RTNType::Good) {
       std::cout << "Decompression failed!" << std::endl;
       return __LINE__ % 256;
@@ -471,7 +479,9 @@ int main(int argc, char* argv[])
     auto outputd = decoder->release_decoded_data();
     auto vdims = decoder->get_dims();
     auto cdims = decoder->get_chunk_dims();
+    
     decoder.reset();  // Free up memory!
+    timer.stop("Decompression");
 
     // Output the hierarchy (maybe), and then destroy it.
     auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64, decomp_lowres_f32);
