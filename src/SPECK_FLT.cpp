@@ -583,14 +583,20 @@ FIXED_RATE_HIGH_PREC_LABEL:
         for (auto &x:m_vals_d)
           x += mean;
         for(auto &los:decoded_LOS){
-          if (use_high_prec and std::abs( (m_vals_d[los.pos]+los.err) - m_vals_orig[los.pos] ) > m_quality and !hp ){
-            std::cout<<"switch to high prec mode"<<std::endl;
-            hp = true;
-            m_vals_d = m_vals_orig;
-            goto CMP_START;
-          } 
-          m_vals_d[los.pos]+=los.err;
+           m_vals_d[los.pos]+=los.err;
+        }
 
+        if (use_high_prec and !hp ){
+
+          for (size_t i = 0; i < total_vals; i++){
+
+            if(std::abs( m_vals_d[i] - m_vals_orig[i] ) > m_quality ){
+              std::cout<<"switch to high prec mode"<<std::endl;
+              hp = true;
+              m_vals_d = m_vals_orig;
+              goto CMP_START;
+            }
+          } 
         }
 
       }
