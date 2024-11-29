@@ -861,7 +861,7 @@ auto sperr::SPECK_FLT::block_qoi_outlier_correction(bool use_high_prec) -> RTNTy
                   for(size_t jj=0; jj<size_2; jj++){
                       for(size_t kk=0; kk<size_3; kk++){
 
-                          auto cur_val = *cur_data_pos+mean;
+                          auto cur_val = *cur_data_pos;
                           auto cur_ori_val = *cur_ori_data_pos;
                           double q = qoi->eval(cur_val);
                           double oq = qoi->eval(cur_ori_val);
