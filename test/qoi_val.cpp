@@ -55,7 +55,6 @@ void qoiValidation(char *inPath, char *decPath,
 
    
     QoZ::verifyQoI_new<T>(ori_data.get(), dec_data.get(), conf);
-    double compress_time = timer.stop();
     
 
 }
