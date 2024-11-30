@@ -18,21 +18,23 @@ void usage() {
    
     printf("Usage: qoi_val <options>\n");
     printf("Options:\n");
-    printf("* input and output:\n");
+    printf("* input:\n");
     printf("	-i <path> : original binary input file\n");
-    printf("	-o <path> : compressed output file, default in binary format\n");
+    printf("	-o <path> : decompressed output file, default in binary format\n");
 //    printf("	-p: print meta data (configuration info)\n");
     printf("* data type:\n");
     printf("	-f: single precision (float type)\n");
     printf("	-d: double precision (double type)\n");
     printf("	-I <width>: integer type (width = 32 or 64)\n");
     printf("* configuration file: \n");
-    printf("	-c <configuration file> : configuration file qoz.config\n");
+    printf("	-c <configuration file> : configuration file hpez.config\n");
     printf("* dimensions: \n");
     printf("	-1 <nx> : dimension for 1D data such as data[nx]\n");
     printf("	-2 <nx> <ny> : dimensions for 2D data such as data[ny][nx]\n");
     printf("	-3 <nx> <ny> <nz> : dimensions for 3D data such as data[nz][ny][nx] \n");
     printf("	-4 <nx> <ny> <nz> <np>: dimensions for 4D data such as data[np][nz][ny][nx] \n");
+    printf("* output: Validation results of decompression data/Qoi quality\n");
+    printf("Example: qoi_val -f -3 128 128 128 -c qoi.config -i ori.dat -o dec.dat")
     exit(0);
 }
 
@@ -51,8 +53,9 @@ void qoiValidation(char *inPath, char *decPath,
     //QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
 
 
-
+   
     QoZ::verifyQoI_new<T>(ori_data.get(), dec_data.get(), conf);
+    double compress_time = timer.stop();
     
 
 }

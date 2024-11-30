@@ -35,7 +35,7 @@ void usage() {
     printf("	-d: double precision (double type)\n");
     printf("	-I <width>: integer type (width = 32 or 64)\n");
     printf("* configuration file: \n");
-    printf("	-c <configuration file> : configuration file qoz.config\n");
+    printf("	-c <configuration file> : configuration file hpez.config\n");
     printf("* error control: (the error control parameters here will overwrite the setting in sz.config)\n");
     printf("	-M <error control mode> <error bound (optional)> \n");
     printf("	error control mode as follows: \n");
@@ -66,6 +66,13 @@ void usage() {
     printf("    -C <anchor stride> : stride of anchor points.\n");
     printf("    -B <sampling block size> : block size of sampled data block for auto-tuning.\n");
     printf("    -u <quantile> : eb quantile\n");
+    printf("* QPET-related arguments:\n");
+    printf("    -M <QoI error control mode> <QoI error bound> \n");
+    printf("    error control mode as follows: \n");
+    printf("        ABS (absolute error bound of QoI)\n");
+    printf("        REL (value range based error bound, so a.k.a., VR_REL)\n");
+    printf("    error bound can be set directly after the error control mode, or separately with the following options:\n");
+    printf("        -e <QoI error bound>: QoI error bound of the specified mode\n");
     printf("* dimensions: \n");
     printf("	-1 <nx> : dimension for 1D data such as data[nx]\n");
     printf("	-2 <nx> <ny> : dimensions for 2D data such as data[ny][nx]\n");
@@ -75,8 +82,9 @@ void usage() {
     printf("	hpez -f -i test.dat    -z test.dat.qoz     -3 8 8 128 -M ABS 1e-3 -q 3\n");
     printf("	hpez -f -z test.dat.qoz -o test.dat.qoz.out -3 8 8 128 -M REL 1e-3 -a \n");
     printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -M ABS_AND_REL -A 1 -R 1e-3 -a -q 4\n");
-    printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c qoz.config -q 2\n");
-    printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c qoz.config -M ABS 1e-3 -a -q 1\n");
+    printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c hpez.config -q 2\n");
+    printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c hpez.config -M ABS 1e-3 -a -q 1\n");
+    printf("    hpez -f -q 3 -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c hpez.config -M ABS 1e-3 -a -m ABS 1e-4 (QoI information in .config file)\n");
     exit(0);
 }
 
@@ -86,7 +94,7 @@ void usage_sz2() {
     printf("Options:\n");
     printf("* operation type:\n");
     printf("	-z <compressed file>: the compression operation with an optionally specified output file.\n");
-    printf("                          (the compressed file will be named as <input_file>.qoz if not specified)\n");
+    printf("                          (the compressed file will be named as <input_file>.hpez if not specified)\n");
     printf("	-x <decompressed file>: the decompression operation with an optionally specified output file\n");
     printf("                      (the decompressed file will be named as <cmpred_file>.out if not specified)\n");
 //    printf("	-p: print meta data (configuration info)\n");
@@ -133,6 +141,7 @@ void usage_sz2() {
     printf("	qoz -z -d -c qoz.config -i testdata/x86/testdouble_8_8_128.dat -3 8 8 128\n");
     printf("	qoz -x -d -s testdata/x86/testdouble_8_8_128.dat.qoz -3 8 8 128\n");
     printf("	qoz -p -s testdata/x86/testdouble_8_8_128.dat.qoz\n");
+
     exit(0);
 }
 
@@ -436,6 +445,10 @@ int main(int argc, char *argv[]) {
                 if (++i == argc)
                     usage();
                 qoiErrBoundMode = argv[i];
+
+                if (i + 1 < argc && argv[i + 1][0] != '-') {
+                    qoiErr = atof (argv[i]);;
+                }
                 break;
 
 
