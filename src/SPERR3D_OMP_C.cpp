@@ -251,6 +251,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             test_compressor->set_dims(sample_dims);
             test_compressor->set_tolerance(cur_abs_eb);
             test_compressor->set_qoi(qoi);
+            test_compressor->set_qoi_tol(bs_qoi_tol);
             vec8_type test_encoded_stream;
 
             auto rtn = test_compressor->compress(m_high_prec);
