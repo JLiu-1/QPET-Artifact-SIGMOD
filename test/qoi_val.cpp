@@ -34,7 +34,7 @@ void usage() {
     printf("	-3 <nx> <ny> <nz> : dimensions for 3D data such as data[nz][ny][nx] \n");
     printf("	-4 <nx> <ny> <nz> <np>: dimensions for 4D data such as data[np][nz][ny][nx] \n");
     printf("* output: Validation results of decompression data/Qoi quality\n");
-    printf("Example: qoi_val -f -3 128 128 128 -c qoi.config -i ori.dat -o dec.dat")
+    printf("Example: qoi_val -f -3 128 128 128 -c qoi.config -i ori.dat -o dec.dat");
     exit(0);
 }
 
