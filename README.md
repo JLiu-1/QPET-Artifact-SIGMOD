@@ -1,8 +1,10 @@
-# HPEZ
+# QPET integration for SZ3/QoZ/HPEZ (pointwise and regional QoI)
 
 ## Introduction
 
-HPEZ, aka the second major version of QoZ: QoZ 2.0, is based on both QoZ 1.1 and the paper: "High-performance Effective Scientific Error-bounded Lossy Compression with Auto-tuned Multi-component Interpolation". [ACM Paper Link](https://dl.acm.org/doi/abs/10.1145/3639259) [arXiv Paper Link](https://arxiv.org/abs/2311.12133) 
+This branch includes the codes for SZ3-QPET, QoZ-QPET, and HPEZ-QPET on pointwise and regional QoIs (single-snapshot compression).
+
+For vector QoI preservation on cross-snapshots compression, check the codes at: [link] 
 
 ## Dependencies
 
