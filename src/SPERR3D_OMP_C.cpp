@@ -107,8 +107,17 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     return RTNType::WrongLength;
 
   // First, calculate dimensions of individual chunk indices.
+  if(qoi_id>0 and qoi_tol>0 and qoi_block_size>1){
+    for(auto &cd:m_chunk_dims){
+      if(cd<qoi_block_size)
+        cd = qoi_block_size
+      else
+        cd -= cd%qoi_block_size;
+    }
+  }
   const auto chunk_idx = sperr::chunk_volume(m_dims, m_chunk_dims);
   const auto num_chunks = chunk_idx.size();
+
 
   // Let's prepare some data structures for compression!
   auto chunk_rtn = std::vector<RTNType>(num_chunks, RTNType::Good);
