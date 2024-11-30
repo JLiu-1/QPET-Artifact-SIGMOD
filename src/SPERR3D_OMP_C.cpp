@@ -110,7 +110,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
   if(qoi_id>0 and qoi_tol>0 and qoi_block_size>1){
     for(auto &cd:m_chunk_dims){
       if(cd<qoi_block_size)
-        cd = qoi_block_size
+        cd = qoi_block_size;
       else
         cd -= cd%qoi_block_size;
     }
