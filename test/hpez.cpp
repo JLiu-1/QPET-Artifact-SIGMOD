@@ -84,7 +84,7 @@ void usage() {
     printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -M ABS_AND_REL -A 1 -R 1e-3 -a -q 4\n");
     printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c hpez.config -q 2\n");
     printf("	hpez -f -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c hpez.config -M ABS 1e-3 -a -q 1\n");
-    printf("    hpez -f -q 3 -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c hpez.config -M ABS 1e-3 -a -m ABS 1e-4 (QoI information in .config file)\n");
+    printf("    hpez -f -q 3 -i test.dat    -o test.dat.qoz.out -3 8 8 128 -c qoi.config -M ABS 1e-3 -a -m ABS 1e-4 (QoI information in .config file)\n");
     exit(0);
 }
 
