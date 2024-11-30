@@ -124,6 +124,35 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
   if (m_compressor == nullptr)
     m_compressor = std::make_unique<SPECK3D_FLT>();
 #endif
+  auto bs_qoi_tol = qoi_tol;
+
+  if(qoi_id>0 and qoi_tol>0)
+  {
+    if(qoi_block_size > 1){//regional 
+        //adjust qoieb
+        double rate = 1.0;
+      
+
+       
+        //conf.regionalQoIeb=conf.qoiEB;//store original regional eb
+        double num_blocks = 1;
+        double num_elements = 1;
+        for(int i=0; i<m_dims.size(); i++){
+            num_elements *= qoi_block_size;
+            num_blocks *= (m_dims[i] - 1) / qoi_block_size + 1;
+        }
+
+        double q = 0.999;
+        rate = estimate_rate_Hoeffdin(num_elements,1,q,qoi_k);
+        //std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
+        
+        rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
+        
+        //std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
+        qoi_tol *= rate;
+        //qoi->set_qoi_tolerance(qoi_tol);
+    } 
+  }
 
 #pragma omp parallel for num_threads(m_num_threads)
   for (size_t i = 0; i < num_chunks; i++) {
@@ -155,28 +184,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         //adjust qoieb
         compressor->set_qoi_tol( qoi_tol);
         compressor->set_qoi_block_size(qoi_block_size);
-        double rate = 1.0;
-      
-
-       
-        //conf.regionalQoIeb=conf.qoiEB;//store original regional eb
-        double num_blocks = 1;
-        double num_elements = 1;
-        for(int i=0; i<m_dims.size(); i++){
-            num_elements *= qoi_block_size;
-            num_blocks *= (m_dims[i] - 1) / qoi_block_size + 1;
-        }
-
-        double q = 0.999;
-        rate = estimate_rate_Hoeffdin(num_elements,1,q,qoi_k);
-        //std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
-        
-        rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
-        
-        //std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
-        qoi_tol *= rate;
-        //qoi->set_qoi_tolerance(qoi_tol);
-      } 
+      }
       auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string);
 
       std::vector<double> ebs (chunk_ele_num);
