@@ -1043,7 +1043,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
 
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
-                    if( ((testConf.QoZ >0 or testConf.absErrorBound/testConf.rng >1e-4) and cur_br < best_br * 1.02) or cur_br < best_br ){//todo: optimize
+                    if(  cur_br < best_br * 1.02 ){//todo: optimize
                         best_br = cur_br;
                         best_abs_eb = testConf.absErrorBound;
                         best_quantile = quantile;
