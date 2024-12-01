@@ -2820,8 +2820,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             if(!conf.use_global_eb){
                 //bool use_global_eb = conf.use_global_eb;
                 //for(auto cur_eb:{2*ori_eb,1.5*ori_eb,ori_eb,0.75*ori_eb,0.5*ori_eb}){
-                    auto old_eb = conf.absErrorBound;
-                    conf.absErrorBound=cur_eb;
+                    //auto old_eb = conf.absErrorBound;
+                    //conf.absErrorBound=cur_eb;
                     conf.use_global_eb = true;
                     tempdata = sampling_data;
                     cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize,true);
