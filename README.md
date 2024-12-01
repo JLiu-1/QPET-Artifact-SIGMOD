@@ -4,7 +4,7 @@
 
 This branch includes the codes for SZ3-QPET, QoZ-QPET, and HPEZ-QPET on 3D vector QoIs (three-snapshot compression).
 
-For other QoIs, check the codes at the hpez_qpet branch.
+For other QoIs, check the codes at the szfamily_qpet branch.
 
 ## Dependencies
 
