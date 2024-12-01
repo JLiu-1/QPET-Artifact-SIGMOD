@@ -3,6 +3,32 @@
 [![CodeQL](https://github.com/NCAR/SPERR/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/NCAR/SPERR/actions/workflows/codeql-analysis.yml)
 [![DOI](https://zenodo.org/badge/225491235.svg)](https://zenodo.org/badge/latestdoi/225491235)
 
+## QPET-integrated SPERR (vector) 
+
+This branch contains the code for QPET-integrated SPERR on 3D vector QoIs. You can pass additional arguments to the **sperr3d_vec** executable to perform QPET-integrated compression tasks.
+
+(check branch **sperr-qpet** for other QoIs)
+
+The arguments are:
+
+* --qoi_id [ID]: ID = 1 is normal symbolic QoI. The default is 0 (no QoI).
+* --qoi_tol [tol]: QoI error threshold (Absolute threshold).
+* --qoi_string [Exp]: QoI expression. Use quotation marks to ensure stable parsing (e.g., "log(x,2)").
+* --qoi_k: the **c** parameter in paper. The default value is 3.
+* --high_prec: SPERR itself features some numerical instability. Use this when very small error bounds are needed (such as for log QoI).
+
+Command example: **sperr3d_vec data --input data1.dat data2.data data3.dat -c --ftype 32 --dims [dim3] [dim2] [dim1] --bitstream 2000.sperr.cmp --decomp_f 1.out 2.out 3.out --print_stats --pwe 1.0 --qoi_id 1 --qoi_tol 0.1 --qoi_string "x^2+y^2+z^2"**
+
+
+## Additional dependencies
+
+* SymEngine (https://github.com/symengine/symengine)
+* GMP (https://gmplib.org/) (The dependency of SymEngine)
+* Zstd >= 1.3.5 (https://facebook.github.io/zstd/).
+
+
+
+The following is the original readme of SPERR. Please refer to it for the basic knowledge of SPERR.
 
 ## Overview
 
