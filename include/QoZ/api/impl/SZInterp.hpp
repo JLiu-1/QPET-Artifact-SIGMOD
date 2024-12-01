@@ -1043,7 +1043,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
 
                     std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
-                    if(cur_br < best_br * 1.02){//todo: optimize
+                    if( ((testConf.QoZ >0 or testConf.absErrorBound/testConf.rng >1e-4) and cur_br < best_br * 1.02) or cur_br < best_br ){//todo: optimize
                         best_br = cur_br;
                         best_abs_eb = testConf.absErrorBound;
                         best_quantile = quantile;
@@ -2751,8 +2751,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 }
             }
              conf.relErrorBound = conf.absErrorBound / conf.rng;
-             std::cout<<conf.relErrorBound<<std::endl;
-            if ((conf.relErrorBound < 1.01e-6 or conf.qoi>0) && best_lorenzo_ratio > 5 && lorenzo_config.quantbinCnt != 16384) {
+            // std::cout<<conf.relErrorBound<<std::endl;
+            if ((conf.relErrorBound < 1.01e-6) && best_lorenzo_ratio > 5 && lorenzo_config.quantbinCnt != 16384) {
                 auto tempdata = sampling_data;
                 auto quant_num = lorenzo_config.quantbinCnt;
                 lorenzo_config.quantbinCnt = 16384;
@@ -2760,8 +2760,9 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 delete[]cmprData;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
     //            printf("Lorenzo, quant_bin=8192, ratio = %.2f\n", ratio);
+               // std::cout<<ratio<<" "<<best_lorenz
                 if (ratio > best_lorenzo_ratio * 1.02) {
-                    std::cout<<"16384"<<std::endl;
+                    //std::cout<<"16384"<<std::endl;
                     best_lorenzo_ratio = ratio;
                 } else {
                     lorenzo_config.quantbinCnt = quant_num;
@@ -2784,7 +2785,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             best_lorenzo_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
 
             auto eb = conf.absErrorBound;
-            std::cout<<"refixing eb"<<std::endl;
+            //std::cout<<"refixing eb"<<std::endl;
             for(auto cur_eb:{0.75*eb,0.5*eb}){
                 tempdata = sampling_data;
                 auto last_eb = conf.absErrorBound;
