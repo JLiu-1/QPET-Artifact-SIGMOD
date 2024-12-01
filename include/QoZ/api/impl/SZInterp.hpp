@@ -2703,6 +2703,13 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
 
     else {
         auto ebs = std::move(conf.ebs);
+        /*
+        std::vector<double> ebs;
+        if(conf.qoi){
+            qoi = QoZ::GetQOI<T, N>(conf);
+            
+            ebs[i] = qoi->interpret_eb(data[i]);
+        }*/
         QoZ::Config lorenzo_config = conf;
         size_t sampling_num, sampling_block;        
         std::vector<size_t> sample_dims(N);
@@ -2786,6 +2793,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
 
             auto eb = conf.absErrorBound;
             //std::cout<<"refixing eb"<<std::endl;
+            double ori_eb = eb;
             for(auto cur_eb:{0.75*eb,0.5*eb}){
                 tempdata = sampling_data;
                 auto last_eb = conf.absErrorBound;
@@ -2804,23 +2812,27 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 }
 
             }
-            if(!conf.use_global_eb){
+            std::cout<<best_lorenzo_ratio<<std::endl;
 
-                conf.use_global_eb = true;
-                tempdata = sampling_data;
-                cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize);
-                delete[]cmprData;
-                //std::cout<<"p1"<<std::endl;
-                ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
-    //            printf("Lorenzo, quant_bin=8192, ratio = %.2f\n", ratio);
-                if (ratio > best_lorenzo_ratio * 1.02) {
-                    best_lorenzo_ratio = ratio;
+            {
+                bool use_global_eb = conf.use_global_eb;
+                for(auto cur_eb:{2*ori_eb,1.5*ori_eb,ori_eb,0.75*ori_eb,0.5*ori_eb}){
+                    conf.use_global_eb = true;
+                    tempdata = sampling_data;
+                    cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize);
+                    delete[]cmprData;
+                    //std::cout<<"p1"<<std::endl;
+                    ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
+                    printf("Lorenzo, ratio = %.2f\n", ratio);
+                    if (ratio > best_lorenzo_ratio *1.02) {
+                        best_lorenzo_ratio = ratio;
+                        use_global_eb = true;
+                    }
                 }
-                else{
-                    conf.use_global_eb = false;
-                } 
+                conf.use_global_eb = use_global_eb;
             }
             conf.setDims(old_dims.begin(), old_dims.end());
+            
 //          
 
         }
