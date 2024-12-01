@@ -378,7 +378,7 @@ namespace QoZ {
 
             double psnr, nrmse;
 
-            verify<double>(average.data(), average_dec.data(), average.size(), psnr, nrmse);
+            verify<double>(average.data(), average_dec.data(), average.size(), psnr, nrmse, false);
             printf("Blocked QoI PSNR = %.6G, NRMSE = %.6G\n", psnr, nrmse);
 
             //auto square_average = compute_square_average(data, n1, n2, n3, block_size);
