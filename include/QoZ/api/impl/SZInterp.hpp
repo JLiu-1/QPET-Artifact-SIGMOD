@@ -2752,7 +2752,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }
              conf.relErrorBound = conf.absErrorBound / conf.rng;
              std::cout<<conf.relErrorBound<<std::endl;
-            if (conf.relErrorBound < 1.01e-6 && best_lorenzo_ratio > 5 && lorenzo_config.quantbinCnt != 16384) {
+            if ((conf.relErrorBound < 1.01e-6 or conf.qoi>0) && best_lorenzo_ratio > 5 && lorenzo_config.quantbinCnt != 16384) {
                 auto tempdata = sampling_data;
                 auto quant_num = lorenzo_config.quantbinCnt;
                 lorenzo_config.quantbinCnt = 16384;
