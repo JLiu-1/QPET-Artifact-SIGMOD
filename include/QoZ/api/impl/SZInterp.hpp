@@ -2819,7 +2819,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 for(auto cur_eb:{2*ori_eb,1.5*ori_eb,ori_eb,0.75*ori_eb,0.5*ori_eb}){
                     conf.use_global_eb = true;
                     tempdata = sampling_data;
-                    cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize);
+                    cmprData = SZ_compress_LorenzoReg<T, N>(conf, tempdata.data(), sampleOutSize,true);
                     delete[]cmprData;
                     //std::cout<<"p1"<<std::endl;
                     ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
