@@ -1,6 +1,21 @@
 # QPET-Artifact
-Artifact repository of paper: Error-Bounded Lossy Data Compression with Differentiable Quantity-of-Interest Error Constraints
 
-Readme under construction
+This is the Artifact repository of VLDB '25 paper submission: **QPET: A Versatile and Portable Quantity-of-Interest-preservation Framework for Error-Bounded Lossy Compression**.
 
-Check other branches for artifact codes
+## QPET-integrated Compression Evaluation
+Please check the other branches for artifact codes and test instructions (the codes are frozen before the submission deadline).
+
+## Supplementary Evaluation Results
+
+The **QPET_Appendix.pdf** (partially done, in construction) contains a complete appendix of QPET experimental results.
+
+## Baselines
+Baseline compressors are available at:
+
+* SZ3: https://github.com/szcompressor/SZ3
+* HPEZ: https://github.com/JLiu-1/HPEZ
+* SPERR: https://github.com/NCAR/SPERR
+* QoI-SZ3: https://github.com/jpcoding/SZ3/tree/vldb_test_version
+
+## Datasets and Toolkits
+Datasets and assessment toolkits are at [SDRBench](https://sdrbench.github.io/).
