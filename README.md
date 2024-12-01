@@ -59,7 +59,7 @@ Example of QPET-Integrated HPEZ compression: **[HPEZ base command] -m REL 1E-3 -
 
 ## QoI validation tool
 
-This branch contains another executable, **[INSTALL_DIR]/bin/qoi_val**. **qoi_val** can evaluate the qoi errors between any original data and decompressed data (they need to share the same data type and shape).
+This branch contains another executable, **[INSTALL_DIR]/bin/qoi_val**. **qoi_val** can evaluate the QoI errors between any original data and decompressed data (they need to share the same data type and shape).
 
 Usage: **qoi_val -f/-d -3 dim3 dim2 dim1 -i [original_file] -o [decompressed_file] -c qoi.config**
 
