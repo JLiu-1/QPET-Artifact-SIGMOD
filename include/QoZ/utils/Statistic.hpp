@@ -376,6 +376,11 @@ namespace QoZ {
             std::cout << "QoI average with block size " << block_size << ": Min = " << *minmax.first << ", Max = " << *minmax.second<<", Range = "<< value_range << std::endl;
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
 
+            double psnr, nrmse;
+
+            verify<double>(average.data(), average_dec.data(), average.size(), psnr, nrmse);
+            printf("Blocked QoI PSNR = %.6G, NRMSE = %.6G\n", psnr, nrmse);
+
             //auto square_average = compute_square_average(data, n1, n2, n3, block_size);
             //auto square_average_dec = compute_square_average(dec_data, n1, n2, n3, block_size);
             //auto square_error = evaluate_L_inf(square_average.data(), square_average_dec.data(), square_average.size(), false, false);
