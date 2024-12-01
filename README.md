@@ -24,22 +24,32 @@ Please Install the following dependencies before compiling HPEZ:
 * make install
 
 Then, you'll find all the executables in [INSTALL_DIR]/bin and header files in [INSTALL_DIR]/include. A Cmake version >= 3.13.0 is needed. 
-Before you proceed to the following evaluations, you may add the installation path of HPEZ to your system path so that you can directly run the 'hpez' command in your machine for further evaluation. 
-Otherwise, regard the 'hpez' command name in the following as '[INSTALL_DIR]/bin/hpez' (the path of your installed executable).
+Before you proceed to the following evaluations, you may add the installation path of HPEZ to your system path so that you can directly run the **hpez** command in your machine for further evaluation. 
+Otherwise, regard the **hpez** command name in the following as **[INSTALL_DIR]/bin/hpez** (the path of your installed executable).
 
 ## HPEZ (base) Compression/Decompression Examples
 
 This section is irrelevant to QoI-preserving compression but provides fundamental instructions for how to run several error-bounded lossy compressors in the SZ family. 
 
-T和 'hpez' command integrates 5 different compression levels by the argument -q, corresponding to 3 compressors:
+The **hpez** command integrates 5 different compression levels by the argument -q, corresponding to 3 compressors (they share the same argument list):
 
 * hpez -q 0: SZ3.1 compression.
 * hpez -q 1: QoZ 1.1 compression.
 * hpez -q 2/3/4: different optimization levels of HPEZ compression (level 3 recommended, which is the default).
 
-Notice: the integrated SZ3.1 and QoZ 1.1 in HPEZ (QoZ 2.0) have already leveraged the Fast-varying-first interpolation (proposed in our paper), therefore their compression ratios are sometimes higher than the original public released versions of SZ3.1 and QoZ 1.1.
+In the terminal, just run **hpez** or **hpez -h** to see the detailed usage. For validation tasks, the most convenient way is to run the compression, decompression, and data validation in single command:
+
+**hpez -q [level] -f/-d -a -[Dim_num] [fastest_dim_size] [second_fastest_dim_size] [slowest_dim_size] -i [input_file_name] -o [output_file_name] -m REL [error_bound (e.g. 1e-3)]**
+
+**-f: single-precision floating point data, -d: double=precision floating point data. -a: Validate decompression data quality. -m REL: value-range-based error bound. The input error bound will be multiplied by the data range.**
+
+**The input file should be a binary file of data array. A 100x200x300 3D data array should use the dimensional arguments as -3 300 200 100.**
+
+More examples are shown in the output of **hpez -h**.
 
 ## Test Dataset
 
-Please download test datasets from: https://sdrbench.github.io/. 
+4 evaluated datasets in the paper (Miranda, NYX, Scale, Hurricane) can be accessed at [SDRBench](https://sdrbench.github.io/). For Miranda, we converted it to float32 before the evaluation (the original data is double). For Hurricane, we didn't use the logarithmic fields.
+
+The rest 2 datasets (RTM, SegSalt) are not public-accessible due to their commercial source.
 
