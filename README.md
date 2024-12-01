@@ -4,7 +4,7 @@
 
 This branch includes the codes for SZ3-QPET, QoZ-QPET, and HPEZ-QPET on pointwise and regional QoIs (single-snapshot compression).
 
-For vector QoI preservation on cross-snapshot compression, check the codes at: [link] 
+For vector QoI preservation on cross-snapshot compression, check the codes at the hpez_qpet_vec branch
 
 ## Dependencies
 
