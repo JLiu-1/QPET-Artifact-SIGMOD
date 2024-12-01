@@ -37,6 +37,15 @@ The **hpez** command integrates 5 different compression levels by the argument -
 * hpez -q 1: **QoZ 1.1** compression.
 * hpez -q 2/3/4: different optimization levels of **HPEZ** compression (level 3 recommended, which is the default).
 
+In the terminal, just run **hpez** or **hpez -h** to see the detailed usage. For validation tasks, the most convenient way is to run the compression, decompression, and data validation in a single command:
+
+**hpez -q [level] -f/-d -a -[Dim_num] [fastest_dim_size] [second_fastest_dim_size] [slowest_dim_size] -i [input_file_name] -o [output_file_name] -m REL [error_bound (e.g. 1e-3)]**
+
+**-f: single-precision floating point data, -d: double=precision floating point data. -a: Validate decompression data quality. -m REL: value-range-based error bound. The input error bound will be multiplied by the data range.**
+
+**The input file should be a binary file of data array. A 100x200x300 3D data array should use the dimensional arguments as -3 300 200 100.**
+
+More examples are shown in the output of **hpez -h**.
 
 ## QPET QoI-preserving HPEZ Compression/Decompression Examples
 
