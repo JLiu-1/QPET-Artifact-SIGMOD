@@ -48,6 +48,14 @@ Config file: check the  **qoi_configs** folder to find templates, instructions, 
 
 Example of QPET-Integrated HPEZ compression: **[HPEZ base command] -m REL 1E-3 -c qoi.config**
 
+## QoI validation tool
+
+This branch contains another executable, **[INSTALL_DIR]/bin/qoi_val**. **qoi_val** can evaluate the qoi errors between any original data and decompressed data (they need to share the same data type and shape).
+
+Usage: **qoi_val -f/-d -3 dim3 dim2 dim1 -i [original_file] -o [decompressed_file] -c qoi.config**
+
+The QoI to be evaluated should be described in the qoi.config file.
+
 ## Test Dataset
 
 4 evaluated datasets in the paper (Miranda, NYX, Scale, Hurricane) can be accessed at [SDRBench](https://sdrbench.github.io/). For Miranda, we converted it to float32 before the evaluation (the original data is double). For Hurricane, we didn't use the logarithmic fields.
