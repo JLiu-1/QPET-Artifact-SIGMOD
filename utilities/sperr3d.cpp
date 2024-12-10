@@ -4,7 +4,7 @@
 #include "CLI/App.hpp"
 #include "CLI/Config.hpp"
 #include "CLI/Formatter.hpp"
-
+#include "Timer.h"
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -180,15 +180,21 @@ int main(int argc, char* argv[])
   auto pwe = 0.0;
   auto* pwe_ptr = app.add_option("--pwe", pwe, "Maximum point-wise error (PWE) tolerance.")
                       ->group("Compression settings");
+  auto vre = 0.0;
+  auto* vre_ptr = app.add_option("--vre", vre, "Maximum value-range-based relative error (VRE) tolerance.")
+                      ->excludes(pwe_ptr)
+                      ->group("Compression settings");
 
   auto psnr = 0.0;
   auto* psnr_ptr = app.add_option("--psnr", psnr, "Target PSNR to achieve.")
                        ->excludes(pwe_ptr)
+                       ->excludes(vre_ptr)
                        ->group("Compression settings");
 
   auto bpp = 0.0;
   auto* bpp_ptr = app.add_option("--bpp", bpp, "Target bit-per-pixel (bpp) to achieve.")
                       ->check(CLI::Range(0.0, 64.0))
+                      ->excludes(vre_ptr)
                       ->excludes(pwe_ptr)
                       ->excludes(psnr_ptr)
                       ->group("Compression settings");
@@ -196,6 +202,7 @@ int main(int argc, char* argv[])
 #ifdef EXPERIMENTING
   auto direct_q = 0.0;
   auto* dq_ptr = app.add_option("--dq", direct_q, "Directly provide the quantization step size q.")
+                     ->excludes(vre_ptr)
                      ->excludes(bpp_ptr)
                      ->excludes(pwe_ptr)
                      ->excludes(psnr_ptr)
@@ -224,12 +231,12 @@ int main(int argc, char* argv[])
     return __LINE__;
   }
 #ifndef EXPERIMENTING
-  if (cflag && pwe == 0.0 && psnr == 0.0 && bpp == 0.0) {
+  if (cflag && pwe == 0.0 && vre == 0.0 && psnr == 0.0 && bpp == 0.0) {
     std::cout << "What's the compression quality (--psnr, --pwe, --bpp) ?" << std::endl;
     return __LINE__;
   }
 #endif
-  if (cflag && (pwe < 0.0 || psnr < 0.0)) {
+  if (cflag && (pwe < 0.0 || vre < 0.0 ||psnr < 0.0)) {
     std::cout << "Compression quality (--psnr, --pwe) must be positive!" << std::endl;
     return __LINE__;
   }
@@ -268,6 +275,7 @@ int main(int argc, char* argv[])
   //
   auto input = sperr::read_whole_file<uint8_t>(input_file);
   if (cflag) {
+    Timer timer(true);
     const auto total_vals = dims[0] * dims[1] * dims[2];
     if ((ftype == 32 && (total_vals * 4 != input.size())) ||
         (ftype == 64 && (total_vals * 8 != input.size()))) {
@@ -277,6 +285,37 @@ int main(int argc, char* argv[])
     auto encoder = std::make_unique<sperr::SPERR3D_OMP_C>();
     encoder->set_dims_and_chunks(dims, chunks);
     encoder->set_num_threads(omp_num_threads);
+    if(vre!=0.0){
+      if (ftype == 32){
+        auto data = reinterpret_cast<const float*>(input.data());
+        double min = data[0];
+        double max = data[0];
+        for (size_t i = 0;i < total_vals; i++){
+          auto val = data[i];
+          if(val>max) max=val;
+          if(val<min) min=val;
+        }
+        if(max == min)
+          pwe = vre;
+        else
+          pwe = vre * (max-min);
+      }
+      else{
+        auto data = reinterpret_cast<const double*>(input.data());
+        double min = data[0];
+        double max = data[0];
+        for (size_t i = 0;i < total_vals; i++){
+          auto val = data[i];
+          if(val>max) max=val;
+          if(val<min) min=val;
+        }
+        if(max == min)
+          pwe = vre;
+        else
+          pwe = vre * (max-min);
+      }
+
+    }
     if (pwe != 0.0)
       encoder->set_tolerance(pwe);
     else if (psnr != 0.0)
@@ -308,7 +347,7 @@ int main(int argc, char* argv[])
 
     auto stream = encoder->get_encoded_bitstream();
     encoder.reset();  // Free up some more memory.
-
+    timer.stop("Compression");
     // Output the compressed bitstream (maybe).
     if (!bitstream.empty()) {
       rtn = sperr::write_n_bytes(bitstream, stream.size(), stream.data());
@@ -323,6 +362,7 @@ int main(int argc, char* argv[])
     //
     const auto multi_res = (!decomp_lowres_f32.empty()) || (!decomp_lowres_f64.empty());
     if (print_stats || !decomp_f64.empty() || !decomp_f32.empty() || multi_res) {
+      Timer timer(true);
       auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
       decoder->set_num_threads(omp_num_threads);
       decoder->use_bitstream(stream.data(), stream.size());
@@ -336,6 +376,7 @@ int main(int argc, char* argv[])
       auto outputd = decoder->release_decoded_data();
       auto hierarchy = decoder->release_hierarchy();
       decoder.reset();
+      timer.stop("Decompression");
 
       // Output the hierarchy (maybe), and then destroy it.
       auto ret = output_hierarchy(hierarchy, dims, chunks, decomp_lowres_f64, decomp_lowres_f32);
@@ -388,6 +429,7 @@ int main(int argc, char* argv[])
   //
   else {
     assert(dflag);
+    Timer timer(true);
     auto decoder = std::make_unique<sperr::SPERR3D_OMP_D>();
     decoder->set_num_threads(omp_num_threads);
     decoder->use_bitstream(input.data(), input.size());
@@ -403,6 +445,7 @@ int main(int argc, char* argv[])
     auto vdims = decoder->get_dims();
     auto cdims = decoder->get_chunk_dims();
     decoder.reset();  // Free up memory!
+    timer.stop("Decompression");
 
     // Output the hierarchy (maybe), and then destroy it.
     auto ret = output_hierarchy(hierarchy, vdims, cdims, decomp_lowres_f64, decomp_lowres_f32);
