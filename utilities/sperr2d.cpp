@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
           sigma = std::sqrt(mean_var[1]);
         }
         std::printf("Input range = (%.2e, %.2e), L-Infty = %.2e\n", min, max, linfy);
-        std::printf("Bitrate = %.2f, PSNR = %.2fdB, Accuracy Gain = %.2f\n", print_bpp, print_psnr,
+        std::printf("Bitrate = %.6f, Compression ratio = %.2f, PSNR = %.2fdB, Accuracy Gain = %.2f\n", print_bpp, (double)ftype/print_bpp, print_psnr,
                     std::log2(sigma / rmse) - print_bpp);
       }
     }
