@@ -259,21 +259,22 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         std::vector<std::vector<size_t>>starts;
 
 
-        size_t profStride=std::max(1,block_size/4);//todo: bugfix for others
+        size_t profStride=std::max((size_t)1,block_size/4);//todo: bugfix for others
         bool profiling = true;
 
         size_t totalblock_num=1;  
 
         double prof_abs_threshold = ebs[quantiles[0]];
         //double sample_ratio = 5e-3;
-        for(int i=0;i<N;i++){                      
-            totalblock_num*=(size_t)((chunk_dims[i]-1)/block_sizee);
+        for(int i=0;i<3;i++){                      
+            totalblock_num*=(size_t)((chunk_dims[i]-1)/block_size);
         }
         auto reversed_dims = chunk_dims;
         std::reverse(chunk_dims.begin(),chunk_dims.end());
         std::vector<size_t> sample_dims = {block_size,block_size,block_size};
+        std::array<size_t,3> sample_dims_arr = {block_size,block_size,block_size};
        
-        sperr::profiling_block_3d<double,3>(chunk,reversed_dims,starts,block_size, prof_abs_threshold,profStride);
+        sperr::profiling_block_3d<double,3>(chunk.data(),reversed_dims,starts,block_size, prof_abs_threshold,profStride);
         
         
 
@@ -282,7 +283,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         if(num_filtered_blocks<=(int)(0.6*sample_rate*totalblock_num))//todo: bugfix for others 
             profiling=false;
 
-        sperr::sampleBlocks<double,3>(chunk,reversed_dims,block_size,sampled_blocks,sample_rate,profiling,starts,false);//todo: test var_first = true
+        sperr::sampleBlocks<double,3>(chunk.data(),reversed_dims,block_size,sampled_blocks,sample_rate,profiling,starts,false);//todo: test var_first = true
 
         size_t sample_num=0;
         for(auto &block:sampled_blocks)
@@ -304,7 +305,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             qoi->set_global_eb(cur_abs_eb);
             // reset variables for average of square
             auto test_compressor = std::make_unique<SPECK3D_FLT>();
-            test_compressor->set_dims(sample_dims);
+            test_compressor->set_dims(sample_dims_arr);
             test_compressor->set_tolerance(cur_abs_eb);
             test_compressor->set_qoi(qoi);
             double cur_br = 0;
