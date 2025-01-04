@@ -253,7 +253,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
         */
 
-        size_t block_size = 32;
+        size_t block_size = 31;
 
         std::vector<std::vector<double>>sampled_blocks;
         std::vector<std::vector<size_t>>starts;

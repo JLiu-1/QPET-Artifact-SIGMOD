@@ -473,6 +473,7 @@ auto sperr::SPECK_FLT::compress(bool use_high_prec) -> RTNType
   const auto total_vals = size_t(m_dims[0]) * m_dims[1] * m_dims[2];
   if (m_vals_d.empty() || m_vals_d.size() != total_vals)
     return RTNType::Error;
+  std::cout<<"p1"<<std::endl;
 
   if (m_mode == sperr::CompMode::Unknown)
     return RTNType::CompModeUnknown;
@@ -500,6 +501,7 @@ auto sperr::SPECK_FLT::compress(bool use_high_prec) -> RTNType
     }
     default:;  // So the compiler doesn't complain about missing switch cases.
   }
+    std::cout<<"p2"<<std::endl;
 CMP_START:
   // Step 1: data goes through the conditioner
   //    Believe it or not, there are constant fields passed in for compression!
@@ -511,14 +513,14 @@ CMP_START:
     return RTNType::Good;
   }
   auto mean = m_conditioner.get_mean();
-
+    std::cout<<"p3"<<std::endl;
 
 
   // Step 2: wavelet transform
   m_cdf.take_data(std::move(m_vals_d), m_dims);
   m_wavelet_xform();
   m_vals_d = m_cdf.release_data();
-
+    std::cout<<"p4"<<std::endl;
   // Step 2.1: Estimate `m_q`, and store it as part of `m_condi_stream`.
   if (m_mode == CompMode::Rate) {
     // In fixed-rate mode, `param_q` is the wavelet coefficient of the largest magnitude.
@@ -526,13 +528,13 @@ CMP_START:
                                 [](auto a, auto b) { return std::abs(a) < std::abs(b); });
     param_q = std::abs(*itr);
   }
-
+    std::cout<<"p5"<<std::endl;
   bool high_prec = false;
 FIXED_RATE_HIGH_PREC_LABEL:
   m_q = m_estimate_q(param_q, high_prec);
   assert(m_q > 0.0);
   m_conditioner.save_q(m_condi_bitstream, m_q);
-
+    std::cout<<"p6"<<std::endl;
   // Step 3: quantize floating-point coefficients to integers.
   // This step also establishes the integer length used by the encoder/decoder.
   auto rtn = m_midtread_quantize();
@@ -560,6 +562,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         //m_vals_d[i] = m_vals_orig[i];
       }
     }
+      std::cout<<"p7"<<std::endl;
     //std::cout<<LOS.size()<<std::endl;
     //auto LOS_backup=LOS;
 
@@ -577,6 +580,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
         return rtn;
 
     }
+      std::cout<<"p8"<<std::endl;
       //auto new_LOS = m_out_coder.view_outlier_list_decoded();
       //std::cout<<new_LOS.size()<<std::endl;
     if(qoi!=nullptr or use_high_prec){
@@ -608,6 +612,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       }
 
     }
+      std::cout<<"p9"<<std::endl;
 
     
     
@@ -667,6 +672,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     }
 
   }
+    std::cout<<"p10"<<std::endl;
   
   
 
@@ -707,6 +713,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     return rtn;
 
   std::visit([](auto&& encoder) { encoder->encode(); }, m_encoder);
+    std::cout<<"p11"<<std::endl;
 
   // In CompMode::Rate mode, we see if there's enough bits produced. If not, we adjust `m_q`
   //    so quantiztion is done with a higher precision.
@@ -722,6 +729,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
       goto FIXED_RATE_HIGH_PREC_LABEL;
     }
   }
+    std::cout<<"p12"<<std::endl;
 
   return RTNType::Good;
 }
