@@ -1,4 +1,5 @@
 #include "SPERR3D_OMP_C.h"
+#include "Sample.h"
 #include "qoi/QoIInfo.hpp"
 #include <algorithm>  // std::all_of()
 #include <cassert>
@@ -182,12 +183,15 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
       
       std::array<size_t,3> chunk_dims = {chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]};
       size_t chunk_ele_num = chunk_idx[i][1]*chunk_idx[i][3]*chunk_idx[i][5];
-      double sample_rate = 0.01;
-      double length_sample_rate = pow(sample_rate,1.0/3.0);
-      std::array<size_t,3> sample_dims = {(size_t)(chunk_idx[i][1]*length_sample_rate), (size_t)(chunk_idx[i][3]*length_sample_rate), (size_t)(chunk_idx[i][5]*length_sample_rate)};
-      size_t sample_num = sample_dims[0]*sample_dims[1]*sample_dims[2];
 
-      auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
+
+      
+
+
+
+
+
+
 
       if(qoi_block_size > 1){//regional 
         //adjust qoieb
@@ -240,6 +244,51 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         best_abs_eb = pwe;
                         
         int idx = 0;
+
+        double sample_rate = 0.01;
+        /*
+        double length_sample_rate = pow(sample_rate,1.0/3.0);
+        std::array<size_t,3> sample_dims = {(size_t)(chunk_idx[i][1]*length_sample_rate), (size_t)(chunk_idx[i][3]*length_sample_rate), (size_t)(chunk_idx[i][5]*length_sample_rate)};
+        size_t sample_num = sample_dims[0]*sample_dims[1]*sample_dims[2];
+        auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
+        */
+
+        size_t block_size = 32;
+
+        std::vector<std::vector<double>>sampled_blocks;
+        std::vector<std::vector<size_t>>starts;
+
+
+        size_t profStride=std::max(1,block_size/4);//todo: bugfix for others
+        bool profiling = true;
+
+        size_t totalblock_num=1;  
+
+        double prof_abs_threshold = ebs[quantiles[0]];
+        //double sample_ratio = 5e-3;
+        for(int i=0;i<N;i++){                      
+            totalblock_num*=(size_t)((chunk_dims[i]-1)/block_sizee);
+        }
+        auto reversed_dims = chunk_dims;
+        std::reverse(chunk_dims.begin(),chunk_dims.end());
+        std::vector<size_t> sample_dims = {block_size,block_size,block_size};
+       
+        sperr::profiling_block_3d<double,3>(chunk,reversed_dims,starts,block_size, prof_abs_threshold,profStride);
+        
+        
+
+
+        size_t num_filtered_blocks=starts.size();
+        if(num_filtered_blocks<=(int)(0.6*sample_rate*totalblock_num))//todo: bugfix for others 
+            profiling=false;
+
+        sperr::sampleBlocks<double,3>(chunk,reversed_dims,block_size,sampled_blocks,sample_rate,profiling,starts,false);//todo: test var_first = true
+
+        size_t sample_num=0;
+        for(auto &block:sampled_blocks)
+          sample_num += block.size();
+
+        //done until here, next todo
         for(auto quantile:quantiles)
         {   
             if(idx!=0)
@@ -255,25 +304,30 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             qoi->set_global_eb(cur_abs_eb);
             // reset variables for average of square
             auto test_compressor = std::make_unique<SPECK3D_FLT>();
-            auto sampled_copy = sampled_data;
-            test_compressor->take_data(std::move(sampled_copy));
             test_compressor->set_dims(sample_dims);
             test_compressor->set_tolerance(cur_abs_eb);
             test_compressor->set_qoi(qoi);
+            double cur_br = 0;
             if(qoi_block_size > 1)
               test_compressor->set_qoi_tol(bs_qoi_tol);
-            vec8_type test_encoded_stream;
 
-            auto rtn = test_compressor->compress(m_high_prec);
-            if(rtn!= RTNType::Good)
-              std::cout<<"Error"<<std::endl;
+            for (auto sampled_block:sampled_blocks){
+              test_compressor->take_data(std::move(sampled_block));
+              
+              
+              vec8_type test_encoded_stream;
 
-            test_encoded_stream.clear();
-            test_encoded_stream.reserve(128);
-            //m_encoded_streams[i].reserve(1280000);
-            test_compressor->append_encoded_bitstream(test_encoded_stream);
-            
-            double cur_br = test_encoded_stream.size()*8.0/(double)sample_num;       
+              auto rtn = test_compressor->compress(m_high_prec);
+              if(rtn!= RTNType::Good)
+                std::cout<<"Error"<<std::endl;
+
+              test_encoded_stream.clear();
+              test_encoded_stream.reserve(128);
+              //m_encoded_streams[i].reserve(1280000);
+              test_compressor->append_encoded_bitstream(test_encoded_stream);
+              
+              cur_br += test_encoded_stream.size()*8.0/(double)(sample_num);   
+            }    
             std::cout << "current_eb = " << cur_abs_eb << ", current_br = " << cur_br << std::endl;
             if(cur_br < best_br * 1.02){//todo: optimize
                 best_br = cur_br;
