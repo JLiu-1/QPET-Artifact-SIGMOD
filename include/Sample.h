@@ -188,7 +188,87 @@ template<class T, uint N>
 */
 
 
+    template <class T>
+    void blockwise_profiling(const T *data, const std::vector<size_t> &dims, const std::vector<size_t> &starts,const size_t &blocksize,double & mean,double & sigma2,double & range){
+        size_t N=dims.size();
 
+        if(N==2){
+            size_t dimx=dims[0],dimy=dims[1],startx=starts[0],starty=starts[1],element_num=blocksize*blocksize;
+            double sum=0,max,min;
+            sigma2=0;
+            size_t start_idx=startx*dimy+starty;
+            max=min=data[start_idx];
+            for(size_t i=startx;i<startx+blocksize;i++){
+                for(size_t j=starty;j<starty+blocksize;j++){
+                    size_t cur_idx=i*dimy+j;
+                    T value=data[cur_idx];
+                    sum+=value;
+                    
+                    max=value>max?value:max;
+                    min=value<min?value:min;
+
+                }
+
+            }
+            mean=sum/element_num;
+
+            for(size_t i=startx;i<startx+blocksize;i++){
+                for(size_t j=starty;j<starty+blocksize;j++){
+                    size_t cur_idx=i*dimy+j;
+                    T value=data[cur_idx];
+                    sigma2+=(value-mean)*(value-mean);
+
+                }
+
+            }
+            
+            range=max-min;
+            sigma2/=element_num;
+        }
+
+
+        else if(N==3){
+            size_t dimx=dims[0],dimy=dims[1],dimz=dims[2],startx=starts[0],starty=starts[1],startz=starts[2],element_num=blocksize*blocksize*blocksize;
+            size_t dimyz=dimy*dimz;
+            double sum=0,max,min;
+            sigma2=0;
+            size_t start_idx=startx*dimyz+starty*dimz+startz;
+            max=min=data[start_idx];
+            for(size_t i=startx;i<startx+blocksize;i++){
+                for(size_t j=starty;j<starty+blocksize;j++){
+                    for(size_t k=startz;k<startz+blocksize;k++){
+                        size_t cur_idx=i*dimyz+j*dimz+k;
+                        T value=data[cur_idx];
+                        sum+=value;
+                       
+                        max=value>max?value:max;
+                        min=value<min?value:min;
+                    }
+
+                }
+
+            }
+            mean=sum/element_num;
+            for(size_t i=startx;i<startx+blocksize;i++){
+                for(size_t j=starty;j<starty+blocksize;j++){
+                    for(size_t k=startz;k<startz+blocksize;k++){
+                        size_t cur_idx=i*dimyz+j*dimz+k;
+                        T value=data[cur_idx];
+                        sigma2+=(value-mean)*(value-mean);
+
+                        
+                    }
+
+                }
+
+            }
+
+           
+            range=max-min;
+            sigma2/=element_num;
+        }
+    }
+    
 
 
     template<class T, uint N>
@@ -348,7 +428,7 @@ template<class T, uint N>
        // return sampling_data;
     }
 
-    template<class T, QoZ::uint N>
+    template<class T, int N>
     void sampleBlocks(T *data,std::vector<size_t> &dims, size_t sampleBlockSize,std::vector< std::vector<T> > & sampled_blocks,double sample_rate,int profiling ,std::vector<std::vector<size_t> > &starts,int var_first=0){
         for(int i=0;i<sampled_blocks.size();i++){
                     std::vector< T >().swap(sampled_blocks[i]);                
