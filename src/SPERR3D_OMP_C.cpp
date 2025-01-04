@@ -312,6 +312,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
               test_compressor->set_qoi_tol(bs_qoi_tol);
 
             for (auto sampled_block:sampled_blocks){
+              std::cout<<sampled_block.size()<<std::endl;
               test_compressor->take_data(std::move(sampled_block));
               
               
