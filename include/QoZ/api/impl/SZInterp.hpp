@@ -339,9 +339,13 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 if(confs[j].ebs[i] < best_abs_eb)
                     count++;
             }
-            std::cout<<"Data "<<j<<":"<<std::endl;
+
+            
             double smaller_ebs_ratio = (double)(count)/(double)(confs[j].num);
-            std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
+            if(confs[0].verbose){
+                std::cout<<"Data "<<j<<":"<<std::endl;
+                std::cout<<"Smaller ebs: "<<smaller_ebs_ratio<<std::endl;
+            }
 
             if(smaller_ebs_ratio <= 1.0/1024.0 and min_abs_eb>= best_abs_eb*0.95){//may fix
                 confs[j].use_global_eb = true;
@@ -349,9 +353,10 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
 
 
-            
-            std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
-            std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
+            if(confs[0].verbose){
+                std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
+                std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
+            }
             confs[j].absErrorBound = best_abs_eb;
             //qoi->set_global_eb(best_abs_eb);
            // conf.setDims(dims.begin(), dims.end());
@@ -366,7 +371,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
 
             confs[j].qoiEBBase = confs[j].absErrorBound / 1030;
-            std::cout << confs[j].qoi << " " << confs[j].qoiEB << " " << confs[j].qoiEBBase << " " << confs[j].qoiEBLogBase << " " << confs[j].qoiQuantbinCnt << std::endl;
+            if(confs[0].verbose)
+                std::cout << confs[j].qoi << " " << confs[j].qoiEB << " " << confs[j].qoiEBBase << " " << confs[j].qoiEBLogBase << " " << confs[j].qoiQuantbinCnt << std::endl;
             confs[j].qoi_tuned = true;
             //confs[j].qoi = 0;//temp test.
 
@@ -762,7 +768,8 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
 
     }
     else{
-        std::cout<<"algo type error!"<<std::endl;
+        if(conf.verbose)
+            std::cout<<"algo type error!"<<std::endl;
         return std::pair<double,double>(0,0);
     }
                            
@@ -1511,7 +1518,8 @@ double Tuning(QoZ::Config &conf, T *data){
                 if(best_interp_cr_2>best_interp_cr_1*1.05){
                     conf.frozen_dim=frozen_dim;
                     bestInterpMeta_list=interpMeta_list;
-                    std::cout<<"Dim "<<frozen_dim<<" frozen"<<std::endl;
+                    if(conf.verbose)
+                        std::cout<<"Dim "<<frozen_dim<<" frozen"<<std::endl;
                 }
             
 
