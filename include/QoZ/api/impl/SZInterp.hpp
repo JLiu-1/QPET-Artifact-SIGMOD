@@ -149,7 +149,8 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
                 corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, 1, conf.dims[0], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
-            std::cout<<"Global correction done. "<<corr_count<<" blocks corrected."<<std::endl;
+            if(conf.verbose)
+                std::cout<<"Global correction done. "<<corr_count<<" blocks corrected."<<std::endl;
             
 
             auto zstd = QoZ::Lossless_zstd();
@@ -220,7 +221,8 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
                 corr_count=QoZ::compute_qoi_average_and_correct<T,N>(ori_data.data(), data, 1, 1, conf.dims[0], conf.qoiRegionSize, qoi, conf.regionalQoIeb);
 
             }
-            std::cout<<"Global correction done. "<<corr_count<<" blocks corrected."<<std::endl;
+            if(conf.verbose)
+                std::cout<<"Global correction done. "<<corr_count<<" blocks corrected."<<std::endl;
             
 
             auto zstd = QoZ::Lossless_zstd();
@@ -473,7 +475,8 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
 
     }
     else{
-        std::cout<<"algo type error!"<<std::endl;
+        if(conf.verbose)
+            std::cout<<"algo type error!"<<std::endl;
         return std::pair<double,double>(0,0);
     }
           
@@ -851,7 +854,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
 
     }
-    std::cout<<"ABS QoI eb: " << conf.qoiEB << std::endl;
+    if(conf.verbose)
+        std::cout<<"ABS QoI eb: " << conf.qoiEB << std::endl;
     if(conf.qoiRegionMode > 0 and (conf.qoi!=16 or conf.qoi_string == "x")){//regional 
         //adjust qoieb
         double rate = 1.0;
@@ -878,11 +882,13 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 rate = estimate_rate_Hoeffdin(num_elements,1,q, conf.error_std_rate);
             else
                 rate = estimate_rate_Bernstein(num_elements,1,q, conf.error_std_rate);
-            std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
+            if(conf.verbose)
+                std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
             
             rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
         }
-        std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
+        if(conf.verbose)
+            std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
         conf.qoiEB *= rate;
     }
 
@@ -1041,8 +1047,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
 
 
-
-                    std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
+                    if(conf.verbose)
+                        std::cout << "current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                     if(  cur_br < best_br * 1.02 ){//todo: optimize
                         best_br = cur_br;
                         best_abs_eb = testConf.absErrorBound;
@@ -1089,7 +1095,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                     std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
                     double cur_br =results.first;
-                    std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
+                    if(conf.verbose)
+                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                     if(cur_br<0.98*best_br){//todo: optimize
                         conf.use_global_eb = true;
                         //Conf.qoiPtr = qoi;
@@ -1103,7 +1110,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
                         std::pair<double,double> results=CompressTest<T,N>(testConf, sampled_blocks,QoZ::ALGO_INTERP,QoZ::TUNING_TARGET_CR);
                         double cur_br =results.first;
-                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
+                        if(conf.verbose)
+                            std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_br = " << cur_br << std::endl;
                         if(cur_br<0.98*best_br){//todo: optimize
                             conf.use_global_eb = true;
                             //Conf.qoiPtr = qoi;
@@ -1176,8 +1184,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
                     sz.clear();
                     delete[]cmprData;
-                    double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-                    std::cout << "current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
+                    double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize; 
+                    if(conf.verbose)               
+                        std::cout << "current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
                     double fr = fixrate[idx];
                     if(cur_ratio*fr>best_ratio){
                         best_ratio = cur_ratio*fr;
@@ -1245,8 +1254,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                         QoZ::Lossless_zstd());
                     auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
                     delete[]cmprData;
-                    double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-                    std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
+                    double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;     
+                    if(conf.verbose)           
+                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
                     //double fr = fixrate[idx];
                     if(cur_ratio>best_ratio*1.02){
                         best_ratio = cur_ratio;
@@ -1263,8 +1273,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                         // reset variables for average of square
                         auto cmprData = sz.compress(testConf, sampling_data, sampleOutSize,0);
                         delete[]cmprData;
-                        double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;                
-                        std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
+                        double cur_ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;   
+                        if(conf.verbose)             
+                            std::cout << "Global test, current_eb = " << testConf.absErrorBound << ", current_ratio = " << cur_ratio << std::endl;
                         //double fr = fixrate[idx];
                         if(cur_ratio>best_ratio*1.02){
                             best_ratio = cur_ratio;
@@ -1278,9 +1289,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
             }
             
+            if(conf.verbose)  
             
-            
-             std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
+                std::cout<<"Selected quantile: "<<(double)best_quantile/(double)conf.num<<std::endl;
             
             
         }
@@ -1370,8 +1381,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
 
         
         
-        
-        std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
+        if(conf.verbose)  
+            std::cout << "Best abs eb / pre-set eb: " << best_abs_eb / tmp_abs_eb << std::endl; 
         //std::cout << best_abs_eb << " " << tmp_abs_eb << std::endl;
         conf.absErrorBound = best_abs_eb;
         //qoi->set_global_eb(best_abs_eb);
@@ -1382,7 +1393,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         //    qoi->init();
         //}
         if(conf.use_global_eb){
-            std::cout<<"Use global eb."<<std::endl; 
+            if(conf.verbose)  
+                std::cout<<"Use global eb."<<std::endl; 
             ori_ebs.clear();
             ori_ebs.shrink_to_fit();
         }
@@ -2183,7 +2195,8 @@ double Tuning(QoZ::Config &conf, T *data){
                 if(best_interp_cr_2>best_interp_cr_1*1.05){
                     conf.frozen_dim=frozen_dim;
                     bestInterpMeta_list=interpMeta_list;
-                    std::cout<<"Dim "<<frozen_dim<<" frozen"<<std::endl;
+                    if(conf.verbose)  
+                        std::cout<<"Dim "<<frozen_dim<<" frozen"<<std::endl;
                 }
             
 
