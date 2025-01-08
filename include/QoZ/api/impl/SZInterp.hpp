@@ -340,7 +340,8 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
 
     }
     else{
-        std::cout<<"algo type error!"<<std::endl;
+        if(conf.verbose)
+            std::cout<<"algo type error!"<<std::endl;
         return std::pair<double,double>(0,0);
     }
                            
@@ -1087,10 +1088,11 @@ double Tuning(QoZ::Config &conf, T *data){
                 double best_interp_cr_2=sizeof(T)*8.0/results.first;     
                 conf.interpMeta_list=tempmeta_list;
 
-                if(best_interp_cr_2>best_interp_cr_1*1.05){
+                if(best_interp_cr_2>best_interp_cr_1*1.05 and conf.verbose){
                     conf.frozen_dim=frozen_dim;
                     bestInterpMeta_list=interpMeta_list;
-                    std::cout<<"Dim "<<frozen_dim<<" frozen"<<std::endl;
+                    if(conf.verbose)
+                        std::cout<<"Dim "<<frozen_dim<<" frozen"<<std::endl;
                 }
             
 
