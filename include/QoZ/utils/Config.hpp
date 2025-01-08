@@ -6,6 +6,8 @@
 #include <vector>
 #include <numeric>
 //#include <memory>
+#include <cstdlib>
+#include <array>
 #include "QoZ/def.hpp"
 //#include "QoZ/qoi/QoI.hpp"
 #include "MemoryUtil.hpp"
