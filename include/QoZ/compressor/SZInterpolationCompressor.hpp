@@ -218,8 +218,8 @@ namespace QoZ {
         // compress given the error bound
         uchar *compress( Config &conf, T *data, size_t &compressed_size,int tuning,int start_level,int end_level=0) {
             //tuning 0: normal compress 1:tuning to return qbins and psnr 2: tuning to return prediction loss
-            Timer timer;
-            timer.start();
+            //Timer timer;
+           // timer.start();
             
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
             blocksize = conf.interpBlockSize;
@@ -256,7 +256,7 @@ namespace QoZ {
 
 
             if(!anchor){
-                quant_inds.push_back(quantizer.quantize_and_overwrite(*data, 0));
+                quantize_integrated(0,*data,0,tuning);
             }
             else if (start_level==interpolation_level){
                 if(tuning){
@@ -532,13 +532,14 @@ namespace QoZ {
                 return buffer;
             }
 
-            if(conf.verbose)
-                timer.stop("prediction");//can remove later
+            //if(conf.verbose)
+            //    timer.stop("prediction");//can remove later
             
             //timer.start();
             assert(quant_inds.size() == num_elements);
             encoder.preprocess_encode(quant_inds, 0);
             size_t bufferSize = 1.2 * (quantizer.size_est() + encoder.size_est() + sizeof(T) * quant_inds.size());
+            //std::cout<<bufferSize<<std::endl;
             uchar *buffer = new uchar[bufferSize];
             uchar *buffer_pos = buffer;
             write(global_dimensions.data(), N, buffer_pos);

@@ -80,6 +80,9 @@ namespace QoZ {
             return true;
         }
         */
+        bool check_compliance(T x, T y, T z, T dec_x, T dec_y, T dec_z) const{
+            return true;
+        }
 
         //void update_tolerance(T data, T dec_data){}
 
@@ -106,6 +109,8 @@ namespace QoZ {
         std::string get_expression() const{
             return "";
         }
+
+         void set_qoi_tolerance(double tol) {tolerance = tol;}
 
         //void pre_compute(const T * data){}
         

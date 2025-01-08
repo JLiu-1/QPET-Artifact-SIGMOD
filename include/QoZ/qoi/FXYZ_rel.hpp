@@ -2,16 +2,16 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_FXYZ_HPP
-#define SZ_QOI_FXYZ_HPP
+#ifndef SZ_QOI_FXYZ_REL_HPP
+#define SZ_QOI_FXYZ_REL_HPP
 
 #include <algorithm>
 #include <cmath>
 #include <functional>
 #include "QoZ/def.hpp"
 #include "QoZ/qoi/QoI.hpp"
-#include "QoZ/qoi/SymEngine.hpp"
 #include "QoZ/utils/Iterator.hpp"
+#include "QoZ/qoi/SymEngine.hpp"
 #include <symengine/expression.h>
 #include <symengine/parser.h>
 #include <symengine/symbol.h>
@@ -49,13 +49,13 @@ using SymEngine::FiniteSet;
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_FXYZ : public concepts::QoIInterface<T, N> {
+    class QoI_FXYZ_rel : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_FXYZ(const std::array<Config,3> confs)  {
+        QoI_FXYZ_rel(const std::array<Config,3> confs)  {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 1;
+            concepts::QoIInterface<T, N>::id = 2;
 
 
             tolerance = confs[0].qoiEB;
@@ -63,8 +63,10 @@ namespace QoZ {
             confidence = confs[0].confidence;
             global_eb = confs[0].absErrorBound;
             k = confs[0].error_std_rate>0.0?confs[0].error_std_rate:k ;
-            for(auto i:{0,1,2})
+            for(auto i:{0,1,2}){
                 global_ebs[i]=confs[i].absErrorBound;
+                ranges[i] = confs[i].rng;
+            }
 
            // std::cout<<"init 1 "<< std::endl;
             
@@ -91,7 +93,7 @@ namespace QoZ {
             dfdz = f.diff(z);
             //std::cout<<"f: "<< f<<std::endl;
             //std::cout<<"dfdx: "<< dfdx<<std::endl;
-           // std::cout<<"dfdy: "<< dfdy<<std::endl;
+            //std::cout<<"dfdy: "<< dfdy<<std::endl;
            // std::cout<<"dfdz: "<< dfdz<<std::endl;
   
             func = convert_expression_to_function(f, x,y,z);
@@ -121,18 +123,14 @@ namespace QoZ {
         std::array<T,3> interpret_eb(T x, T y, T z) const {
             
 
-            double alpha = fabs(dx(x,y,z));//datatype may be T
-            double beta = fabs(dy(x,y,z));
-            double gamma = fabs(dz(x,y,z));
+            double alpha = fabs(dx(x,y,z))*ranges[0];//datatype may be T
+            double beta = fabs(dy(x,y,z))*ranges[1];
+            double gamma = fabs(dz(x,y,z))*ranges[2];
             std::array<double,3> derivatives = {alpha,beta, gamma};
             double sum= alpha+beta+gamma;
             double square_sum= alpha*alpha+beta*beta+gamma*gamma;
 
-            if (std::isnan(sum) or std::isinf(sum))
-                sum = 0;
-
-            if (std::isnan(square_sum) or std::isinf(square_sum))
-                square_sum = 0;
+           
            // double reci_square_sum = 0;
             //double reci_square_sum= 1.0/(alpha*alpha)+ 1.0/(beta*beta)+ 1.0/(gamma*gamma);
             
@@ -152,7 +150,7 @@ namespace QoZ {
                 //T est_2 = tolerance/(3*Li);
                 T est_1 = square_sum!=0 ? estimate_base/sqrt(square_sum): global_ebs[i];
                 T est_2 = (sum!=0) ? tolerance/(sum) : global_ebs[i];
-                T eb = std::max(est_1,est_2);
+                T eb = std::max(est_1,est_2)*ranges[i];
                 if (std::isnan(eb) or std::isinf(eb))
                     eb = global_ebs[i];
                 res[i]=std::min(eb,global_ebs[i]);
@@ -242,7 +240,8 @@ namespace QoZ {
     private:
 
         
-        
+    
+
 
 
         RCP<const Symbol>  x,y,z;
@@ -259,6 +258,7 @@ namespace QoZ {
         std::string func_string;
         double estimate_base;
         double k = 2.0;
+        std::array<double,3> ranges;
 
         //double threshold;
        // bool isolated;

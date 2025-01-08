@@ -18,6 +18,7 @@
 #include "RegionalFX.hpp"
 */
 #include "FXYZ.hpp"
+#include "FXYZ_rel.hpp"
 #include "Empty.hpp"
 #include <vector>
 
@@ -106,6 +107,8 @@ namespace QoZ {
                 // return std::make_shared<QoZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 1:
                 return std::make_shared<QoZ::QoI_FXYZ<T, N>>(confs);
+            case 2:
+                return std::make_shared<QoZ::QoI_FXYZ_rel<T, N>>(confs);
             case 10:
                 return std::make_shared<QoZ::QoI_empty<T, N>>(confs);
             

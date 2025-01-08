@@ -169,13 +169,15 @@ void compress(std::array<char *,3>inPaths, std::array<char *,3>cmpPaths, QoZ::Co
         printf("compression ratio = %.2f \n", conf.num * 1.0 * sizeof(T) / outSizes[i]);
         printf("compressed data file = %s\n", outputFilePath);
        
-
+        //std::cout<<"1"<<std::endl;
         
         delete[] data[i];
+        //std::cout<< reinterpret_cast<size_t>(bytes[i])<<std::endl;
         delete[] bytes[i];
+        //std::cout<<"3"<<std::endl;
     }
     printf("compression time = %f\n", compress_time);
-    printf(" Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (outSizes[0]+outSizes[1]+outSizes[2]));
+    printf("Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (outSizes[0]+outSizes[1]+outSizes[2]));
 
   
 
@@ -262,7 +264,7 @@ void decompress(std::array<char*,3> inPaths, std::array<char*,3> cmpPaths,  std:
    
     }
     printf("decompression time = %f seconds.\n", decompress_time);
-    printf(" Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (cmpSizes[0]+cmpSizes[1]+cmpSizes[2]));
+    printf("Overall compression ratio = %.2f \n", 3 * conf.num * 1.0 * sizeof(T) / (cmpSizes[0]+cmpSizes[1]+cmpSizes[2]));
 }
 
 int main(int argc, char *argv[]) {
@@ -310,6 +312,8 @@ int main(int argc, char *argv[]) {
     int width = -1;
 
     double quantile = -1;
+    double qoiErr = 0.0;
+    char *qoiErrBoundMode = nullptr;
 
     for (i = 1; i < argc; i++) {
         if (argv[i][0] != '-' || argv[i][2]) {
@@ -519,6 +523,18 @@ int main(int argc, char *argv[]) {
                 quantile = atof (argv[i]);
                 break;
 
+            case 'e':
+                if (++i == argc)
+                    usage();
+                qoiErr = atof (argv[i]);
+                break;
+
+            case 'm':
+                if (++i == argc)
+                    usage();
+                qoiErrBoundMode = argv[i];
+                break;
+
 
             default:
                 usage();
@@ -568,6 +584,11 @@ int main(int argc, char *argv[]) {
     } else {
         conf = QoZ::Config(r4, r3, r2, r1);
     }
+    
+    if (compression && conPath != nullptr) {
+        conf.loadcfg(conPath);
+    }
+
     if (qoz>=0){
         conf.QoZ=qoz;
     }
@@ -576,11 +597,12 @@ int main(int argc, char *argv[]) {
     }
     if(maxStep>0)
         conf.maxStep=maxStep;
-    if(conf.sampleBlockSize>0)
+    if(sampleBlockSize>0)
         conf.sampleBlockSize=sampleBlockSize;
-    if (compression && conPath != nullptr) {
-        conf.loadcfg(conPath);
-    }
+    
+
+    if(qoiErr>0)
+        conf.qoiEB = qoiErr;
 
 
     if (errBoundMode != nullptr) {
@@ -629,6 +651,21 @@ int main(int argc, char *argv[]) {
             exit(0);
         }
     }
+
+    if (qoiErrBoundMode != nullptr) {
+        if (strcmp(qoiErrBoundMode, QoZ::EB_STR[QoZ::EB_ABS]) == 0) {
+            conf.qoiEBMode = QoZ::EB_ABS;
+            
+        } else if (strcmp(qoiErrBoundMode, QoZ::EB_STR[QoZ::EB_REL]) == 0 || strcmp(qoiErrBoundMode, "VR_REL") == 0) {
+            conf.qoiEBMode = QoZ::EB_REL;
+            
+        } else {
+            printf("Error: wrong error bound mode setting by using the option '-M'\n");
+            usage();
+            exit(0);
+        }
+    }
+
 
     if (tuningTarget!= nullptr) {
        

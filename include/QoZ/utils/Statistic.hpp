@@ -114,7 +114,7 @@ namespace QoZ {
     }
 
     template<typename Type>
-    void verify(Type *ori_data, Type *data, size_t num_elements, double &psnr, double &nrmse) {
+    void verify(Type *ori_data, Type *data, size_t num_elements, double &psnr, double &nrmse, bool verbose = true) {
         size_t i = 0;
         double Max = ori_data[0];
         double Min = ori_data[0];
@@ -166,14 +166,15 @@ namespace QoZ {
 
         double normErr = sqrt(sum);
         double normErr_norm = normErr / sqrt(l2sum);
-
-        printf("Min=%.20G, Max=%.20G, range=%.20G\n", Min, Max, range);
-        printf("Max absolute error = %.2G\n", diffMax);
-        printf("Max relative error = %.2G\n", diffMax / (Max - Min));
-        printf("Max pw relative error = %.2G\n", maxpw_relerr);
-        printf("PSNR = %f, NRMSE= %.10G\n", psnr, nrmse);
-        printf("normError = %f, normErr_norm = %f\n", normErr, normErr_norm);
-        printf("acEff=%f\n", acEff);
+        if(verbose){
+            printf("Min=%.20G, Max=%.20G, range=%.20G\n", Min, Max, range);
+            printf("Max absolute error = %.2G\n", diffMax);
+            printf("Max relative error = %.2G\n", diffMax / (Max - Min));
+            printf("Max pw relative error = %.2G\n", maxpw_relerr);
+            printf("PSNR = %f, NRMSE= %.10G\n", psnr, nrmse);
+            printf("normError = %f, normErr_norm = %f\n", normErr, normErr_norm);
+            printf("acEff=%f\n", acEff);
+        }
 //        printf("errAutoCorr=%.10f\n", autocorrelation1DLag1<double>(diff, num_elements, diff_sum / num_elements));
         free(diff);
     }
@@ -210,7 +211,9 @@ namespace QoZ {
                     for(int ii=0; ii<size_1; ii++){
                         for(int jj=0; jj<size_2; jj++){
                             for(int kk=0; kk<size_3; kk++){
-                                sum += *cur_data_pos;
+                                auto val = *cur_data_pos;
+                                if(!std::isnan(val) and !std::isinf(val))
+                                    sum += val;
                                 cur_data_pos ++;
                             }
                             cur_data_pos += dim1_offset - size_3;
@@ -226,7 +229,7 @@ namespace QoZ {
         }    
         return aggregated;
     }
-
+    /*
     template <class T>
     std::vector<T> compute_square_average(T const * data, uint32_t n1, uint32_t n2, uint32_t n3, int block_size){
         uint32_t dim0_offset = n2 * n3;
@@ -268,7 +271,7 @@ namespace QoZ {
             data_x_pos += dim0_offset * size_1;
         }    
         return aggregated;
-    }
+    }*/
 
     template<class T>
     T evaluate_L_inf(T const * data, T const * dec_data, uint32_t num_elements, bool normalized=true, bool verbose=false){
@@ -301,7 +304,12 @@ namespace QoZ {
         else{
             auto average = compute_average(data, n1, n2, n3, block_size);
             auto average_dec = compute_average(dec_data, n1, n2, n3, block_size);
+            auto minmax = std::minmax_element(average.begin(),average.end());
+            value_range = *minmax.second - *minmax.first;
+            if (value_range == 0)
+                value_range = 1.0;
             auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
+            std::cout << "QoI average with block size " << block_size << ": Min = " << *minmax.first << ", Max = " << *minmax.second<<", Range = "<< value_range << std::endl;
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
 
             //auto square_average = compute_square_average(data, n1, n2, n3, block_size);
@@ -513,18 +521,36 @@ namespace QoZ {
        
         double max_qoi_diff = 0;
 
-        double max_qoi = qoi->eval(ori_data[0][0],ori_data[1][0],ori_data[2][0]);
-        double min_qoi = max_qoi;
+        double max_qoi = -std::numeric_limits<double>::max();
+        double min_qoi = std::numeric_limits<double>::max();
+
+        std::vector<double> ori_qois(num_elements);
+        std::vector<double> dec_qois(num_elements);
        
         for(int i=0; i<num_elements; i++){
             auto cur_ori_qoi = qoi->eval(ori_data[0][i],ori_data[1][i],ori_data[2][i]);
             auto cur_qoi = qoi->eval(data[0][i],data[1][i],data[2][i]);
 
-            if (max_qoi < cur_ori_qoi) max_qoi = cur_ori_qoi;
-            if (min_qoi > cur_ori_qoi) min_qoi = cur_ori_qoi;
+            if(!std::isinf(cur_ori_qoi) and !std::isnan(cur_ori_qoi)) {
+
+                if (max_qoi < cur_ori_qoi) max_qoi = cur_ori_qoi;
+                if (min_qoi > cur_ori_qoi) min_qoi = cur_ori_qoi;
+            }
+            else{
+                cur_ori_qoi = 0.0;
+            }
+            if(std::isinf(cur_qoi) or std::isnan(cur_qoi))
+                cur_qoi = 0.0;
+
             double qoi_diff = fabs( cur_ori_qoi - cur_qoi );
             if (qoi_diff > max_qoi_diff)
                 max_qoi_diff = qoi_diff;
+
+            ori_qois[i] = cur_ori_qoi;
+            dec_qois[i] = cur_qoi;
+
+            //if(qoi_diff > 0.080516)
+             //   std::cout<<ori_data[0][i]<<" "<<ori_data[1][i]<<" "<<ori_data[2][i]<<" "<<data[0][i]<<" "<<data[1][i]<<" "<<data[2][i]<<" "<<cur_ori_qoi<<" "<<cur_qoi<<std::endl;
             
 
 
@@ -538,6 +564,13 @@ namespace QoZ {
         printf("QoI error info:\n");
         std::cout<<"QoI function: "<<qoi->get_expression()<<std::endl;;
         printf("Max qoi error = %.6G, relative qoi error = %.6G\n", max_qoi_diff, max_qoi_diff / (max_qoi - min_qoi));
+
+        double q_psnr, q_nrmse;
+
+        verify<double>(ori_qois.data(), dec_qois.data(), num_elements, q_psnr, q_nrmse,false);
+
+        printf("QoI PSNR = %.6G, QoI NRMSE = %.6G\n", q_psnr, q_nrmse);
+        
         /*
         if (blockSize>1){
             
