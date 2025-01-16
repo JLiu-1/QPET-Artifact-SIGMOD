@@ -612,7 +612,7 @@ FIXED_RATE_HIGH_PREC_LABEL:
     
     
   }
-  if(qoi!=nullptr and (qoi_block_size>1 or qoi.get_expression()!="x")){
+  if(qoi!=nullptr and (qoi_block_size>1 or qoi->get_expression()!="x")){
 
     if(qoi_block_size==1){//pointwise
       //auto mean = m_conditioner.get_mean();
