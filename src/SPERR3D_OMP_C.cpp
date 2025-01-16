@@ -161,7 +161,9 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         //std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
         qoi_tol *= rate;
         //qoi->set_qoi_tolerance(qoi_tol);
-    } 
+    }
+
+    
   }
 
 #pragma omp parallel for num_threads(m_num_threads)
@@ -180,178 +182,189 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
       std::cout<<"Tuning eb with qoi"<<std::endl;
       auto pwe = m_mode == CompMode::PWE ? m_quality : std::numeric_limits<double>::max();
       m_mode == CompMode::PWE;
+
+
+      if(qoi_string == "x" and qoi_id == 1){
+          m_quality = std::min(qoi_tol,pwe);
+          if(qoi_block_size>1){
+            auto qoi = QoZ::GetQOI<double>(qoi_id, m_quality, m_quality, qoi_string);
+            compressor->set_qoi(qoi);
+          }
+      } 
+      else{
       
-      std::array<size_t,3> chunk_dims = {chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]};
-      size_t chunk_ele_num = chunk_idx[i][1]*chunk_idx[i][3]*chunk_idx[i][5];
-
-
-      
-
-
-
-
-
-
-
-      if(qoi_block_size > 1){//regional 
-        //adjust qoieb
-        compressor->set_qoi_tol(bs_qoi_tol);
-        compressor->set_qoi_block_size(qoi_block_size);
-      }
-      auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string);
-
-      std::vector<double> ebs (chunk_ele_num);
-    // use quantile to determine abs bound
-  
+        std::array<size_t,3> chunk_dims = {chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]};
+        size_t chunk_ele_num = chunk_idx[i][1]*chunk_idx[i][3]*chunk_idx[i][5];
 
 
         
 
-        for (size_t i = 0; i < chunk_ele_num; i++){
-            ebs[i] = qoi->interpret_eb(chunk[i]);
+
+
+
+
+
+
+        if(qoi_block_size > 1){//regional 
+          //adjust qoieb
+          compressor->set_qoi_tol(bs_qoi_tol);
+          compressor->set_qoi_block_size(qoi_block_size);
         }
+        auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string);
+
+        std::vector<double> ebs (chunk_ele_num);
+      // use quantile to determine abs bound
+    
+
+
+          
+
+          for (size_t i = 0; i < chunk_ele_num; i++){
+              ebs[i] = qoi->interpret_eb(chunk[i]);
+          }
+          
+          //double max_quantile_rate = 0.2;
+          double quantile_rate = 0.2  ;//conf.quantile;//quantile
+          //std::cout<<quantile<<std::endl;
+          size_t k = std::ceil(quantile_rate * chunk_ele_num);
+          k = std::max((size_t)1, std::min(chunk_ele_num, k)); 
+
+
+          double best_abs_eb;
+
         
-        //double max_quantile_rate = 0.2;
-        double quantile_rate = 0.2  ;//conf.quantile;//quantile
-        //std::cout<<quantile<<std::endl;
-        size_t k = std::ceil(quantile_rate * chunk_ele_num);
-        k = std::max((size_t)1, std::min(chunk_ele_num, k)); 
-
-
-        double best_abs_eb;
-
-      
-        std::vector<size_t> quantiles;
-      
-       for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01})
-           quantiles.push_back((size_t)(i*k));
-       int quantile_num = quantiles.size();
-
-            
-
-            
-            //std::sort(ebs.begin(),ebs.begin()+k+1);
-
-  
-        size_t best_quantile = 0;
-
-
-        std::nth_element(ebs.begin(),ebs.begin()+quantiles[0], ebs.end());
-
-        size_t last_quantile = quantiles[0]+1;
-
-        double best_br = 9999;
-        best_abs_eb = pwe;
-                        
-        int idx = 0;
-
-        double sample_rate = 0.01;
-        /*
-        double length_sample_rate = pow(sample_rate,1.0/3.0);
-        std::array<size_t,3> sample_dims = {(size_t)(chunk_idx[i][1]*length_sample_rate), (size_t)(chunk_idx[i][3]*length_sample_rate), (size_t)(chunk_idx[i][5]*length_sample_rate)};
-        size_t sample_num = sample_dims[0]*sample_dims[1]*sample_dims[2];
-        auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
-        */
-
-        size_t block_size = 31;
-
-        std::vector<std::vector<double>>sampled_blocks;
-        std::vector<std::vector<size_t>>starts;
-
-
-        size_t profStride=std::max((size_t)1,block_size/4);//todo: bugfix for others
-        bool profiling = true;
-
-        size_t totalblock_num=1;  
-
-        double prof_abs_threshold = ebs[quantiles[0]];
-        //double sample_ratio = 5e-3;
-        for(int i=0;i<3;i++){                      
-            totalblock_num*=(size_t)((chunk_dims[i]-1)/block_size);
-        }
-        std::vector<size_t> reversed_dims = {chunk_dims[2],chunk_dims[1],chunk_dims[0]};
-        std::vector<size_t> sample_dims = {block_size+1,block_size+1,block_size+1};
-        std::array<size_t,3> sample_dims_arr = {block_size+1,block_size+1,block_size+1};
-       
-        sperr::profiling_block_3d<double,3>(chunk.data(),reversed_dims,starts,block_size, prof_abs_threshold,profStride);
+          std::vector<size_t> quantiles;
         
-        
+         for(auto i:{1.0,0.5,0.25,0.10,0.05,0.025,0.01})
+             quantiles.push_back((size_t)(i*k));
+         int quantile_num = quantiles.size();
 
-
-        size_t num_filtered_blocks=starts.size();
-        if(num_filtered_blocks<=(int)(0.6*sample_rate*totalblock_num))//todo: bugfix for others 
-            profiling=false;
-
-        sperr::sampleBlocks<double,3>(chunk.data(),reversed_dims,block_size,sampled_blocks,sample_rate,profiling,starts,false);//todo: test var_first = true
-
-        size_t sample_num=0;
-        for(auto &block:sampled_blocks)
-          sample_num += block.size();
-
-        //done until here, next todo
-        for(auto quantile:quantiles)
-        {   
-            if(idx!=0)
-                std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
-
-            
-            auto cur_abs_eb = ebs[quantile];
-            if(cur_abs_eb<=1e-15){
-              if (idx == 0)
-                best_abs_eb = 1e-15;
-              break;
-            }
-            qoi->set_global_eb(cur_abs_eb);
-            // reset variables for average of square
-            auto test_compressor = std::make_unique<SPECK3D_FLT>();
-            test_compressor->set_dims(sample_dims_arr);
-            test_compressor->set_tolerance(cur_abs_eb);
-            test_compressor->set_qoi(qoi);
-            double cur_br = 0;
-            if(qoi_block_size > 1)
-              test_compressor->set_qoi_tol(bs_qoi_tol);
-
-            for (auto sampled_block:sampled_blocks){
-              test_compressor->take_data(std::move(sampled_block));
               
-              
-              vec8_type test_encoded_stream;
 
-              auto rtn = test_compressor->compress(m_high_prec);
-              if(rtn!= RTNType::Good)
-                std::cout<<"Error"<<std::endl;
-
-              test_encoded_stream.clear();
-              test_encoded_stream.reserve(128);
-              //m_encoded_streams[i].reserve(1280000);
-              test_compressor->append_encoded_bitstream(test_encoded_stream);
               
-              cur_br += test_encoded_stream.size()*8.0/(double)(sample_num);   
-            }    
-            std::cout << "current_eb = " << cur_abs_eb << ", current_br = " << cur_br << std::endl;
-            if(cur_br < best_br * 1.02){//todo: optimize
-                best_br = cur_br;
-                best_abs_eb = cur_abs_eb;
-                best_quantile = quantile;
-            }
-            /*else if(cur_br>1.1*best_br and testConf.early_termination){
+              //std::sort(ebs.begin(),ebs.begin()+k+1);
+
+    
+          size_t best_quantile = 0;
+
+
+          std::nth_element(ebs.begin(),ebs.begin()+quantiles[0], ebs.end());
+
+          size_t last_quantile = quantiles[0]+1;
+
+          double best_br = 9999;
+          best_abs_eb = pwe;
+                          
+          int idx = 0;
+
+          double sample_rate = 0.01;
+          /*
+          double length_sample_rate = pow(sample_rate,1.0/3.0);
+          std::array<size_t,3> sample_dims = {(size_t)(chunk_idx[i][1]*length_sample_rate), (size_t)(chunk_idx[i][3]*length_sample_rate), (size_t)(chunk_idx[i][5]*length_sample_rate)};
+          size_t sample_num = sample_dims[0]*sample_dims[1]*sample_dims[2];
+          auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
+          */
+
+          size_t block_size = 31;
+
+          std::vector<std::vector<double>>sampled_blocks;
+          std::vector<std::vector<size_t>>starts;
+
+
+          size_t profStride=std::max((size_t)1,block_size/4);//todo: bugfix for others
+          bool profiling = true;
+
+          size_t totalblock_num=1;  
+
+          double prof_abs_threshold = ebs[quantiles[0]];
+          //double sample_ratio = 5e-3;
+          for(int i=0;i<3;i++){                      
+              totalblock_num*=(size_t)((chunk_dims[i]-1)/block_size);
+          }
+          std::vector<size_t> reversed_dims = {chunk_dims[2],chunk_dims[1],chunk_dims[0]};
+          std::vector<size_t> sample_dims = {block_size+1,block_size+1,block_size+1};
+          std::array<size_t,3> sample_dims_arr = {block_size+1,block_size+1,block_size+1};
+         
+          sperr::profiling_block_3d<double,3>(chunk.data(),reversed_dims,starts,block_size, prof_abs_threshold,profStride);
+          
+          
+
+
+          size_t num_filtered_blocks=starts.size();
+          if(num_filtered_blocks<=(int)(0.6*sample_rate*totalblock_num))//todo: bugfix for others 
+              profiling=false;
+
+          sperr::sampleBlocks<double,3>(chunk.data(),reversed_dims,block_size,sampled_blocks,sample_rate,profiling,starts,false);//todo: test var_first = true
+
+          size_t sample_num=0;
+          for(auto &block:sampled_blocks)
+            sample_num += block.size();
+
+          //done until here, next todo
+          for(auto quantile:quantiles)
+          {   
+              if(idx!=0)
+                  std::nth_element(ebs.begin(),ebs.begin()+quantile, ebs.begin()+last_quantile);
+
+              
+              auto cur_abs_eb = ebs[quantile];
+              if(cur_abs_eb<=1e-15){
+                if (idx == 0)
+                  best_abs_eb = 1e-15;
                 break;
-            }*/
+              }
+              qoi->set_global_eb(cur_abs_eb);
+              // reset variables for average of square
+              auto test_compressor = std::make_unique<SPECK3D_FLT>();
+              test_compressor->set_dims(sample_dims_arr);
+              test_compressor->set_tolerance(cur_abs_eb);
+              test_compressor->set_qoi(qoi);
+              double cur_br = 0;
+              if(qoi_block_size > 1)
+                test_compressor->set_qoi_tol(bs_qoi_tol);
 
-            last_quantile = quantile+1;
-            idx++;
+              for (auto sampled_block:sampled_blocks){
+                test_compressor->take_data(std::move(sampled_block));
+                
+                
+                vec8_type test_encoded_stream;
 
-            //if(!test_compressor->has_lossless())
-            //  break;
-            
+                auto rtn = test_compressor->compress(m_high_prec);
+                if(rtn!= RTNType::Good)
+                  std::cout<<"Error"<<std::endl;
+
+                test_encoded_stream.clear();
+                test_encoded_stream.reserve(128);
+                //m_encoded_streams[i].reserve(1280000);
+                test_compressor->append_encoded_bitstream(test_encoded_stream);
+                
+                cur_br += test_encoded_stream.size()*8.0/(double)(sample_num);   
+              }    
+              std::cout << "current_eb = " << cur_abs_eb << ", current_br = " << cur_br << std::endl;
+              if(cur_br < best_br * 1.02){//todo: optimize
+                  best_br = cur_br;
+                  best_abs_eb = cur_abs_eb;
+                  best_quantile = quantile;
+              }
+              /*else if(cur_br>1.1*best_br and testConf.early_termination){
+                  break;
+              }*/
+
+              last_quantile = quantile+1;
+              idx++;
+
+              //if(!test_compressor->has_lossless())
+              //  break;
+              
+          }
+          std::cout<<"Selected quantile: "<<(double)best_quantile/(double)chunk_ele_num<<std::endl;
+          std::cout << "Best abs eb:  " << best_abs_eb << std::endl; 
+          qoi->set_global_eb(best_abs_eb); 
+
+          compressor->set_qoi(qoi);
+
+          m_quality = best_abs_eb;
         }
-        std::cout<<"Selected quantile: "<<(double)best_quantile/(double)chunk_ele_num<<std::endl;
-        std::cout << "Best abs eb:  " << best_abs_eb << std::endl; 
-        qoi->set_global_eb(best_abs_eb); 
-
-        compressor->set_qoi(qoi);
-
-        m_quality = best_abs_eb;
 
 
     }
