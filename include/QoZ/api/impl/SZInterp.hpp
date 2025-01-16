@@ -898,6 +898,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         if (conf.qoiRegionMode != 1)
             conf.qoi = 0;
         conf.use_global_eb = true;
+        conf.qoi_tuned = true;
         return;
 
     }
