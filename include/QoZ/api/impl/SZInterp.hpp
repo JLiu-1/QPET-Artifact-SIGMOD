@@ -895,7 +895,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     if (conf.qoi == 14 and conf.qoi_string == "x"){
         //conf.qoi = 0;
         conf.absErrorBound = std::min(conf.absErrorBound,conf.qoiEB);
-        if (conf.qoiRegionMode == 0)
+        if (conf.qoiRegionMode != 1)
             conf.qoi = 0;
         conf.use_global_eb = true;
         return;
