@@ -189,6 +189,8 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
           if(qoi_block_size>1){
             auto qoi = QoZ::GetQOI<double>(qoi_id, m_quality, m_quality, qoi_string);
             compressor->set_qoi(qoi);
+            compressor->set_qoi_tol(bs_qoi_tol);
+            compressor->set_qoi_block_size(qoi_block_size);
           }
       } 
       else{
