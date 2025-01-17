@@ -30,7 +30,7 @@ namespace QoZ {
     public:
         QoI_X_Comp(double tolerance, T global_eb, std::string comp_string) : //comp_string: inner to outer
                 tolerance(tolerance),
-                global_eb(global_eb),
+                global_eb(global_eb)
                 {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
@@ -99,12 +99,22 @@ namespace QoZ {
         T interpret_eb(T data) const {
             std::vector<double> vals;
             double val = data;
-            val.push_back(val);
+            vals.push_back(val);
             for(auto iter=QoIs.begin();iter !=QoIs.end()-1;iter++){
                 val = (*iter)->eval(val);
                 vals.push_back(val);
             }
-            return std::min(global_eb,tolerance/A);
+
+            T eb;
+            for(auto iter=QoIs.rbegin();iter !=QoIs.rend();){
+                auto cur_data = vals.back();
+                vals.pop_back();
+                eb = (*iter)->interpret_eb(cur_data);
+                if(++iter != QoIs.rend()){
+                    (*iter)->set_qoi_tolerance(eb);
+                }
+            }
+            return eb;
         }
 
         T interpret_eb(const iterator &iter) const {

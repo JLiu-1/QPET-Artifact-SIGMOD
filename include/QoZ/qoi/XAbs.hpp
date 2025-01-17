@@ -25,10 +25,6 @@ namespace QoZ {
             concepts::QoIInterface<T, N>::id = 19;
 
         }
-
-        using Range = multi_dimensional_range<T, N>;
-        using iterator = typename multi_dimensional_range<T, N>::iterator;
-
         T interpret_eb(T data) const {
             return std::min(global_eb,tolerance);
         }

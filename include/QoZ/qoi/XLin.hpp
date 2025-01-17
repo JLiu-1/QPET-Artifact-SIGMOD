@@ -69,7 +69,7 @@ namespace QoZ {
         } 
 
         std::string get_expression(const std::string var="x") const{
-            return std::to_string(A)+"*"+var+"+"std::to_string(B);
+            return std::to_string(A)+"*"+var+"+"+std::to_string(B);
         }
 
         void pre_compute(const T * data){}

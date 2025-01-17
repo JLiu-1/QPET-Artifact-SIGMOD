@@ -46,19 +46,19 @@ namespace QoZ {
             if (isInt){
                 int ia = int(alpha);
                 if(ia%2==0)
-                    eb = pow( pow(data,ia) + T, 1.0/ia) - data;
+                    eb = pow( pow(data,ia) + tolerance, 1.0/ia) - data;
                 else
-                    eb = data >= 0 ? pow( pow(data,ia) + T, 1.0/ia) - data: data - pow( pow(data,ia) - T, 1.0/ia);
+                    eb = data >= 0 ? pow( pow(data,ia) + tolerance, 1.0/ia) - data: data - pow( pow(data,ia) - T, 1.0/ia);
 
                 if (std::isinf(eb) or std::isnan(eb))
                     eb = global_eb;
 
             }
             else{
-                double r = pow( pow(data,alpha) + T, 1.0/alpha ) - data;
+                double r = pow( pow(data,alpha) + tolerance, 1.0/alpha ) - data;
                 if (std::isinf(r) or std::isnan(r))
                     r = global_eb;
-                double l = data - pow( pow(data,alpha) - T, 1.0/alpha);
+                double l = data - pow( pow(data,alpha) - tolerance, 1.0/alpha);
                 if (std::isinf(l) or std::isnan(l))
                     l = global_eb;
                 eb = std::min(l,r);
