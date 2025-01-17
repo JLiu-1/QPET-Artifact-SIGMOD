@@ -101,7 +101,7 @@ namespace QoZ {
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            std::cout<<data<<" ";
+            //std::cout<<data<<" ";
             std::vector<double> vals;
             double val = data;
             vals.push_back(val);
@@ -109,8 +109,8 @@ namespace QoZ {
                 val = (*iter)->eval(val);
                 vals.push_back(val);
             }
-            for (auto x:vals)
-                std::cout<<x<<" ";
+            //for (auto x:vals)
+            //    std::cout<<x<<" ";
 
             T eb;
             for(auto iter=QoIs.rbegin();iter !=QoIs.rend();){
@@ -120,9 +120,9 @@ namespace QoZ {
                 if(++iter != QoIs.rend()){
                     (*iter)->set_qoi_tolerance(eb);
                 }
-                std::cout<<cur_data<<" "<<eb<<" ";
+                //std::cout<<cur_data<<" "<<eb<<" ";
             }
-            std::cout<<std::endl;
+            //std::cout<<std::endl;
             return eb;
         }
 
@@ -155,7 +155,7 @@ namespace QoZ {
 
         T get_global_eb() const { return global_eb; }
 
-        void set_global_eb(T eb) {global_eb = eb;}
+        void set_global_eb(T eb) {global_eb = eb; (*QoIs.begin())->set_global_eb(global_eb);}
 
         void init(){}
 
@@ -174,7 +174,7 @@ namespace QoZ {
 
         void pre_compute(const T * data){}
 
-        void set_qoi_tolerance(double tol) {tolerance = tol;}
+        void set_qoi_tolerance(double tol) {tolerance = tol;(*QoIs.rbegin())->set_qoi_tolerance(tolerance);}
 
 
     private:
