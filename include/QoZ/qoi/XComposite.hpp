@@ -101,6 +101,7 @@ namespace QoZ {
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
+            std::cout<<data<<" ";
             std::vector<double> vals;
             double val = data;
             vals.push_back(val);
@@ -108,6 +109,8 @@ namespace QoZ {
                 val = (*iter)->eval(val);
                 vals.push_back(val);
             }
+            for (auto x:vals)
+                std::cout<<x<<" ";
 
             T eb;
             for(auto iter=QoIs.rbegin();iter !=QoIs.rend();){
@@ -117,7 +120,9 @@ namespace QoZ {
                 if(++iter != QoIs.rend()){
                     (*iter)->set_qoi_tolerance(eb);
                 }
+                std::cout<<cur_data<<" "<<eb<<" ";
             }
+            std::cout<<std::endl;
             return eb;
         }
 
