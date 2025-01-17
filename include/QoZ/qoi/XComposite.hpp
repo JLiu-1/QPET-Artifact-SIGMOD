@@ -37,11 +37,12 @@ namespace QoZ {
             concepts::QoIInterface<T, N>::id = 20;
 
             //parse comp_string inner to outer
-
+            std::cout<<comp_string<<std::endl;
             std::istringstream iss(comp_string);
             int id;
 
             while(iss>>id){//inner to outer
+                std::cout<<id<<std::endl;
                 switch(id){
                     case 1:
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Square<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
