@@ -177,9 +177,7 @@ namespace QoZ {
             printf("acEff=%f\n", acEff);
     //        printf("errAutoCorr=%.10f\n", autocorrelation1DLag1<double>(diff, num_elements, diff_sum / num_elements));
         }
-        std::cout<<"end"<<std::endl;
         free(diff);
-        std::cout<<"end2"<<std::endl;
     }
 
     template<typename Type>
@@ -573,15 +571,11 @@ namespace QoZ {
         verify(ori_data_T, data_T, num_elements, psnr, nrmse);
         
 
-        std::cout<<conf.qoi<<std::endl;
         if(conf.qoi == 0)
             return;
         std::vector<double> ori_data(ori_data_T,ori_data_T+num_elements);
-        std::cout<<conf.qoi<<std::endl;
         std::vector<double> data(data_T,data_T+num_elements);
-        std::cout<<conf.qoi<<std::endl;
        // const QoZ::uint N = conf.N;
-        std::cout<<conf.qoi<<std::endl;
         auto qoi = QoZ::GetQOI<double, 1>(conf);
 
        
