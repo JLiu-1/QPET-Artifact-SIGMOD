@@ -103,7 +103,7 @@ namespace QoZ {
 
         } 
 
-        std::string get_expression() const{
+        std::string get_expression(const std::string var="x") const{
             return "Multi QoIs";
         }
 

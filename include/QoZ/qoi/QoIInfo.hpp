@@ -4,11 +4,14 @@
 #include "QoI.hpp"
 #include "XSquare.hpp"
 #include "XCubic.hpp"
+#include "XPower.hpp"
 #include "XSin.hpp"
 #include "XExp.hpp"
 #include "XLin.hpp"
 #include "XSqrt.hpp"
+#include "XAbs.hpp"
 #include "XReciprocal.hpp"
+#include "XComposite.hpp"
 #include "LogX.hpp"
 #include "XLogX.hpp"
 #include "RegionalAverage.hpp"
@@ -89,7 +92,7 @@ namespace QoZ {
                 //return std::make_shared<QoZ::QoI_X_Sin<T, N>>(conf.qoiEB, conf.absErrorBound);
                 return std::make_shared<QoZ::QoI_X_Sqrt<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 11:
-                return std::make_shared<QoZ::QoI_X_Lin<T, N>>(conf.qoiEB, conf.absErrorBound);
+                return std::make_shared<QoZ::QoI_X_Lin<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_lin_A, conf.qoi_lin_B);
             case 12:
                 return std::make_shared<QoZ::QoI_X_Exp<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
             case 13:
@@ -107,6 +110,12 @@ namespace QoZ {
             }
             case 17:
                 return std::make_shared<QoZ::QoI_FX_ABS<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
+            case 18:
+                return std::make_shared<QoZ::QoI_X_Power<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
+            case 19:
+                return std::make_shared<QoZ::QoI_X_Abs<T, N>>(conf.qoiEB, conf.absErrorBound);
+            case 20:
+                return std::make_shared<QoZ::QoI_X_Composite<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string);
         }
         return NULL;
     }

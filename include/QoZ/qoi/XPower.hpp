@@ -2,8 +2,8 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_X_RECIP_HPP
-#define SZ_QOI_X_RECIP_HPP
+#ifndef SZ_QOI_X_POWER_HPP
+#define SZ_QOI_X_POWER_HPP
 
 #include <algorithm>
 #include "QoZ/def.hpp"
@@ -12,15 +12,21 @@
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_X_Recip : public concepts::QoIInterface<T, N> {
+    class QoI_X_Power : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Recip(double tolerance, T global_eb) : 
+        QoI_X_Power(double tolerance, T global_eb, double a = 2.0) : //x^a, a>0
                 tolerance(tolerance),
-                global_eb(global_eb) {
+                global_eb(global_eb),
+                alpha(a) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 13;
+            concepts::QoIInterface<T, N>::id = 18;
+            if(fabs(std::round(alpha)-alpha)<=1e-10){
+                isInt = true;
+                alpha = std::round(alpha);
+            }
+            
         }
 
         using Range = multi_dimensional_range<T, N>;
@@ -36,8 +42,29 @@ namespace QoZ {
 
             
             //T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
+            T eb;
+            if (isInt){
+                int ia = int(alpha);
+                if(ia%2==0)
+                    eb = pow( pow(data,ia) + T, 1.0/ia) - data;
+                else
+                    eb = data >= 0 ? pow( pow(data,ia) + T, 1.0/ia) - data: data - pow( pow(data,ia) - T, 1.0/ia);
+
+                if (std::isinf(eb) or std::isnan(eb))
+                    eb = global_eb;
+
+            }
+            else{
+                double r = pow( pow(data,alpha) + T, 1.0/alpha ) - data;
+                if (std::isinf(r) or std::isnan(r))
+                    r = global_eb;
+                double l = data - pow( pow(data,alpha) - T, 1.0/alpha);
+                if (std::isinf(l) or std::isnan(l))
+                    l = global_eb;
+                eb = std::min(l,r);
+            }
           
-            T eb = data >= 0 ?  tolerance*data*data/(1.0+tolerance*data): tolerance*data*data/(1.0-tolerance*data);
+            //T eb = data >= 0 ? std::cbrt(data*data*data+tolerance)-data : data - std::cbrt(data*data*data-tolerance);
             return std::min(eb, global_eb);
         }
 
@@ -50,9 +77,14 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            if (data == 0) return (dec_data == 0);
-            if (dec_data == 0) return false; 
-            return (fabs(eval(data) - eval(dec_data)) < tolerance);
+            double q_ori = eval(data);
+            if (std::isnan(q_ori) or std::isinf(q_ori))
+                return data == dec_data;
+            double q_dec = eval(dec_data);
+            if (std::isnan(q_dec) or std::isinf(q_dec))
+                return false;
+
+            return (fabs(q_ori - q_dec) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -73,12 +105,12 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return 1.0/val;//todo
+            return pow(val,alpha);//todo
 
         } 
 
         std::string get_expression(const std::string var="x") const{
-            return "1/"+var;
+            return var+"^"+std::to_string(alpha);
         }
 
         void pre_compute(const T * data){}
@@ -88,7 +120,8 @@ namespace QoZ {
     private:
         double tolerance;
         T global_eb;
-        
+        double alpha = 2.0;
+        bool isInt = false;
     };
 }
 #endif 

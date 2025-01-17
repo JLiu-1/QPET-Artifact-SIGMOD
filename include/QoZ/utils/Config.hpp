@@ -582,6 +582,8 @@ namespace QoZ {
         int qoiRegionMode = 0; //0:no region 1: average 2:laplacian 3: gradient 
 
         bool use_global_eb = false;
+        double qoi_lin_A = 1.0;
+        double qoi_lin_B = 0.0;
 
         //std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoiPtr = nullptr;
 

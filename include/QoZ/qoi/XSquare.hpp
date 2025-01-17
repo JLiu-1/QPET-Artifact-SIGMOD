@@ -87,8 +87,8 @@ namespace QoZ {
             return val*val;//todo
 
         } 
-        std::string get_expression() const{
-            return "x^2";
+        std::string get_expression(const std::string var="x") const{
+            return var+"^2";
         }
 
         void pre_compute(const T * data){}

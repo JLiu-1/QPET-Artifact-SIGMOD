@@ -92,8 +92,8 @@ namespace QoZ {
 
         } 
 
-        std::string get_expression() const{
-            return "ln(|x|)/"+std::to_string(log_b);
+        std::string get_expression(const std::string var="x") const{
+            return "ln(|"+var+"|)/"+std::to_string(log_b);
         }
 
         void pre_compute(const T * data){}

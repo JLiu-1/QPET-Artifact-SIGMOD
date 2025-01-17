@@ -76,8 +76,8 @@ namespace QoZ {
             return sin(val);//todo
 
         } 
-        std::string get_expression() const{
-            return "sin(x)";
+        std::string get_expression(const std::string var="x") const{
+            return "sin("+var+")";
         }
 
         void pre_compute(const T * data){}

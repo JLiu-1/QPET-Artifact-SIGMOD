@@ -13,26 +13,25 @@
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_X_Lin : public concepts::QoIInterface<T, N> {
+    class QoI_X_Lin : public concepts::QoIInterface<T, N> {//Ax+B
 
     public:
-        QoI_X_Lin(double tolerance, T global_eb) : 
+        QoI_X_Lin(double tolerance, T global_eb, double AA = 1.0, double BB = 0.0) : 
                 tolerance(tolerance),
-                global_eb(global_eb) {
+                global_eb(global_eb),
+                A(AA),
+                B(BB) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 11;
+
         }
 
         using Range = multi_dimensional_range<T, N>;
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            
-
-           
-           
-            return global_eb;
+            return std::min(global_eb,tolerance/A);
         }
 
         T interpret_eb(const iterator &iter) const {
@@ -44,7 +43,7 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            return (fabs(data - dec_data) < tolerance);
+            return (fabs(eval(data) - eval(dec_data)) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -65,12 +64,12 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return 0;//todo
+            return A * val + B;
 
         } 
 
-        std::string get_expression() const{
-            return "x";
+        std::string get_expression(const std::string var="x") const{
+            return std::to_string(A)+"*"+var+"+"std::to_string(B);
         }
 
         void pre_compute(const T * data){}
@@ -81,6 +80,7 @@ namespace QoZ {
     private:
         double tolerance;
         T global_eb;
+        double A = 1.0, B = 0.0;
      
     };
 }

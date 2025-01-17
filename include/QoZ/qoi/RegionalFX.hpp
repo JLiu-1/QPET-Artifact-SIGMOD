@@ -363,7 +363,7 @@ namespace QoZ {
             return func(val); //point_wise
         } 
 
-        std::string get_expression() const{
+        std::string get_expression(const std::string var="x") const{
             return "Regional average of " + func_string;
         }
 

@@ -79,8 +79,8 @@ namespace QoZ {
 
         } 
 
-        std::string get_expression() const{
-            return "sqrt(|x|)";
+        std::string get_expression(const std::string var="x") const{
+            return "sqrt(|"+var+"|)";
         }
 
         void pre_compute(const T * data){}

@@ -75,8 +75,8 @@ namespace QoZ {
 
         } 
 
-        std::string get_expression() const{
-            return "x^3";
+        std::string get_expression(const std::string var="x") const{
+            return var+"^3";
         }
 
         void pre_compute(const T * data){}

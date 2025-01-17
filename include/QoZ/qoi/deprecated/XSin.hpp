@@ -2,25 +2,26 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_X_RECIP_HPP
-#define SZ_QOI_X_RECIP_HPP
+#ifndef SZ_QOI_X_SIN_HPP
+#define SZ_QOI_X_SIN_HPP
 
 #include <algorithm>
+#include <cmath>
 #include "QoZ/def.hpp"
 #include "QoZ/qoi/QoI.hpp"
 #include "QoZ/utils/Iterator.hpp"
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_X_Recip : public concepts::QoIInterface<T, N> {
+    class QoI_X_Sin : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Recip(double tolerance, T global_eb) : 
+        QoI_X_Sin(double tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 13;
+            concepts::QoIInterface<T, N>::id = 10;
         }
 
         using Range = multi_dimensional_range<T, N>;
@@ -28,16 +29,17 @@ namespace QoZ {
 
         T interpret_eb(T data) const {
             
-            //if (data == 0)
-            //    return global_eb;
 
-            //double b = fabs(6*data);
-            //double a = fabs(0.5*b*data);//datatype may be T
-
-            
-            //T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
-          
-            T eb = data >= 0 ?  tolerance*data*data/(1.0+tolerance*data): tolerance*data*data/(1.0-tolerance*data);
+            double a = fabs(cos(data));//datatype may be T
+            double b = fabs(sin(data));
+            T eb;
+            if( b !=0)
+                eb = (sqrt(a*a+2*b*tolerance)-a)/b;
+            else if (a!=0)
+                eb = tolerance/a;
+            else 
+                eb = global_eb;
+           
             return std::min(eb, global_eb);
         }
 
@@ -50,9 +52,7 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            if (data == 0) return (dec_data == 0);
-            if (dec_data == 0) return false; 
-            return (fabs(eval(data) - eval(dec_data)) < tolerance);
+            return (fabs(sin(data) - sin(dec_data)) < tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -73,22 +73,22 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return 1.0/val;//todo
+            return sin(val);//todo
 
         } 
-
-        std::string get_expression(const std::string var="x") const{
-            return "1/"+var;
+        std::string get_expression() const{
+            return "sin(x)";
         }
 
         void pre_compute(const T * data){}
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
 
+
     private:
         double tolerance;
         T global_eb;
-        
+     
     };
 }
 #endif 
