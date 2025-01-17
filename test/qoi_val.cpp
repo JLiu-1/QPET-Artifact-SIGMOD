@@ -46,19 +46,15 @@ void qoiValidation(char *inPath, char *decPath,
    
     //compute the distortion / compression errors...
     size_t totalNbEle;
-    std::cout<<"a1"<<std::endl;
     auto ori_data = QoZ::readfile<T>(inPath, totalNbEle);
-     std::cout<<"a2"<<std::endl;
     assert(totalNbEle == conf.num);
     auto dec_data = QoZ::readfile<T>(decPath, totalNbEle);
-     std::cout<<"a3"<<std::endl;
     //QoZ::verify<T>(ori_data.get(), decData, conf.num);
     //QoZ::verifyQoI<T>(ori_data.get(), decData, conf.dims, conf.qoiRegionSize);
 
 
    
     QoZ::verifyQoI_new<T>(ori_data.get(), dec_data.get(), conf);
-     std::cout<<"a4"<<std::endl;
     
 
 }
