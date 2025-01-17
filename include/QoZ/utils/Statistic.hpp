@@ -177,7 +177,9 @@ namespace QoZ {
             printf("acEff=%f\n", acEff);
     //        printf("errAutoCorr=%.10f\n", autocorrelation1DLag1<double>(diff, num_elements, diff_sum / num_elements));
         }
+        std::cout<<"end"<<std::endl;
         free(diff);
+        std::cout<<"end2"<<std::endl;
     }
 
     template<typename Type>
