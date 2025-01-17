@@ -30,7 +30,8 @@ namespace QoZ {
         using iterator = typename multi_dimensional_range<T, N>::iterator;
 
         T interpret_eb(T data) const {
-            return std::min(global_eb,tolerance);
+            T eb = tolerance;
+            return std::min(global_eb,eb);
         }
 
         T interpret_eb(const iterator &iter) const {
