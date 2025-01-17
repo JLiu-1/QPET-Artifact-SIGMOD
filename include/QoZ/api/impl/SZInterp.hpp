@@ -2849,7 +2849,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                     printf("Lorenzo, ratio = %.2f\n", ratio);
                     if (ratio > best_lorenzo_ratio *1.02) {
                         best_lorenzo_ratio = ratio;
-                        //conf.use_global_eb = true;
+                        conf.use_global_eb = true;
                     }
                     else{
                         //conf.absErrorBound = old_eb;
