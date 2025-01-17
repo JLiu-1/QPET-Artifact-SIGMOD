@@ -37,12 +37,12 @@ namespace QoZ {
             concepts::QoIInterface<T, N>::id = 20;
 
             //parse comp_string inner to outer
-            std::cout<<comp_string<<std::endl;
+            //std::cout<<comp_string<<std::endl;
             std::istringstream iss(comp_string);
             int id;
 
             while(iss>>id){//inner to outer
-                std::cout<<id<<std::endl;
+                //std::cout<<id<<std::endl;
                 switch(id){
                     case 1:
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Square<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
@@ -62,10 +62,12 @@ namespace QoZ {
                         double A,B;
                         iss>>A>>B;
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Lin<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),A,B));
+                        break;
                     case 12:
                         double base;
                         iss>>base;
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Exp<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),base));
+                        break;
                     case 13:
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Recip<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
                         break;
@@ -73,6 +75,7 @@ namespace QoZ {
                         double alpha;
                         iss>>alpha;
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Power<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),alpha));
+                        break;
                     case 19:
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Abs<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
                         break;
