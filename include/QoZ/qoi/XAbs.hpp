@@ -13,18 +13,22 @@
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_X_Abs: public concepts::QoIInterface<T, N> {//Ax+B
+    class QoI_X_Abs: public concepts::QoIInterface<T, N> {
 
     public:
         QoI_X_Abs(double tolerance, T global_eb) : 
                 tolerance(tolerance),
-                global_eb(global_eb),
+                global_eb(global_eb)
                  {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
             concepts::QoIInterface<T, N>::id = 19;
 
         }
+
+        using Range = multi_dimensional_range<T, N>;
+        using iterator = typename multi_dimensional_range<T, N>::iterator;
+
         T interpret_eb(T data) const {
             return std::min(global_eb,tolerance);
         }

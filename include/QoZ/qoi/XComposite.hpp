@@ -25,10 +25,10 @@
 
 namespace QoZ {
     template<class T, uint N>
-    class QoI_X_Comp : public concepts::QoIInterface<T, N> {//Ax+B
+    class QoI_X_Composite : public concepts::QoIInterface<T, N> {//Ax+B
 
     public:
-        QoI_X_Comp(double tolerance, T global_eb, std::string comp_string) : //comp_string: inner to outer
+        QoI_X_Composite(double tolerance, T global_eb, std::string comp_string) : //comp_string: inner to outer
                 tolerance(tolerance),
                 global_eb(global_eb)
                 {

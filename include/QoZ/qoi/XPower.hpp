@@ -48,7 +48,7 @@ namespace QoZ {
                 if(ia%2==0)
                     eb = pow( pow(data,ia) + tolerance, 1.0/ia) - data;
                 else
-                    eb = data >= 0 ? pow( pow(data,ia) + tolerance, 1.0/ia) - data: data - pow( pow(data,ia) - T, 1.0/ia);
+                    eb = data >= 0 ? pow( pow(data,ia) + tolerance, 1.0/ia) - data : data - pow( pow(data,ia) - tolerance, 1.0/ia);
 
                 if (std::isinf(eb) or std::isnan(eb))
                     eb = global_eb;
