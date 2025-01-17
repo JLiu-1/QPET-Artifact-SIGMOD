@@ -568,19 +568,20 @@ namespace QoZ {
         }
         double psnr = 0;
         double nrmse = 0;
+        std::cout<<"p1"<<conf.qoi<<std::endl;
         verify(ori_data_T, data_T, num_elements, psnr, nrmse);
         
 
-        std::cout<<conf.qoi<<std::endl;
+        std::cout<<"p2"<<conf.qoi<<std::endl;
         if(conf.qoi == 0)
             return;
         std::vector<double> ori_data(ori_data_T,ori_data_T+num_elements);
-        std::cout<<conf.qoi<<std::endl;
+        std::cout<<"p3"<<std::endl;
         std::vector<double> data(data_T,data_T+num_elements);
-        std::cout<<conf.qoi<<std::endl;
+        std::cout<<"p4"<<std::endl;
        // const QoZ::uint N = conf.N;
-        std::cout<<conf.qoi<<std::endl;
         auto qoi = QoZ::GetQOI<double, 1>(conf);
+        std::cout<<"p5"<<std::endl;
 
        
         double max_qoi_diff = 0;
