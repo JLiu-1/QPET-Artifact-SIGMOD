@@ -123,7 +123,7 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize, bool t
     assert(N == conf.N);
     assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
     //QoZ::calAbsErrorBound(conf, data);
-
+    std::cout<<"ABSEB "<<conf.absErrorBound<<std::endl;
     char *cmpData;
 
     if(conf.qoi > 0 and !conf.use_global_eb){
@@ -163,7 +163,9 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize, bool t
 
 template<class T, QoZ::uint N>
 void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t cmpSize, T *decData) {
+
     QoZ::Config conf(theconf);
+    std::cout<<"ABSEB "<<conf.absErrorBound<<std::endl;
     assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
     QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
 
