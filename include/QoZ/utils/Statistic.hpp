@@ -577,6 +577,7 @@ namespace QoZ {
         std::vector<double> ori_data(ori_data_T,ori_data_T+num_elements);
         std::vector<double> data(data_T,data_T+num_elements);
        // const QoZ::uint N = conf.N;
+        std::cout<<conf.qoi<<std::endl;
         auto qoi = QoZ::GetQOI<double, 1>(conf);
 
        
