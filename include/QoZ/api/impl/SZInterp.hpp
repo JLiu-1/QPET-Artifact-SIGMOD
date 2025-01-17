@@ -2834,7 +2834,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
 
             }
             //std::cout<<best_lorenzo_ratio<<std::endl;
-            
+            /*
             if(!conf.use_global_eb){
                 //bool use_global_eb = conf.use_global_eb;
                 //for(auto cur_eb:{2*ori_eb,1.5*ori_eb,ori_eb,0.75*ori_eb,0.5*ori_eb}){
@@ -2853,11 +2853,11 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                     }
                     else{
                         //conf.absErrorBound = old_eb;
-                        conf.use_global_eb=false;
+                        conf.use_global_eb = false;
                     }
                 //}
                 //conf.use_global_eb = use_global_eb;
-            }
+            }*/
             
             conf.setDims(old_dims.begin(), old_dims.end());
             
