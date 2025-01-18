@@ -215,7 +215,7 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
             return [](double, double y_value) { /*std::cout<<"y="<<y_value<<std::endl;*/return y_value; };
         }
        
-        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)o r SymEngine::is_a<const Rational>(expr)) {
+        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr)) {
             double constant_value = eval_double(expr);
             return [constant_value](double, double) { /*std::cout<<"c="<<constant_value<<std::endl;*/return constant_value; };
         }
