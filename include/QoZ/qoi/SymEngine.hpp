@@ -161,12 +161,12 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             }
             //std::cout<<"add "<<args.size()<<std::endl;
             std::vector<std::function<double(double)> > fs;
-            double result = 0;
+            double constant_value = 0;
             for (size_t i = 0; i < args.size(); ++i) {
 
                 auto expr_arg = Expression(args[i]);
-                if(is_a<const RealDouble>(expr_arg) or SymEngine::is_a<const Integer>(expr_arg) or SymEngine::is_a<const Rational>(expr_arg)){
-                    result += eval_double(expr_arg);
+                if(is_number(expr_arg)){
+                    constant_value += eval_double(expr_arg);
                 }
                 else
                     fs.push_back(convert_expression_to_function(expr_arg, x));
@@ -174,7 +174,8 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
 
            // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-            return [fs,result](double x_value) {
+            return [fs,constant_value](double x_value) {
+                double result = constant_value;
                 for (auto &fnc:fs) {
                     result += fnc(x_value);
                 }
@@ -248,18 +249,18 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
 
             //std::cout<<"mul "<<args.size()<<std::endl;
             std::vector<std::function<double(double)> > fs;
-            double result = 1.0;
+            double constant_value = 1.0;
             for (size_t i = 0; i < args.size(); ++i) {
                 auto expr_arg = Expression(args[i]);
-                if(is_a<const RealDouble>(expr_arg) or SymEngine::is_a<const Integer>(expr_arg) or SymEngine::is_a<const Rational>(expr_arg)){
-                    result *= eval_double(expr_arg);
+                if(is_number(expr_arg) ){
+                    constant_value *= eval_double(expr_arg);
                 }
                 else
                 fs.push_back(convert_expression_to_function(Expression(args[i]), x));
             }
 
-            return [fs](double x_value) {
-                
+            return [fs,constant_value](double x_value) {
+                result = constant_value;
                 for (auto &fnc:fs) {
                     result *= fnc(x_value);
                 }
