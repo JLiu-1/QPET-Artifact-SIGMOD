@@ -43,7 +43,7 @@ using SymEngine::FiniteSet;
 
 //template<class T>
 
-inline bool is_number(const Basic &expr){
+inline bool is_number(const SymEngine::RCP<const SymEngine::Basic> & expr){
     return is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr);
 }
 inline int sign(double val){
