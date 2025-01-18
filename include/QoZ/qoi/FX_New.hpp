@@ -130,8 +130,8 @@ namespace QoZ {
             //double b = fabs(deri_2(data));
            // 
             T eb = eb_func(data);
-            std::cout<<data<<" "<<eb<<std::endl;
-            if(!std::isnan(eb) and !std::isinf(eb))
+            //std::cout<<data<<" "<<eb<<std::endl;
+            if(std::isnan(eb) or std::isinf(eb))
                 eb = global_eb;
 
              for (auto sg : singularities){
