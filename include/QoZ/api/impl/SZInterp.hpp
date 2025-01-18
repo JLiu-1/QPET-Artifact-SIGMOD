@@ -2801,7 +2801,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
         conf.ebs = std::move(ebs);
-        std::cout<<"Max eb: "<<*std::max_element(conf.ebs.begin(),conf.ebs.end());
+        //std::cout<<"Max eb: "<<*std::max_element(conf.ebs.begin(),conf.ebs.end());
         if(conf.qoi>0 and sampling_num != conf.num){
             auto old_dims=conf.dims;
             conf.setDims(sample_dims.begin(), sample_dims.end());
