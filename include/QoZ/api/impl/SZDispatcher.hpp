@@ -18,8 +18,8 @@ std::array<char *,3>SZ_compress_dispatcher(std::array<QoZ::Config,3> &confs, std
 
     std::array<char *,3> cmpData;
     
-    if (conf.cmprAlgo == QoZ::ALGO_LORENZO_REG) {
-        cmpData = (char *) SZ_compress_LorenzoReg_Vec<T, N>(confs, data, outSizes);
+    if (confs[0].cmprAlgo == QoZ::ALGO_LORENZO_REG) {
+        cmpData = SZ_compress_LorenzoReg_Vec<T, N>(confs, data, outSizes);
     } else
      if (confs[0].cmprAlgo == QoZ::ALGO_INTERP) {
         cmpData = SZ_compress_Interp<T, N>(confs, data, outSizes);
@@ -46,7 +46,7 @@ std::array<char *,3>SZ_compress_dispatcher(std::array<QoZ::Config,3> &confs, std
 template<class T, QoZ::uint N>
 void SZ_decompress_dispatcher(std::array<QoZ::Config,3> &confs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3> &decData) {
     
-    if (conf.cmprAlgo == QoZ::ALGO_LORENZO_REG) {
+    if (confs[0].cmprAlgo == QoZ::ALGO_LORENZO_REG) {
         SZ_decompress_LorenzoReg_Vec<T, N>(confs, cmpData, cmpSizes, decData);
     } else if (confs[0].cmprAlgo == QoZ::ALGO_INTERP) {
         SZ_decompress_Interp<T, N>(confs, cmpData, cmpSizes, decData);

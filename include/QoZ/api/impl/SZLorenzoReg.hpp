@@ -191,7 +191,7 @@ std::array<char *,3> SZ_compress_LorenzoReg_Vec(std::array<QoZ::Config,3> &confs
             //std::cout<<"Compress Data "<<i<<" with qoi interpolator"<<std::endl;
             qoi_used[i]=true;
 
-        cmpData[i] = SZ_compress_LorenzoReg(confs[i], data[i], outSizes[i]);
+        cmpData[i] = SZ_compress_LorenzoReg<T,N>(confs[i], data[i], outSizes[i]);
 
         confs[i].ebs.clear();
         confs[i].ebs.shrink_to_fit();
@@ -371,7 +371,7 @@ void SZ_decompress_LorenzoReg_Vec(const std::array<QoZ::Config ,3>&confs, std::a
             
 
         }   
-        SZ_decompress_LorenzoReg(confs[i], cmpData[i], cmpSize, decData[i]) 
+        SZ_decompress_LorenzoReg<T,N>(confs[i], cmpData[i], cmpSize, decData[i]);
         if (offset_size!=0){
             for(size_t j=0;j<confs[i].num;j++)
                 decData[i][j]+=offset_data[j];

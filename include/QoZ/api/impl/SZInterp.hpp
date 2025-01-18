@@ -2058,10 +2058,10 @@ std::pair<double,double>  Tuning(QoZ::Config &conf, T *data){
                 std::cout << "interp best interpAlgo = " << (conf.interpMeta.interpAlgo == 0 ? "LINEAR" : "CUBIC") << std::endl;
                 
             int direction_op = QoZ::factorial(N) - 1;
-            double ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
+            ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
                                                                          conf.interpMeta.interpAlgo, direction_op, sampling_block);
             if (ratio > best_interp_cr * 1.02) {
-                best_interp_cr= ratio;
+                best_interp_cr = ratio;
                 conf.interpMeta.interpDirection = direction_op;
             }
             useInterp=!(best_lorenzo_ratio > best_interp_cr && best_lorenzo_ratio < 80 && best_interp_cr < 80);
@@ -2401,7 +2401,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
         }
 
         useInterp=!(overall_lorenzo_cr > overall_interp_cr && overall_lorenzo_cr < 80 && overall_interp_cr < 80);
-        if(conf.verbose){
+        if(confs[0].verbose){
             printf("choose %s\n", useInterp ? "interp" : "Lorenzo");
         }
         
@@ -2453,7 +2453,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
             lorenzo_config.openmp = false;
             lorenzo_config.blockSize = 5;//why?
             lorenzo_config.qoi = 0;
-            if (sampling_num != conf.num) {
+            if (sampling_num != confs[i].num) {
                 lorenzo_config.setDims(sample_dims.begin(), sample_dims.end());
            
             //lorenzo_config.quantbinCnt = 65536 * 2;
