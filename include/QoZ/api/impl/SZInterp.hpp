@@ -2818,9 +2818,9 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             //auto eb = conf.absErrorBound;
             //std::cout<<"refixing eb"<<std::endl;
             auto ori_eb = conf.absErrorBound;
-            //std::cout<<best_lorenzo_ratio<<std::endl;
+            std::cout<<best_lorenzo_ratio<<std::endl;
 
-            for(auto cur_eb:{1.5*ori_eb,1.25*ori_eb,0.75*ori_eb,0.5*ori_eb}){
+            for(auto cur_eb:{2.0*ori_eb,1.5*ori_eb,0.75*ori_eb,0.5*ori_eb}){
                 tempdata = sampling_data;
                 auto last_eb = conf.absErrorBound;
                 conf.absErrorBound = cur_eb;
@@ -2844,7 +2844,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }
             //std::cout<<conf.absErrorBound<<std::endl;
             
-            /*if(!conf.use_global_eb){
+            if(!conf.use_global_eb){
                 //bool use_global_eb = conf.use_global_eb;
                 //for(auto cur_eb:{2*ori_eb,1.5*ori_eb,ori_eb,0.75*ori_eb,0.5*ori_eb}){
                     //auto old_eb = conf.absErrorBound;
@@ -2866,7 +2866,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                     }
                 //}
                 //conf.use_global_eb = use_global_eb;
-            }*/
+            }
             //conf.qoiEBBase = conf.absErrorBound/1030;
             conf.setDims(old_dims.begin(), old_dims.end());
 
