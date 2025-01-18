@@ -131,8 +131,8 @@ namespace QoZ {
             
 
             //double a = const_d1 ? d1 : fabs(deri_1(data));//datatype may be T
-            //double a = 2*data;
-           // double b = 2.0;
+            double a = 2*data;
+            double b = 2.0;
           // double b = const_d2 ? d2 : fabs(deri_2(data));
            // 
             T eb;
