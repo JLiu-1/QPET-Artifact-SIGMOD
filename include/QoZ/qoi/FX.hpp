@@ -35,7 +35,7 @@ using SymEngine::RCP;
 using SymEngine::Basic;
 using SymEngine::real_double;
 using SymEngine::eval_double;
-
+using SymEngine::eval_double;
 
 using SymEngine::solve;
 using SymEngine::rcp_static_cast;
@@ -45,7 +45,7 @@ using SymEngine::Log;
 using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
-
+using SymEngine::is_a;
 
 namespace QoZ {
     template<class T, uint N>
@@ -84,8 +84,23 @@ namespace QoZ {
             //std::cout<<"ddf: "<< ddf<<std::endl;
   
             func = convert_expression_to_function(f, x);
-            deri_1 = convert_expression_to_function(df, x);
-            deri_2 = convert_expression_to_function(ddf, x);
+
+            if (is_a<const RealDouble>(df) or SymEngine::is_a<const Integer>(df) or SymEngine::is_a<const Rational>(df) ){
+                const_d1 = true;
+                d1 = eval_double(df);
+                const_d2 = true;
+                d2 = 0;
+            }
+            else{
+                deri_1 = convert_expression_to_function(df, x);
+                
+                if (is_a<const RealDouble>(ddf) or SymEngine::is_a<const Integer>(ddf) or SymEngine::is_a<const Rational>(ddf) ){
+                    const_d2 = true;
+                    d2 = eval_double(df);
+                }
+                else
+                    deri_2 = convert_expression_to_function(ddf, x);
+            }
 
             //std::cout<<"x: "<<1<<" f(x): "<<func(1)<<std::endl;
             //std::cout<<"x: "<<2<<" f(x): "<<func(2)<<std::endl;
@@ -113,8 +128,8 @@ namespace QoZ {
         T interpret_eb(T data) const {
             
 
-            double a = fabs(deri_1(data));//datatype may be T
-            double b = fabs(deri_2(data));
+            double a = const_d1 ? d1 : fabs(deri_1(data));//datatype may be T
+            double b = const_d2 ? d2 : fabs(deri_2(data));
            // 
             T eb;
             if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >=1e-10 )
@@ -201,7 +216,8 @@ namespace QoZ {
         std::function<double(double)> deri_2;
         std::set<double>singularities;
         std::string func_string;
-
+        bool const_d1=false, const_d2 = false;
+        double d1=0.0,d2=0.0;
         double threshold;
         bool isolated;
      
