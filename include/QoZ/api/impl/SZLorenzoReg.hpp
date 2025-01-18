@@ -132,7 +132,8 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize, bool t
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
         auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
-        auto qoi = QoZ::GetQOI<T, N>(conf);
+        //auto qoi = QoZ::GetQOI<T, N>({conf,conf,conf});
+        auto qoi = nullptr;
         if(conf.qoi == 3){
             conf.blockSize = conf.qoiRegionSize;
         }
@@ -326,7 +327,8 @@ void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t 
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
         auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
         auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
-        auto qoi = QoZ::GetQOI<T, N>(conf);
+        //auto qoi = QoZ::GetQOI<T, N>(conf);
+        auto qoi = nullptr;
         auto sz = make_qoi_lorenzo_compressor(conf, qoi, quantizer, quantizer_eb);
         sz->decompress(cmpDataPos, cmpSize, decData);
         return;
