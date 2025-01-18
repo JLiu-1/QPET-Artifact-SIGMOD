@@ -89,7 +89,7 @@ namespace QoZ {
             if (free_symbols(df).empty() ){
                 //std::cout<<"df: "<<df<<std::endl;
                 const_d1 = true;
-                d1 = eval_double(df);
+                d1 = fabs(eval_double(df));
                 const_d2 = true;
                 d2 = 0;
             }
@@ -98,7 +98,7 @@ namespace QoZ {
                 
                 if (free_symbols(ddf).empty() ){
                     const_d2 = true;
-                    d2 = eval_double(ddf);
+                    d2 = fabs(eval_double(ddf));
                 }
                 else
                     deri_2 = convert_expression_to_function(ddf, x);
@@ -132,16 +132,18 @@ namespace QoZ {
 
             double a = const_d1 ? d1 : fabs(deri_1(data));//datatype may be T
             //double a = 2*data;
-            //double b = 2.0;
+           // double b = 2.0;
            double b = const_d2 ? d2 : fabs(deri_2(data));
            // 
             T eb;
-            //if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >=1e-10 )
-                eb = (sqrt(a*a+2*b*tolerance)-a)/b;
-           // else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
-            //    eb = tolerance/a;
-            //else 
-            //    eb = global_eb;
+            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >=1e-10 ){
+                eb = sqrt(data*data+tolerance)-fabs(data);
+                //eb = (sqrt(a*a+2*b*tolerance)-a)/b;
+            }
+            else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
+                eb = tolerance/a;
+            else 
+                eb = global_eb;
 
              for (auto sg : singularities){
                 T diff = fabs(data-sg);
