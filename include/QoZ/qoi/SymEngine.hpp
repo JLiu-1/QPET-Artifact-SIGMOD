@@ -42,6 +42,15 @@ using SymEngine::is_a;
 using SymEngine::FiniteSet;
 
 //template<class T>
+
+inline bool is_number(const Basic & expr){
+    return is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr);
+}
+
+inline int sign(double val){
+    return (val > 0) - (0 > val);
+}
+
 inline std::function<double(double)> convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
         //std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
         // x
@@ -49,7 +58,7 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             return [](double x_value) { return x_value; };
         }
         // c
-        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr)) {
+        else if (is_number(expr)) {
             double constant_value = eval_double(expr);
             return [constant_value](double) { return constant_value; };
         }
@@ -63,7 +72,16 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
         }
         //abs
         else if ( is_a<SymEngine::Abs>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = std::abs(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return std::abs(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
                 return std::abs(arg(x_value));
             };
@@ -80,17 +98,84 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
         // +
         else if (is_a<SymEngine::Add>(expr)) {
             auto args = expr.get_args();
+
+            if(args.size()==2){
+                auto expr_arg1 = Expression(args[0]);
+                auto expr_arg2 = Expression(args[1]);
+                if(is_number(expr_arg1)){
+                    if(is_number(expr_arg2)){
+                        double constant_value = eval_double(expr_arg1)+eval_double(expr_arg2);
+                        return [constant_value](double) { return constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        double constant_value = eval_double(expr_arg1);
+                        return [constant_value](double x_value) {
+                            return x_value+constant_value;
+                        };
+                    }
+                    else{
+                        double constant_value = eval_double(expr_arg1);
+                        auto f = convert_expression_to_function(expr_arg2, x);
+                        return [f,constant_value](double x_value) {
+                            return f(x_value)+constant_value;
+                        };
+                    }
+                }
+                else if (is_a<const SymEngine::Symbol>(expr_arg1)){
+                    if(is_number(expr_arg2)){
+                        double constant_value = eval_double(expr_arg2);
+                        return [constant_value](double x_value) { return x_value+constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        return [](double x_value) {
+                            return x_value+x_value;
+                        };
+                    }
+                    else{
+                        auto f = convert_expression_to_function(expr_arg2, x);
+                        return [f](double x_value) {
+                            return f(x_value)+x_value;
+                        };
+                    }
+                }
+                else{
+                    auto f = convert_expression_to_function(expr_arg1, x);
+                    if(is_number(expr_arg2)){
+
+                        double constant_value = eval_double(expr_arg2);
+                        return [f,constant_value](double x_value) { return f(x_value)+constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        return [f](double x_value) {
+                            return f(x_value)+x_value;
+                        };
+                    }
+                    else{
+                        auto f2 = convert_expression_to_function(expr_arg2, x);
+                        return [f,f2](double x_value) {
+                            return f(x_value)+f2(x_value);
+                        };
+                    }
+
+                }
+            }
             //std::cout<<"add "<<args.size()<<std::endl;
             std::vector<std::function<double(double)> > fs;
+            double constant_value = 0;
             for (size_t i = 0; i < args.size(); ++i) {
 
-                fs.push_back(convert_expression_to_function(Expression(args[i]), x));
+                auto expr_arg = Expression(args[i]);
+                if(is_number(expr_arg)){
+                    constant_value += eval_double(expr_arg);
+                }
+                else
+                    fs.push_back(convert_expression_to_function(expr_arg, x));
             }
 
            // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
 
-            return [fs](double x_value) {
-                double result = 0;
+            return [fs,constant_value](double x_value) {
+                double result = constant_value;
                 for (auto &fnc:fs) {
                     result += fnc(x_value);
                 }
@@ -99,13 +184,127 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
         }
         else if (is_a<SymEngine::Mul>(expr)) {
             auto args = expr.get_args();
+
+            if(args.size()==2){
+                auto expr_arg1 = Expression(args[0]);
+                auto expr_arg2 = Expression(args[1]);
+                if(is_number(expr_arg1)){
+                    if(is_number(expr_arg2)){
+                        double constant_value = eval_double(expr_arg1)*eval_double(expr_arg2);
+                        return [constant_value](double) { return constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        double constant_value = eval_double(expr_arg1);
+                        if(constant_value == 1.0){
+                            return [](double x_value){
+                                return x_value;
+                            };
+                        }
+                        else if(constant_value == 2.0){
+                            return [](double x_value){
+                                return 2.0*x_value;
+                            };
+                        }
+                        else if(constant_value == 3.0){
+                            return [](double x_value){
+                                return 3.0*x_value;
+                            };
+                        }
+                        else if(constant_value == 0.5){
+                            return [](double x_value){
+                                return 0.5*x_value;
+                            };
+                        }
+
+                        return [constant_value](double x_value) {
+                            return x_value*constant_value;
+                        };
+                    }
+                    else{
+                        double constant_value = eval_double(expr_arg1);
+                        auto f = convert_expression_to_function(expr_arg2, x);
+                        return [f,constant_value](double x_value) {
+                            return f(x_value)*constant_value;
+                        };
+                    }
+                }
+                else if (is_a<const SymEngine::Symbol>(expr_arg1)){
+                    if(is_number(expr_arg2)){
+                        double constant_value = eval_double(expr_arg2);
+                        /*
+                        if(constant_value == 1.0){
+                            return [](double x_value){
+                                return x_value;
+                            };
+                        }
+                        else if(constant_value == 2.0){
+                            return [](double x_value){
+                                return 2.0*x_value;
+                            };
+                        }
+                        else if(constant_value == 3.0){
+                            return [](double x_value){
+                                return 3.0*x_value;
+                            };
+                        }
+                        else if(constant_value == 0.5){
+                            return [](double x_value){
+                                return 0.5*x_value;
+                            };
+                        }*/
+
+
+                        return [constant_value](double x_value) { return x_value*constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        return [](double x_value) {
+                            return x_value*x_value;
+                        };
+                    }
+                    else{
+                        auto f = convert_expression_to_function(expr_arg2, x);
+                        return [f](double x_value) {
+                            return f(x_value)*x_value;
+                        };
+                    }
+                }
+                else{
+                    auto f = convert_expression_to_function(expr_arg1, x);
+                    if(is_number(expr_arg2)){
+
+                        double constant_value = eval_double(expr_arg2);
+                        return [f,constant_value](double x_value) { return f(x_value)*constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        return [f](double x_value) {
+                            return f(x_value)*x_value;
+                        };
+                    }
+                    else{
+                        auto f2 = convert_expression_to_function(expr_arg2, x);
+                        return [f,f2](double x_value) {
+                            return f(x_value)*f2(x_value);
+                        };
+                    }
+
+                }
+            }
+
+
             //std::cout<<"mul "<<args.size()<<std::endl;
             std::vector<std::function<double(double)> > fs;
-            for (size_t i = 0; i < args.size(); ++i) 
+            double constant_value = 1.0;
+            for (size_t i = 0; i < args.size(); ++i) {
+                auto expr_arg = Expression(args[i]);
+                if(is_number(expr_arg) ){
+                    constant_value *= eval_double(expr_arg);
+                }
+                else
                 fs.push_back(convert_expression_to_function(Expression(args[i]), x));
+            }
 
-            return [ fs](double x_value) {
-                double result = 1.0;
+            return [fs,constant_value](double x_value) {
+                double result = constant_value;
                 for (auto &fnc:fs) {
                     result *= fnc(x_value);
                 }
@@ -125,76 +324,280 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
         // pow
         else if (is_a<SymEngine::Pow>(expr)) {
             auto args = expr.get_args();
+
+            auto expr_arg1 = Expression(args[0]);
+            auto expr_arg2 = Expression(args[1]);
+            if(is_number(expr_arg1)){
+                if(is_number(expr_arg2)){
+                    double constant_value = std::pow(eval_double(expr_arg1),eval_double(expr_arg2));
+                    return [constant_value](double) { return constant_value; };
+                }
+                else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                    double constant_value = eval_double(expr_arg1);
+                    return [constant_value](double x_value) {
+                        return std::pow(constant_value,x_value);
+                    };
+                }
+                else{
+                    double constant_value = eval_double(expr_arg1);
+                    auto f = convert_expression_to_function(expr_arg2, x);
+                    return [f,constant_value](double x_value) {
+                        return std::pow(constant_value,f(x_value));
+                    };
+                }
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg1)){
+                if(is_number(expr_arg2)){
+                    double constant_value = eval_double(expr_arg2);
+                    if (constant_value == 1.0 )
+                        return [](double x_value){return x_value;};
+                    if (constant_value == 2.0 )
+                        return [](double x_value){return x_value*x_value;};
+                    else if (constant_value == 3.0 )
+                        return [](double x_value){return x_value*x_value*x_value;};
+                    else if (constant_value == 4.0 )
+                        return [](double x_value){auto a = x_value*x_value; return a*a;};
+                    else if (constant_value == 0.5 )
+                        return [](double x_value){return sqrt(x_value);};
+                    else
+                        return [constant_value](double x_value) { return std::pow(x_value,constant_value); };
+                }
+                else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                    return [](double x_value) {
+                        return std::pow(x_value,x_value);
+                    };
+                }
+                else{
+                    auto f = convert_expression_to_function(expr_arg2, x);
+                    return [f](double x_value) {
+                        return std::pow(x_value,f(x_value));
+                    };
+                }
+            }
+            else{
+                auto f = convert_expression_to_function(expr_arg1, x);
+                if(is_number(expr_arg2)){
+
+                    double constant_value = eval_double(expr_arg2);
+                    return [f,constant_value](double x_value) { return std::pow(f(x_value),constant_value); };
+                }
+                else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                    return [f](double x_value) {
+                        return std::pow(f(x_value),x_value);
+                    };
+                }
+                else{
+                    auto f2 = convert_expression_to_function(expr_arg2, x);
+                    return [f,f2](double x_value) {
+                        return std::pow(f(x_value),f2(x_value));
+                    };
+                }
+
+            }
+
+
+
+            /*
             auto base = convert_expression_to_function(Expression(args[0]), x);
             auto exponent = convert_expression_to_function(Expression(args[1]), x);
             return [base, exponent](double x_value) {
                 return std::pow(base(x_value), exponent(x_value));
-            };
+            };*/
         }
         // sin
         else if (is_a<SymEngine::Sin>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = std::sin(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return std::sin(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
                 return std::sin(arg(x_value));
             };
+
         }
         // cos
         else if (is_a<SymEngine::Cos>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = std::cos(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return std::cos(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
                 return std::cos(arg(x_value));
             };
         }
 
         else if (is_a<SymEngine::Tan>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = std::tan(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return std::tan(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
                 return std::tan(arg(x_value));
             };
         }
 
         else if (is_a<SymEngine::Sinh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = std::sinh(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return std::sinh(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
                 return std::sinh(arg(x_value));
             };
         }
         // cos
         else if (is_a<SymEngine::Cosh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = std::cosh(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return std::cosh(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
                 return std::cosh(arg(x_value));
-            };
+           };
+        
         }
 
         else if (is_a<SymEngine::Tanh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = std::tanh(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return std::tanh(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
                 return std::tanh(arg(x_value));
-            };
+           };
         }
 
         else if (is_a<SymEngine::Sign>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            auto expr_arg = Expression(expr.get_args()[0]);
+
+            if(is_number(expr_arg)){
+                double constant_value = sign(eval_double(expr_arg));
+                return [constant_value](double) { return constant_value; };
+            }
+            else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                return [](double x_value) { return sign(x_value); };
+            }
+            auto arg = convert_expression_to_function(expr_arg, x);
             return [arg](double x_value) {
-                auto value = arg(x_value);
-                return (value > 0) - (0 > value);
-            };
+                return sign(arg(x_value));
+           };
+
         }
         //  log
         else if (is_a<SymEngine::Log>(expr)) {
             auto args = expr.get_args();
-            auto arg = convert_expression_to_function(Expression(args[0]), x);
+            //auto arg = convert_expression_to_function(Expression(args[0]), x);
 
             if (args.size() == 2) { // base log
-                auto base = convert_expression_to_function(Expression(args[1]), x);
-                return [arg, base](double x_value) {
-                    return std::log(arg(x_value)) / std::log(base(x_value));
-                };
+                auto expr_arg1 = Expression(args[0]);
+                auto expr_arg2 = Expression(args[1]);
+                if(is_number(expr_arg1)){
+                    if(is_number(expr_arg2)){
+                        double constant_value = std::log(eval_double(expr_arg1))/std::log(eval_double(expr_arg2));
+                        return [constant_value](double) { return constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        double constant_value = std::log(eval_double(expr_arg1));
+                        return [constant_value](double x_value) {
+                            return constant_value/std::log(x_value);
+                        };
+                    }
+                    else{
+                        double constant_value = eval_double(expr_arg1);
+                        auto f = convert_expression_to_function(expr_arg2, x);
+                        return [f,constant_value](double x_value) {
+                            return std::log(constant_value)/std::log(f(x_value));
+                        };
+                    }
+                }
+                else if (is_a<const SymEngine::Symbol>(expr_arg1)){
+                    if(is_number(expr_arg2)){
+                        double constant_value = 1.0/std::log(eval_double(expr_arg2));
+                        return [constant_value](double x_value) { return std::log(x_value)*constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        return [](double x_value) {
+                            return 1.0;
+                        };
+                    }
+                    else{
+                        auto f = convert_expression_to_function(expr_arg2, x);
+                        return [f](double x_value) {
+                            return std::log(x_value)/std::log(f(x_value));
+                        };
+                    }
+                }
+                else{
+                    auto f = convert_expression_to_function(expr_arg1, x);
+                    if(is_number(expr_arg2)){
+
+                        double constant_value = 1.0/std::log(eval_double(expr_arg2));
+                        return [f,constant_value](double x_value) { return std::log(f(x_value))*constant_value; };
+                    }
+                    else if(is_a<const SymEngine::Symbol>(expr_arg2)){
+                        return [f](double x_value) {
+                            return std::log(f(x_value))/std::log(x_value);
+                        };
+                    }
+                    else{
+                        auto f2 = convert_expression_to_function(expr_arg2, x);
+                        return [f,f2](double x_value) {
+                            return std::log(f(x_value))/std::log(f2(x_value));
+                        };
+                    }
+
+                }
             } else { // ln
+                auto expr_arg = Expression(args[0]);
+
+                if(is_number(expr_arg)){
+                    double constant_value = std::log(eval_double(expr_arg));
+                    return [constant_value](double) { return constant_value; };
+                }
+                else if (is_a<const SymEngine::Symbol>(expr_arg)) {
+                    return [](double x_value) { return std::log(x_value); };
+                }
+                auto arg = convert_expression_to_function(expr_arg, x);
                 return [arg](double x_value) {
                     return std::log(arg(x_value));
-                };
+               };
             }
         }
 
