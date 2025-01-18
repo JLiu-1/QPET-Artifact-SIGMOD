@@ -144,11 +144,11 @@ namespace QoZ {
                 eb = tolerance/a;
             else 
                 eb = global_eb;
-
+                /*
              for (auto sg : singularities){
                 T diff = fabs(data-sg);
                 eb = std::min(diff,eb);
-             }
+             }*/
              //if(eb==0)
              //   eb = global_eb;
            // std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
