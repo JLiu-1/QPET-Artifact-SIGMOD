@@ -86,7 +86,7 @@ namespace QoZ {
 
            //Expression y = Symbol("y");
 
-            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,Expression(2)),Mul(Expression(2*tolerance),Abs(ddf)))),Expression(0.5)),Mul(Abs(df),Expression(-1)) ), Pow(Abs(ddf),Expression(-1)) ));
+            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,Expression(2)),Mul(Expression(2*tolerance),Expression(Abs(ddf))))),Expression(0.5)),Mul(Expression(Abs(df)),Expression(-1)) ), Pow(Expression(Abs(ddf)),Expression(-1)) ));
             //auto eb_expression = Symbol("x");
             std::cout<<eb_expression <<std::endl;
             eb_expression = simplify(eb_expression);
@@ -212,7 +212,7 @@ namespace QoZ {
             //ddf = diff(df,x);
             ddf = df.diff(x);
 
-            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,Expression(2)),Mul(Expression(2*tolerance),Abs(ddf)))),Expression(0.5)),Mul(Abs(df),Expression(-1)) ), Pow(Abs(ddf),Expression(-1)) ));
+            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,Expression(2)),Mul(Expression(2*tolerance),Expression(Abs(ddf))))),Expression(0.5)),Mul(Expression(Abs(df)),Expression(-1)) ), Pow(Expression(Abs(ddf)),Expression(-1)) ));
             eb_expression = simplify(eb_expression);
 
             std::cout<<eb_expression <<std::endl;
