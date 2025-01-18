@@ -19,6 +19,7 @@
 #include <symengine/eval.h> 
 #include <symengine/solve.h>
 #include <symengine/functions.h>
+#include <symengine/free_symbols.h>
 #include <set>
 
 using SymEngine::Expression;
@@ -45,7 +46,7 @@ using SymEngine::Log;
 using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
-using SymEngine::is_a;
+using SymEngine::free_symbols;
 
 namespace QoZ {
     template<class T, uint N>
@@ -85,7 +86,7 @@ namespace QoZ {
   
             func = convert_expression_to_function(f, x);
 
-            if (is_a<const RealDouble>(df) or SymEngine::is_a<const Integer>(df) or SymEngine::is_a<const Rational>(df) ){
+            if (free_symbols(df).empty() ){
                 const_d1 = true;
                 d1 = eval_double(df);
                 const_d2 = true;
@@ -94,7 +95,7 @@ namespace QoZ {
             else{
                 deri_1 = convert_expression_to_function(df, x);
                 
-                if (is_a<const RealDouble>(ddf) or SymEngine::is_a<const Integer>(ddf) or SymEngine::is_a<const Rational>(ddf) ){
+                if (free_symbols(ddf).empty() ){
                     const_d2 = true;
                     d2 = eval_double(df);
                 }
