@@ -87,6 +87,7 @@ namespace QoZ {
             func = convert_expression_to_function(f, x);
 
             if (free_symbols(df).empty() ){
+                //std::cout<<"df: "<<df<<std::endl;
                 const_d1 = true;
                 d1 = eval_double(df);
                 const_d2 = true;
@@ -97,7 +98,7 @@ namespace QoZ {
                 
                 if (free_symbols(ddf).empty() ){
                     const_d2 = true;
-                    d2 = eval_double(df);
+                    d2 = eval_double(ddf);
                 }
                 else
                     deri_2 = convert_expression_to_function(ddf, x);
