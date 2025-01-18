@@ -230,13 +230,14 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
                 return std::abs(arg(x_value, y_value));
             };
         }
-
+        /*
         else if ( is_a<SymEngine::neg>(expr)) {
             auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x,y);
             return [arg](double x_value, double y_value) {
                 return -arg(x_value, y_value);
             };
         }
+        */
 
 
        
