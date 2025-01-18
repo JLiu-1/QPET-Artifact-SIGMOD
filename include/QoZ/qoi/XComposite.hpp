@@ -81,7 +81,7 @@ namespace QoZ {
                         break;
                     }
                     case 15:{
-                        std::string func_string_2;
+                        std::string func_string,func_string_2;
                         iss>>func_string>>func_string_2;
                         QoIs.push_back(std::make_shared<QoZ::QoI_FX_P<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),func_string,func_string_2));
                         break;
