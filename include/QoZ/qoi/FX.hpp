@@ -19,7 +19,7 @@
 #include <symengine/eval.h> 
 #include <symengine/solve.h>
 #include <symengine/functions.h>
-#include <symengine/free_symbols.h>
+#include <symengine/visitor.h>
 #include <set>
 
 using SymEngine::Expression;
