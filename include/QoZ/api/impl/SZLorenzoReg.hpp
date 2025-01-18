@@ -160,12 +160,163 @@ char *SZ_compress_LorenzoReg(QoZ::Config &conf, T *data, size_t &outSize, bool t
     return cmpData;
 }
 
+template<class T, QoZ::uint N>
+std::array<char *,3> SZ_compress_LorenzoReg_Vec(std::array<QoZ::Config,3> &confs, std::array<T *,3>&data, std::array<size_t,3> &outSizes, bool tuning=false) {
+
+    assert(N == confs[0].N and N == confs[1].N and N == confs[2].N);
+    assert(confs[0].cmprAlgo == QoZ::ALGO_LORENZO_REG and confs[1].cmprAlgo == QoZ::ALGO_LORENZO_REG and confs[2].cmprAlgo == QoZ::ALGO_LORENZO_REG);
+    //QoZ::calAbsErrorBound(conf, data);
+    //std::cout<<"ABSEB "<<conf.absErrorBound<<std::endl;
+    std::array<char *,3>cmpData;
+    std::array<std::vector<T>,3> ori_data;
+    int ori_qoi = 0;
+    if(confs[0].qoi>0){
+        ori_qoi = confs[0].qoi;
+
+        if(confs[0].qoiRegionMode==0){
+            for (auto i:{0,1,2})
+                ori_data[i]=std::vector(data[i],data[i]+confs[i].num);
+        }
+        //if(!confs[0].qoi_tuned)
+        
+        //   QoI_tuning<T,N>(confs, data);
+    }
+
+    std::array<bool,3>qoi_used = {false,false,false};
+    for (auto i:{0,1,2}){
+        //std::cout<<confs[i].qoi<<" "<<confs[i].use_global_eb<<std::endl;
+        if (confs[i].qoi>0)
+            confs[i].qoi = 99;//empty qoi;
+        if ( confs[i].qoi>0 and !confs[i].use_global_eb)
+            //std::cout<<"Compress Data "<<i<<" with qoi interpolator"<<std::endl;
+            qoi_used[i]=true;
+
+        cmpData[i] = SZ_compress_LorenzoReg(confs[i], data[i], outSizes[i]);
+
+        confs[i].ebs.clear();
+        confs[i].ebs.shrink_to_fit();
+    }
+
+
+    if(ori_qoi>0 and confs[0].qoiRegionMode==0){
+        int conf_ori_qoi = confs[0].qoi;
+        confs[0].qoi = ori_qoi;
+        auto qoi = QoZ::GetQOI<T, N>(confs);//todo: avoid duplicated initialization.
+        confs[0].qoi = conf_ori_qoi;
+        
+        
+        for(size_t i=0;i<confs[0].num;i++){
+
+            if (qoi->check_compliance(ori_data[0][i],ori_data[1][i],ori_data[2][i],data[0][i],data[1][i],data[2][i])){
+                for (auto j:{0,1,2})
+                    ori_data[j][i]=0;
+            }
+            else{
+                for (auto j:{0,1,2}){
+                    T offset = ori_data[j][i]-data[j][i];
+                    data[j][i] = ori_data[j][i];
+                    ori_data[j][i]=offset;
+                }
+            }
+        }
+
+        auto zstd = QoZ::Lossless_zstd();
+        
+        for (auto i:{0,1,2}){
+            QoZ::uchar *lossless_data = zstd.compress(reinterpret_cast< QoZ::uchar *>(ori_data[i].data()),
+                                                         confs[i].num*sizeof(T),
+                                                         offset_size);
+            ori_data[i].clear();
+            size_t newSize = outSizes[i] + offset_size + QoZ::Config::size_est()  + 100;
+            char * newcmpData = new char[newSize];
+            memcpy(newcmpData,cmpData[i],outSizes[i]);
+            delete [] cmpData[i];
+            memcpy(newcmpData+outSizes[i],lossless_data,offset_size);
+            
+            outSizes[i]+=offset_size;
+            //std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
+            delete []lossless_data;
+            //lossless_data = NULL;
+            memcpy(newcmpData+outSizes[i],&offset_size,sizeof(size_t));
+            //
+            outSizes[i]+=sizeof(size_t);
+
+            cmpData[i] = newcmpData;
+
+
+
+
+
+          //  std::cout<<offset_size<<" "<<outSizes[i]<<std::endl;
+
+
+
+            
+        }
+    }
+    else{
+        offset_size=0;
+        for(auto i:{0,1,2}){
+            memcpy(cmpData[i]+outSizes[i],&offset_size,sizeof(size_t));
+            outSizes[i]+=sizeof(size_t);
+        }
+
+    }
+
+    for (auto i:{0,1,2}){
+        if (!qoi_used[i])
+            confs[i].qoi = 0;
+    }
+
+    /*
+
+
+    if(conf.qoi > 0 and !conf.use_global_eb){
+        //std::cout << "absErrorBound = " << conf.absErrorBound << std::endl;
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
+        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
+        auto qoi = QoZ::GetQOI<T, N>(conf);
+        if(conf.qoi == 3){
+            conf.blockSize = conf.qoiRegionSize;
+        }
+        //std::cout<<"1"<<std::e
+        auto sz = make_qoi_lorenzo_compressor(conf, qoi, quantizer, quantizer_eb);
+        cmpData = (char *) sz->compress(conf, data, outSize);
+        return cmpData;
+    }
+
+    confs[i].ebs.clear();
+    confs[i].ebs.shrink_to_fit();
+
+
+    auto quantizer = QoZ::LinearQuantizer<T>(conf.absErrorBound, conf.quantbinCnt / 2);
+
+    if (N == 3 and !conf.regression2 and conf.qoi==0) {
+        // use fast version for 3D
+        auto sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_fast_frontend<T, N>(conf, quantizer), QoZ::HuffmanEncoder<int>(),
+                                                       QoZ::Lossless_zstd());
+        cmpData = (char *) sz->compress(conf, data, outSize);
+    } else {
+        auto sz = make_lorenzo_regression_compressor<T, N>(conf, quantizer, QoZ::HuffmanEncoder<int>(), QoZ::Lossless_zstd());
+        //std::cout<<"lor1"<<std::endl;
+        cmpData = (char *) sz->compress(conf, data, outSize);
+        if(conf.qoi>0 and !tuning)
+            conf.qoi = 99;
+    }*/
+    
+    return cmpData;
+}
+
+
 
 template<class T, QoZ::uint N>
 void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t cmpSize, T *decData) {
 
+    assert(theconf.cmprAlgo == QoZ::ALGO_LORENZO_REG)
+
     QoZ::Config conf(theconf);
-    std::cout<<"ABSEB "<<conf.absErrorBound<<std::endl;
+   // std::cout<<"ABSEB "<<conf.absErrorBound<<std::endl;
     assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
     QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
 
@@ -194,11 +345,42 @@ void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t 
         sz->decompress(cmpDataPos, cmpSize, decData);
        
     }
-    
-    
+
+}
+
+template<class T, QoZ::uint N>
+void SZ_decompress_LorenzoReg(const std::array<QoZ::Config ,3>&theconfs, std::array<char *,3> &cmpData, std::array<size_t,3> &cmpSizes, std::array<T *,3>&decData) {
+    assert(confs[0].cmprAlgo == QoZ::ALGO_LORENZO_REG and confs[1].cmprAlgo == QoZ::ALGO_LORENZO_REG and confs[2].cmprAlgo == QoZ::ALGO_LORENZO_REG);
+    QoZ::Config conf(theconf);
+    //std::cout<<"ABSEB "<<conf.absErrorBound<<std::endl;
+    assert(conf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
+    QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData;
+
+    if(conf.qoi > 0 and conf.qoi != 99){
+        //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << " " << conf.qoiRegionSize << std::endl;
+        auto quantizer = QoZ::VariableEBLinearQuantizer<T, T>(conf.quantbinCnt / 2);
+        auto quantizer_eb = QoZ::EBLogQuantizer<T>(conf.qoiEBBase, conf.qoiEBLogBase, conf.qoiQuantbinCnt / 2, conf.absErrorBound);
+        auto qoi = QoZ::GetQOI<T, N>(conf);
+        auto sz = make_qoi_lorenzo_compressor(conf, qoi, quantizer, quantizer_eb);
+        sz->decompress(cmpDataPos, cmpSize, decData);
+        return;
+    }  
 
 
-
+    QoZ::LinearQuantizer<T> quantizer;
+  
+        
+    if (N == 3 and !conf.regression2 and conf.qoi !=99) {
+        // use fast version for 3D
+        auto sz = QoZ::make_sz_general_compressor<T, N>(QoZ::make_sz_fast_frontend<T, N>(conf, quantizer),
+                                                       QoZ::HuffmanEncoder<int>(), QoZ::Lossless_zstd());
+        sz->decompress(cmpDataPos, cmpSize, decData);
+       
+    } else {
+        auto sz = make_lorenzo_regression_compressor<T, N>(conf, quantizer, QoZ::HuffmanEncoder<int>(), QoZ::Lossless_zstd());
+        sz->decompress(cmpDataPos, cmpSize, decData);
+       
+    }
 
 }
 
