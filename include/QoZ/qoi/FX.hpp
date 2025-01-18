@@ -130,8 +130,10 @@ namespace QoZ {
         T interpret_eb(T data) const {
             
 
-            double a = const_d1 ? d1 : fabs(deri_1(data));//datatype may be T
-            double b = const_d2 ? d2 : fabs(deri_2(data));
+            //double a = const_d1 ? d1 : fabs(deri_1(data));//datatype may be T
+            double a = 2*data;
+            double b = 2.0;
+           //double b = const_d2 ? d2 : fabs(deri_2(data));
            // 
             T eb;
             if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >=1e-10 )
