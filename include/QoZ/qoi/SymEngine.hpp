@@ -310,7 +310,7 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
                     else if (constant_value == 3.0 )
                         return [](double x_value){return x_value*x_value*x_value;};
                     else if (constant_value == 4.0 )
-                        return [](double x_value){return x_value*x_value*x_value*x_value;};
+                        return [](double x_value){auto a = x_value*x_value; return a*a;};
                     else if (constant_value == 0.5 )
                         return [](double x_value){return sqrt(x_value);};
                     else
