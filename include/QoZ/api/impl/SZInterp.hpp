@@ -2801,9 +2801,12 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
-        conf.ebs = std::move(ebs);
+
+        
         //std::cout<<"Max eb: "<<*std::max_element(conf.ebs.begin(),conf.ebs.end());
         if(conf.qoi>0 and sampling_num != conf.num){
+            conf.ebs = QoZ::sampling<double, N>(ebs.data(), conf.dims, sampling_num, sample_dims, sampling_block);  
+            //conf.ebs = std::move(ebs);  
             auto old_dims=conf.dims;
             conf.setDims(sample_dims.begin(), sample_dims.end());
             auto tempdata = sampling_data;
@@ -2866,10 +2869,12 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }*/
             //conf.qoiEBBase = conf.absErrorBound/1030;
             conf.setDims(old_dims.begin(), old_dims.end());
+
             
 //          
 
         }
+        conf.ebs = std::move(ebs);
         conf.qoi = ori_qoi;
         double tuning_time = timer.stop();
         if(conf.verbose){
