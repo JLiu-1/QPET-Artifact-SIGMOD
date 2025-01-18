@@ -19,6 +19,7 @@ using SymEngine::symbol;
 using SymEngine::parse;
 using SymEngine::diff;
 using SymEngine::RealDouble;
+using SymEngine::Rational;
 using SymEngine::Integer;
 using SymEngine::evalf;
 using SymEngine::map_basic_basic;
@@ -48,10 +49,12 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             return [](double x_value) { return x_value; };
         }
         // c
-        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
+        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr)) {
             double constant_value = eval_double(expr);
             return [constant_value](double) { return constant_value; };
         }
+
+
 
         // E
         else if ( eq(expr,*E)) {
@@ -212,7 +215,7 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
             return [](double, double y_value) { /*std::cout<<"y="<<y_value<<std::endl;*/return y_value; };
         }
        
-        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
+        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)o r SymEngine::is_a<const Rational>(expr)) {
             double constant_value = eval_double(expr);
             return [constant_value](double, double) { /*std::cout<<"c="<<constant_value<<std::endl;*/return constant_value; };
         }
