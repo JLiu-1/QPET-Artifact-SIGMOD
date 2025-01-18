@@ -42,7 +42,7 @@ using SymEngine::FiniteSet;
 
 //template<class T>
 inline std::function<double(double)> convert_expression_to_function(const Basic &expr, const RCP<const Symbol> &x) {
-        //std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
+        std::cout<<SymEngine::type_code_name(expr.get_type_code())<<std::endl;
         // x
         if (is_a<const SymEngine::Symbol>(expr)) {
             return [](double x_value) { return x_value; };
@@ -65,13 +65,13 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
                 return std::abs(arg(x_value));
             };
         }
-
+        /*
         else if ( is_a<SymEngine::neg>(expr)) {
             auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
             return [arg](double x_value) {
                 return -(arg(x_value));
             };
-        }
+        }*/
 
         
         // +
