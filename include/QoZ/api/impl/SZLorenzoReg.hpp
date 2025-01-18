@@ -14,6 +14,7 @@
 #include "QoZ/predictor/ZeroPredictor.hpp"
 #include "QoZ/encoder/QoIEncoder.hpp"
 #include "QoZ/lossless/Lossless_zstd.hpp"
+#include "QoZ/qoi/QoIInfo.hpp"
 //#include "QoZ/qoi/XSquare.hpp"
 #include "QoZ/qoi/QoIInfo.hpp"
 #include "QoZ/utils/Iterator.hpp"
