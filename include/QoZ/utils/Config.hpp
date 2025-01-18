@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <numeric>
+#include <array>
+#include <cstdlib>
 #include "QoZ/def.hpp"
 #include "MemoryUtil.hpp"
 #include "QoZ/utils/inih/INIReader.h"
@@ -497,7 +499,11 @@ namespace QoZ {
         //std::vector<double> lorenzo1_coeffs;
         //std::vector<double> lorenzo2_coeffs;
         bool verbose=1;
+<<<<<<< HEAD
+        int QoZ = 3;
+=======
         int QoZ=3;
+>>>>>>> 98770ce713d26e4c8c1dc08e0f10a1357ea66480
         bool pdTuningRealComp=0;
         int pdTuningAbConf=0;
         //double pdAlpha=-1;
