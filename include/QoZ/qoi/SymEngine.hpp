@@ -46,9 +46,7 @@ using SymEngine::FiniteSet;
 inline bool is_number(const Basic & expr){
     return is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr);
 }
-inline bool is_number(const SymEngine::RCP<const SymEngine::Basic> & expr){
-    return is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr);
-}
+
 inline int sign(double val){
     return (val > 0) - (0 > val);
 }
@@ -102,8 +100,8 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             auto args = expr.get_args();
 
             if(args.size()==2){
-                auto expr_arg1 = args[0];
-                auto expr_arg2 = args[1];
+                auto expr_arg1 = Expression(args[0]);
+                auto expr_arg2 = Expression(args[1]);
                 if(is_number(expr_arg1)){
                     if(is_number(expr_arg2)){
                         double constant_value = eval_double(expr_arg1)+eval_double(expr_arg2);
@@ -187,8 +185,8 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             auto args = expr.get_args();
 
             if(args.size()==2){
-                auto expr_arg1 = args[0];
-                auto expr_arg2 = args[1];
+                auto expr_arg1 = Expression(args[0]);
+                auto expr_arg2 = Expression(args[1]);
                 if(is_number(expr_arg1)){
                     if(is_number(expr_arg2)){
                         double constant_value = eval_double(expr_arg1)*eval_double(expr_arg2);
@@ -282,8 +280,8 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
         else if (is_a<SymEngine::Pow>(expr)) {
             auto args = expr.get_args();
 
-            auto expr_arg1 = args[0];
-            auto expr_arg2 = args[1];
+            auto expr_arg1 = Expression(args[0]);
+            auto expr_arg2 = Expression(args[1]);
             if(is_number(expr_arg1)){
                 if(is_number(expr_arg2)){
                     double constant_value = std::pow(eval_double(expr_arg1),eval_double(expr_arg2));
@@ -472,8 +470,8 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             //auto arg = convert_expression_to_function(Expression(args[0]), x);
 
             if (args.size() == 2) { // base log
-                auto expr_arg1 = args[0];
-                auto expr_arg2 = args[1];
+                auto expr_arg1 = Expression(args[0]);
+                auto expr_arg2 = Expression(args[1]);
                 if(is_number(expr_arg1)){
                     if(is_number(expr_arg2)){
                         double constant_value = std::log(eval_double(expr_arg1))/std::log(eval_double(expr_arg2));
