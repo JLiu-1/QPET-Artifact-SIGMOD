@@ -48,7 +48,7 @@ using SymEngine::Abs;
 using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
-using SymEngine::simplify
+using SymEngine::simplify;
 
 namespace QoZ {
     template<class T, uint N>
