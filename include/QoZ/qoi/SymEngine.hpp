@@ -260,7 +260,7 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             }
 
             return [fs,constant_value](double x_value) {
-                result = constant_value;
+                double result = constant_value;
                 for (auto &fnc:fs) {
                     result *= fnc(x_value);
                 }
@@ -388,7 +388,7 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             auto expr_arg = Expression(expr.get_args()[0]);
 
             if(is_number(expr_arg)){
-                double constant_value = std::tah(eval_double(expr_arg));
+                double constant_value = std::tan(eval_double(expr_arg));
                 return [constant_value](double) { return constant_value; };
             }
             else if (is_a<const SymEngine::Symbol>(expr_arg)) {
@@ -530,7 +530,7 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
 
                 }
             } else { // ln
-                auto expr_arg = args[0];
+                auto expr_arg = Expression(args[0]);
 
                 if(is_number(expr_arg)){
                     double constant_value = std::log(eval_double(expr_arg));
