@@ -89,8 +89,8 @@ namespace QoZ {
             //auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,Expression(2)),Mul(Expression(2*tolerance),Expression(abs(ddf))))),Expression(0.5)),Mul(Expression(abs(df)),Expression(-1)) ), Pow(Expression(abs(ddf)),Expression(-1)) ));
             auto eb_expression = (pow((pow(df,2)+Expression(2*tolerance)*abs(ddf)),Expression(0.5))-abs(df))/abs(ddf);
             std::cout<<eb_expression <<std::endl;
-            eb_expression = simplify(eb_expression);
-            std::cout<<eb_expression <<std::endl;
+            //eb_expression = simplify(eb_expression);
+            //std::cout<<eb_expression <<std::endl;
             //std::cout<<"f: "<< f<<std::endl;
             //std::cout<<"df: "<< df<<std::endl;
             //std::cout<<"ddf: "<< ddf<<std::endl;
@@ -216,8 +216,8 @@ namespace QoZ {
             eb_expression = simplify(eb_expression);
 
             std::cout<<eb_expression <<std::endl;
-            eb_expression = simplify(eb_expression);
-            std::cout<<eb_expression <<std::endl;
+            //eb_expression = simplify(eb_expression);
+            //std::cout<<eb_expression <<std::endl;
             //std::cout<<"f: "<< f<<std::endl;
             //std::cout<<"df: "<< df<<std::endl;
             //std::cout<<"ddf: "<< ddf<<std::endl;
