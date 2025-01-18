@@ -48,7 +48,7 @@ using SymEngine::Abs;
 using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
-
+using SymEngine::simplify
 
 namespace QoZ {
     template<class T, uint N>
@@ -85,11 +85,11 @@ namespace QoZ {
 
            //Expression y = Symbol("y");
 
-            //auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,2),Mul(2*tolerance,Abs(ddf)))),0.5),neg(Abs(df)) ), Pow(Abs(ddf),-1) ));
-            auto eb_expression = Symbol("x");
+            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,2),Mul(2*tolerance,Abs(ddf)))),0.5),Mul(Abs(df),-1) ), Pow(Abs(ddf),-1) ));
+            //auto eb_expression = Symbol("x");
             std::cout<<eb_expression <<std::endl;
-            //eb_expression = eb_expression.simplify();
-            //std::cout<<eb_expression <<std::endl;
+            eb_expression = simplify(eb_expression);
+            std::cout<<eb_expression <<std::endl;
             //std::cout<<"f: "<< f<<std::endl;
             //std::cout<<"df: "<< df<<std::endl;
             //std::cout<<"ddf: "<< ddf<<std::endl;
@@ -211,12 +211,12 @@ namespace QoZ {
             //ddf = diff(df,x);
             ddf = df.diff(x);
 
-            //auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,2),Mul(2*tolerance,Abs(ddf)))),0.5),neg(Abs(df)) ), Pow(Abs(ddf),-1) ));
-            auto eb_expression = Symbol("x");
+            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,2),Mul(2*tolerance,Abs(ddf)))),0.5),Mul(Abs(df),-1) ), Pow(Abs(ddf),-1) ));
+            eb_expression = simplify(eb_expression);
 
             std::cout<<eb_expression <<std::endl;
-            //eb_expression = eb_expression.simplify();
-            //std::cout<<eb_expression <<std::endl;
+            eb_expression = simplify(eb_expression);
+            std::cout<<eb_expression <<std::endl;
             //std::cout<<"f: "<< f<<std::endl;
             //std::cout<<"df: "<< df<<std::endl;
             //std::cout<<"ddf: "<< ddf<<std::endl;
