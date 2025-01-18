@@ -887,13 +887,14 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             
             rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
         }
-        if(conf.verbose)
-            std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
         if(conf.qoi == 11 or (conf.qoi == 14 and conf.qoi_string == "x")){
             if (conf.QoZ == 0)
                 rate = std::min(2.0,rate);
             //else if 
         }
+        if(conf.verbose)
+            std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
+        
         
         conf.qoiEB *= rate;
     }
