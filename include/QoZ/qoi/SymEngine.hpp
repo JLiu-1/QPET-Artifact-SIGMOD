@@ -46,6 +46,9 @@ using SymEngine::FiniteSet;
 inline bool is_number(const Basic & expr){
     return is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr);
 }
+inline bool is_number(const SymEngine::RCP<const SymEngine::Basic> & expr){
+    return is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr) or SymEngine::is_a<const Rational>(expr);
+}
 inline int sign(double val){
     return (val > 0) - (0 > val);
 }
