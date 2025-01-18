@@ -306,13 +306,13 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
                 if(is_number(expr_arg2)){
                     double constant_value = eval_double(expr_arg2);
                     if (constant_value == 2.0 )
-                        return [](double x_value){return x_value*x_value};
+                        return [](double x_value){return x_value*x_value;};
                     else if (constant_value == 3.0 )
-                        return [](double x_value){return x_value*x_value*x_value};
+                        return [](double x_value){return x_value*x_value*x_value;};
                     else if (constant_value == 4.0 )
-                        return [](double x_value){return x_value*x_value*x_value*x_value};
+                        return [](double x_value){return x_value*x_value*x_value*x_value;};
                     else if (constant_value == 0.5 )
-                        return [](double x_value){return sqrt(x_value)};
+                        return [](double x_value){return sqrt(x_value);};
                     else
                         return [constant_value](double x_value) { return std::pow(x_value,constant_value); };
                 }
