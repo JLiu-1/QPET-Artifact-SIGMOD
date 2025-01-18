@@ -1403,10 +1403,11 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             ori_ebs.shrink_to_fit();
         }
         else{
+            /*
             for (size_t i = 0; i < conf.num; i++){
                 if(ori_ebs[i]>best_abs_eb)
                     ori_ebs[i] = best_abs_eb;
-            }
+            }*/ //deleted
             conf.ebs = std::move(ori_ebs);
         }
 
@@ -2799,7 +2800,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
-        conf.ebs = ebs;
+        conf.ebs = std::move(ebs);
+        
         if(conf.qoi>0 and sampling_num != conf.num){
             auto old_dims=conf.dims;
             conf.setDims(sample_dims.begin(), sample_dims.end());
