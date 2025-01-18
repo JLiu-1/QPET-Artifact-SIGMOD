@@ -2818,9 +2818,9 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             //auto eb = conf.absErrorBound;
             //std::cout<<"refixing eb"<<std::endl;
             auto ori_eb = conf.absErrorBound;
-            std::cout<<best_lorenzo_ratio<<std::endl;
+            //std::cout<<best_lorenzo_ratio<<std::endl;
 
-            for(auto cur_eb:{1.5*ori_eb,1.25*ori_eb,0.75*ori_eb,0.5*ori_eb}){
+            for(auto cur_eb:{2.0*ori_eb,1.5*ori_eb,0.75*ori_eb,0.5*ori_eb}){
                 tempdata = sampling_data;
                 auto last_eb = conf.absErrorBound;
                 conf.absErrorBound = cur_eb;
@@ -2829,8 +2829,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 delete[]cmprData;
                 //std::cout<<"p1"<<std::endl;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
-                std::cout<<conf.absErrorBound<<std::endl;
-                printf("Lorenzo, test, ratio = %.2f\n", ratio);
+                //std::cout<<conf.absErrorBound<<std::endl;
+                //printf("Lorenzo, test, ratio = %.2f\n", ratio);
                 if (ratio > best_lorenzo_ratio * 1.01) {
                     best_lorenzo_ratio = ratio;
                     conf.absErrorBound = cur_eb;
@@ -2855,7 +2855,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                     delete[]cmprData;
                     //std::cout<<"p1"<<std::endl;
                     ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
-                    printf("Lorenzo, ratio = %.2f\n", ratio);
+                    //printf("Lorenzo, ratio = %.2f\n", ratio);
                     if (ratio > best_lorenzo_ratio *1.02) {
                         best_lorenzo_ratio = ratio;
                         conf.use_global_eb = true;
