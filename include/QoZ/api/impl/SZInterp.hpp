@@ -2826,8 +2826,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 delete[]cmprData;
                 //std::cout<<"p1"<<std::endl;
                 ratio = sampling_num * 1.0 * sizeof(T) / sampleOutSize;
-                //std::cout<<conf.absErrorBound<<std::endl;
-                //printf("Lorenzo, test, ratio = %.2f\n", ratio);
+                std::cout<<conf.absErrorBound<<std::endl;
+                printf("Lorenzo, test, ratio = %.2f\n", ratio);
                 if (ratio > best_lorenzo_ratio * 1.01) {
                     best_lorenzo_ratio = ratio;
                     conf.absErrorBound = cur_eb;
@@ -2841,7 +2841,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }
             //std::cout<<conf.absErrorBound<<std::endl;
             
-            if(!conf.use_global_eb){
+            /*if(!conf.use_global_eb){
                 //bool use_global_eb = conf.use_global_eb;
                 //for(auto cur_eb:{2*ori_eb,1.5*ori_eb,ori_eb,0.75*ori_eb,0.5*ori_eb}){
                     //auto old_eb = conf.absErrorBound;
@@ -2863,7 +2863,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                     }
                 //}
                 //conf.use_global_eb = use_global_eb;
-            }
+            }*/
             //conf.qoiEBBase = conf.absErrorBound/1030;
             conf.setDims(old_dims.begin(), old_dims.end());
             
