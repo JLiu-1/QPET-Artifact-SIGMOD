@@ -223,6 +223,7 @@ std::array<char *,3> SZ_compress_LorenzoReg_Vec(std::array<QoZ::Config,3> &confs
         auto zstd = QoZ::Lossless_zstd();
         
         for (auto i:{0,1,2}){
+            size_t offset_size;
             QoZ::uchar *lossless_data = zstd.compress(reinterpret_cast< QoZ::uchar *>(ori_data[i].data()),
                                                          confs[i].num*sizeof(T),
                                                          offset_size);
@@ -255,7 +256,7 @@ std::array<char *,3> SZ_compress_LorenzoReg_Vec(std::array<QoZ::Config,3> &confs
         }
     }
     else{
-        offset_size=0;
+        size_t offset_size=0;
         for(auto i:{0,1,2}){
             memcpy(cmpData[i]+outSizes[i],&offset_size,sizeof(size_t));
             outSizes[i]+=sizeof(size_t);
@@ -313,7 +314,7 @@ std::array<char *,3> SZ_compress_LorenzoReg_Vec(std::array<QoZ::Config,3> &confs
 template<class T, QoZ::uint N>
 void SZ_decompress_LorenzoReg(const QoZ::Config &theconf, char *cmpData, size_t cmpSize, T *decData) {
 
-    assert(theconf.cmprAlgo == QoZ::ALGO_LORENZO_REG)
+    assert(theconf.cmprAlgo == QoZ::ALGO_LORENZO_REG);
 
     QoZ::Config conf(theconf);
    // std::cout<<"ABSEB "<<conf.absErrorBound<<std::endl;
