@@ -235,7 +235,7 @@ namespace QoZ {
         double tolerance;
         T global_eb;
         std::function<double(double)> func;
-        std::function<double(double,double)> eb_func;
+        std::function<double(double)> eb_func;
         //std::function<double(double)> deri_1;
         //std::function<double(double)> deri_2;
         std::set<double>singularities;
