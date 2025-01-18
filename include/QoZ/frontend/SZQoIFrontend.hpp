@@ -48,6 +48,7 @@ namespace QoZ {
             predictor.precompress_data(block_range->begin());
             quantizer.precompress_data();
             size_t quant_count = 0;
+            T max_eb=0;
             for (auto block = block_range->begin(); block != block_range->end(); ++block) {
 
                 element_range->update_block_range(block, block_size);
@@ -58,7 +59,7 @@ namespace QoZ {
                     predictor_withfallback = &fallback_predictor;
                 }
                 predictor_withfallback->precompress_block_commit();
-                T max_eb=0;
+                
                 for (auto element = element_range->begin(); element != element_range->end(); ++element) {
                     auto ori_data = *element;
                     // interpret the error bound for current data based on qoi
