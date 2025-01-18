@@ -83,7 +83,7 @@ namespace QoZ {
 
             Expression y = Symbol("y");
 
-            auto eb_expression = ((df**2+2*tolerance*Abs(ddf))**0.5-Abs(df))/Abs(ddf);
+            auto eb_expression = ( Pow((Pow(df,2)+Mul(2*tolerance,Abs(ddf))),0.5)-Abs(df))/Abs(ddf);
             std::cout<<eb_expression <<std::endl;
             eb_expression = eb_expression.simplify();
             std::cout<<eb_expression <<std::endl;
@@ -208,7 +208,7 @@ namespace QoZ {
             //ddf = diff(df,x);
             ddf = df.diff(x);
 
-            auto eb_expression = ((df**2+2*tolerance*Abs(ddf))**0.5-Abs(df))/Abs(ddf);
+            auto eb_expression = ( Pow((Pow(df,2)+Mul(2*tolerance,Abs(ddf))),0.5)-Abs(df))/Abs(ddf);
             std::cout<<eb_expression <<std::endl;
             eb_expression = eb_expression.simplify();
             std::cout<<eb_expression <<std::endl;

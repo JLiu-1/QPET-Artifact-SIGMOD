@@ -62,7 +62,7 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
             return [arg](double x_value) {
                 return std::abs(arg(x_value));
-            }
+            };
         }
 
         
@@ -220,7 +220,7 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
             auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x,y);
             return [arg](double x_value, double y_value) {
                 return std::abs(arg(x_value, y_value));
-            }
+            };
         }
 
 
@@ -278,14 +278,14 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
         }
         
         else if (is_a<SymEngine::Cos>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x, y);
             return [arg](double x_value, double y_value) {
                 return std::cos(arg(x_value, y_value));
             };
         }
 
         else if (is_a<SymEngine::Tan>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x, y);
             return [arg](double x_value, double y_value) {
                 return std::tan(arg(x_value, y_value));
             };
@@ -299,14 +299,14 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
         }
         
         else if (is_a<SymEngine::Cosh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x, y);
             return [arg](double x_value, double y_value) {
                 return std::cosh(arg(x_value, y_value));
             };
         }
 
         else if (is_a<SymEngine::Tanh>(expr)) {
-            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x, y);
             return [arg](double x_value, double y_value) {
                 return std::tanh(arg(x_value, y_value));
             };
@@ -314,9 +314,9 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
         
         else if (is_a<SymEngine::Log>(expr)) {
             auto args = expr.get_args();
-            auto arg = convert_expression_to_function(Expression(args[0]), x, y);
+            auto arg = convert_expression_to_function_2(Expression(args[0]), x, y);
             if (args.size() == 2) { // base log
-                auto base = convert_expression_to_function(Expression(args[1]), x, y);
+                auto base = convert_expression_to_function_2(Expression(args[1]), x, y);
                 return [arg, base](double x_value, double y_value) {
                     return std::log(arg(x_value, y_value)) / std::log(base(x_value, y_value));
                 };
