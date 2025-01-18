@@ -27,7 +27,7 @@ using SymEngine::RCP;
 using SymEngine::Basic;
 using SymEngine::real_double;
 using SymEngine::eval_double;
-
+using SymEngine::Abs;
 using SymEngine::E;
 using SymEngine::eq;
 using SymEngine::solve;
@@ -56,6 +56,13 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
         else if ( eq(expr,*E)) {
             double e = std::exp(1);
             return [e](double) { return e; };
+        }
+        //abs
+        else if ( is_a<SymEngine::Abs>(expr)) {
+            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            return [arg](double x_value) {
+                return std::abs(arg(x_value));
+            }
         }
 
         
@@ -159,7 +166,8 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
         else if (is_a<SymEngine::Sign>(expr)) {
             auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
             return [arg](double x_value) {
-                return (x_value > 0) - (0 > x_value);
+                auto value = arg(x_value);
+                return (value > 0) - (0 > value);
             };
         }
         //  log
@@ -175,6 +183,146 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             } else { // ln
                 return [arg](double x_value) {
                     return std::log(arg(x_value));
+                };
+            }
+        }
+
+        throw std::runtime_error("Unsupported expression type");
+    }
+
+
+
+std::function<double(double, double)> convert_expression_to_function_2(const Basic &expr, 
+                                                              const RCP<const Symbol> &x, 
+                                                              const RCP<const Symbol> &y) {
+            
+        if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*x)) {
+            return [](double x_value, double) { /*std::cout<<"x="<<x_value<<std::endl;*/return x_value; };
+        }
+      
+        else if (is_a<const SymEngine::Symbol>(expr) && expr.__eq__(*y)) {
+            return [](double, double y_value) { /*std::cout<<"y="<<y_value<<std::endl;*/return y_value; };
+        }
+       
+        else if (is_a<const RealDouble>(expr) or SymEngine::is_a<const Integer>(expr)) {
+            double constant_value = eval_double(expr);
+            return [constant_value](double, double) { /*std::cout<<"c="<<constant_value<<std::endl;*/return constant_value; };
+        }
+
+        // E
+        else if ( eq(expr,*E)) {
+            double e = std::exp(1);
+            return [e](double, double) { return e; };
+        }
+
+        //abs
+        else if ( is_a<SymEngine::Abs>(expr)) {
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x,y);
+            return [arg](double x_value, double y_value) {
+                return std::abs(arg(x_value, y_value));
+            }
+        }
+
+
+       
+        else if (is_a<SymEngine::Add>(expr)) {
+            auto args = expr.get_args();
+          
+            std::vector<std::function<double(double, double)> > fs;
+            for (size_t i = 0; i < args.size(); ++i) {
+
+                fs.push_back(convert_expression_to_function_2(Expression(args[i]), x, y));
+            }
+
+           // auto first = convert_expression_to_function(Expression(args[0]), x, y, z);
+
+            return [fs](double x_value, double y_value) {
+                double result = 0;
+                for (auto &fnc:fs) {
+                    result += fnc(x_value, y_value);
+                }
+                return result;
+            };
+        }
+        else if (is_a<SymEngine::Mul>(expr)) {
+            auto args = expr.get_args();
+           
+            std::vector<std::function<double(double, double)> > fs;
+            for (size_t i = 0; i < args.size(); ++i) 
+                fs.push_back(convert_expression_to_function_2(Expression(args[i]), x, y));
+
+            return [ fs](double x_value, double y_value) {
+                double result = 1.0;
+                for (auto &fnc:fs) {
+                    result *= fnc(x_value, y_value);
+                }
+                return result;
+            };
+        }
+       
+        else if (is_a<SymEngine::Pow>(expr)) {
+            auto args = expr.get_args();
+            auto base = convert_expression_to_function_2(Expression(args[0]), x, y);
+            auto exponent = convert_expression_to_function_2(Expression(args[1]), x, y);
+            return [base, exponent](double x_value, double y_value) {
+                //std::cout<<"pow"<<std::endl;
+                return std::pow(base(x_value, y_value), exponent(x_value, y_value));
+            };
+        }
+      
+        else if (is_a<SymEngine::Sin>(expr)) {
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x, y);
+            return [arg](double x_value, double y_value) {
+                return std::sin(arg(x_value, y_value));
+            };
+        }
+        
+        else if (is_a<SymEngine::Cos>(expr)) {
+            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            return [arg](double x_value, double y_value) {
+                return std::cos(arg(x_value, y_value));
+            };
+        }
+
+        else if (is_a<SymEngine::Tan>(expr)) {
+            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            return [arg](double x_value, double y_value) {
+                return std::tan(arg(x_value, y_value));
+            };
+        }
+
+        else if (is_a<SymEngine::Sinh>(expr)) {
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x, y);
+            return [arg](double x_value, double y_value) {
+                return std::sinh(arg(x_value, y_value));
+            };
+        }
+        
+        else if (is_a<SymEngine::Cosh>(expr)) {
+            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            return [arg](double x_value, double y_value) {
+                return std::cosh(arg(x_value, y_value));
+            };
+        }
+
+        else if (is_a<SymEngine::Tanh>(expr)) {
+            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x, y);
+            return [arg](double x_value, double y_value) {
+                return std::tanh(arg(x_value, y_value));
+            };
+        }
+        
+        else if (is_a<SymEngine::Log>(expr)) {
+            auto args = expr.get_args();
+            auto arg = convert_expression_to_function(Expression(args[0]), x, y);
+            if (args.size() == 2) { // base log
+                auto base = convert_expression_to_function(Expression(args[1]), x, y);
+                return [arg, base](double x_value, double y_value) {
+                    return std::log(arg(x_value, y_value)) / std::log(base(x_value, y_value));
+                };
+            } else { // ln
+                return [arg](double x_value, double y_value) {
+                    return std::log(arg(x_value, y_value));
                 };
             }
         }
