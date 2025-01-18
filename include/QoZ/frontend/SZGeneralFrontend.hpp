@@ -27,6 +27,17 @@ namespace QoZ {
                 block_size(conf.blockSize),
                 num_elements(conf.num) {
             std::copy_n(conf.dims.begin(), N, global_dimensions.begin());
+            if(conf.qoi>0 and conf.use_global_eb){
+                //std::cout<<"checking qoi"<<std::endl;
+                check_qoi = true;                
+                if (qoi == nullptr or qoi->id != conf.qoi){
+
+                    qoi = QoZ::GetQOI<T, N>(conf);
+                }
+            }
+            else{
+                check_qoi = false;
+            }
             
             
         }
@@ -58,8 +69,30 @@ namespace QoZ {
                 
               
                 for (auto element = element_range->begin(); element != element_range->end(); ++element) {
-                    quant_inds[quant_count++] = quantizer.quantize_and_overwrite(
+
+                    T ori;
+                    if(check_qoi){
+                        ori = *element;
+                    }
+                    quant_inds[quant_count] = quantizer.quantize_and_overwrite(
                             *element, predictor_withfallback->predict(element));
+
+                    //std::cout<<"p1"<<std::endl;
+                    if(check_qoi ){
+                        // std::cout << "not compliant" << std::endl;
+                        // save as unpredictable
+                        if(!qoi->check_compliance(ori,*element)){
+                            //std::cout << "not compliant" << std::endl;
+                            *element = ori;
+                            if(quant_inds[quant_count] != 0){
+                                // avoid push multiple elements
+                                quant_inds[quant_count] = 0;
+                                quantizer.insert_unpred(ori);                            
+                            }
+                            //std::cout<<"p3"<<std::endl;
+                        }
+                    }
+                    quant_count++;
                 }
 
                 
@@ -146,6 +179,8 @@ namespace QoZ {
         uint block_size;
         size_t num_elements;
         std::array<size_t, N> global_dimensions;
+        std::shared_ptr<concepts::QoIInterface<T, N>> qoi = nullptr;
+        bool check_qoi = false;
         
 
     };

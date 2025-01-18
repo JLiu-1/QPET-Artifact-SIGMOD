@@ -53,7 +53,7 @@ namespace QoZ {
     public:
         QoI_empty(const std::array<Config,3> confs) 
                  {
-            
+            concepts::QoIInterface<T, N>::id = 99;
         }
 
         //using Range = multi_dimensional_range<T, N>;

@@ -109,7 +109,7 @@ namespace QoZ {
                 return std::make_shared<QoZ::QoI_FXYZ<T, N>>(confs);
             case 2:
                 return std::make_shared<QoZ::QoI_FXYZ_rel<T, N>>(confs);
-            case 10:
+            case 99:
                 return std::make_shared<QoZ::QoI_empty<T, N>>(confs);
             
         }
