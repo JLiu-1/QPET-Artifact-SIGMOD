@@ -20,6 +20,9 @@
 #include "XLin.hpp"
 #include "XSqrt.hpp"
 #include "XAbs.hpp"
+#include "FX.hpp"
+#include "FX_abs.hpp"
+#include "FX_P.hpp"
 #include "XReciprocal.hpp"
 #include "LogX.hpp"
 
@@ -71,6 +74,18 @@ namespace QoZ {
                     case 13:
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Recip<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
                         break;
+                    case 14:
+                        std::string func_string;
+                        iss>>func_string;
+                        QoIs.push_back(std::make_shared<QoZ::QoI_FX<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),func_string));
+                    case 15:
+                        std::string func_string,func_string_2;
+                        iss>>func_string>>func_string_2;
+                        QoIs.push_back(std::make_shared<QoZ::QoI_FX_P<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),func_string,func_string_2));
+                    case 17:
+                        std::string func_string;
+                        iss>>func_string;
+                        QoIs.push_back(std::make_shared<QoZ::QoI_FX_ABS<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),func_string));
                     case 18:
                         double alpha;
                         iss>>alpha;
