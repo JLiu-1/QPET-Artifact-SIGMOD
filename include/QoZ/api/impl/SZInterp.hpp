@@ -17,7 +17,7 @@
 #include "QoZ/utils/QuantOptimization.hpp"
 #include "QoZ/utils/Config.hpp"
 #include "QoZ/utils/Metrics.hpp"
-//#include "QoZ/api/impl/SZLorenzoReg.hpp"
+#include "QoZ/api/impl/SZLorenzoReg.hpp"
 
 
 #include "QoZ/qoi/QoIInfo.hpp"
@@ -89,7 +89,8 @@ double estimate_rate_Gaussian(size_t n, size_t N, double q, double k = 3.0){//n:
     
 }
 */
-
+template<class T, QoZ::uint N>
+void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data);
 
 
 template<class T, QoZ::uint N>
@@ -2046,7 +2047,7 @@ std::pair<double,double>  Tuning(QoZ::Config &conf, T *data){
 
             best_interp_cr = 0.0;
             for (auto &interp_op: {QoZ::INTERP_ALGO_LINEAR, QoZ::INTERP_ALGO_CUBIC}) {
-                double ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
+                ratio = do_not_use_this_interp_compress_block_test<T, N>(sampling_data.data(), sample_dims, sampling_num, conf.absErrorBound,
                                                                              interp_op, conf.interpMeta.interpDirection, sampling_block);
                 if (ratio > best_interp_cr) {
                     best_interp_cr = ratio;
@@ -2392,7 +2393,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
     //std::cout<<confs[0].qoi<<" "<<confs[1].qoi<<" "<<confs[2].qoi<<" "<<std::endl;
     bool useInterp = true;
 
-    if(conf.QoZ==0 and interp_crs[0]>0 and lorenzo_crs[0]>0){
+    if(confs[0].QoZ==0 and interp_crs[0]>0 and lorenzo_crs[0]>0){
         double overall_interp_cr = 0.0, overall_lorenzo_cr = 0.0;
         for(auto i:{0,1,2}){
             overall_interp_cr += interp_crs[i]/3.0;
@@ -2427,6 +2428,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
 
         for(auto i:{0,1,2}){
             //confs[i].use_global_eb = false;//to determine
+            auto best_lorenzo_ratio = lorenzo_crs[i];
             confs[i].cmprAlgo=QoZ::ALGO_LORENZO_REG;
             auto ebs = std::move(confs[i].ebs);
         
@@ -2441,7 +2443,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
             double ratio;  
             auto ori_qoi = confs[i].qoi;
                 
-            sampling_data = QoZ::sampling<T, N>(data[i], conf.dims, sampling_num, sample_dims, sampling_block);    
+            sampling_data = QoZ::sampling<T, N>(data[i], confs[i].dims, sampling_num, sample_dims, sampling_block);    
             lorenzo_config.cmprAlgo = QoZ::ALGO_LORENZO_REG;
             
             lorenzo_config.lorenzo = true;
@@ -2501,7 +2503,7 @@ std::array<char *,3> SZ_compress_Interp_lorenzo(std::array<QoZ::Config,3> &confs
             
         }
         double tuning_time = timer.stop();
-        if(conf.verbose){
+        if(confs[0].verbose){
             std::cout << "Tuning time = " << tuning_time << "s" << std::endl;
             std::cout << "====================================== END TUNING ======================================" << std::endl;
         }
