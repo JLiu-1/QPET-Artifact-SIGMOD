@@ -137,7 +137,7 @@ std::array<char *,3>SZ_compress_Interp(std::array<QoZ::Config,3> &confs, std::ar
             qoi_used[i]=true;
             
             //auto qoi = QoZ::GetQOI<T, N>(confs);//todo: bring qoi to conf to avoid duplicated initialization.
-            auto qoi = nullptr;
+            std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoi = nullptr;
             
             
             auto quantizer= QoZ::VariableEBLinearQuantizer<T, T>(confs[i].quantbinCnt / 2);
@@ -289,7 +289,7 @@ void SZ_decompress_Interp(std::array<QoZ::Config ,3>&confs, std::array<char *,3>
             //std::array<QoZ::uchar *,3>cmpDataPos = {(QoZ::uchar *) cmpData[0],(QoZ::uchar *) cmpData[1],(QoZ::uchar *) cmpData[2]};
             confs[i].qoi = 99; //empty qoi
             //auto qoi = QoZ::GetQOI<T, N>(confs);
-            auto qoi = nullptr;
+            std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoi = nullptr;
            
 
             QoZ::uchar const *cmpDataPos = (QoZ::uchar *) cmpData[i];
