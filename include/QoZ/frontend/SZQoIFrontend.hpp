@@ -48,7 +48,7 @@ namespace QoZ {
             predictor.precompress_data(block_range->begin());
             quantizer.precompress_data();
             size_t quant_count = 0;
-            T max_eb=0;
+            //T max_eb=0;
             for (auto block = block_range->begin(); block != block_range->end(); ++block) {
 
                 element_range->update_block_range(block, block_size);
@@ -97,15 +97,15 @@ namespace QoZ {
                             quant_inds[num_elements + quant_count] = quantizer.quantize_and_overwrite(*element, 0, T(0.0));                            
                         }
                     }
-                    if(eb>max_eb)
-                        max_eb = eb;
+                    //if(eb>max_eb)
+                    //    max_eb = eb;
                     quant_count ++;
                     // update cumulative tolerance if needed 
                     qoi->update_tolerance(ori_data, *element);
                 }
                 qoi->postcompress_block();
             }
-            std::cout<<"Max quantized eb: "<<max_eb<<std::endl;
+            //std::cout<<"Max quantized eb: "<<max_eb<<std::endl;
             predictor.postcompress_data(block_range->begin());
             quantizer.postcompress_data();
             return quant_inds;
