@@ -50,7 +50,7 @@ namespace QoZ {
             for (auto block = block_range->begin(); block != block_range->end(); ++block) {
 
                 element_range->update_block_range(block, block_size);
-                qoi->precompress_block(element_range);
+                //qoi->precompress_block(element_range);
 
                 concepts::PredictorInterface<T, N> *predictor_withfallback = &predictor;
                 if (!predictor.precompress_block(element_range)) {
@@ -63,10 +63,10 @@ namespace QoZ {
                     // interpret the error bound for current data based on qoi
                     //auto eb = qoi->interpret_eb(element);
                     T eb;
-                    if (qoi_id != 16)
+                    //if (qoi_id != 16)
                         eb = ebs[element.get_offset()];
-                    else
-                        eb = qoi->interpret_eb(&(*element),element.get_offset());
+                    //else
+                    //    eb = qoi->interpret_eb(&(*element),element.get_offset());
 
 
                     quant_inds[quant_count] = quantizer_eb.quantize_and_overwrite(eb);
@@ -84,6 +84,7 @@ namespace QoZ {
                     //     std::cout << "check_compliance = " << temp << std::endl;
                     // }
                     // check whether decompressed data is compliant with qoi tolerance
+                    /*
                     if(!qoi->check_compliance(ori_data, *element)){
                         // std::cout << "exceed in " << element.get_offset() << std::endl;
                         // save as unpredictable
@@ -94,12 +95,12 @@ namespace QoZ {
                             // avoid push multiple elements
                             quant_inds[num_elements + quant_count] = quantizer.quantize_and_overwrite(*element, 0, T(0.0));                            
                         }
-                    }
+                    }*/
                     quant_count ++;
                     // update cumulative tolerance if needed 
-                    qoi->update_tolerance(ori_data, *element);
+                    //qoi->update_tolerance(ori_data, *element);
                 }
-                qoi->postcompress_block();
+                //qoi->postcompress_block();
             }
             predictor.postcompress_data(block_range->begin());
             quantizer.postcompress_data();
