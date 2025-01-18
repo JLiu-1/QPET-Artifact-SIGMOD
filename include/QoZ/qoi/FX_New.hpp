@@ -49,6 +49,7 @@ using SymEngine::Abs;
 using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
+using SymEngine::simplify;
 
 namespace QoZ {
     template<class T, uint N>
@@ -85,8 +86,7 @@ namespace QoZ {
 
            //Expression y = Symbol("y");
 
-            //auto eb_expression = Expression(Mul( Add( Pow( (Add(df.pow(2),Mul(RealDouble(2*tolerance),Abs(ddf)))),RealDouble(0.5)),Mul(Abs(df),Integer(-1)) ), Pow(Abs(ddf),Integer(-1)) ));
-            auto eb_expression = df^2;
+            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,Expression(2)),Mul(Expression(2*tolerance),Abs(ddf)))),Expression(0.5)),Mul(Abs(df),Expression(-1)) ), Pow(Abs(ddf),Expression(-1)) ));
             //auto eb_expression = Symbol("x");
             std::cout<<eb_expression <<std::endl;
             eb_expression = simplify(eb_expression);
@@ -212,7 +212,7 @@ namespace QoZ {
             //ddf = diff(df,x);
             ddf = df.diff(x);
 
-            auto eb_expression = df^2;
+            auto eb_expression = Expression(Mul( Add( Pow( (Add(Pow(df,Expression(2)),Mul(Expression(2*tolerance),Abs(ddf)))),Expression(0.5)),Mul(Abs(df),Expression(-1)) ), Pow(Abs(ddf),Expression(-1)) ));
             eb_expression = simplify(eb_expression);
 
             std::cout<<eb_expression <<std::endl;
