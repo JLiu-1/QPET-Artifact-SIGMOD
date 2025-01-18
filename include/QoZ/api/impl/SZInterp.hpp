@@ -2874,7 +2874,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
 //          
 
         }
-        conf.ebs = std::move(ebs);
+        if(!conf.use_global_eb)
+            conf.ebs = std::move(ebs);
         conf.qoi = ori_qoi;
         double tuning_time = timer.stop();
         if(conf.verbose){
