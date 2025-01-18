@@ -28,6 +28,7 @@ using SymEngine::Basic;
 using SymEngine::real_double;
 using SymEngine::eval_double;
 using SymEngine::Abs;
+using SymEngine::Neg;
 using SymEngine::E;
 using SymEngine::eq;
 using SymEngine::solve;
@@ -62,6 +63,13 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
             auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
             return [arg](double x_value) {
                 return std::abs(arg(x_value));
+            };
+        }
+
+        else if ( is_a<SymEngine::Neg>(expr)) {
+            auto arg = convert_expression_to_function(Expression(expr.get_args()[0]), x);
+            return [arg](double x_value) {
+                return -(arg(x_value));
             };
         }
 
@@ -220,6 +228,13 @@ std::function<double(double, double)> convert_expression_to_function_2(const Bas
             auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x,y);
             return [arg](double x_value, double y_value) {
                 return std::abs(arg(x_value, y_value));
+            };
+        }
+
+        else if ( is_a<SymEngine::Neg>(expr)) {
+            auto arg = convert_expression_to_function_2(Expression(expr.get_args()[0]), x,y);
+            return [arg](double x_value, double y_value) {
+                return -arg(x_value, y_value);
             };
         }
 
