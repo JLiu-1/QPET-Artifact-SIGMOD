@@ -134,17 +134,17 @@ namespace QoZ {
             double b = const_d2 ? d2 : fabs(deri_2(data));
            // 
             T eb;
-            //if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and b >=1e-10 )
+            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and b >=1e-10 )
                 eb = (sqrt(a*a+2*b*tolerance)-a)/b;
-            //else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
-            //    eb = tolerance/a;
-           // else 
-            //    eb = global_eb;
-            /*
+            else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
+                eb = tolerance/a;
+            else 
+                eb = global_eb;
+
              for (auto sg : singularities){
                 T diff = fabs(data-sg);
                 eb = std::min(diff,eb);
-             }*/
+             }
              //if(eb==0)
              //   eb = global_eb;
            // std::cout<<data<<" "<<a<<" "<<b<<" "<<eb<<" "<<global_eb<<std::endl; 
