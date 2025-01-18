@@ -39,11 +39,11 @@ using SymEngine::eval_double;
 
 using SymEngine::solve;
 using SymEngine::rcp_static_cast;
+using SymEngine::Add;
 using SymEngine::Mul;
 using SymEngine::Pow;
 using SymEngine::Log;
 using SymEngine::Abs;
-using SymEngine::Div;
 using SymEngine::sqrt;
 using SymEngine::is_a;
 using SymEngine::FiniteSet;
