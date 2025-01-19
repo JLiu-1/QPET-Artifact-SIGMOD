@@ -283,6 +283,8 @@ namespace QoZ {
             threshold = cfg.GetReal("QoISettings", "threshold", threshold);
             isolated = cfg.GetBoolean("QoISettings", "isolated", isolated);
             early_termination = cfg.GetBoolean("QoISettings", "early_termination", early_termination);
+            analytical = cfg.GetBoolean("QoISettings", "analytical", analytical);
+            QoIdispatch = cfg.GetBoolean("QoISettings", "QoIdispatch", QoIdispatch);
             //regionalQoI = cfg.GetBoolean("QoISettings", "regionalQoI", false);
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
             tol_estimation = cfg.GetInteger("QoISettings", "tol_estimation", tol_estimation);
@@ -584,6 +586,8 @@ namespace QoZ {
         bool use_global_eb = false;
         double qoi_lin_A = 1.0;
         double qoi_lin_B = 0.0;
+        bool analytical = true;
+        bool QoIdispatch = false;
 
         //std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoiPtr = nullptr;
 

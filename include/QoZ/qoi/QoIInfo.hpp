@@ -10,6 +10,7 @@
 #include "XLin.hpp"
 #include "XSqrt.hpp"
 #include "XAbs.hpp"
+#include "XTanh.hpp"
 #include "XReciprocal.hpp"
 #include "XComposite.hpp"
 #include "LogX.hpp"
@@ -29,11 +30,53 @@ namespace QoZ {
 
     template<class T, QoZ::uint N >
     std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(const Config &conf){
-        switch(conf.qoi){
+        auto qoi_id = conf.qoi;
+        if(qoi_id = 14 and conf.QoIdispatch){
+            auto qoi_string = conf.qoi_string;
+            if(qoi_string == "x^2" or qoi_string == "x**2")
+                qoi_id = 1;
+            else if(qoi_string == "logx" or qoi_string == "log(x)" or qoi_string == "Logx" or qoi_string == "Log(x)" or qoi_string == "lnx" or qoi_string == "ln(x)" or qoi_string == "Lnx" or qoi_string == "Ln(x)"){
+                qoi_id = 2;
+                conf.qoiLogBase = std::exp(1.0);
+            }
+            else if(qoi_string == "log2(x)"  qoi_string == "Log2(x)"){
+                qoi_id = 2;
+                conf.qoiLogBase = 2.0;
+            }
+
+            else if (qoi_string == "x^3" or qoi_string == "x**3")
+                qoi_id = 9;
+            else if (qoi_string == "x^0.5" or qoi_string == "x**0.5" or qoi_string == "x**1/2"or qoi_string == "x^1/2"or qoi_string == "sqrt(x)" or qoi_string == "Sqrt(x)")
+                qoi_id = 10;
+            //temp do not dispath lin beacuse it is preprocessed in compressor. Todo: dispatch lin.
+            else if (qoi_string == "2^x" or qoi_string == "2**x"){
+                qoi_id = 12;
+                conf.qoiLogBase = 2.0;
+            }
+            else if (qoi_string == "e^x" or qoi_string == "e**x" or qoi_string == "E**x" or qoi_string == "E^x"){
+                qoi_id = 12;
+                conf.qoiLogBase = std::exp(1.0);
+            }
+            else if (qoi_string == "1/x" or qoi_string == "x**-1" or qoi_string == "x^-1")
+                qoi_id = 13;
+            //todo: dispatch x^n
+            else if (qoi_string == "|x|")
+                qoi_id = 19;
+            else if (qoi_string == "sinx" or qoi_string == "sin(x)" or qoi_string == "Sinx" or qoi_string == "Sin(x)")
+                qoi_id = 22;
+            else if (qoi_string == "tanhx" or qoi_string == "tanh(x)" or qoi_string == "Tanhx" or qoi_string == "Tanh(x)")
+                qoi_id = 23;
+
+        }
+        switch(qoi_id){
             case 1:
                 return std::make_shared<QoZ::QoI_X_Square<T, N>>(conf.qoiEB, conf.absErrorBound);
-            case 2:
-                return std::make_shared<QoZ::QoI_Log_X<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiLogBase);
+            case 2:{
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_Log_X<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiLogBase);
+                else
+                    return std::make_shared<QoZ::QoI_Log_X_Approx<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiLogBase);
+            }
             case 3:{
                 if(!conf.lorenzo && !conf.lorenzo2) return std::make_shared<QoZ::QoI_RegionalAverageOfSquareInterp<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims);
                 else return std::make_shared<QoZ::QoI_RegionalAverageOfSquare<T, N>>(conf.qoiEB, conf.absErrorBound);
@@ -87,18 +130,34 @@ namespace QoZ {
                 qois.push_back(std::make_shared<QoZ::QoI_Isoline<T, N>>(conf.dims, values, conf.absErrorBound));
                 return std::make_shared<QoZ::QoI_MultiQoIs<T, N>>(qois);            	
             }
-            case 9:
-                return std::make_shared<QoZ::QoI_X_Cubic<T, N>>(conf.qoiEB, conf.absErrorBound);
-            case 10:
+            case 9:{
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_X_Cubic<T, N>>(conf.qoiEB, conf.absErrorBound);
+                else
+                    return std::make_shared<QoZ::QoI_X_Cubic_Approx<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }       
+            case 10:{
                 //return std::make_shared<QoZ::QoI_X_Sin<T, N>>(conf.qoiEB, conf.absErrorBound);
-                return std::make_shared<QoZ::QoI_X_Sqrt<T, N>>(conf.qoiEB, conf.absErrorBound);
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_X_Sqrt<T, N>>(conf.qoiEB, conf.absErrorBound);
+                else
+                    return std::make_shared<QoZ::QoI_X_Sqrt_Approx<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }
             case 11:
                 return std::make_shared<QoZ::QoI_X_Lin<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_lin_A, conf.qoi_lin_B);
-            case 12:
-                return std::make_shared<QoZ::QoI_X_Exp<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
-            case 13:
+            case 12:{
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_X_Exp<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
+                else
+                    return std::make_shared<QoZ::QoI_X_Exp_Approx<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
+            }
+            case 13:{
                 //return std::make_shared<QoZ::QoI_XLog_X<T, N>>(conf.qoiEB, conf.absErrorBound);
-                return std::make_shared<QoZ::QoI_X_Recip<T, N>>(conf.qoiEB, conf.absErrorBound);
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_X_Recip<T, N>>(conf.qoiEB, conf.absErrorBound);
+                else
+                    return std::make_shared<QoZ::QoI_X_Recip_Approx<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }
             case 14:
                 return std::make_shared<QoZ::QoI_FX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
             case 15:
@@ -111,14 +170,31 @@ namespace QoZ {
             }
             case 17:
                 return std::make_shared<QoZ::QoI_FX_ABS<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
-            case 18:
-                return std::make_shared<QoZ::QoI_X_Power<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
+            case 18:{
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_X_Power<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
+                else
+                    return std::make_shared<QoZ::QoI_X_Power_Approx<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
+
+            }
             case 19:
                 return std::make_shared<QoZ::QoI_X_Abs<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 20:
                 return std::make_shared<QoZ::QoI_X_Composite<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string);
             case 21:
-                 return std::make_shared<QoZ::QoI_FX_New<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
+                return std::make_shared<QoZ::QoI_FX_New<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
+            case 22:{
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_X_Sin<T, N>>(conf.qoiEB, conf.absErrorBound);
+                else
+                    return std::make_shared<QoZ::QoI_X_Sin_Approx<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }
+            case 23:{
+                if(conf.analytical)
+                    return std::make_shared<QoZ::QoI_X_Tanh<T, N>>(conf.qoiEB, conf.absErrorBound);
+                else
+                    return std::make_shared<QoZ::QoI_X_Tanh_Approx<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }
         }
         return NULL;
     }
