@@ -890,14 +890,24 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
             
             rate = std::max(1.0,rate);//only effective for average. general: 1.0/sumai
+
+            if(conf.qoi == 11 or (conf.qoi == 14 and conf.qoi_string == "x")){
+                if(conf.qoiRegionSize <=32){//it is a random number. to Fix
+                    if (conf.QoZ == 0)
+                        rate = std::min(2.0,rate);
+                    else
+                        rate = std::min(4.0,rate);
+                }
+                else{
+                    if (conf.QoZ == 0)
+                        rate = std::min(20.0,rate);
+                    else
+                        rate = std::min(40.0,rate);
+                }
+                //else if 
+            }
         }
-        if(conf.qoi == 11 or (conf.qoi == 14 and conf.qoi_string == "x")){
-            if (conf.QoZ == 0)
-                rate = std::min(2.0,rate);
-            else
-                rate = std::min(4.0,rate);
-            //else if 
-        }
+
         if(conf.verbose)
             std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
         
