@@ -1875,7 +1875,8 @@ double Tuning(QoZ::Config &conf, T *data){
 
     }
     auto conf_qoi = conf.qoi;
-    conf.qoi = 0;
+    if(!conf.use_global_eb)
+        conf.qoi = 0;
     /*
     else{
         // compute isovalues for comparison
