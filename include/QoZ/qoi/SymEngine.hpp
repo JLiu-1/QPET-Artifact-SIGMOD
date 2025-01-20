@@ -380,15 +380,15 @@ inline std::function<double(double)> convert_expression_to_function(const Basic 
 
                     double constant_value = eval_double(expr_arg2);
                     if (constant_value == 1.0 )
-                        return [](double x_value){return f(x_value);};
+                        return [f](double x_value){return f(x_value);};
                     if (constant_value == 2.0 )
-                        return [](double x_value){auto a = f(x_value); return a*a;};
+                        return [f](double x_value){auto a = f(x_value); return a*a;};
                     else if (constant_value == 3.0 )
-                        return [](double x_value){auto a = f(x_value);return a*a*a;};
+                        return [f](double x_value){auto a = f(x_value);return a*a*a;};
                     else if (constant_value == 4.0 )
-                        return [](double x_value){auto a = f(x_value);a=a*a; return a*a;};
+                        return [f](double x_value){auto a = f(x_value);a=a*a; return a*a;};
                     else if (constant_value == 0.5 )
-                        return [](double x_value){auto a = f(x_value);return sqrt(a);};
+                        return [f](double x_value){auto a = f(x_value);return sqrt(a);};
                     else
                         return [f,constant_value](double x_value) { return std::pow(f(x_value),constant_value); };
                 }
