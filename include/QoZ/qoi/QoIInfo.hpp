@@ -32,7 +32,7 @@ namespace QoZ {
     std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(const Config &conf){
         auto qoi_id = conf.qoi;
         auto qoiLogBase = conf.qoiLogBase;
-        if(qoi_id = 14 and conf.QoIdispatch){
+        if(qoi_id == 14 and conf.QoIdispatch){
             auto qoi_string = conf.qoi_string;
             if(qoi_string == "x^2" or qoi_string == "x**2")
                 qoi_id = 1;
