@@ -147,7 +147,7 @@ namespace QoZ {
             //if (data == 0)
              //   return global_eb;
             if(alpha==1.0){
-                T eb = tolerance
+                T eb = tolerance;
                 return std::min(eb, global_eb);
             }
 
