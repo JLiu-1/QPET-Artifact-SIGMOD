@@ -160,6 +160,26 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         
         //std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
         qoi_tol *= rate;
+
+        if(conf.qoi == 1 and conf.qoi_string == "x"){
+            if(conf.qoiRegionSize <=4){//it is a random number. to Fix
+                rate = std::min(4.0,rate);
+            }
+            else if(conf.qoiRegionSize <=8){//it is a random number. to Fix
+                rate = std::min(6.0,rate);
+            }
+            else if(conf.qoiRegionSize <=16){//it is a random number. to Fix
+                rate = std::min(8.0,rate);
+            }
+            else if(conf.qoiRegionSize <=32){//it is a random number. to Fix
+                rate = std::min(12.0,rate);
+            }
+            else {
+              rate = std::min(16.0,rate);
+            }
+            //else if 
+        }
+
         //qoi->set_qoi_tolerance(qoi_tol);
     }
 
