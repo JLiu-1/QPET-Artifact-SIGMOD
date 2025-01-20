@@ -226,7 +226,7 @@ std::function<double(double, double, double)> convert_expression_to_function(con
                     if(is_number(expr_arg2)){
 
                         double constant_value = eval_double(expr_arg2);
-                        return [f,constant_value](double x_value) { return f(x_value)+constant_value; };
+                        return [f,constant_value](double x_value,double y_value, double z_value) { return f(x_value)+constant_value; };
                     }
                     else if(is_a<const SymEngine::Symbol>(expr_arg2)){
 
@@ -410,7 +410,7 @@ std::function<double(double, double, double)> convert_expression_to_function(con
                     if(is_number(expr_arg2)){
 
                         double constant_value = eval_double(expr_arg2);
-                        return [f,constant_value](double x_value) { return f(x_value)*constant_value; };
+                        return [f,constant_value](double x_value,double y_value, double z_value) { return f(x_value)*constant_value; };
                     }
                     else if(is_a<const SymEngine::Symbol>(expr_arg2)){
 
@@ -876,7 +876,7 @@ std::function<double(double, double, double)> convert_expression_to_function(con
                     else
                         return [](double x_value,double y_value,double z_value) { return std::log(z_value); };
                 }
-                auto arg = convert_expression_to_function(expr_arg, x);
+                auto arg = convert_expression_to_function(expr_arg, x,y,z);
                 return [arg](double x_value, double y_value, double z_value) {
                     return std::log(arg(x_value, y_value, z_value));
                 };
