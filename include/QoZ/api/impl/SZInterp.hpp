@@ -796,9 +796,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     if (conf.qoiRegionMode==1 and conf.qoiRegionSize <= 1){
         conf.qoiRegionMode=0;
     }
-
+    std::cout<<"getting"<<std::endl;
     
     auto qoi = QoZ::GetQOI<T, N>(conf);
+    std::cout<<"got"<<std::endl;
     if(conf.qoiEBMode !=QoZ::EB_ABS){//rel
         double max_qoi = -std::numeric_limits<double>::max();
         double min_qoi = std::numeric_limits<double>::max();
@@ -836,15 +837,18 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }
             auto average = QoZ::compute_average<double>(qoi_vals.data(), n1, n2, n3, conf.qoiRegionSize);
             auto minmax = std::minmax_element(average.begin(),average.end());
+
             min_qoi = *minmax.first;
             max_qoi = *minmax.second;
+
+
 
 
 
         }
 
         if (max_qoi == min_qoi){
-            max_qoi = 1.0;
+            max_qoi = fabs(max_qoi);
             min_qoi = 0.0;
         }
         //std::cout<<max_qoi << " "<<min_qoi<<" "<<conf.qoiEB << std::endl;
