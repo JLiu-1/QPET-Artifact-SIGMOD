@@ -796,10 +796,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     if (conf.qoiRegionMode==1 and conf.qoiRegionSize <= 1){
         conf.qoiRegionMode=0;
     }
-    std::cout<<"getting"<<std::endl;
+    //std::cout<<"getting"<<std::endl;
     
     auto qoi = QoZ::GetQOI<T, N>(conf);
-    std::cout<<"got"<<std::endl;
+    //std::cout<<"getting"<<std::endl;
     if(conf.qoiEBMode !=QoZ::EB_ABS){//rel
         double max_qoi = -std::numeric_limits<double>::max();
         double min_qoi = std::numeric_limits<double>::max();
@@ -848,7 +848,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         if (max_qoi == min_qoi){
-            max_qoi = fabs(max_qoi);
+            max_qoi = 1.0;
             min_qoi = 0.0;
         }
         //std::cout<<max_qoi << " "<<min_qoi<<" "<<conf.qoiEB << std::endl;
@@ -905,7 +905,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         conf.qoiEB *= rate;
     }
 
-    if (conf.qoi == 14 and conf.qoi_string == "x"){
+    if ((conf.qoi == 11 and conf.A == 1.0) or (conf.qoi == 14 and conf.qoi_string == "x")){
         //conf.qoi = 0;
         conf.absErrorBound = std::min(conf.absErrorBound,conf.qoiEB);
         if (conf.qoiRegionMode != 1)

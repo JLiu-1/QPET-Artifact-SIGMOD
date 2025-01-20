@@ -206,7 +206,7 @@ namespace QoZ {
                 T const * data_z_pos = data_y_pos;
                 for(size_t k=0; k<num_block_3; k++){
                     size_t size_3 = (k == num_block_3 - 1) ? n3 - k * block_size : block_size;
-                    std::cout<<size_1<<" "<<size_2<<" "<<size_3<<" "<<std::endl;
+                    //std::cout<<size_1<<" "<<size_2<<" "<<size_3<<" "<<std::endl;
                     //if((size_1!=1 and size_1<block_size) or (size_2!=1 and size_2<block_size) or size_3<block_size)
                     //    continue;
                     T const * cur_data_pos = data_z_pos;
