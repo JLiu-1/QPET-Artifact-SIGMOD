@@ -30,7 +30,7 @@ namespace QoZ {
 
         T interpret_eb(T data) const {
             
-            if tolerance>=2:
+            if (tolerance>=2)
                 return global_eb;
             return std::min(tolerance,global_eb);
         }

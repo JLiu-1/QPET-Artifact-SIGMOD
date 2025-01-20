@@ -39,14 +39,14 @@ namespace QoZ {
                 qoi_id = 2;
                 conf.qoiLogBase = std::exp(1.0);
             }
-            else if(qoi_string == "log2(x)"  qoi_string == "Log2(x)"){
+            else if(qoi_string == "log2(x)"  or qoi_string == "Log2(x)"){
                 qoi_id = 2;
                 conf.qoiLogBase = 2.0;
             }
 
             else if (qoi_string == "x^3" or qoi_string == "x**3")
                 qoi_id = 9;
-            else if (qoi_string == "x^0.5" or qoi_string == "x**0.5" or qoi_string == "x**1/2"or qoi_string == "x^1/2"or qoi_string == "sqrt(x)" or qoi_string == "Sqrt(x)")
+            else if (qoi_string == "x^0.5" or qoi_string == "x**0.5" or qoi_string == "x**1/2" or qoi_string == "x^1/2" or qoi_string == "sqrt(x)" or qoi_string == "Sqrt(x)")
                 qoi_id = 10;
             //temp do not dispath lin beacuse it is preprocessed in compressor. Todo: dispatch lin.
             else if (qoi_string == "2^x" or qoi_string == "2**x"){
