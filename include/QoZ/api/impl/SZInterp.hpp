@@ -1875,7 +1875,7 @@ double Tuning(QoZ::Config &conf, T *data){
 
     }
     auto conf_qoi = conf.qoi;
-    if(!conf.use_global_eb)
+    if(!conf.use_global_eb or (conf.qoi>0 and conf.qoiRegionMode == 1))
         conf.qoi = 0;
     /*
     else{
