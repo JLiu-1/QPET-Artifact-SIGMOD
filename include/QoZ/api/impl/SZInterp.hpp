@@ -905,7 +905,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         conf.qoiEB *= rate;
     }
 
-    if ((conf.qoi == 11) or (conf.qoi == 14 and conf.qoi_string == "x")){
+    if ((conf.qoi == 11) or (conf.qoi == 14 and conf.qoi_string == "x")){//todo: add analyze qoi_string is linear
         //conf.qoi = 0;
         if(conf.qoi == 11)
             conf.qoiEB /= conf.qoi_lin_A;
