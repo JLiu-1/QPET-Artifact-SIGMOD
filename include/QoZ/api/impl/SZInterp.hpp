@@ -873,7 +873,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             double num_blocks = 1;
             double num_elements = 1;
             for(int i=0; i<conf.dims.size(); i++){
-                num_elements *= std::min(conf.dims[0],conf.qoiRegionSize);
+                num_elements *= std::min(conf.dims[i],(size_t)conf.qoiRegionSize);
                 num_blocks *= (conf.dims[i] - 1) / conf.qoiRegionSize + 1;
             }
 
