@@ -142,6 +142,7 @@ namespace QoZ {
             // if b > 1
             // e = min{(1 - b^{-t})|x|, (b^{t} - 1)|x|}
             // return 0;
+            data = fabs(data);
             if(data == 0) return global_eb;
             double a = fabs(1.0 / (data*log_b) );//datatype may be T
             double b = fabs(-a/data);
@@ -153,7 +154,7 @@ namespace QoZ {
                 eb = tolerance/a;
             else 
                 eb = global_eb;
-            eb = std::min(eb,fabs(data));
+            eb = std::min(eb,data);
             //if (data == 0)
             //    return 0;
             //data = fabs(data);

@@ -32,7 +32,8 @@ namespace QoZ {
             
             if (tolerance>=2)
                 return global_eb;
-            return std::min(tolerance,global_eb);
+            T eb = tolerance;
+            return std::min(eb,global_eb);
         }
 
         T interpret_eb(const iterator &iter) const {

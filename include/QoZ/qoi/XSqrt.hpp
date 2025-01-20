@@ -112,8 +112,10 @@ namespace QoZ {
             data = fabs(data);
             double sqr = sqrt(data);
             
-            if (data == 0)
-               return std::min(tolerance*tolerance, global_eb);
+            if (data <= 1e-10){
+               T eb = tolerance*tolerance;
+               return std::min(eb, global_eb);
+            }
 
             double a = 0.5/sqr;
             double b = a*0.5/data;//datatype may be T
