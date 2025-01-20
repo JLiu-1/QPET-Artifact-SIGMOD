@@ -890,6 +890,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         if(conf.qoi == 11 or (conf.qoi == 14 and conf.qoi_string == "x")){
             if (conf.QoZ == 0)
                 rate = std::min(2.0,rate);
+            else
+                rate = std::min(4.0,rate);
             //else if 
         }
         if(conf.verbose)
