@@ -181,7 +181,7 @@ namespace QoZ {
             case 19:
                 return std::make_shared<QoZ::QoI_X_Abs<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 20:
-                return std::make_shared<QoZ::QoI_X_Composite<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string);
+                return std::make_shared<QoZ::QoI_X_Composite<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.analytical);
             case 21:
                 return std::make_shared<QoZ::QoI_FX_New<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
             case 22:{

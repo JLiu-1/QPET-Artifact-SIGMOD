@@ -31,7 +31,7 @@ namespace QoZ {
     class QoI_X_Composite : public concepts::QoIInterface<T, N> {//Ax+B
 
     public:
-        QoI_X_Composite(double tolerance, T global_eb, std::string comp_string) : //comp_string: inner to outer
+        QoI_X_Composite(double tolerance, T global_eb, std::string comp_string, bool analytical = true) : //comp_string: inner to outer
                 tolerance(tolerance),
                 global_eb(global_eb)
                 {
@@ -46,6 +46,7 @@ namespace QoZ {
 
             while(iss>>id){//inner to outer
                 //std::cout<<id<<std::endl;
+                //currently no re-dispath (14 to others). Todo: add
                 switch(id){
                     case 1:
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Square<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
@@ -53,13 +54,24 @@ namespace QoZ {
                     case 2:
                         double log_base;
                         iss>>log_base;
-                        QoIs.push_back(std::make_shared<QoZ::QoI_Log_X<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),log_base));
+                        if(analytical)
+                            QoIs.push_back(std::make_shared<QoZ::QoI_Log_X<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),log_base));
+                        else
+                            QoIs.push_back(std::make_shared<QoZ::QoI_Log_X_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),log_base));
+
                         break;
                     case 9:
-                        QoIs.push_back(std::make_shared<QoZ::QoI_X_Cubic<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
+                        if(analytical)
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Cubic<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
+                        else
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Cubic_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
+
                         break;
                     case 10:
-                        QoIs.push_back(std::make_shared<QoZ::QoI_X_Sqrt<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
+                        if(analytical)
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Sqrt<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
+                        else
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Sqrt_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
                         break;
                     case 11:
                         double A,B;
@@ -69,10 +81,16 @@ namespace QoZ {
                     case 12:
                         double base;
                         iss>>base;
-                        QoIs.push_back(std::make_shared<QoZ::QoI_X_Exp<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),base));
+                        if(analytical)
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Exp<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),base));
+                        else
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Exp_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),base));
                         break;
                     case 13:
-                        QoIs.push_back(std::make_shared<QoZ::QoI_X_Recip<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
+                        if(analytical)
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Recip<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
+                        else
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Recip_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
                         break;
                     case 14:{
                         std::string func_string;
@@ -95,11 +113,29 @@ namespace QoZ {
                     case 18:
                         double alpha;
                         iss>>alpha;
-                        QoIs.push_back(std::make_shared<QoZ::QoI_X_Power<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),alpha));
+                        if(analytical)
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Power<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),alpha));
+                        else
+                            QoIs.push_back(std::make_shared<QoZ::QoI_X_Power_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max(),alpha));
                         break;
                     case 19:
                         QoIs.push_back(std::make_shared<QoZ::QoI_X_Abs<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()));
                         break;
+                    case 22:{
+                        if(analytical)
+                            QoIs.push_back( std::make_shared<QoZ::QoI_X_Sin<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()) );
+                        else
+                            QoIs.push_back( std::make_shared<QoZ::QoI_X_Sin_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()) );
+                        break;
+                    }
+                    case 23:{
+                        if(analytical)
+                            QoIs.push_back( std::make_shared<QoZ::QoI_X_Tanh<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()) );
+                        else
+                            QoIs.push_back( std::make_shared<QoZ::QoI_X_Tanh_Approx<T, N>>(std::numeric_limits<double>::max(),std::numeric_limits<T>::max()) );
+                        
+                        break;
+                    }
                 }
 
             }
