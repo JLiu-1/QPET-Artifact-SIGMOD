@@ -912,25 +912,25 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                     if (conf.QoZ == 0)
                         rate = std::min(2.0,rate);
                     else
-                        rate = std::min(4.0,rate);
+                        rate = std::min(3.0,rate);
                 }
                 else if(conf.qoiRegionSize <=16){//it is a random number. to Fix
                     if (conf.QoZ == 0)
                         rate = std::min(2.0,rate);
                     else
-                        rate = std::min(6.0,rate);
+                        rate = std::min(4.0,rate);
                 }
                 else if(conf.qoiRegionSize <=32){//it is a random number. to Fix
                     if (conf.QoZ == 0)
                         rate = std::min(3.0,rate);
                     else
-                        rate = std::min(8.0,rate);
+                        rate = std::min(6.0,rate);
                 }
                 else {
                     if (conf.QoZ == 0)
                         rate = std::min(4.0,rate);
                     else
-                        rate = std::min(16.0,rate);
+                        rate = std::min(8.0,rate);
                 }
                 //else if 
             }
@@ -2774,6 +2774,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
     } 
 
     else {
+        if()
         conf.use_global_eb = false;//added.
         conf.qoiEBBase = conf.absErrorBound/1030;
         auto ebs = std::move(conf.ebs);
@@ -2856,9 +2857,12 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
 
+        if ((conf.qoi == 11) or (conf.qoi == 14 and conf.qoi_string == "x")){
+            conf.use_global_eb = true;
+        }
         
         //std::cout<<"Max eb: "<<*std::max_element(conf.ebs.begin(),conf.ebs.end());
-        if(conf.qoi>0 and sampling_num != conf.num){
+        else if(conf.qoi>0 and sampling_num != conf.num){
             conf.ebs = QoZ::sampling<double, N>(ebs.data(), conf.dims, sampling_num, sample_dims, sampling_block);  
             //conf.ebs = std::move(ebs);  
             auto old_dims=conf.dims;
@@ -2930,7 +2934,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         }
         if(!conf.use_global_eb)
             conf.ebs = std::move(ebs);
-        conf.qoi = ori_qoi;
+        //conf.qoi = ori_qoi;
         double tuning_time = timer.stop();
         if(conf.verbose){
             std::cout << "Tuning time = " << tuning_time << "s" << std::endl;
