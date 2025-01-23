@@ -2774,7 +2774,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
     } 
 
     else {
-        if()
         conf.use_global_eb = false;//added.
         conf.qoiEBBase = conf.absErrorBound/1030;
         auto ebs = std::move(conf.ebs);
