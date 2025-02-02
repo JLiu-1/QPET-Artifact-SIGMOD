@@ -1449,6 +1449,10 @@ void QoI_tuning(QoZ::Config &conf, T *data){
          //   qoi->set_dims(dims);
         //    qoi->init();
         //}
+
+        if(conf.verbose and conf.use_global_eb)  
+            std::cout<<"Use global eb."<<std::endl; 
+
         if(conf.use_global_eb and (conf.QoZ > 0 and conf.testLorenzo == false) ){
             
             ori_ebs.clear();
@@ -1463,8 +1467,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             conf.ebs = std::move(ori_ebs);
         }
 
-        if(conf.verbose and conf.use_global_eb)  
-            std::cout<<"Use global eb."<<std::endl; 
+        
 
         conf.qoiEBBase = conf.absErrorBound / 1030;
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
@@ -2779,7 +2782,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf.use_global_eb = false;//added.
         conf.qoiEBBase = conf.absErrorBound/1030;
         auto ebs = std::move(conf.ebs);
-        std::cout<<"p1"<<std::endl;
         /*
         std::vector<double> ebs;
         if(conf.qoi){
@@ -2805,7 +2807,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         lorenzo_config.openmp = false;
         lorenzo_config.blockSize = 5;//why?
         lorenzo_config.qoi = 0;
-        std::cout<<"p2"<<std::endl;
         if (sampling_num != conf.num) {
             lorenzo_config.setDims(sample_dims.begin(), sample_dims.end());
        
@@ -2855,7 +2856,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }
             lorenzo_config.setDims(conf.dims.begin(), conf.dims.end());
         }
-        std::cout<<"p3"<<std::endl;
         
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
@@ -2866,7 +2866,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         
         //std::cout<<"Max eb: "<<*std::max_element(conf.ebs.begin(),conf.ebs.end());
         else if(conf.qoi>0 and sampling_num != conf.num){
-            std::cout<<ebs.size()<<std::endl;
             conf.ebs = QoZ::sampling<double, N>(ebs.data(), conf.dims, sampling_num, sample_dims, sampling_block);  
             //conf.ebs = std::move(ebs);  
             auto old_dims=conf.dims;
@@ -2881,7 +2880,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             //std::cout<<"refixing eb"<<std::endl;
             auto ori_eb = conf.absErrorBound;
             //std::cout<<best_lorenzo_ratio<<std::endl;
-            std::cout<<"p4"<<std::endl;
             for(auto cur_eb:{2.0*ori_eb,1.5*ori_eb,0.75*ori_eb,0.5*ori_eb}){
                 tempdata = sampling_data;
                 auto last_eb = conf.absErrorBound;
@@ -2904,7 +2902,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 }
 
             }
-            std::cout<<"p5"<<std::endl;
             //std::cout<<conf.absErrorBound<<std::endl;
             
             if(!conf.use_global_eb){
@@ -2932,7 +2929,6 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }
             //conf.qoiEBBase = conf.absErrorBound/1030;
             conf.setDims(old_dims.begin(), old_dims.end());
-            std::cout<<"p6"<<std::endl;
 
             
 //          
