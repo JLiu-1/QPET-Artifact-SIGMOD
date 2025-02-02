@@ -850,6 +850,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 min_qoi = *minmax.first;
                 max_qoi = *minmax.second;
 
+                qoi_vals.clear();
+                qoi_vals.shrink_to_fit();
+
 
 
 
