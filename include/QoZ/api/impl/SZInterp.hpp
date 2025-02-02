@@ -1230,10 +1230,11 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         std::cout<<"File "<<j+1<<":"<<std::endl;
         std::cout << "Best abs eb : " << best_abs_ebs[j] << std::endl; 
         confs[j].absErrorBound = best_abs_ebs[j];
-        if(confs[j].use_global_eb)
+        if(confs[j].use_global_eb){
             std::cout<<"Use global eb."<<std::endl; 
+        }
 
-        if (confs[j].QoZ == 0 or confs[j].testLorenzo){
+        if (!confs[j].use_global_eb or confs[j].QoZ == 0 or confs[j].testLorenzo){
             for (size_t i = 0; i < confs[j].num; i++){
                 if(ori_ebs[j][i] > best_abs_ebs[j])
                     ori_ebs[j][i] = best_abs_ebs[j];
