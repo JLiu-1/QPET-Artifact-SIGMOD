@@ -1233,7 +1233,7 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
         if(confs[j].use_global_eb)
             std::cout<<"Use global eb."<<std::endl; 
 
-        else{
+        if (confs[j].QoZ == 0 or confs[j].testLorenzo){
             for (size_t i = 0; i < confs[j].num; i++){
                 if(ori_ebs[j][i] > best_abs_ebs[j])
                     ori_ebs[j][i] = best_abs_ebs[j];
