@@ -1450,7 +1450,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         //    qoi->init();
         //}
         if(conf.use_global_eb){
-            if(conf.verbose)  
+            if(conf.verbose and conf.QoZ > 0)  
                 std::cout<<"Use global eb."<<std::endl; 
             ori_ebs.clear();
             ori_ebs.shrink_to_fit();
