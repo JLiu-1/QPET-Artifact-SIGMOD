@@ -1241,6 +1241,10 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
             }
             confs[j].ebs=std::move(ori_ebs[j]);
         }
+        else{
+            ori_ebs[j].clear();
+            ori_ebs[j].shrink_to_fit();
+        }
 
         confs[j].qoiEBBase = confs[j].absErrorBound / 1030;
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
