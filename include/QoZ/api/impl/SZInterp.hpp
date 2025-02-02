@@ -1449,9 +1449,8 @@ void QoI_tuning(QoZ::Config &conf, T *data){
          //   qoi->set_dims(dims);
         //    qoi->init();
         //}
-        if(conf.use_global_eb){
-            if(conf.verbose and conf.QoZ > 0)  
-                std::cout<<"Use global eb."<<std::endl; 
+        if(conf.use_global_eb and (conf.QoZ > 0 and conf.testLorenzo == false) ){
+            
             ori_ebs.clear();
             ori_ebs.shrink_to_fit();
         }
@@ -1463,6 +1462,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             }*/ //deleted
             conf.ebs = std::move(ori_ebs);
         }
+
+        if(conf.verbose and conf.use_global_eb)  
+            std::cout<<"Use global eb."<<std::endl; 
 
         conf.qoiEBBase = conf.absErrorBound / 1030;
         //std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
