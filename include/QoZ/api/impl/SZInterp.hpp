@@ -2777,6 +2777,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         conf.use_global_eb = false;//added.
         conf.qoiEBBase = conf.absErrorBound/1030;
         auto ebs = std::move(conf.ebs);
+        std::cout<<"p1"<<std::endl;
         /*
         std::vector<double> ebs;
         if(conf.qoi){
@@ -2802,6 +2803,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
         lorenzo_config.openmp = false;
         lorenzo_config.blockSize = 5;//why?
         lorenzo_config.qoi = 0;
+        std::cout<<"p2"<<std::endl;
         if (sampling_num != conf.num) {
             lorenzo_config.setDims(sample_dims.begin(), sample_dims.end());
        
@@ -2851,7 +2853,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }
             lorenzo_config.setDims(conf.dims.begin(), conf.dims.end());
         }
-     
+        std::cout<<"p3"<<std::endl;
         
         conf = lorenzo_config;
         conf.qoi = ori_qoi;
@@ -2876,7 +2878,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             //std::cout<<"refixing eb"<<std::endl;
             auto ori_eb = conf.absErrorBound;
             //std::cout<<best_lorenzo_ratio<<std::endl;
-
+            std::cout<<"p4"<<std::endl;
             for(auto cur_eb:{2.0*ori_eb,1.5*ori_eb,0.75*ori_eb,0.5*ori_eb}){
                 tempdata = sampling_data;
                 auto last_eb = conf.absErrorBound;
@@ -2899,6 +2901,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
                 }
 
             }
+            std::cout<<"p5"<<std::endl;
             //std::cout<<conf.absErrorBound<<std::endl;
             
             if(!conf.use_global_eb){
@@ -2926,6 +2929,7 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             }
             //conf.qoiEBBase = conf.absErrorBound/1030;
             conf.setDims(old_dims.begin(), old_dims.end());
+            std::cout<<"p6"<<std::endl;
 
             
 //          
