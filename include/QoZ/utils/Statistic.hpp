@@ -358,22 +358,26 @@ namespace QoZ {
     template<class T>
     void evaluate_average(T const * data, T const * dec_data, double value_range, uint32_t n1, uint32_t n2, uint32_t n3, int block_size = 1){
         if(block_size == 0){
+            QoZ::Timer timer(true);
             double average = 0;
             double average_dec = 0;
             for(size_t i=0; i<n1 * n2 * n3; i++){
                 average += data[i];
                 average_dec += dec_data[i]; 
             }
+            timer.stop("RegionalQoI validation");
             std::cout << "Error in global average = " << fabs(average - average_dec)/(n1*n2*n3) << std::endl;
         }
         else{
+            QoZ::Timer timer(true);
             auto average = compute_average(data, n1, n2, n3, block_size);
             auto average_dec = compute_average(dec_data, n1, n2, n3, block_size);
+            auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
+            timer.stop("RegionalQoI validation");
             auto minmax = std::minmax_element(average.begin(),average.end());
             value_range = *minmax.second - *minmax.first;
             if (value_range == 0)
                 value_range = 1.0;
-            auto error = evaluate_L_inf(average.data(), average_dec.data(), average.size(), false, false);
             std::cout << "QoI average with block size " << block_size << ": Min = " << *minmax.first << ", Max = " << *minmax.second<<", Range = "<< value_range << std::endl;
             std::cout << "L^infinity error of average with block size " << block_size << " = " << error << ", relative error = " << error * 1.0 / value_range << std::endl;
 
@@ -638,10 +642,10 @@ namespace QoZ {
         if (blockSize>1){
             
             printf("Regional qoi average:\n");
-            timer.start();
+            //timer.start();
             if(dims.size() == 2) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, 1, dims[0], dims[1], blockSize);
             else if(dims.size() == 3) evaluate_average(ori_data.data(), data.data(), max_qoi - min_qoi, dims[0], dims[1], dims[2], blockSize);
-            timer.stop("RegionalQoI validation");
+            //timer.stop("RegionalQoI validation");
         }
 
         if (dims.size() == 3){
