@@ -4,7 +4,7 @@
 
 #include "Config.hpp"
 #include "QoZ/qoi/QoIInfo.hpp"
-
+#include "Timer.hpp"
 namespace QoZ {
     template<class T>
     T data_range(const T *data, size_t num) {
@@ -515,7 +515,7 @@ namespace QoZ {
             data[i]=std::vector<double>(data_T[i],data_T[i]+num_elements);
          }
        // const QoZ::uint N = conf.N;
-        
+         
         auto qoi = QoZ::GetQOI<double, 1>(std::array<QoZ::Config,3>{conf,conf,conf});
 
        
@@ -526,7 +526,7 @@ namespace QoZ {
 
         std::vector<double> ori_qois(num_elements);
         std::vector<double> dec_qois(num_elements);
-       
+         QoZ::Timer timer(true);
         for(int i=0; i<num_elements; i++){
             auto cur_ori_qoi = qoi->eval(ori_data[0][i],ori_data[1][i],ori_data[2][i]);
             auto cur_qoi = qoi->eval(data[0][i],data[1][i],data[2][i]);
@@ -555,6 +555,7 @@ namespace QoZ {
 
 
         }
+        timer.stop("QoI validation");
 
         if (max_qoi == min_qoi){
             max_qoi = 1.0;
