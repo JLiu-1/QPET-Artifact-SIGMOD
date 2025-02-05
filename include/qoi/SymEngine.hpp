@@ -47,7 +47,7 @@ inline bool is_number(const Basic & expr){
 }
 
 
-std::function<double(double, double, double)> convert_expression_to_function(const Basic &expr, 
+inline std::function<double(double, double, double)> convert_expression_to_function(const Basic &expr, 
                                                               const RCP<const Symbol> &x, 
                                                               const RCP<const Symbol> &y, 
                                                               const RCP<const Symbol> &z) {
