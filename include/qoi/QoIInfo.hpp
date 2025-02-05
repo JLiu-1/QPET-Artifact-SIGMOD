@@ -17,7 +17,6 @@
 #include "FX.hpp"
 #include "FX_abs.hpp"
 #include "FX_P.hpp"
-#include "RegionalFX.hpp"
 #include <vector>
 
 namespace QoZ {
