@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
       encoder->set_bitrate(bpp);
     }
 
-    QoZ::QoImeta qoi_meta;
+    QoZ::QoIMeta qoi_meta;
 
     //std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
     if (qoi_tol>0 and qoi_id>0){
