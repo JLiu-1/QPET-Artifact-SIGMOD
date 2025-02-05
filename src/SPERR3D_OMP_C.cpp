@@ -82,7 +82,7 @@ void sperr::SPERR3D_OMP_C::set_qoi_base(double q_base)
 
 void sperr::SPERR3D_OMP_C::set_qoi_analytical(bool ana)
 {
-  qoi_meta.analytical = analytical;
+  qoi_meta.analytical = ana;
 }
 
 void sperr::SPERR3D_OMP_C::set_qoi_tol(double q_tol)
