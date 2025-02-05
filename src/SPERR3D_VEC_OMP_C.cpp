@@ -292,10 +292,10 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             //qoi->set_global_eb(cur_abs_eb);
             // reset variables for average of square
             std::array<std::unique_ptr<SPECK3D_FLT>,3> test_compressor = {std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>()};
-
+            for(auto i:{0,1,2}){
               test_compressor[i]->set_dims(sample_dims_arr);
               test_compressor[i]->set_tolerance(cur_abs_eb[i]);
-      
+            }
             //test_compressor->set_qoi(qoi);
             double cur_br = 0;
             bool outlier = false;
@@ -304,7 +304,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
               auto block_num = sampled_blocks[0][j].size();
               for(auto i:{0,1,2}){
                 auto sampled_copy = sampled_blocks[i][j];
-                std::cout<<i<<" "<<j<<" "<<sampled_copy.size()<<std::endl;
+                //std::cout<<i<<" "<<j<<" "<<sampled_copy.size()<<std::endl;
                 test_compressor[i]->take_data(std::move(sampled_copy));
 
                 auto rtn = test_compressor[i]->compress();
