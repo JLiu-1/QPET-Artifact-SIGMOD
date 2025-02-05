@@ -4,6 +4,7 @@
 #include "CLI/App.hpp"
 #include "CLI/Config.hpp"
 #include "CLI/Formatter.hpp"
+#include "qoi/QoI.hpp"
 #include "qoi/QoIInfo.hpp"
 #include "Timer.h"
 #include <cassert>
@@ -327,16 +328,23 @@ int main(int argc, char* argv[])
       assert(bpp != 0.0);
       encoder->set_bitrate(bpp);
     }
+
+    QoZ::QoImeta qoi_meta;
+
     //std::cout<<qoi_tol<<" "<<qoi_id<<std::endl;
     if (qoi_tol>0 and qoi_id>0){
-        
-        encoder->set_qoi_id(qoi_id);
-        encoder->set_qoi_string(qoi_string);
+       qoi_meta.qoi_id = qoi_id;
+       qoi_meta.qoi_string = qoi_string;
+       qoi_meta.qoi_base = qoi_base;
+       qoi_meta.qoi_analytical = qoi_nalytical;
+       encoder->set_qoi_meta(qoi_meta);
+        //encoder->set_qoi_id(qoi_id);
+        //encoder->set_qoi_string(qoi_string);
         encoder->set_qoi_tol(qoi_tol);
         encoder->set_qoi_block_size(qoi_block_size);
         encoder->set_qoi_k(qoi_k);
-        encoder->set_qoi_base(qoi_base);
-        encoder->set_qoi_analytical(qoi_analytical);
+        //encoder->set_qoi_base(qoi_base);
+        //encoder->set_qoi_analytical(qoi_analytical);
     }
     else{
       encoder->set_qoi_id(0);
@@ -423,7 +431,7 @@ int main(int argc, char* argv[])
           auto mean_var = sperr::calc_mean_var(inputf, total_vals, omp_num_threads);
           sigma = std::sqrt(mean_var[1]);
           if (qoi_tol>0 and qoi_id>0){
-            auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
+            auto qoi = QoZ::GetQOI<double>(qoi_meta, qoi_tol, 0.0);
             if (qoi_block_size==1){
               auto qoi_err = sperr::calc_qoi_maxerr(inputf , outputf.data(), total_vals, qoi);
               qoi_err_abs = qoi_err[0];
@@ -447,7 +455,7 @@ int main(int argc, char* argv[])
           auto mean_var = sperr::calc_mean_var(inputd, total_vals, omp_num_threads);
           sigma = std::sqrt(mean_var[1]);
           if (qoi_tol>0 and qoi_id>0){
-            auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, 0.0, qoi_string);
+            auto qoi = QoZ::GetQOI<double>(qoi_meta, qoi_tol, 0.0);
             if (qoi_block_size==1){
               auto qoi_err = sperr::calc_qoi_maxerr(inputd , outputd.data(), total_vals, qoi);
               qoi_err_abs = qoi_err[0];
