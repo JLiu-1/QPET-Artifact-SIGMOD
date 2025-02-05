@@ -11,8 +11,8 @@
 
 namespace QoZ {
 
-    template<class T, uint N>
-    class QoI_X_Tanh : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Tanh : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Tanh(double tolerance, T global_eb) : 
@@ -20,7 +20,7 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 23;
+            concepts::QoIInterface<T>::id = 23;
         }
 
         T interpret_eb(T data) const {
@@ -97,8 +97,8 @@ namespace QoZ {
     };
 
 
-    template<class T, uint N>
-    class QoI_X_Tanh_Approx : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Tanh_Approx : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Tanh_Approx(double tolerance, T global_eb) : 
@@ -106,7 +106,7 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 23;
+            concepts::QoIInterface<T>::id = 23;
         }
 
         T interpret_eb(T data) const {

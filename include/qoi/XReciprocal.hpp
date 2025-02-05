@@ -10,8 +10,8 @@
 #include "QoI.hpp"
 
 namespace QoZ {
-    template<class T, uint N>
-    class QoI_X_Recip : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Recip : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Recip(double tolerance, T global_eb) : 
@@ -19,7 +19,7 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 13;
+            concepts::QoIInterface<T>::id = 13;
         }
 
  
@@ -87,8 +87,8 @@ namespace QoZ {
         
     };
 
-    template<class T, uint N>
-    class QoI_X_Recip_Approx : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Recip_Approx : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Recip_Approx(double tolerance, T global_eb) : 
@@ -96,7 +96,7 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 13;
+            concepts::QoIInterface<T>::id = 13;
         }
 
         T interpret_eb(T data) const {

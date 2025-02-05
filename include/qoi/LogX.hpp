@@ -10,8 +10,8 @@
 #include "QoI.hpp"
 
 namespace QoZ {
-    template<class T, uint N>
-    class QoI_Log_X : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_Log_X : public concepts::QoIInterface<T> {
 
     public:
         QoI_Log_X(double tolerance, T global_eb, double base = 2.0) : 
@@ -26,7 +26,7 @@ namespace QoZ {
             ///printf("coeff1 = %.4f, coeff2 = %.4f\n", (double) coeff1, (double) coeff2);
             ///printf("coeff = %.4f\n", (double) coeff);
             log_b = log(base);
-            concepts::QoIInterface<T, N>::id = 2;
+            concepts::QoIInterface<T>::id = 2;
         }
 
 
@@ -104,8 +104,8 @@ namespace QoZ {
 }
 
 namespace QoZ {
-    template<class T, uint N>
-    class QoI_Log_X_Approx : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_Log_X_Approx : public concepts::QoIInterface<T> {
 
     public:
         QoI_Log_X_Approx(double tolerance, T global_eb, double base = 2.0) : 
@@ -123,7 +123,7 @@ namespace QoZ {
             ///printf("coeff = %.4f\n", (double) coeff);
             log_b = log(base);
             //printf("log base = %.4f\n", log_b);
-            concepts::QoIInterface<T, N>::id = 2;
+            concepts::QoIInterface<T>::id = 2;
         }
 
         using Range = multi_dimensional_range<T, N>;

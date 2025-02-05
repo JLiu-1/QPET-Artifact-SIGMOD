@@ -10,8 +10,8 @@
 #include "QoI.hpp"
 
 namespace QoZ {
-    template<class T, uint N>
-    class QoI_X_Power : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Power : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Power(double tolerance, T global_eb, double a = 2.0) : //x^a, a>0
@@ -20,7 +20,7 @@ namespace QoZ {
                 alpha(a) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 18;
+            concepts::QoIInterface<T>::id = 18;
             if(fabs(std::round(alpha)-alpha)<=1e-10){
                 isInt = true;
                 alpha = std::round(alpha);
@@ -120,8 +120,8 @@ namespace QoZ {
         bool isInt = false;
     };
 
-    template<class T, uint N>
-    class QoI_X_Power_Approx : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Power_Approx : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Power_Approx(double tolerance, T global_eb, double a = 2.0) : //x^a, a>0
@@ -130,7 +130,7 @@ namespace QoZ {
                 alpha(a) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 18;
+            concepts::QoIInterface<T>::id = 18;
             
             
         }

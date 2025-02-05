@@ -10,8 +10,8 @@
 #include "QoI.hpp"
 
 namespace QoZ {
-    template<class T, uint N>
-    class QoI_X_Sqrt : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Sqrt : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Sqrt(double tolerance, T global_eb) : 
@@ -19,7 +19,7 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 10;
+            concepts::QoIInterface<T>::id = 10;
         }
 
         T interpret_eb(T data) const {
@@ -89,8 +89,8 @@ namespace QoZ {
         
     };
 
-    template<class T, uint N>
-    class QoI_X_Sqrt_Approx : public concepts::QoIInterface<T, N> {
+    template<class T>
+    class QoI_X_Sqrt_Approx : public concepts::QoIInterface<T> {
 
     public:
         QoI_X_Sqrt_Approx(double tolerance, T global_eb) : 
@@ -98,11 +98,11 @@ namespace QoZ {
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 10;
+            concepts::QoIInterface<T>::id = 10;
         }
 
-        using Range = multi_dimensional_range<T, N>;
-        using iterator = typename multi_dimensional_range<T, N>::iterator;
+        using Range = multi_dimensional_range<T>;
+        using iterator = typename multi_dimensional_range<T>::iterator;
 
         T interpret_eb(T data) const {
             data = fabs(data);

@@ -10,8 +10,8 @@
 #include "QoI.hpp"
 
 namespace QoZ {
-    template<class T, uint N>
-    class QoI_X_Lin : public concepts::QoIInterface<T, N> {//Ax+B
+    template<class T>
+    class QoI_X_Lin : public concepts::QoIInterface<T> {//Ax+B
 
     public:
         QoI_X_Lin(double tolerance, T global_eb, double AA = 1.0, double BB = 0.0) : 
@@ -21,7 +21,7 @@ namespace QoZ {
                 B(BB) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T, N>::id = 11;
+            concepts::QoIInterface<T>::id = 11;
             //std::cout<<A<<" "<<B<<std::endl;
 
         }
