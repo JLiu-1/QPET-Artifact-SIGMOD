@@ -243,7 +243,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
         //best_abs_eb = pwe;
 
         double sample_rate = 0.01;
-        size_t block_size = 31;
+        size_t block_size = 63;
 
         std::array<std::vector<std::vector<double>>,3>sampled_blocks;
         std::vector<std::vector<size_t>>starts;
