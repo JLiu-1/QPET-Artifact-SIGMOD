@@ -1,5 +1,6 @@
 #include "SPERR3D_VEC_OMP_C.h"
 #include "qoi/QoIInfo.hpp"
+#include "Sample.h"
 #include <algorithm>  // std::all_of()
 #include <cassert>
 #include <cstring>
@@ -256,9 +257,9 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
         double prof_abs_threshold = ebs[0][quantiles[0]];
         //double sample_ratio = 5e-3;
         for(int i=0;i<3;i++){                      
-            totalblock_num*=(size_t)((chunk_dims[0][i]-1)/block_size);
+            totalblock_num*=(size_t)((chunk_dims[i]-1)/block_size);
         }
-        std::vector<size_t> reversed_dims = {chunk_dims[0][2],chunk_dims[0][1],chunk_dims[0][0]};
+        std::vector<size_t> reversed_dims = {chunk_dims[2],chunk_dims[1],chunk_dims[0]};
         std::vector<size_t> sample_dims = {block_size+1,block_size+1,block_size+1};
         std::array<size_t,3> sample_dims_arr = {block_size+1,block_size+1,block_size+1};
        
@@ -292,7 +293,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             // reset variables for average of square
             std::array<std::unique_ptr<SPECK3D_FLT>,3> test_compressor = {std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>()};
 
-              test_compressor->set_dims(sample_dims_arr);
+              test_compressor[i]->set_dims(sample_dims_arr);
               test_compressor[i]->set_tolerance(cur_abs_eb[i]);
             }
             //test_compressor->set_qoi(qoi);
@@ -314,7 +315,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
                 offsets[i].resize(block_num,0);
               }
               std::array<const vecd_type *,3>sampled_ori = {&test_compressor[0]->view_orig_data(),&test_compressor[1]->view_orig_data(),&test_compressor[2]->view_orig_data()}; 
-              //std::array<double,3>test_means = {test_compressor[0]->get_mean(),test_compressor[1]->get_mean(),test_compressor[2]->get_mean()};
+              std::array<double,3>test_means = {test_compressor[0]->get_mean(),test_compressor[1]->get_mean(),test_compressor[2]->get_mean()};
               //std::cout<<test_means[0]<<" "<<test_means[1]<<" "<<test_means[2]<<std::endl;
               std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
               
