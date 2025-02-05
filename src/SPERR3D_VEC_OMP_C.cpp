@@ -357,7 +357,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
                 cur_br += test_encoded_stream[i].size()*8.0/(double)(3*sample_num);       
             }
             std::cout << "current_eb = " << cur_abs_eb[0] <<" "<< cur_abs_eb[1]<<" "<< cur_abs_eb[2] << ", current_br = " << cur_br << std::endl;
-            if(cur_br < best_br * 1.02){//todo: optimize
+            if(cur_br < best_br * 1.01){//todo: optimize
                 best_br = cur_br;
                 best_abs_eb = cur_abs_eb;
                 best_quantile = quantile;
