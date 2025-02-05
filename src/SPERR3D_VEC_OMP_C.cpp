@@ -298,6 +298,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       
             //test_compressor->set_qoi(qoi);
             double cur_br = 0;
+            bool outlier = false;
             for (int j=0;j<sampled_blocks[0].size();j++){
               std::array<vec8_type,3> test_encoded_stream;
               auto block_num = sampled_blocks[0][j].size();
@@ -320,7 +321,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
               std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
               
 
-              bool outlier = false;
+              
               size_t outlier_num = 0;
               //std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
               for(size_t i = 0; i < block_num ; i++){
