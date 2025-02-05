@@ -145,13 +145,18 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
       m_mode == CompMode::PWE;
       
       std::array<size_t,3> chunk_dims = {chunk_idx[i][1], chunk_idx[i][3], chunk_idx[i][5]};
-      
+      /*
       double sample_rate = 0.01;
       double length_sample_rate = pow(sample_rate,1.0/3.0);
       std::array<size_t,3> sample_dims = {(size_t)(chunk_idx[i][1]*length_sample_rate), (size_t)(chunk_idx[i][3]*length_sample_rate), (size_t)(chunk_idx[i][5]*length_sample_rate)};
       size_t sample_num = sample_dims[0]*sample_dims[1]*sample_dims[2];
-
+  
       auto sampled_data = m_sample_center(chunk,chunk_dims,sample_dims);
+      */
+
+      
+
+
       /*
       if(qoi_block_size > 1){//regional 
         //adjust qoieb
@@ -209,6 +214,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
            quantiles.push_back((size_t)(i*k));
        int quantile_num = quantiles.size();
 
+       
 
 
 
@@ -234,6 +240,43 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 
         double best_br = 9999;
         //best_abs_eb = pwe;
+
+        double sample_rate = 0.01;
+        size_t block_size = 31;
+
+        std::array<std::vector<std::vector<double>>,3>sampled_blocks;
+        std::vector<std::vector<size_t>>starts;
+
+
+        size_t profStride=std::max((size_t)1,block_size/4);//todo: bugfix for others
+        bool profiling = true;
+
+        size_t totalblock_num=1;  
+
+        double prof_abs_threshold = ebs[0][quantiles[0]];
+        //double sample_ratio = 5e-3;
+        for(int i=0;i<3;i++){                      
+            totalblock_num*=(size_t)((chunk_dims[0][i]-1)/block_size);
+        }
+        std::vector<size_t> reversed_dims = {chunk_dims[0][2],chunk_dims[0][1],chunk_dims[0][0]};
+        std::vector<size_t> sample_dims = {block_size+1,block_size+1,block_size+1};
+        std::array<size_t,3> sample_dims_arr = {block_size+1,block_size+1,block_size+1};
+       
+        sperr::profiling_block_3d<double,3>(chunk[0].data(),reversed_dims,starts,block_size, prof_abs_threshold,profStride);
+        
+        
+
+
+        size_t num_filtered_blocks=starts.size();
+        if(num_filtered_blocks<=(int)(0.6*sample_rate*totalblock_num))//todo: bugfix for others 
+            profiling=false;
+        for(auto i:{0,1,2})
+          sperr::sampleBlocks<double,3>(chunk[i].data(),reversed_dims,block_size,sampled_blocks[i],sample_rate,profiling,starts,false);//todo: test var_first = true
+
+        size_t sample_num=0;
+        for(auto &block:sampled_blocks[0])
+          sample_num += block.size();
+
                         
         int idx = 0;
         for(auto quantile:quantiles)
@@ -248,65 +291,68 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
             //qoi->set_global_eb(cur_abs_eb);
             // reset variables for average of square
             std::array<std::unique_ptr<SPECK3D_FLT>,3> test_compressor = {std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>(),std::make_unique<SPECK3D_FLT>()};
-            auto sampled_copy = sampled_data;
-            for(auto i:{0,1,2}){
-              test_compressor[i]->take_data(std::move(sampled_copy[i]));
-              test_compressor[i]->set_dims(sample_dims);
+
+              test_compressor->set_dims(sample_dims_arr);
               test_compressor[i]->set_tolerance(cur_abs_eb[i]);
             }
             //test_compressor->set_qoi(qoi);
-
-
-            std::array<vec8_type,3> test_encoded_stream;
-            for(auto i:{0,1,2}){
-              auto rtn = test_compressor[i]->compress();
-              if(rtn!= RTNType::Good)
-                std::cout<<"Error"<<std::endl;
-            }
-
-            std::array< vecd_type,3> offsets;
-            for(auto i:{0,1,2}){
-              offsets[i].resize(sample_num,0);
-            }
-            std::array<const vecd_type *,3>sampled_ori = {&test_compressor[0]->view_orig_data(),&test_compressor[1]->view_orig_data(),&test_compressor[2]->view_orig_data()}; 
-            std::array<double,3>test_means = {test_compressor[0]->get_mean(),test_compressor[1]->get_mean(),test_compressor[2]->get_mean()};
-            //std::cout<<test_means[0]<<" "<<test_means[1]<<" "<<test_means[2]<<std::endl;
-            std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
-            
-
-            bool outlier = false;
-            size_t outlier_num = 0;
-            //std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
-            for(size_t i = 0; i < sample_num ; i++){
-              //std::cout<<sampled_data[0][i]<<" "<<(*sampled_dec[0])[i]<<std::endl;
-              if(!m_qoi->check_compliance((*sampled_ori[0])[i],(*sampled_ori[1])[i],(*sampled_ori[2])[i],
-                                                   (*sampled_dec[0])[i]+test_means[0],(*sampled_dec[1])[i]+test_means[1],(*sampled_dec[2])[i]+test_means[2]) ){
-                outlier = true;
-                outlier_num++;
-                for(auto j:{0,1,2})
-                  offsets[j][i] = (*sampled_ori[j])[i] - ( (*sampled_dec[j])[i] + test_means[j] );
-              }
-            }
-
-            if(outlier){
-              for(auto i:{0,1,2})
-                test_compressor[i]->zstd_encode(offsets[i]);
-            }
-            //std::cout<<outlier_num<<" "<<sample_num<<std::endl;
-
-            //todo here
-
-            //
-            for(auto i:{0,1,2}){
-              test_encoded_stream[i].clear();
-              test_encoded_stream[i].reserve(128);
-              test_compressor[i]->append_encoded_bitstream(test_encoded_stream[i]);
-            }
-            //m_encoded_streams[i].reserve(1280000);
-            
             double cur_br = 0;
-            for(auto i:{0,1,2})
-              cur_br += test_encoded_stream[i].size()*8.0/(double)(3*sample_num);       
+            for (int j=0;j<sampled_blocks[0].size();j++){
+              std::array<vec8_type,3> test_encoded_stream;
+              auto block_num = sampled_blocks[0][j].size();
+              for(auto i:{0,1,2}){
+                auto sampled_copy = sampled_blocks[i][j];
+                test_compressor[i]->take_data(std::move(sampled_copy));
+
+                auto rtn = test_compressor[i]->compress();
+                if(rtn!= RTNType::Good)
+                  std::cout<<"Error"<<std::endl;
+              }
+
+              std::array< vecd_type,3> offsets;
+              for(auto i:{0,1,2}){
+                offsets[i].resize(block_num,0);
+              }
+              std::array<const vecd_type *,3>sampled_ori = {&test_compressor[0]->view_orig_data(),&test_compressor[1]->view_orig_data(),&test_compressor[2]->view_orig_data()}; 
+              //std::array<double,3>test_means = {test_compressor[0]->get_mean(),test_compressor[1]->get_mean(),test_compressor[2]->get_mean()};
+              //std::cout<<test_means[0]<<" "<<test_means[1]<<" "<<test_means[2]<<std::endl;
+              std::array<const vecd_type *,3>sampled_dec = {&test_compressor[0]->view_decoded_data(),&test_compressor[1]->view_decoded_data(),&test_compressor[2]->view_decoded_data()}; 
+              
+
+              bool outlier = false;
+              size_t outlier_num = 0;
+              //std::cout<<m_qoi->get_qoi_tolerance()<<std::endl;
+              for(size_t i = 0; i < block_num ; i++){
+                //std::cout<<sampled_data[0][i]<<" "<<(*sampled_dec[0])[i]<<std::endl;
+                if(!m_qoi->check_compliance((*sampled_ori[0])[i],(*sampled_ori[1])[i],(*sampled_ori[2])[i],
+                                                     (*sampled_dec[0])[i]+test_means[0],(*sampled_dec[1])[i]+test_means[1],(*sampled_dec[2])[i]+test_means[2]) ){
+                  outlier = true;
+                  outlier_num++;
+                  for(auto j:{0,1,2})
+                    offsets[j][i] = (*sampled_ori[j])[i] - ( (*sampled_dec[j])[i] + test_means[j] );
+                }
+              }
+
+              if(outlier){
+                for(auto i:{0,1,2})
+                  test_compressor[i]->zstd_encode(offsets[i]);
+              }
+              //std::cout<<outlier_num<<" "<<sample_num<<std::endl;
+
+              //todo here
+
+              //
+              for(auto i:{0,1,2}){
+                test_encoded_stream[i].clear();
+                test_encoded_stream[i].reserve(128);
+                test_compressor[i]->append_encoded_bitstream(test_encoded_stream[i]);
+              }
+              //m_encoded_streams[i].reserve(1280000);
+              
+              
+              for(auto i:{0,1,2})
+                cur_br += test_encoded_stream[i].size()*8.0/(double)(3*sample_num);       
+            }
             std::cout << "current_eb = " << cur_abs_eb[0] <<" "<< cur_abs_eb[1]<<" "<< cur_abs_eb[2] << ", current_br = " << cur_br << std::endl;
             if(cur_br < best_br * 1.02){//todo: optimize
                 best_br = cur_br;
