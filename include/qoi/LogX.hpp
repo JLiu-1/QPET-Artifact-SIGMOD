@@ -126,9 +126,6 @@ namespace QoZ {
             concepts::QoIInterface<T>::id = 2;
         }
 
-        using Range = multi_dimensional_range<T, N>;
-        using iterator = typename multi_dimensional_range<T, N>::iterator;
-
         T interpret_eb(T data) const {
             // if b > 1
             // e = min{(1 - b^{-t})|x|, (b^{t} - 1)|x|}
