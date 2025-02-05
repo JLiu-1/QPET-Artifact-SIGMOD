@@ -295,7 +295,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
 
               test_compressor[i]->set_dims(sample_dims_arr);
               test_compressor[i]->set_tolerance(cur_abs_eb[i]);
-            }
+      
             //test_compressor->set_qoi(qoi);
             double cur_br = 0;
             for (int j=0;j<sampled_blocks[0].size();j++){
