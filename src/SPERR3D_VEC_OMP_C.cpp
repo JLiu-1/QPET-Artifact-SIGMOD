@@ -304,6 +304,7 @@ auto sperr::SPERR3D_VEC_OMP_C::compress(const T* buf1, const T* buf2, const T* b
               auto block_num = sampled_blocks[0][j].size();
               for(auto i:{0,1,2}){
                 auto sampled_copy = sampled_blocks[i][j];
+                std::cout<<i<<" "<<j<<" "<<sampled_copy.size()<<std::endl;
                 test_compressor[i]->take_data(std::move(sampled_copy));
 
                 auto rtn = test_compressor[i]->compress();
