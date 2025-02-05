@@ -101,9 +101,6 @@ namespace QoZ {
             concepts::QoIInterface<T>::id = 10;
         }
 
-        using Range = multi_dimensional_range<T>;
-        using iterator = typename multi_dimensional_range<T>::iterator;
-
         T interpret_eb(T data) const {
             data = fabs(data);
             double sqr = sqrt(data);

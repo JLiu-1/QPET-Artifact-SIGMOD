@@ -46,10 +46,6 @@ namespace QoZ {
             return std::min(eb,global_eb);
         }
 
-        T interpret_eb(const iterator &iter) const {
-            return interpret_eb(*iter);
-        }
-
         T interpret_eb(const T * data, size_t offset) {
             return interpret_eb(*data);
         }
@@ -124,11 +120,7 @@ namespace QoZ {
            
             return std::min(eb, global_eb);
         }
-
-        T interpret_eb(const iterator &iter) const {
-            return interpret_eb(*iter);
-        }
-
+        
         T interpret_eb(const T * data, size_t offset) {
             return interpret_eb(*data);
         }

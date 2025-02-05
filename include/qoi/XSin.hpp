@@ -108,9 +108,6 @@ namespace QoZ {
             return std::min(eb, global_eb);
         }
 
-        T interpret_eb() const {
-            return interpret_eb(*iter);
-        }
 
         T interpret_eb(const T * data, size_t offset) {
             return interpret_eb(*data);
