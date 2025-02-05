@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
        qoi_meta.qoi_id = qoi_id;
        qoi_meta.qoi_string = qoi_string;
        qoi_meta.qoi_base = qoi_base;
-       qoi_meta.qoi_analytical = qoi_nalytical;
+       qoi_meta.analytical = qoi_analytical;
        encoder->set_qoi_meta(qoi_meta);
         //encoder->set_qoi_id(qoi_id);
         //encoder->set_qoi_string(qoi_string);
