@@ -60,19 +60,29 @@ void sperr::SPERR3D_OMP_C::set_direct_q(double q)
 }
 #endif
 
-void sperr::SPERR3D_OMP_C::set_qoi_meta(const QoZ::QoIMeta &q)
+void sperr::SPERR3D_OMP_C::set_qoi_meta(const QoZ::QoIMeta &q_m)
 {
-  qoi_meta = q_id;
+  qoi_meta = q_m;
 }
 
 void sperr::SPERR3D_OMP_C::set_qoi_id(int q_id)
 {
-  qoi_id = q_id;
+  qoi_meta.qoi_id = q_id;
 }
 
 void sperr::SPERR3D_OMP_C::set_qoi_string(std::string q_string)
 {
-  qoi_string = q_string;
+  qoi_meta.qoi_string = q_string;
+}
+
+void sperr::SPERR3D_OMP_C::set_qoi_base(double q_base)
+{
+  qoi_meta.qoi_base = q_base;
+}
+
+void sperr::SPERR3D_OMP_C::set_qoi_base(bool ana)
+{
+  qoi_meta.analytical = analytical;
 }
 
 void sperr::SPERR3D_OMP_C::set_qoi_tol(double q_tol)
@@ -113,7 +123,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     return RTNType::WrongLength;
 
   // First, calculate dimensions of individual chunk indices.
-  if(qoi_id>0 and qoi_tol>0 and qoi_block_size>1){
+  if(qoi_meta.qoi_id>0 and qoi_tol>0 and qoi_block_size>1){
     for(auto &cd:m_chunk_dims){
       if(cd<qoi_block_size)
         cd = qoi_block_size;
@@ -141,7 +151,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 #endif
   auto bs_qoi_tol = qoi_tol;
 
-  if(qoi_id>0 and qoi_tol>0)
+  if(qoi_meta.qoi_id>0 and qoi_tol>0)
   {
     if(qoi_block_size > 1){//regional 
         //adjust qoieb
@@ -166,7 +176,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
         //std::cout<<"Pointwise QoI eb rate: " << rate << std::endl;
         
 
-        if(qoi_id == 1 and qoi_string == "x"){
+        if((qoi_meta.qoi_id == 1 and qoi_meta.qoi_string == "x") or qoi_meta.qoi_id == 11 ){
             if(qoi_block_size <=4){//it is a random number. to Fix
                 rate = std::min(4.0,rate);
             }
@@ -204,16 +214,19 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
     auto chunk = m_gather_chunk<T>(buf, m_dims, chunk_idx[i]);
     assert(!chunk.empty());
 
-    if(qoi_id>0 and qoi_tol>0){//qoi tuning
+    if(qoi_meta.qoi_id>0 and qoi_tol>0){//qoi tuning
       std::cout<<"Tuning eb with qoi"<<std::endl;
       auto pwe = m_mode == CompMode::PWE ? m_quality : std::numeric_limits<double>::max();
       m_mode == CompMode::PWE;
 
 
-      if(qoi_string == "x" and qoi_id == 1){
+      if((qoi_meta.qoi_id == 1 and qoi_meta.qoi_string == "x") or qoi_meta.qoi_id == 11 ){
           m_quality = std::min(qoi_tol,pwe);
+          if(qoi_meta.qoi_id == 11){
+            m_quality /= qoi_meta.lin_A;
+          }
           if(qoi_block_size>1){
-            auto qoi = QoZ::GetQOI<double>(qoi_id, m_quality, m_quality, qoi_string);
+            auto qoi = QoZ::GetQOI<double>(qoi_meta, qoi_tol, m_quality);
             compressor->set_qoi(qoi);
             compressor->set_qoi_tol(bs_qoi_tol);
             compressor->set_qoi_block_size(qoi_block_size);
@@ -238,7 +251,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
           compressor->set_qoi_tol(bs_qoi_tol);
           compressor->set_qoi_block_size(qoi_block_size);
         }
-        auto qoi = QoZ::GetQOI<double>(qoi_id, qoi_tol, pwe, qoi_string);
+        auto qoi = QoZ::GetQOI<double>(qoi_meta, qoi_tol, pwe);
 
         std::vector<double> ebs (chunk_ele_num);
       // use quantile to determine abs bound
