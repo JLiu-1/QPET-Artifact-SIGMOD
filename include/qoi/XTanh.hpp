@@ -2,34 +2,52 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_X_CUBIC_HPP
-#define SZ_QOI_X_CUBIC_HPP
+#ifndef SZ_QOI_X_TANH_HPP
+#define SZ_QOI_X_TANH_HPP
 
 #include <algorithm>
 #include <cmath>
 #include "QoI.hpp"
 
-
 namespace QoZ {
-    template<class T>
-    class QoI_X_Cubic : public concepts::QoIInterface<T> {
+
+    template<class T, uint N>
+    class QoI_X_Tanh : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Cubic(double tolerance, T global_eb) : 
+        QoI_X_Tanh(double tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T>::id = 9;
-           // std::cout<<"init 1 "<< std::endl;
-            
+            concepts::QoIInterface<T, N>::id = 23;
         }
 
         T interpret_eb(T data) const {
             
+            double t = std::tanh(data);
+            T eb;
+            if(t>=0){
+                //if(tolerance*tolerance<=1+t*t)
+                    eb = (t-tolerance)>-1 ? data-std::atanh(t-tolerance):global_eb;
+                //else
+                //    eb = (t+tolerance)<1 ? std::atanh(t+tolerance)-data:global_eb;
+            }
+            else{
+                //if(tolerance*tolerance>=1+t*t)
+                //    eb = (t-tolerance)>-1 ? data-std::atanh(t-tolerance):global_eb;
+                //else
+                    eb = (t+tolerance)<1 ? std::atanh(t+tolerance)-data:global_eb;
+            }
 
-            T eb = data >= 0 ? std::cbrt(data*data*data+tolerance)-data : data - std::cbrt(data*data*data-tolerance);
-            return std::min(eb, global_eb);
+            //double low_bound = (t-tolerance)>-1? data-std::atanh(t-tolerance):global_eb;
+            //double high_bound = (t+tolerance)<-1? std::atanh(t+tolerance)-data:global_eb;
+            //T eb = std::min(low_bound,high_bound);
+            return std::min(eb,global_eb);
+        }
+
+        T interpret_eb(const iterator &iter) const {
+            return interpret_eb(*iter);
         }
 
         T interpret_eb(const T * data, size_t offset) {
@@ -37,10 +55,7 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
-            //    return false;
-            
-            return (fabs(data*data*data - dec_data*dec_data*dec_data) <= tolerance);
+            return (fabs(std::tanh(data) - std::tanh(dec_data)) < tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -61,59 +76,57 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val*val; 
+            return std::tanh(val);//todo
 
         } 
-
         std::string get_expression(const std::string var="x") const{
-            return var+"^3";
+            return "tanh("+var+")";
         }
 
         void pre_compute(const T * data){}
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
         double get_qoi_tolerance() {return tolerance;}
-        
+
+
+
     private:
-
-
-
         double tolerance;
         T global_eb;
      
     };
 
-    template<class T>
-    class QoI_X_Cubic_Approx : public concepts::QoIInterface<T> {
+
+    template<class T, uint N>
+    class QoI_X_Tanh_Approx : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Cubic_Approx(double tolerance, T global_eb) : 
+        QoI_X_Tanh_Approx(double tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T>::id = 9;
-           // std::cout<<"init 1 "<< std::endl;
-            
+            concepts::QoIInterface<T, N>::id = 23;
         }
 
         T interpret_eb(T data) const {
             
-
-            data = fabs(data);
-            double b = 6*data;
-            double a = 0.5*b*data;//datatype may be T
-
+            double t = std::tanh(data);
+            double a = 1-t*t;
+            double b = fabs(2*a*t);
             T eb;
-            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and b >= 1e-10 )
+            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >= 1e-10 )
                 eb = (sqrt(a*a+2*b*tolerance)-a)/b;
             else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
                 eb = tolerance/a;
             else 
                 eb = global_eb;
-          
-            //T eb = data >= 0 ? std::cbrt(data*data*data+tolerance)-data : data - std::cbrt(data*data*data-tolerance);
+           
             return std::min(eb, global_eb);
+        }
+
+        T interpret_eb(const iterator &iter) const {
+            return interpret_eb(*iter);
         }
 
         T interpret_eb(const T * data, size_t offset) {
@@ -121,10 +134,7 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
-            //    return false;
-            
-            return (fabs(data*data*data - dec_data*dec_data*dec_data) <= tolerance);
+            return (fabs(std::tanh(data) - std::tanh(dec_data)) < tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -145,27 +155,24 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val*val; 
+            return std::tanh(val);//todo
 
         } 
-
         std::string get_expression(const std::string var="x") const{
-            return var+"^3";
+            return "sin("+var+")";
         }
 
         void pre_compute(const T * data){}
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
         double get_qoi_tolerance() {return tolerance;}
-        
+
+
+
     private:
-
-
-
         double tolerance;
         T global_eb;
      
     };
-
 }
 #endif 

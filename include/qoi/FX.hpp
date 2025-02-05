@@ -81,8 +81,28 @@ namespace QoZ {
             //std::cout<<"ddf: "<< ddf<<std::endl;
   
             func = convert_expression_to_function(f, x);
-            deri_1 = convert_expression_to_function(df, x);
-            deri_2 = convert_expression_to_function(ddf, x);
+
+            if (free_symbols(df).empty() ){
+                //std::cout<<"df: "<<df<<std::endl;
+                const_d1 = true;
+                d1 = eval_double(df);
+                const_d2 = true;
+                d2 = 0;
+            }
+            else{
+                deri_1 = convert_expression_to_function(df, x);
+                
+                if (free_symbols(ddf).empty() ){
+                    const_d2 = true;
+                    d2 = eval_double(ddf);
+                }
+                else
+                    deri_2 = convert_expression_to_function(ddf, x);
+            }
+
+
+            //deri_1 = convert_expression_to_function(df, x);
+            //deri_2 = convert_expression_to_function(ddf, x);
 
             if (isolated)
                 singularities.insert(threshold);
@@ -102,8 +122,10 @@ namespace QoZ {
         T interpret_eb(T data) const {
             
 
-            double a = fabs(deri_1(data));//datatype may be T
-            double b = fabs(deri_2(data));
+            double a = const_d1 ? d1 : fabs(deri_1(data));//datatype may be T
+           // double a = 2*data;
+           // double b = 2.0;
+           double b = const_d2 ? d2 : fabs(deri_2(data));
            // 
             T eb;
             if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >=1e-10 )
@@ -163,7 +185,7 @@ namespace QoZ {
 
         } 
 
-        std::string get_expression() const{
+        std::string get_expression(const std::string var = "x") const{
             return func_string;
         }
 
@@ -187,7 +209,8 @@ namespace QoZ {
         std::function<double(double)> deri_2;
         std::set<double>singularities;
         std::string func_string;
-
+        bool const_d1=false, const_d2 = false;
+        double d1=0.0,d2=0.0;
         double threshold;
         bool isolated;
      

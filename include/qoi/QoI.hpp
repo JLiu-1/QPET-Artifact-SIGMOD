@@ -8,6 +8,20 @@
 #include<string>
 namespace QoZ {
 
+    struct QoIMeta {
+        int qoi_id = 0;
+        std::string qoi_string = "x^2";
+        double qoi_base = 2.0;
+        bool analytical = false;
+        bool isolated = false;
+        double threshold = 0.0;
+        std::string qoi_string_2 = "x^2";
+        double lin_A = 1.0;
+        double lin_B = 0.0;
+
+
+    };
+
 
     namespace concepts {
 
@@ -49,7 +63,7 @@ namespace QoZ {
 
             virtual double eval(T val) const = 0;
 
-            virtual std::string get_expression() const = 0;
+            virtual std::string get_expression(const std::string var = "x") const = 0;
 
             virtual void set_dims(const std::vector<size_t>& new_dims) = 0;
 

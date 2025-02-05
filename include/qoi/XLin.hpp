@@ -2,33 +2,33 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_X_SQUARE_HPP
-#define SZ_QOI_X_SQUARE_HPP
+#ifndef SZ_QOI_X_LIN_HPP
+#define SZ_QOI_X_LIN_HPP
 
 #include <algorithm>
 #include <cmath>
 #include "QoI.hpp"
 
 namespace QoZ {
-    template<class T>
-    class QoI_X_Square : public concepts::QoIInterface<T> {
+    template<class T, uint N>
+    class QoI_X_Lin : public concepts::QoIInterface<T, N> {//Ax+B
 
     public:
-        QoI_X_Square(double tolerance, T global_eb) : 
+        QoI_X_Lin(double tolerance, T global_eb, double AA = 1.0, double BB = 0.0) : 
                 tolerance(tolerance),
-                global_eb(global_eb) {
+                global_eb(global_eb),
+                A(AA),
+                B(BB) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T>::id = 1;
-           // std::cout<<"init 1 "<< std::endl;
-            
+            concepts::QoIInterface<T, N>::id = 11;
+            //std::cout<<A<<" "<<B<<std::endl;
+
         }
 
         T interpret_eb(T data) const {
-            
-
-            T eb = - fabs(data) + sqrt(data * data + tolerance);
-            return std::min(eb, global_eb);
+            T eb = tolerance/A;
+            return std::min(global_eb,eb);
         }
 
         T interpret_eb(const T * data, size_t offset) {
@@ -36,10 +36,7 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
-            //    return false;
-            
-            return (fabs(data*data- dec_data*dec_data) <= tolerance);
+            return (fabs(eval(data) - eval(dec_data)) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -60,25 +57,24 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val; 
+            return A * val + B;
 
         } 
 
         std::string get_expression(const std::string var="x") const{
-             return var+"^2";
+            return std::to_string(A)+"*"+var+"+"+std::to_string(B);
         }
 
         void pre_compute(const T * data){}
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
         double get_qoi_tolerance() {return tolerance;}
-        
+
+
     private:
-
-
-
         double tolerance;
         T global_eb;
+        double A = 1.0, B = 0.0;
      
     };
 }

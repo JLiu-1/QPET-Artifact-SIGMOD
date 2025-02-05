@@ -211,6 +211,14 @@ int main(int argc, char* argv[])
   auto* qoi_id_ptr = app.add_option("--qoi_id", qoi_id, "QoI id.")
                       ->group("Compression settings");
 
+  double qoi_base = std::exp(1.0);
+  auto* qoi_base_ptr = app.add_option("--qoi_base", qoi_base, "QoI base (exp or log).")
+                      ->group("Compression settings");
+
+  bool qoi_analytical = false;
+  auto* qoi_analytical_ptr = app.add_option("--qoi_analytical", qoi_analytical, "QoI analytical.")
+                      ->group("Compression settings");
+
   std::string qoi_string = "x^2";
   auto* qoi_string_ptr = app.add_option("--qoi_string", qoi_string, "QoI string.")
                       ->group("Compression settings");
@@ -327,6 +335,11 @@ int main(int argc, char* argv[])
         encoder->set_qoi_tol(qoi_tol);
         encoder->set_qoi_block_size(qoi_block_size);
         encoder->set_qoi_k(qoi_k);
+        encoder->set_qoi_base(qoi_base);
+        encoder->set_qoi_analytical(qoi_analytical);
+    }
+    else{
+      encoder->set_qoi_id(0);
     }
 
     auto rtn = sperr::RTNType::Good;

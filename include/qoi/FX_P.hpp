@@ -175,7 +175,7 @@ namespace QoZ {
 
         } 
 
-        std::string get_expression() const{
+        std::string get_expression(const std::string var="x") const{
             return f1_string + " and " + f2_string;
 
         }

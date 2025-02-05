@@ -2,45 +2,52 @@
 // Created by Xin Liang on 12/06/2021.
 //
 
-#ifndef SZ_QOI_X_CUBIC_HPP
-#define SZ_QOI_X_CUBIC_HPP
+#ifndef SZ_QOI_X_SQRT_HPP
+#define SZ_QOI_X_SQRT_HPP
 
 #include <algorithm>
 #include <cmath>
 #include "QoI.hpp"
 
-
 namespace QoZ {
-    template<class T>
-    class QoI_X_Cubic : public concepts::QoIInterface<T> {
+    template<class T, uint N>
+    class QoI_X_Sqrt : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Cubic(double tolerance, T global_eb) : 
+        QoI_X_Sqrt(double tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T>::id = 9;
-           // std::cout<<"init 1 "<< std::endl;
-            
+            concepts::QoIInterface<T, N>::id = 10;
         }
 
         T interpret_eb(T data) const {
+            data = fabs(data);
+            double sqr = sqrt(data);
             
+            //if (data == 0)
+            //    return global_eb;
 
-            T eb = data >= 0 ? std::cbrt(data*data*data+tolerance)-data : data - std::cbrt(data*data*data-tolerance);
+            //double b = fabs(6*data);
+            //double a = fabs(0.5*b*data);//datatype may be T
+
+            
+            //T eb = (sqrt(a*a+2*b*tolerance)-a)/b;
+          
+            T eb = sqr >= tolerance ?  2*tolerance*sqr-tolerance*tolerance : 2*tolerance*sqr+tolerance*tolerance;
+            //eb = std::min (data,eb);
             return std::min(eb, global_eb);
         }
+
 
         T interpret_eb(const T * data, size_t offset) {
             return interpret_eb(*data);
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
-            //    return false;
             
-            return (fabs(data*data*data - dec_data*dec_data*dec_data) <= tolerance);
+            return (  fabs( sqrt(fabs(data))-sqrt(fabs(dec_data)) ) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -61,58 +68,65 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val*val; 
+            return sqrt(fabs(val));//todo
 
         } 
 
         std::string get_expression(const std::string var="x") const{
-            return var+"^3";
+            return "sqrt(|"+var+"|)";
         }
 
         void pre_compute(const T * data){}
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
         double get_qoi_tolerance() {return tolerance;}
-        
+
+
+
     private:
-
-
-
         double tolerance;
         T global_eb;
-     
+        
     };
 
-    template<class T>
-    class QoI_X_Cubic_Approx : public concepts::QoIInterface<T> {
+    template<class T, uint N>
+    class QoI_X_Sqrt_Approx : public concepts::QoIInterface<T, N> {
 
     public:
-        QoI_X_Cubic_Approx(double tolerance, T global_eb) : 
+        QoI_X_Sqrt_Approx(double tolerance, T global_eb) : 
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
             //printf("global_eb = %.4f\n", (double) global_eb);
-            concepts::QoIInterface<T>::id = 9;
-           // std::cout<<"init 1 "<< std::endl;
-            
+            concepts::QoIInterface<T, N>::id = 10;
         }
 
+        using Range = multi_dimensional_range<T, N>;
+        using iterator = typename multi_dimensional_range<T, N>::iterator;
+
         T interpret_eb(T data) const {
-            
-
             data = fabs(data);
-            double b = 6*data;
-            double a = 0.5*b*data;//datatype may be T
+            double sqr = sqrt(data);
+            
+            if (data <= 1e-10){
+               T eb = tolerance*tolerance;
+               return std::min(eb, global_eb);
+            }
 
+            double a = 0.5/sqr;
+            double b = a*0.5/data;//datatype may be T
+
+            
             T eb;
-            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and b >= 1e-10 )
+            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >= 1e-10 )
                 eb = (sqrt(a*a+2*b*tolerance)-a)/b;
             else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
                 eb = tolerance/a;
             else 
                 eb = global_eb;
           
-            //T eb = data >= 0 ? std::cbrt(data*data*data+tolerance)-data : data - std::cbrt(data*data*data-tolerance);
+            //T eb = sqr >= tolerance ?  2*tolerance*sqr-tolerance*tolerance : 2*tolerance*sqr+tolerance*tolerance;
+            //eb = std::min (data,eb);
             return std::min(eb, global_eb);
         }
 
@@ -121,10 +135,8 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            //if(isolated and (data-thresold)*(dec_data-thresold)<0)//maybe can remove
-            //    return false;
             
-            return (fabs(data*data*data - dec_data*dec_data*dec_data) <= tolerance);
+            return (  fabs( sqrt(fabs(data))-sqrt(fabs(dec_data)) ) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}
@@ -145,27 +157,23 @@ namespace QoZ {
 
         double eval(T val) const{
             
-            return val*val*val; 
+            return sqrt(fabs(val));//todo
 
         } 
 
         std::string get_expression(const std::string var="x") const{
-            return var+"^3";
+            return "sqrt(|"+var+"|)";
         }
 
         void pre_compute(const T * data){}
 
         void set_qoi_tolerance(double tol) {tolerance = tol;}
         double get_qoi_tolerance() {return tolerance;}
-        
+
     private:
-
-
-
         double tolerance;
         T global_eb;
-     
+        
     };
-
 }
 #endif 

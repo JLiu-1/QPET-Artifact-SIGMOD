@@ -8,6 +8,7 @@
 #define SPERR3D_OMP_C_H
 
 #include "SPECK3D_FLT.h"
+#include "qoi/QoI.hpp"
 
 namespace sperr {
 
@@ -24,7 +25,10 @@ class SPERR3D_OMP_C {
   void set_tolerance(double);
   void set_bitrate(double);
   void set_qoi_id(int);
+  void set_qoi_meta(const QoZ::QoIMeta &);
   void set_qoi_string(std::string);
+  void set_qoi_base(double);
+  void set_qoi_analytical(bool);
   void set_qoi_tol(double);
   void set_qoi_block_size(int);
   void set_qoi_k(double);
@@ -47,7 +51,8 @@ class SPERR3D_OMP_C {
   dims_type m_dims = {0, 0, 0};        // Dimension of the entire volume
   dims_type m_chunk_dims = {0, 0, 0};  // Preferred dimensions for a chunk
   std::vector<vec8_type> m_encoded_streams;
-  int qoi_id = 0;
+  //int qoi_id = 0;
+  QoZ::QoIMeta qoi_meta;
   std::string qoi_string = "x^2";
   double qoi_tol = 0.0;
   //double block_qoi_tol = 0.0;

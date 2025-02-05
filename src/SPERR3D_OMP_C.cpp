@@ -60,6 +60,11 @@ void sperr::SPERR3D_OMP_C::set_direct_q(double q)
 }
 #endif
 
+void sperr::SPERR3D_OMP_C::set_qoi_meta(const QoZ::QoIMeta &q)
+{
+  qoi_meta = q_id;
+}
+
 void sperr::SPERR3D_OMP_C::set_qoi_id(int q_id)
 {
   qoi_id = q_id;
