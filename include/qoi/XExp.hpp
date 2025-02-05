@@ -94,7 +94,7 @@ namespace QoZ {
     class QoI_X_Exp_Approx : public concepts::QoIInterface<T> {
 
     public:
-        QoI_X_Exp_Approx(double tolerance, T global_eb) : 
+        QoI_X_Exp_Approx(double tolerance, T global_eb, double base = std::exp(1)) : 
                 tolerance(tolerance),
                 global_eb(global_eb), base(base) {
             // TODO: adjust type for int data
