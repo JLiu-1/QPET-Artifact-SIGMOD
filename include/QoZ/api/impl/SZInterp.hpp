@@ -94,7 +94,9 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
             double best_abs_eb = conf.absErrorBound;
             double best_ratio = current_ratio;
             // check smaller bounds
-            while(true){
+            int iter = 0;
+            int max_iter = 100; 
+            while(iter++<max_iter){
                 auto prev_eb = conf.absErrorBound;
                 prev_ratio = current_ratio;
                 conf.absErrorBound /= 2;
