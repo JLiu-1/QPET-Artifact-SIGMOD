@@ -77,10 +77,10 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            double q_ori = eval(data);
+            double q_ori = pow(data,alpha);
             if (std::isnan(q_ori) or std::isinf(q_ori))
                 return data == dec_data;
-            double q_dec = eval(dec_data);
+            double q_dec = pow(dec_data,alpha);
             if (std::isnan(q_dec) or std::isinf(q_dec))
                 return false;
 
@@ -176,10 +176,10 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            double q_ori = eval(data);
+            double q_ori = pow(data,alpha);
             if (std::isnan(q_ori) or std::isinf(q_ori))
                 return data == dec_data;
-            double q_dec = eval(dec_data);
+            double q_dec = pow(dec_data,alpha);
             if (std::isnan(q_dec) or std::isinf(q_dec))
                 return false;
 

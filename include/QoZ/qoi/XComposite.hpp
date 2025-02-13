@@ -17,6 +17,7 @@
 #include "XPower.hpp"
 #include "XSin.hpp"
 #include "XExp.hpp"
+#include "XTanh.hpp"
 #include "XLin.hpp"
 #include "XSqrt.hpp"
 #include "XAbs.hpp"

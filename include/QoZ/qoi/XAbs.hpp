@@ -43,7 +43,7 @@ namespace QoZ {
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
-            return (fabs(eval(data) - eval(dec_data)) <= tolerance);
+            return (fabs(std::abs(data) - std::abs(dec_data)) <= tolerance);
         }
 
         void update_tolerance(T data, T dec_data){}

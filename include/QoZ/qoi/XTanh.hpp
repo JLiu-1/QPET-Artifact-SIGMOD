@@ -165,7 +165,7 @@ namespace QoZ {
 
         } 
         std::string get_expression(const std::string var="x") const{
-            return "sin("+var+")";
+            return "Tanh("+var+")";
         }
 
         void pre_compute(const T * data){}
