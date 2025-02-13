@@ -965,8 +965,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                 if( (confs[j].qoiRegionMode == 0 or (confs[j].qoiRegionMode == 1 and confs[j].qoiRegionSize >= 3)) and  min_abs_eb >= 0.95 * best_abs_eb ){//may fix
                     confs[j].use_global_eb = true;
-                    ori_ebs[j].clear();
-                    ori_ebs[j].shrink_to_fit();
+                    //ori_ebs[j].clear();
+                    //ori_ebs[j].shrink_to_fit();
                     //conf.qoiPtr = qoi;
                 }
 
@@ -1060,8 +1060,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
 
                 if( (confs[j].qoiRegionMode == 0 or (confs[j].qoiRegionMode == 1 and confs[j].qoiRegionSize >= 3)) and min_abs_eb >= 0.95 * best_abs_eb ){//may fix
                     confs[j].use_global_eb = true;
-                    ori_ebs[j].clear();
-                    ori_ebs[j].shrink_to_fit();
+                    //ori_ebs[j].clear();
+                    //ori_ebs[j].shrink_to_fit();
                     //conf.qoiPtr = qoi;
                 }
                 best_overall_br+=8*sizeof(T)/(3*best_ratio);
