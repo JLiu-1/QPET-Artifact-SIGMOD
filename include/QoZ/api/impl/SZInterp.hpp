@@ -539,7 +539,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             if (max_abs < cur_abs) max_abs = cur_abs;
             if (min_abs > cur_abs) min_abs = cur_abs;
         }
-        if(qoi == 1 || qoi == 3){
+        if(qoi == 1){
             // x^2
             // auto max_2 = max * max;
             // auto min_2 = min * min;
@@ -583,8 +583,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
                 conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
             }
         }
-        else if(qoi == 9){
-            // compute isovalues
+        else if(qoi == 13){
             double max_cubic = max * max * max;
             double min_cubic = min * min * min;
             conf.qoiEB *= (max_cubic - min_cubic);
@@ -596,6 +595,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             double max_abs_val = std::pow(2, max);
             double min_abs_val = std::pow(2, min);
             conf.qoiEB *= (max_abs_val - min_abs_val);
+        }
+        else if(qoi == 3 or qoi == 9){
+            //Using ABS 
         }
         else if(qoi >= 5){
             // (x^2) + (log x) + (isoline)

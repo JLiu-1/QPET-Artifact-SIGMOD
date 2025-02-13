@@ -76,7 +76,7 @@ namespace QoZ {
                 qois.push_back(std::make_shared<QoZ::QoI_Isoline<T, N>>(conf.dims, values, conf.absErrorBound));
                 return std::make_shared<QoZ::QoI_MultiQoIs<T, N>>(qois);            	
             }
-            case 9:{
+            case 13:{
                 return std::make_shared<QoZ::QoI_X_Cubic<T, N>>(conf.qoiEB, conf.absErrorBound);
 
             }
@@ -87,6 +87,10 @@ namespace QoZ {
                 return std::make_shared<QoZ::QoI_X_Lin<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 12:
                 return std::make_shared<QoZ::QoI_X_Exp<T, N>>(conf.qoiEB, conf.absErrorBound,conf.qoiLogBase);
+            case 9:{
+                if(!conf.lorenzo && !conf.lorenzo2) return std::make_shared<QoZ::QoI_RegionalAverageInterp<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims);
+                else return std::make_shared<QoZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
+            }
         }
         return NULL;
     }
