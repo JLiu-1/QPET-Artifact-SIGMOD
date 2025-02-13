@@ -6,9 +6,9 @@
 #define SZ_QOI_REGIONAL_AVERAGE_HPP
 
 #include <algorithm>
-#include "SZ3/def.hpp"
-#include "SZ3/qoi/QoI.hpp"
-#include "SZ3/utils/Iterator.hpp"
+#include "QoZ/def.hpp"
+#include "QoZ/qoi/QoI.hpp"
+#include "QoZ/utils/Iterator.hpp"
 
 namespace QoZ {
     template<class T, uint N>
