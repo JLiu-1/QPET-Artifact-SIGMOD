@@ -643,12 +643,12 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         if(conf.qoiEBLogBase == 0)
             conf.qoiEBLogBase = 2;        
         // update eb base
-        if(qoi != 4 && qoi != 7) conf.qoiEBBase = (max - min) * qoi_rel_eb / 1030;
+        
         std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
         conf.qoiEBMode = QoZ::EB_ABS;
 
     }
-    
+    if(qoi != 4 && qoi != 7) conf.qoiEBBase = conf.qoiEB / 1030;
     conf.qoi_tuned = true;
 
 }
