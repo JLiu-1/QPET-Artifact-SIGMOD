@@ -1508,6 +1508,7 @@ double Tuning(QoZ::Config &conf, T *data){
             }
             if (useInterp){
                 conf.cmprAlgo=QoZ::ALGO_INTERP;
+                
             }
             else{
                 conf.cmprAlgo=QoZ::ALGO_LORENZO_REG;
@@ -1819,7 +1820,8 @@ char *SZ_compress_Interp_lorenzo(QoZ::Config &conf, T *data, size_t &outSize) {
             std::cout << "Tuning time = " << tuning_time << "s" << std::endl;
             std::cout << "====================================== END TUNING ======================================" << std::endl;
         }
-
+        conf.lorenzo = false;
+        conf.lorenzo2 = false;
             
         return SZ_compress_Interp<T, N>(conf, data, outSize);        
 
