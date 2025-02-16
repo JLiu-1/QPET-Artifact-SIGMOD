@@ -645,7 +645,6 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     if(algo==QoZ::ALGO_LORENZO_REG)    {
         bitrate*=testConfig.lorenzoBrFix;
     }
-    delete sz;
     return std::pair<double,double>(bitrate,metric);
 }
 
