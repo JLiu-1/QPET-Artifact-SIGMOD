@@ -446,7 +446,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     std::vector<size_t> q_bin_counts;
     std::vector<T> flattened_cur_blocks;
     size_t idx=0;   
-    QoZ::concepts::CompressorInterface<T> *sz;
+    std::shared_ptr<QoZ::concepts::CompressorInterface<T>> sz;
     size_t totalOutSize=0;
     std::vector<T> final_offsets;  
     std::shared_ptr<QoZ::concepts::QoIInterface<T, N> > qoi;
@@ -469,7 +469,7 @@ std::pair<double,double> CompressTest(const QoZ::Config &conf,const std::vector<
     }
     else if(algo == QoZ::ALGO_INTERP){
 
-        sz =  new QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd>(
+        sz =  std::make_shared< QoZ::SZInterpolationCompressor<T, N, QoZ::LinearQuantizer<T>, QoZ::HuffmanEncoder<int>, QoZ::Lossless_zstd> >(
                         QoZ::LinearQuantizer<T>(testConfig.absErrorBound),
                         QoZ::HuffmanEncoder<int>(),
                         QoZ::Lossless_zstd());
@@ -886,6 +886,16 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         else{//average
+
+            if(conf.QoZ==0){
+                conf.error_std_rate = 2.0;
+                conf.confidence=0.99999;
+            }
+            else{
+                conf.error_std_rate = 2.0;
+                conf.confidence=0.999;
+            }
+
             conf.regionalQoIeb=conf.qoiEB;//store original regional eb
             double num_blocks = 1;
             double num_elements = 1;
