@@ -541,41 +541,21 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             if (max_abs < cur_abs) max_abs = cur_abs;
             if (min_abs > cur_abs) min_abs = cur_abs;
         }
-        if(qoi == 1){
+        if(qoi == 1 || qoi == 3  ){
             // x^2
-            // auto max_2 = max * max;
-            // auto min_2 = min * min;
-            // double max_abs_val = (max_2 > min_2) ? max_2 : min_2;
-            // double min_abs_val = (max_2 > min_2) ? min_2 : max_2;
-            // if(min< 0) min_abs_2 = 0;
-            // else min_abs_2 = min_abs_val;
-            // conf.qoiEB *= (max_abs_val - min_abs_2);
-            conf.qoiEB *= (max_abs*max_abs - min_abs*min_abs);
-
-            printf("qoiEB = %f\n", conf.qoiEB);
+            auto max_2 = max * max;
+            auto min_2 = min * min;
+            auto max_abs_val = (max_2 > min_2) ? max_2 : min_2;
+            conf.qoiEB *= max_abs_val;
         }
-        else if(qoi == 2){
-            // log x
-            double max_log, min_log, cur_log; 
-            max_log = std::numeric_limits<double>::lowest(); 
-            min_log = std::numeric_limits<double>::max(); 
-            double log_base = log(2);
-            for (size_t i = 0; i < conf.num; i++) {
-                if(data[i] == 0){
-                    continue;
-                }
-                cur_log = log(fabs(data[i])); 
-                if (max_log < cur_log) max_log = cur_log;
-                if (min_log > cur_log) min_log = cur_log;
-            }
-            conf.qoiEB *= (max_log - min_log)/log_base;
-
+        else if(qoi == 9){
+            // regional average
+            // conf.qoiEB *= max - min;
+            conf.qoiEB = conf.qoiEB; 
+            qoi_rel_eb = conf.qoi_rel_eb;
+            // abslute error bound here for qoi 
+            // conf.absErrorBound = conf.qoiEB;
         }
-        // else if(qoi == 3){
-        //     // regional average
-        //     conf.qoiEB *= max - min;
-        //     conf.absErrorBound = conf.qoiEB;
-        // }
         else if(qoi == 4){
             // compute isovalues
             conf.isovalues.clear();
@@ -584,22 +564,6 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             for(int i=0; i<isonum; i++){
                 conf.isovalues.push_back(min + (i + 1) * 1.0 / (isonum + 1) * range);
             }
-        }
-        else if(qoi == 13){
-            double max_cubic = max * max * max;
-            double min_cubic = min * min * min;
-            conf.qoiEB *= (max_cubic - min_cubic);
-        }
-        else if(qoi == 10){
-            conf.qoiEB *= (sqrt(max_abs)  - sqrt(min_abs));
-        }
-        else if(qoi == 12){
-            double max_abs_val = std::pow(2, max);
-            double min_abs_val = std::pow(2, min);
-            conf.qoiEB *= (max_abs_val - min_abs_val);
-        }
-        else if(qoi == 3 or qoi == 9){
-            //Using ABS 
         }
         else if(qoi >= 5){
             // (x^2) + (log x) + (isoline)
@@ -644,7 +608,6 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             conf.qoiEBLogBase = 2;        
         // update eb base
         if(qoi != 4 && qoi != 7) conf.qoiEBBase = (max - min) * qoi_rel_eb / 1030;
-        if(qoi == 2) conf.qoiEBBase = (max - min) * qoi_rel_eb / 1030;
         if(qoi == 2) conf.qoiEBBase = 1e-3;
         
         std::cout << conf.qoi << " " << conf.qoiEB << " " << conf.qoiEBBase << " " << conf.qoiEBLogBase << " " << conf.qoiQuantbinCnt << std::endl;
