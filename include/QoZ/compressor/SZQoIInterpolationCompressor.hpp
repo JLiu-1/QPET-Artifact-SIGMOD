@@ -595,8 +595,9 @@ namespace QoZ {
             quantizer_eb.postcompress_data();
             quantizer.save(buffer_pos);
             quantizer.postcompress_data();
-            //quantizer.clear();
-            encoder.preprocess_encode(quant_inds, 0);
+            quantizer.clear();
+            quantizer_eb.clear();
+            //encoder.preprocess_encode(quant_inds, 0);
             encoder.save(buffer_pos);
             encoder.encode(quant_inds, buffer_pos);
             encoder.postprocess_encode();       
@@ -636,8 +637,9 @@ namespace QoZ {
             quantizer_eb.postcompress_data();
             quantizer.save(buffer_pos);
             quantizer.postcompress_data();
-            //quantizer.clear();
-            encoder.preprocess_encode(quant_inds, 0);
+            quantizer.clear();
+            quantizer_eb.clear();
+            //encoder.preprocess_encode(quant_inds, 0);
             encoder.save(buffer_pos);
             encoder.encode(quant_inds, buffer_pos);
             encoder.postprocess_encode(); 
