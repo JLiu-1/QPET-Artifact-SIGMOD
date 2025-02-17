@@ -104,7 +104,7 @@ namespace QoZ {
                 exit(0);
             }
             init(bins, num_bin);
-            std::cout<<"preE"<<std::endl;
+            //std::cout<<"preE"<<std::endl;
             for (int i = 0; i < huffmanTree->stateNum; i++)
                 if (huffmanTree->code[i]) nodeCount++;
             nodeCount = nodeCount * 2 - 1;
@@ -141,7 +141,7 @@ namespace QoZ {
 
         //perform encoding
         size_t encode(const T *bins, size_t num_bin, uchar *&bytes) {
-            std::cout<<"E"<<std::endl;
+            //std::cout<<"E"<<std::endl;
             size_t outSize = 0;
             size_t i = 0;
             unsigned char bitSize = 0, byteSize, byteSizep;
@@ -221,7 +221,7 @@ namespace QoZ {
         }
 
         void postprocess_encode() {
-            std::cout<<"postE"<<std::endl;
+            //std::cout<<"postE"<<std::endl;
             SZ_FreeHuffman();
         }
 
