@@ -1203,8 +1203,8 @@ void QoI_tuning(std::array<QoZ::Config,3> &confs, std::array<T *,3> &data){
                 best_overall_br = cur_overall_br;
                 for(auto j:{0,1,2}){
                     confs[j].use_global_eb=true;
-                    ori_ebs[j].clear();
-                    ori_ebs[j].shrink_to_fit();
+                    //ori_ebs[j].clear();
+                    //ori_ebs[j].shrink_to_fit();
                 }
 
             }
