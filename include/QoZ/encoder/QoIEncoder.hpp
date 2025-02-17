@@ -40,6 +40,7 @@ namespace QoZ {
          */
         void preprocess_encode(const std::vector<T> &bins, int stateNum) {
             size_t num_elements = bins.size() / 2;
+            //std::cout<<"ppe "<<num_elements<<" "<<stateNum<<std::endl;
             eb_encoder.preprocess_encode(bins.data(), num_elements, stateNum);
             data_encoder.preprocess_encode(bins.data() + num_elements, num_elements, stateNum);
         }

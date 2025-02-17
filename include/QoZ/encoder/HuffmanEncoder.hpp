@@ -97,12 +97,14 @@ namespace QoZ {
          * @param stateNum is no longer needed
          */
         void preprocess_encode(const T *bins, size_t num_bin, int stateNum) {
+
             nodeCount = 0;
             if (num_bin == 0) {
                 printf("Huffman bins should not be empty\n");
                 exit(0);
             }
             init(bins, num_bin);
+            std::cout<<"preE"<<std::endl;
             for (int i = 0; i < huffmanTree->stateNum; i++)
                 if (huffmanTree->code[i]) nodeCount++;
             nodeCount = nodeCount * 2 - 1;
@@ -139,6 +141,7 @@ namespace QoZ {
 
         //perform encoding
         size_t encode(const T *bins, size_t num_bin, uchar *&bytes) {
+            std::cout<<"E"<<std::endl;
             size_t outSize = 0;
             size_t i = 0;
             unsigned char bitSize = 0, byteSize, byteSizep;
@@ -218,6 +221,7 @@ namespace QoZ {
         }
 
         void postprocess_encode() {
+            std::cout<<"postE"<<std::endl;
             SZ_FreeHuffman();
         }
 
@@ -518,7 +522,7 @@ namespace QoZ {
          * @param size_t length (input)
          * */
         void init(const T *s, size_t length) {
-            
+    
             T max = s[0];
             offset = s[0]; //offset is min
 
@@ -538,6 +542,7 @@ namespace QoZ {
             }
 
             int stateNum = max - offset + 2;
+            //std::cout<<"huff "<<length<<" "<<stateNum<<std::endl;
             huffmanTree = createHuffmanTree(stateNum);
 
             for (const auto &f: frequency) {
