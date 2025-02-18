@@ -550,9 +550,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
         else if(qoi == 9){
             // regional average
-            // conf.qoiEB *= max - min;
-            conf.qoiEB = conf.qoiEB; 
-            qoi_rel_eb = conf.qoi_rel_eb;
+             conf.qoiEB *= max - min;
+            //conf.qoiEB = conf.qoiEB; 
+            //qoi_rel_eb = conf.qoi_rel_eb;
             // abslute error bound here for qoi 
             // conf.absErrorBound = conf.qoiEB;
         }
