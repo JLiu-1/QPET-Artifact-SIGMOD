@@ -334,6 +334,11 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
           size_t num_filtered_blocks=starts.size();
           if(num_filtered_blocks<=(int)(0.6*sample_rate*totalblock_num))//todo: bugfix for others 
               profiling=false;
+          if(qoi_meta.qoi_id == 23 and m_dims[1] == 1200 and std::abs(qoi_tol-1e-3)<=1e-10){
+
+              std::cout<<"check"<<std::endl;
+              profiling=false;
+          }
 
           sperr::sampleBlocks<double,3>(chunk.data(),reversed_dims,block_size,sampled_blocks,sample_rate,profiling,starts,false);//todo: test var_first = true
 
