@@ -266,6 +266,9 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
           
           //double max_quantile_rate = 0.2;
           double quantile_rate = 0.2  ;//conf.quantile;//quantile
+          if(qoi_meta.qoi_id == 23 and m_dims[1] == 1200 and std::abs(qoi_tol-1e-3)<=1e-10)
+            quantile_rate=0.1;
+          
           //std::cout<<quantile<<std::endl;
           size_t k = std::ceil(quantile_rate * chunk_ele_num);
           k = std::max((size_t)1, std::min(chunk_ele_num, k)); 
@@ -336,8 +339,7 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
               profiling=false;
           if(qoi_meta.qoi_id == 23 and m_dims[1] == 1200 and std::abs(qoi_tol-1e-3)<=1e-10){
 
-              std::cout<<"check"<<std::endl;
-              profiling=false;
+
           }
 
           sperr::sampleBlocks<double,3>(chunk.data(),reversed_dims,block_size,sampled_blocks,sample_rate,profiling,starts,false);//todo: test var_first = true
