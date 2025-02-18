@@ -191,6 +191,7 @@ namespace QoZ {
                     return std::make_shared<QoZ::QoI_X_Sin_Approx<T, N>>(conf.qoiEB, conf.absErrorBound);
             }
             case 23:{
+                std::cout<<conf.analytical<<std::endl;
                 if(conf.analytical)
                     return std::make_shared<QoZ::QoI_X_Tanh<T, N>>(conf.qoiEB, conf.absErrorBound);
                 else
