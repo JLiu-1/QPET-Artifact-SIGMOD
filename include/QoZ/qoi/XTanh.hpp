@@ -108,8 +108,8 @@ namespace QoZ {
                 tolerance(tolerance),
                 global_eb(global_eb) {
             // TODO: adjust type for int data
-            printf("global_eb = %.4f\n", (double) global_eb);
-            printf("tolerance = %.4f\n", (double) tolerance );
+            //printf("global_eb = %.4f\n", (double) global_eb);
+            //printf("tolerance = %.4f\n", (double) tolerance );
             concepts::QoIInterface<T, N>::id = 23;
         }
 
@@ -122,7 +122,7 @@ namespace QoZ {
             double a = 1-t*t;
             double b = fabs(2*a*t);
             T eb = 0;
-            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and b >=1e-9)
+            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and b >=1e-10)
                 eb = (sqrt(a*a+2*b*tolerance)-a)/b;
             if(eb==0){
                 if (!std::isnan(a) and !std::isinf(a) and a!=0 )
