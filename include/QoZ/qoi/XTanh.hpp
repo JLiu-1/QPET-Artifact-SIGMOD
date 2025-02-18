@@ -127,7 +127,7 @@ namespace QoZ {
                 eb = tolerance/a;
             else 
                 eb = global_eb;
-            if(eb <=1e-20){
+            if(eb <=1e-10){
                 std::cout<<data<<" "<<tolerance<<" "<<a<<" "<<b<<std::endl;
             }
            
