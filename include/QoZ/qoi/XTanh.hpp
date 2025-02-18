@@ -122,8 +122,9 @@ namespace QoZ {
             double a = 1-t*t;
             double b = fabs(2*a*t);
             T eb;
-            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b)and b >= 1e-10 )
-                eb = (sqrt(a*a+2*b*tolerance)-a)/b;
+            double temp = 2*b*tolerance;
+            if(!std::isnan(a) and !std::isnan(b) and !std::isinf(a) and !std::isinf(b) and temp > 0 )
+                eb = (sqrt(a*a+temp)-a)/b;
             else if (!std::isnan(a) and !std::isinf(a) and a!=0 )
                 eb = tolerance/a;
             else 
