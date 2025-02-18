@@ -129,7 +129,7 @@ namespace QoZ {
             else 
                 eb = global_eb;
             if(eb ==0){
-                std::cout<<data<<" "<<tolerance<<" "<<a<<" "<<b<<std::endl;
+                std::cout<<data<<" "<<tolerance<<" "<<a<<" "<<b<<" "<<eb<<std::endl;
             }
            
             return std::min(eb, global_eb);
