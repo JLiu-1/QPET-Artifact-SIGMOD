@@ -885,7 +885,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         else{//average
-
+            /*
             if(conf.QoZ==0){
                 conf.error_std_rate = 2.0;
                 conf.confidence=0.99999;
@@ -893,7 +893,7 @@ void QoI_tuning(QoZ::Config &conf, T *data){
             else{
                 conf.error_std_rate = 2.0;
                 conf.confidence=0.999;
-            }
+            }*/
 
             conf.regionalQoIeb=conf.qoiEB;//store original regional eb
             double num_blocks = 1;
