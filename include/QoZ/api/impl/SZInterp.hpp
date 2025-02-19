@@ -800,7 +800,9 @@ void QoI_tuning(QoZ::Config &conf, T *data){
     
     auto qoi = QoZ::GetQOI<T, N>(conf);
     //std::cout<<"getting"<<std::endl;
+    double rel_qoi_err = 0.0;
     if(conf.qoiEBMode !=QoZ::EB_ABS){//rel
+        rel_qoi_err = conf.qoiEB;
         /*
          if ((conf.qoi == 11) or (conf.qoi == 14 and conf.qoi_string == "x")){//todo: add analyze qoi_string is linear
         //conf.qoi = 0;
@@ -885,15 +887,29 @@ void QoI_tuning(QoZ::Config &conf, T *data){
         }
 
         else{//average
-            /*
+            
             if(conf.QoZ==0){
-                conf.error_std_rate = 2.0;
+                if(rel_qoi_err<=1e-3)
+                    conf.error_std_rate = 2.0;
+                else if (rel_qoi_err<=5e-3)
+                    conf.error_std_rate = 1.5 + 0.5*(rel_qoi_err-1e-3)/(5e-2-1e-3);
+                else if (rel_qoi_err<=1e-2)
+                    conf.error_std_rate = 1 + 0.5*(rel_qoi_err-5e-3)/(1e-2-5e-3);
+                else
+                    conf.error_std_rate = 1.0;
                 conf.confidence=0.99999;
             }
             else{
-                conf.error_std_rate = 2.0;
+                if(rel_qoi_err<=1e-3)
+                    conf.error_std_rate = 2.0;
+                else if (rel_qoi_err<=5e-3)
+                    conf.error_std_rate = 1.732 + 0.268*(rel_qoi_err-1e-3)/(5e-2-1e-3);
+                else if (rel_qoi_err<=1e-2)
+                    conf.error_std_rate = 1.5 + 0.232*(rel_qoi_err-5e-3)/(1e-2-5e-3);
+                else
+                    conf.error_std_rate = 1.5;
                 conf.confidence=0.999;
-            }*/
+            }
 
             conf.regionalQoIeb=conf.qoiEB;//store original regional eb
             double num_blocks = 1;
