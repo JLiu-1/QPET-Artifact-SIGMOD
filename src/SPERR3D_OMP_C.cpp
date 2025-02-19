@@ -169,6 +169,9 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
 
         double q = 0.999;
 
+        if(((qoi_meta.qoi_id == 1 and qoi_meta.qoi_string == "x^3") or qoi_meta.qoi_id == 9 ) and qoi_block_size <=4)
+          qoi_k = 2.0;
+
         rate = estimate_rate_Hoeffdin(num_elements,1,q,qoi_k);
         //std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
         
