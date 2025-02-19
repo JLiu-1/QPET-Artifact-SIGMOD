@@ -167,7 +167,8 @@ auto sperr::SPERR3D_OMP_C::compress(const T* buf, size_t buf_len) -> RTNType
             num_blocks *= (m_dims[i] - 1) / qoi_block_size + 1;
         }
 
-        double q = 0.999;
+        double q = 0.9999;
+
         rate = estimate_rate_Hoeffdin(num_elements,1,q,qoi_k);
         //std::cout<<num_elements<<" "<<num_blocks<<" "<<conf.error_std_rate<<" "<<rate<<std::endl;
         
