@@ -284,6 +284,7 @@ namespace QoZ {
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
             tol_estimation = cfg.GetInteger("QoISettings", "tol_estimation", tol_estimation);
             qoiRegionMode = cfg.GetInteger("QoISettings", "qoiRegionMode", qoiRegionMode);
+            qoi_rel_eb = cfg.GetReal("QoISettings", "qoi_rel_eb", 0.001);
 
 
 
