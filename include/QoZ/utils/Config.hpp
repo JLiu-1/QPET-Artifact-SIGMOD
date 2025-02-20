@@ -284,7 +284,7 @@ namespace QoZ {
             error_std_rate = cfg.GetReal("QoISettings", "error_std_rate", error_std_rate);
             tol_estimation = cfg.GetInteger("QoISettings", "tol_estimation", tol_estimation);
             qoiRegionMode = cfg.GetInteger("QoISettings", "qoiRegionMode", qoiRegionMode);
-            qoi_rel_eb = cfg.GetReal("QoISettings", "qoi_rel_eb", 0.001);
+            qoi_rel_eb = cfg.GetReal("QoISettings", "qoi_rel_eb", qoi_rel_eb);
 
 
 
@@ -579,7 +579,7 @@ namespace QoZ {
         int qoiRegionMode = 0; //0:no region 1: average 1:laplacian 2: gradient 
 
         bool use_global_eb = false;
-         double qoi_rel_eb = 0.001; 
+        double qoi_rel_eb = 0.001; 
 
         //std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoiPtr = nullptr;
 

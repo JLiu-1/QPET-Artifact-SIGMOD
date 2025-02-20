@@ -135,11 +135,12 @@ namespace QoZ {
             // accumulated_error[block_id] += data * data - dec_data * dec_data;
             accumulated_error[block_id] += data - dec_data;
             rest_elements[block_id] --;
+            /*
             if(accumulated_error[block_id] > aggregated_tolerance[block_id]){
                 printf("%d: %.4e / %.4e\n", block_id, accumulated_error[block_id], aggregated_tolerance[block_id]);
                 printf("%d / %d\n", rest_elements[block_id], block_elements[block_id]);
                 exit(-1);
-            }
+            }*/
         }
 
         bool check_compliance(T data, T dec_data, bool verbose=false) const {
