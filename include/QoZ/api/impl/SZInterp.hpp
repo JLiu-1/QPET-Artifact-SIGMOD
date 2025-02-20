@@ -104,7 +104,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
                 size_t sampleOutSize;
                 memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
                 // reset variables for average of square
-                if(conf.qoi == 3) qoi->init();
+                if(conf.qoi == 3 or conf.qoi == 9) qoi->init();
                 auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
                 sz.clear();
                 delete[]cmprData;
@@ -126,7 +126,7 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
             qoi->set_global_eb(best_abs_eb);
             conf.setDims(dims.begin(), dims.end());
             // reset dimensions and variables for average of square
-            if(conf.qoi == 3){
+            if(conf.qoi == 3 or conf.qoi == 9){
                 qoi->set_dims(dims);
                 qoi->init();
             }
