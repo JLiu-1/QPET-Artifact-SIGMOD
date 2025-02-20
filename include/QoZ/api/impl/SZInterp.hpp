@@ -75,14 +75,14 @@ char *SZ_compress_Interp(QoZ::Config &conf, T *data, size_t &outSize) {
 
             T * sampling_data = (T *) malloc(sampling_num * sizeof(T));
             // reset dimensions for average of square
-            if(conf.qoi == 3) qoi->set_dims(sample_dims);
+            if(conf.qoi == 3 or conf.qoi == 9) qoi->set_dims(sample_dims);
             // get current ratio
             double ratio = 0;
             {
                 size_t sampleOutSize;
                 memcpy(sampling_data, samples.data(), sampling_num * sizeof(T));
                 // reset variables for average of square
-                if(conf.qoi == 3) qoi->init();
+                if(conf.qoi == 3 or conf.qoi == 9) qoi->init();
                 auto cmprData = sz.compress(conf, sampling_data, sampleOutSize);
                 sz.clear();
                 delete[]cmprData;
