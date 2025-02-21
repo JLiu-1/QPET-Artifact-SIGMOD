@@ -242,7 +242,7 @@ namespace QoZ {
 
         // quantize the data with a prediction value, and returns the quantization index
         int quantize(T eb) {
-            if(eb <= eb_base or eb >= global_eb){
+            if(eb <= eb_base){
                 //eb = 0;
                 return 0;
             }
