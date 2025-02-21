@@ -253,14 +253,16 @@ namespace QoZ {
         // quantize the error bound, and returns the quantization index and the decompressed data
         int quantize_and_overwrite(T &eb) {
             // std::cout << eb << " ";
-            if(eb <= eb_base or eb >= global_eb){
-                eb = global_eb;
+            if(eb <= eb_base){
+                eb = 0;
                 return 0;
             }
+            if(eb > global_eb)
+                eb = global_eb
             int id = log2(eb * eb_base_reciprocal) * log_of_base_reciprocal;
             // need to check if id = 0
             if(id == 0){
-                eb = global_eb;
+                eb = 0;
                 return 0;
             }
             id = std::min(id, radius);
@@ -271,8 +273,7 @@ namespace QoZ {
         // recover the error bound using the quantization index
         T recover(int quant_index) {
             if (quant_index == 0) {
-                //return 0;
-                return global_eb; 
+                return 0;
             } else {
                 return pow(log_base, quant_index) * eb_base;
             }
