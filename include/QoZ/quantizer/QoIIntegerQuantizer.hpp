@@ -258,7 +258,7 @@ namespace QoZ {
                 return 0;
             }
             if(eb > global_eb)
-                eb = global_eb
+                eb = global_eb;
             int id = log2(eb * eb_base_reciprocal) * log_of_base_reciprocal;
             // need to check if id = 0
             if(id == 0){
