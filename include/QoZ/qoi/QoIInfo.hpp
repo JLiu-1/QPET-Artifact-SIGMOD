@@ -33,6 +33,7 @@ namespace QoZ {
         auto qoi_id = conf.qoi;
         auto qoiLogBase = conf.qoiLogBase;
         auto qoi_string = conf.qoi_string;
+        auto qoi_string_2 = conf.qoi_string_2;
         if(qoi_id == 14 and conf.QoIdispatch){
             if(qoi_string == "x^2" or qoi_string == "x**2")
                 qoi_id = 1;
