@@ -60,7 +60,7 @@ namespace QoZ {
             else if (qoi_string == "sinx" or qoi_string == "sin(x)" or qoi_string == "Sinx" or qoi_string == "Sin(x)")
                 meta.qoi_id = 22;
             else if (qoi_string == "sin10x" or qoi_string == "sin(10x)" or qoi_string == "Sin10x" or qoi_string == "Sin(10x)"){
-                qoi_id = 20;
+                meta.qoi_id = 20;
                 qoi_string = "11 1 0 22";
             }
             else if (qoi_string == "tanhx" or qoi_string == "tanh(x)" or qoi_string == "Tanhx" or qoi_string == "Tanh(x)")
