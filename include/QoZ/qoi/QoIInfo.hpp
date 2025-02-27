@@ -32,15 +32,15 @@ namespace QoZ {
     std::shared_ptr<concepts::QoIInterface<T, N>> GetQOI(const Config &conf){
         auto qoi_id = conf.qoi;
         auto qoiLogBase = conf.qoiLogBase;
+        auto qoi_string = conf.qoi_string;
         if(qoi_id == 14 and conf.QoIdispatch){
-            auto qoi_string = conf.qoi_string;
             if(qoi_string == "x^2" or qoi_string == "x**2")
                 qoi_id = 1;
             else if(qoi_string == "logx" or qoi_string == "log(x)" or qoi_string == "Logx" or qoi_string == "Log(x)" or qoi_string == "lnx" or qoi_string == "ln(x)" or qoi_string == "Lnx" or qoi_string == "Ln(x)"){
                 qoi_id = 2;
                 qoiLogBase = std::exp(1.0);
             }
-            else if(qoi_string == "log2(x)"  or qoi_string == "Log2(x)"){
+            else if(qoi_string == "log2(x)"  or qoi_string == "Log2(x)"  or qoi_string == "Log(x,2)"  or qoi_string == "log(x,2)"){
                 qoi_id = 2;
                 qoiLogBase = 2.0;
             }
@@ -65,6 +65,10 @@ namespace QoZ {
                 qoi_id = 19;
             else if (qoi_string == "sinx" or qoi_string == "sin(x)" or qoi_string == "Sinx" or qoi_string == "Sin(x)")
                 qoi_id = 22;
+            else if (qoi_string == "sin10x" or qoi_string == "sin(10x)" or qoi_string == "Sin10x" or qoi_string == "Sin(10x)"){
+                qoi_id = 20;
+                qoi_string = "11 1 0 22";
+            }
             else if (qoi_string == "tanhx" or qoi_string == "tanh(x)" or qoi_string == "Tanhx" or qoi_string == "Tanh(x)")
                 qoi_id = 23;
 
@@ -160,17 +164,17 @@ namespace QoZ {
                     return std::make_shared<QoZ::QoI_X_Recip_Approx<T, N>>(conf.qoiEB, conf.absErrorBound);
             }
             case 14:
-                return std::make_shared<QoZ::QoI_FX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
+                return std::make_shared<QoZ::QoI_FX<T, N>>(conf.qoiEB, conf.absErrorBound, qoi_string, conf.isolated, conf.threshold);
             case 15:
-                return std::make_shared<QoZ::QoI_FX_P<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.qoi_string_2, conf.threshold, conf.isolated);
+                return std::make_shared<QoZ::QoI_FX_P<T, N>>(conf.qoiEB, conf.absErrorBound, qoi_string, qoi_string_2, conf.threshold, conf.isolated);
 
             case 16:{
-                return std::make_shared<QoZ::QoI_RegionalFX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims, conf.qoi_string, conf.error_std_rate, conf.isolated, conf.threshold);
+                return std::make_shared<QoZ::QoI_RegionalFX<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoiRegionSize, conf.dims, qoi_string, conf.error_std_rate, conf.isolated, conf.threshold);
                 
                 // return std::make_shared<QoZ::QoI_RegionalAverage<T, N>>(conf.qoiEB, conf.absErrorBound);
             }
             case 17:
-                return std::make_shared<QoZ::QoI_FX_ABS<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
+                return std::make_shared<QoZ::QoI_FX_ABS<T, N>>(conf.qoiEB, conf.absErrorBound, qoi_string, conf.isolated, conf.threshold);
             case 18:{
                 if(conf.analytical)
                     return std::make_shared<QoZ::QoI_X_Power<T, N>>(conf.qoiEB, conf.absErrorBound,qoiLogBase);
@@ -181,9 +185,9 @@ namespace QoZ {
             case 19:
                 return std::make_shared<QoZ::QoI_X_Abs<T, N>>(conf.qoiEB, conf.absErrorBound);
             case 20:
-                return std::make_shared<QoZ::QoI_X_Composite<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.analytical);
+                return std::make_shared<QoZ::QoI_X_Composite<T, N>>(conf.qoiEB, conf.absErrorBound, qoi_string, conf.analytical);
             case 21:
-                return std::make_shared<QoZ::QoI_FX_New<T, N>>(conf.qoiEB, conf.absErrorBound, conf.qoi_string, conf.isolated, conf.threshold);
+                return std::make_shared<QoZ::QoI_FX_New<T, N>>(conf.qoiEB, conf.absErrorBound, qoi_string, conf.isolated, conf.threshold);
             case 22:{
                 if(conf.analytical)
                     return std::make_shared<QoZ::QoI_X_Sin<T, N>>(conf.qoiEB, conf.absErrorBound);

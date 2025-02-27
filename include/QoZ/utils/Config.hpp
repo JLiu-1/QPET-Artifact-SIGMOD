@@ -586,8 +586,8 @@ namespace QoZ {
         bool use_global_eb = false;
         double qoi_lin_A = 1.0;
         double qoi_lin_B = 0.0;
-        bool analytical = true;
-        bool QoIdispatch = false;
+        bool analytical = false;
+        bool QoIdispatch = true;
 
         //std::shared_ptr<QoZ::concepts::QoIInterface<T, N>> qoiPtr = nullptr;
 
