@@ -25,6 +25,7 @@ namespace QoZ {
     std::shared_ptr<concepts::QoIInterface<T> > GetQOI(QoIMeta &meta, double qoiEB, double absErrorBound){
         auto analytical = meta.analytical;
         auto qoi_string = meta.qoi_string;
+        auto qoi_string_2 = meta.qoi_string_2;
         if(meta.qoi_id == 14){
             
             if(qoi_string == "x^2" or qoi_string == "x**2")
