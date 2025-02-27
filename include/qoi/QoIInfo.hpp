@@ -22,8 +22,50 @@
 namespace QoZ {
 
     template<class T>
-    std::shared_ptr<concepts::QoIInterface<T> > GetQOI(const QoIMeta &meta, double qoiEB, double absErrorBound){
+    std::shared_ptr<concepts::QoIInterface<T> > GetQOI(QoIMeta &meta, double qoiEB, double absErrorBound){
         auto analytical = meta.analytical;
+        auto qoi_string = meta.qoi_string;
+        if(meta.qoi_id == 14){
+            
+            if(qoi_string == "x^2" or qoi_string == "x**2")
+                meta.qoi_id = 1;
+            else if(qoi_string == "logx" or qoi_string == "log(x)" or qoi_string == "Logx" or qoi_string == "Log(x)" or qoi_string == "lnx" or qoi_string == "ln(x)" or qoi_string == "Lnx" or qoi_string == "Ln(x)"){
+                meta.qoi_id = 2;
+                meta.qoi_base = std::exp(1.0);
+            }
+            else if(qoi_string == "log2(x)"  or qoi_string == "Log2(x)"  or qoi_string == "Log(x,2)"  or qoi_string == "log(x,2)"){
+                meta.qoi_id = 2;
+                meta.qoi_base = 2.0;
+            }
+
+            else if (qoi_string == "x^3" or qoi_string == "x**3")
+                meta.qoi_id = 9;
+            else if (qoi_string == "x^0.5" or qoi_string == "x**0.5" or qoi_string == "x**1/2" or qoi_string == "x^1/2" or qoi_string == "sqrt(x)" or qoi_string == "Sqrt(x)")
+                meta.qoi_id = 10;
+            //temp do not dispath lin beacuse it is preprocessed in compressor. Todo: dispatch lin.
+            else if (qoi_string == "2^x" or qoi_string == "2**x"){
+                meta.qoi_id = 12;
+                meta.qoi_base= 2.0;
+            }
+            else if (qoi_string == "e^x" or qoi_string == "e**x" or qoi_string == "E**x" or qoi_string == "E^x"){
+                meta.qoi_id = 12;
+                meta.qoi_base= std::exp(1.0);
+            }
+            else if (qoi_string == "1/x" or qoi_string == "x**-1" or qoi_string == "x^-1")
+                meta.qoi_id = 13;
+            //todo: dispatch x^n
+            else if (qoi_string == "|x|")
+                meta.qoi_id = 19;
+            else if (qoi_string == "sinx" or qoi_string == "sin(x)" or qoi_string == "Sinx" or qoi_string == "Sin(x)")
+                meta.qoi_id = 22;
+            else if (qoi_string == "sin10x" or qoi_string == "sin(10x)" or qoi_string == "Sin10x" or qoi_string == "Sin(10x)"){
+                qoi_id = 20;
+                qoi_string = "11 1 0 22";
+            }
+            else if (qoi_string == "tanhx" or qoi_string == "tanh(x)" or qoi_string == "Tanhx" or qoi_string == "Tanh(x)")
+                meta.qoi_id = 23;
+
+        }
         switch(meta.qoi_id){
             case 1:
                 return std::make_shared<QoZ::QoI_X_Square<T>>(qoiEB, absErrorBound);
@@ -62,12 +104,12 @@ namespace QoZ {
                     return std::make_shared<QoZ::QoI_X_Recip_Approx<T>>(qoiEB, absErrorBound);
             }
             case 14:
-                return std::make_shared<QoZ::QoI_FX<T>>(qoiEB, absErrorBound, meta.qoi_string, meta.isolated, meta.threshold);
+                return std::make_shared<QoZ::QoI_FX<T>>(qoiEB, absErrorBound, qoi_string, meta.isolated, meta.threshold);
             case 15:
-                return std::make_shared<QoZ::QoI_FX_P<T>>(qoiEB, absErrorBound, meta.qoi_string, meta.qoi_string_2, meta.threshold, meta.isolated);
+                return std::make_shared<QoZ::QoI_FX_P<T>>(qoiEB, absErrorBound, qoi_string, qoi_string_2, meta.threshold, meta.isolated);
 
             case 17:
-                return std::make_shared<QoZ::QoI_FX_ABS<T>>(qoiEB, absErrorBound, meta.qoi_string, meta.isolated, meta.threshold);
+                return std::make_shared<QoZ::QoI_FX_ABS<T>>(qoiEB, absErrorBound, qoi_string, meta.isolated, meta.threshold);
             case 18:{
                 if(analytical)
                     return std::make_shared<QoZ::QoI_X_Power<T>>(qoiEB, absErrorBound,meta.qoi_base);
@@ -78,7 +120,7 @@ namespace QoZ {
             case 19:
                 return std::make_shared<QoZ::QoI_X_Abs<T>>(qoiEB, absErrorBound);
             case 20:
-                return std::make_shared<QoZ::QoI_X_Composite<T>>(qoiEB, absErrorBound, meta.qoi_string, analytical);
+                return std::make_shared<QoZ::QoI_X_Composite<T>>(qoiEB, absErrorBound, qoi_string, analytical);
             case 22:{
                 if(analytical)
                     return std::make_shared<QoZ::QoI_X_Sin<T>>(qoiEB, absErrorBound);
