@@ -6,11 +6,13 @@ This **main** branch includes the overall readme and the evaluation results. Cod
 
 
 ## QPET-integrated Compression Codes and Evaluation
-**Important:** Please check the other branches for artifact codes and evaluation instructions (the codes are frozen before the submission deadline).
+**Important:** Please check the other branches for artifact codes and evaluation instructions (the codes are frozen before the submission and revision deadline).
+
+There are two sets of branches. Branch names without **revision** are codes for the initial submission, and Branch names ending with **revision** are codes for the revision submission.
 
 ## Supplementary Evaluation Results
 
-The **QPET_Appendix.pdf** (partially done, in construction) contains a complete appendix of QPET experimental results.
+The **QPET_Appendix.pdf** contains a complete appendix of QPET experimental results.
 
 ## Baselines
 Baseline compressors are available at:
@@ -19,6 +21,7 @@ Baseline compressors are available at:
 * HPEZ: https://github.com/JLiu-1/HPEZ
 * SPERR: https://github.com/NCAR/SPERR
 * QoI-SZ3: https://github.com/jpcoding/SZ3/tree/vldb_test_version
+* QoI-HPEZ: https://github.com/JLiu-1/HPEZ-QoZ2.0/tree/qoi_v22
 
 ## Datasets and Toolkits
 Datasets and assessment toolkits are at [SDRBench](https://sdrbench.github.io/).
