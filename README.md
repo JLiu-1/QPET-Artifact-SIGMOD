@@ -16,7 +16,7 @@ The **QPET_Appendix.pdf** contains a complete appendix of QPET experimental resu
 Baseline compressors are available at:
 
 * SZ3: https://github.com/szcompressor/SZ3
-* HPEZ: https://github.com/JLiu-1/HPEZ-QoZ2.0
+* HPEZ: https://github.com/szcompressor/QoZ
 * SPERR: https://github.com/NCAR/SPERR
 * QoI-SZ3: https://github.com/jpcoding/SZ3/tree/vldb_test_version
 * QoI-HPEZ: In the **qoi_hpez** branch.
