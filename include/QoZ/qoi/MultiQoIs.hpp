@@ -1,6 +1,4 @@
-//
-// Created by Xin Liang on 03/26/2022.
-//
+
 
 #ifndef SZ_QOI_MULTI_HPP
 #define SZ_QOI_MULTI_HPP
