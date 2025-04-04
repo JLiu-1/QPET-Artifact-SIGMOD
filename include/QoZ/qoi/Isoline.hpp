@@ -1,6 +1,3 @@
-//
-// Created by Xin Liang on 03/23/2022.
-//
 
 #ifndef SZ_QOI_ISOLINE_HPP
 #define SZ_QOI_ISOLINE_HPP

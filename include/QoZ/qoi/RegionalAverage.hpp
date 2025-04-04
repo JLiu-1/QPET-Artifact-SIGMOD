@@ -1,6 +1,4 @@
-//
-// Created by Xin Liang on 03/09/2021.
-//
+
 
 #ifndef SZ_QOI_REGIONAL_AVERAGE_HPP
 #define SZ_QOI_REGIONAL_AVERAGE_HPP

@@ -1,6 +1,3 @@
-//
-// Created by Xin Liang on 03/09/2022.
-//
 
 #ifndef SZ_QOI_XLOG_X_HPP
 #define SZ_QOI_XLOG_X_HPP

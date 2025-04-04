@@ -1,6 +1,3 @@
-//
-// Created by Xin Liang on 12/07/2021.
-//
 
 #ifndef SZ_QOI_SQUARED_ERROR_HPP
 #define SZ_QOI_SQUARED_ERROR_HPP
